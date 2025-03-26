@@ -93,25 +93,3 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND.
 ```
 
 Please attribute this work when used in derivative projects.
-                               
-░                                       
-░                                       
-░                       ░               
-░                                       
-░                      ░                
-░                          ░            
-░                                       
-░      ░                  ░             
-░      ░      ░   ░         ░    ░      
-░      ░                                
-░      ░                           ░ ░  
-░                                       
-░                                       
-░                                       
-                                        
-                                        
- ░                             ░        
-  ░                           ░         
-                                        
-                                        
-        ░                              
