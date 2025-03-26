@@ -15,6 +15,7 @@ import argparse
 # ------------------------------------------------------------------------------
 
 # Configure log file for debugging and error tracking
+# (Note: logging is not used in this script, but may be useful for debugging)
 logging.basicConfig(
     filename="scanner_tool.log",
     level=logging.DEBUG,
@@ -26,7 +27,7 @@ logging.basicConfig(
 # ------------------------------------------------------------------------------
 
 # Maps scanner model names to their respective adapter classes
-SCANNER_ADAPTERS = {
+SCANNER_ADAPTERS = { # if your scanner adapter is not listed here, add it here
     "BC125AT": BC125ATAdapter(),
     "BCD325P2": BCD325P2Adapter(),
     "SDS100": SDS100Adapter(),
@@ -36,22 +37,28 @@ SCANNER_ADAPTERS = {
 # ------------------------------------------------------------------------------
 # HELP COMMAND
 # ------------------------------------------------------------------------------
-
+# This function is used to display help for a given command.
+# If no command is given, it lists available commands.
+# If the command matches a high-level command (e.g., 'read volume'), it uses COMMAND_HELP.
+# If connected to a scanner and help is not found above, it attempts to fetch help from the device-specific command library.
+# If no help is found, it prints "No help found for '{command}'."
+# If an error occurs while fetching device-specific help, it prints "[Error fetching device-specific help]: {e}".
+# This function is used in the main_loop function.
 def show_help(COMMANDS, COMMAND_HELP, command="", adapter=None):
-    """
-    Displays help for a given command.
-
-    - If no command is given: lists available commands
-    - If command matches a high-level command (e.g. 'read volume'), uses COMMAND_HELP
-    - If connected to a scanner and help is not found above, attempts to fetch help from the device-specific command library
-    """
+    # Display general help if no command is provided
+    # Display help for a specific command if provided
     if not command:
         print("\nAvailable commands:")
         for cmd in sorted(COMMANDS):
             print(f"  - {cmd}")
         print("\nType 'help <command>' for details.")
         return
-
+    # Display help for a specific command
+    # If the command is in COMMAND_HELP, print the help message
+    # If the command is not in COMMAND_HELP, attempt to fetch device-specific help via adapter.getHelp("CMD")
+    # If no help is found, print "No help found for '{command}'."
+    # If an error occurs while fetching device-specific help, print "[Error fetching device-specific help]: {e}".
+    
     cmd = command.strip().lower()
     if cmd in COMMAND_HELP:
         print(f"\nHelp for '{cmd}':\n  {COMMAND_HELP[cmd]}")
@@ -72,6 +79,10 @@ def show_help(COMMANDS, COMMAND_HELP, command="", adapter=None):
 # ------------------------------------------------------------------------------
 # COMMAND PARSER
 # ------------------------------------------------------------------------------
+# This function is used to parse user input into a command and its arguments.
+# It supports aliases like 'get' → 'read' and 'set' → 'write'.  
+# This function is used in the main_loop function.
+# The parse_command function takes two arguments: input_str and COMMANDS.
 
 def parse_command(input_str, COMMANDS):
     """
@@ -153,16 +164,19 @@ def main():
         return
 
     print("Scanners detected:")
-    for idx, (port, model) in enumerate(detected, 1):
-        print(f"  {idx}. {port} — {model}")
+    for scannerPortIndex, (port, model) in enumerate(detected, 1):
+        print(f"  {scannerPortIndex}. {port} — {model}")
 
     # Prompt user to select a scanner from the detected list
     try:
-        selection = int(input("\nSelect a scanner to connect to (enter number or 0 to exit): "))
-        if selection == 0:
+        if scannerPortIndex == 1:
+            selection = 1  # only one scanner found, auto-select
+        else:  # multiple scanners found, prompt user to select        
+            selection = int(input("\nSelect a scanner to connect to (enter number or 0 to exit): "))
+        if selection == 0: # 0 to exit
             print("Exiting.")
             return
-        if 1 <= selection <= len(detected):
+        if 1 <= selection <= len(detected): 
             port, scanner_model = detected[selection - 1]
         else:
             print("Invalid selection.")
@@ -172,6 +186,7 @@ def main():
         return
 
     # Open serial connection to the selected scanner
+    # Use the scanner model to select the appropriate adapter
     try:
         with serial.Serial(port, 115200, timeout=1) as ser:
             adapter = SCANNER_ADAPTERS.get(scanner_model)

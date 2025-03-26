@@ -1,4 +1,4 @@
-from scannerLibrary.bc125atCommandLibrary import commands
+from scannerLibrary.bcd325p2CommandLibrary import commands
 from scannerUtils import send_command
 from scannerAdapters.baseAdapter import BaseScannerAdapter
 import scannerLibrary.bc125atCommandLibrary
@@ -50,10 +50,10 @@ class BC125ATAdapter(BaseScannerAdapter):
                     elif "ERR" in response or "NG" in response:
                         invalid_streak += 1
                     else:
-                        f.write(f"# Unexpected: {response}\n")
+                        f.write(f"⚠️ # Unexpected: {response}\n")
                         invalid_streak += 1
                     if invalid_streak >= MAX_INVALID:
-                        return self.feedback(False, f"\nAborted early — {MAX_INVALID} invalids.")
+                        return self.feedback(False, f"⚠️ \nAborted early — {MAX_INVALID} invalids.")
                     update_progress(i, total_steps)
             send_command(ser, "EPG")
             return self.feedback(True, f"{valid_count} MRD entries written to {filename}")
@@ -91,7 +91,7 @@ class BC125ATAdapter(BaseScannerAdapter):
                     return self.feedback(False, f"⚠️ Entered {freq_str} MHz, but PWR returned {actual_freq:.5f} MHz")
             return self.feedback(False, f"⚠️ PWR returned unexpected: {response}")
         except Exception as e:
-            return self.feedback(False, f"[enterFrequencyHold Error] {e}")
+            return self.feedback(False, f"⚠️ [enterFrequencyHold Error] {e}")
 
     def writeKeyBeep(self, ser, level=99, lock=0):
         try:
@@ -119,7 +119,7 @@ class BC125ATAdapter(BaseScannerAdapter):
             response = send_command(ser, commands["VOL"].buildCommand(scaled))
             return self.feedback("OK" in response, f"✅ Volume set to {value:.2f} → {response}")
         except Exception as e:
-            return self.feedback(False, f"[writeVolume Error] {e}")
+            return self.feedback(False, f"⚠️ [writeVolume Error] {e}")
 
     def readSquelch(self, ser):
         try:

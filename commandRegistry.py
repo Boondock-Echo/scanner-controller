@@ -30,6 +30,9 @@ def build_command_table(adapter, ser):
         # Status
         "read rssi": lambda: adapter.readRSSI(ser),
         "read smeter": lambda: adapter.readSMeter(ser),
+        "read battery": lambda: adapter.readBatteryVoltage(ser),
+        "read window": lambda: adapter.readWindowVoltage(ser),
+        "read status": lambda: adapter.readStatus(ser),
 
         # Device Info
         "read model": lambda: adapter.readModel(ser),
@@ -40,48 +43,59 @@ def build_command_table(adapter, ser):
 
         # Raw Command
         "send": lambda arg: send_command(ser, arg),
-        
+
         # Frequency Hold
         "hold frequency": lambda arg: adapter.enterFrequencyHold(ser, float(arg)),
 
-        # Dump Memory to File        
+        # Dump Memory to File
         "dump memory": lambda: adapter.dumpMemoryToFile(ser),
 
-        # 'help' is injected later in main.py
+        # Read Global Lockouts
+        "read lockout": lambda: adapter.readGlobalLockout(ser),
+
+        # Channel I/O
+        "read channel": lambda arg: adapter.readChannelInfo(ser, int(arg)),
+        "write channel": lambda arg: (
+            lambda args: adapter.writeChannelInfo(
+                ser,
+                int(args[0]),  # index
+                args[1],       # name
+                int(args[2]),  # freq_khz
+                args[3],       # mod
+                int(args[4]),  # ctcss
+                int(args[5]),  # delay
+                int(args[6]),  # lockout
+                int(args[7])   # priority
+            )
+        )(arg.split(",")),
+
+        # Help gets added in main.py after this table is built
     }
 
     COMMAND_HELP = {
-        # Volume
-        "read volume": "Reads the current volume level from the scanner.",
-        "write volume": "Sets the volume level. Usage: write volume <0–15>",
-
-        # Squelch
-        "read squelch": "Reads the current squelch level.",
-        "write squelch": "Sets the squelch level. Usage: write squelch <0–15>",
-
-        # Frequency
-        "read frequency": "Reads the current tuned frequency.",
-        "write frequency": "Sets the frequency (MHz). Usage: write frequency <freq>",
-
-        # Status
-        "read rssi": "Reads signal strength (RSSI).",
+        "read volume": "Reads the current volume level.",
+        "write volume": "Sets volume level (0-1.0). Usage: write volume 0.75",
+        "read squelch": "Reads the squelch level.",
+        "write squelch": "Sets squelch (0-1.0). Usage: write squelch 0.5",
+        "read frequency": "Reads the currently tuned frequency (if supported).",
+        "write frequency": "Sets the frequency (MHz). Usage: write frequency 162.550",
+        "read rssi": "Reads the signal strength (RSSI).",
         "read smeter": "Reads the S-meter value.",
-
-        # Info
-        "read model": "Returns the scanner model (e.g., BC125AT).",
+        "read battery": "Returns the battery voltage (V).",
+        "read window": "Returns the window voltage and frequency.",
+        "read status": "Returns full scanner display state and flags.",
+        "read model": "Returns the scanner model.",
         "read version": "Returns the firmware version.",
-
-        # Key simulation
-        "send key": "Simulates a keypress. Usage: send key <sequence>",
-
-        # Raw command access
-        "send": "Sends a raw serial command to the scanner. Usage: send <COMMAND>",
-
-        # Dump Memory
-        "dump memory": "Reads all data and sends it to a .txt file.",
-  
-        # Help
-        "help": "Lists all available commands, or use 'help <command>' for details.",
+        "send key": "Simulates keypad input. Usage: send key 123E",
+        "send": "Sends a raw command. Usage: send PWR",
+        "hold frequency": "Enters a frequency hold mode. Usage: hold frequency 851.0125",
+        "dump memory": "Reads all memory entries via CIN and saves to file.",
+        "read lockout": "Lists global lockout frequencies.",
+        "read channel": "Reads a channel by index. Usage: read channel 5",
+        "write channel": (
+            "Writes channel info. Usage: write channel index,name,freq_khz,mod,ctcss,delay,lockout,priority\n"
+            "Example: write channel 5,CH5,4625625,FM,100,2,0,1"
+        ),
     }
 
     return COMMANDS, COMMAND_HELP
