@@ -62,7 +62,7 @@ class BC125ATAdapter(BaseScannerAdapter):
             except: pass
             return self.feedback(False, f"[Memory Dump Error] {e}")
 
-    def enterFrequencyHold(self, ser, freq_mhz):
+    def enter_quick_frequency_hold(self, ser, freq_mhz):
         try:
             send_command(ser, "PRG")
             time.sleep(0.2)
@@ -91,7 +91,7 @@ class BC125ATAdapter(BaseScannerAdapter):
                     return self.feedback(False, f"⚠️ Entered {freq_str} MHz, but PWR returned {actual_freq:.5f} MHz")
             return self.feedback(False, f"⚠️ PWR returned unexpected: {response}")
         except Exception as e:
-            return self.feedback(False, f"⚠️ [enterFrequencyHold Error] {e}")
+            return self.feedback(False, f"⚠️ [enter_quick_frequency_hold Error] {e}")
 
     def writeKeyBeep(self, ser, level=99, lock=0):
         try:

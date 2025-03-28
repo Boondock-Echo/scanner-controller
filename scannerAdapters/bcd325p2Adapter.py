@@ -191,7 +191,7 @@ class BCD325P2Adapter(BaseScannerAdapter):
             except: pass
             return self.feedback(False, f"⚠️\t[Memory Dump Error] {e}")
 
-    def enterFrequencyHold(self, ser, freq_mhz):
+    def enter_quick_frequency_hold(self, ser, freq_mhz):
         # example: QSH,00893000,,FMB,0,0,,0,1011111111111111,0,,1,0,0
         # example: QSH,00893000
         try:
@@ -203,7 +203,7 @@ class BCD325P2Adapter(BaseScannerAdapter):
                 return self.feedback(True, f"Entered frequency hold at {freq_str} MHz")
             return self.feedback(False, f"⚠️\tFailed to enter frequency hold: {response}")
         except Exception as e:
-            return self.feedback(False, f"⚠️\t[enterFrequencyHold Error] {e}")
+            return self.feedback(False, f"⚠️\t[enter_quick_frequency_hold Error] {e}")
 
     def readGlobalLockout(self, ser):
         try:

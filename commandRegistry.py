@@ -45,7 +45,7 @@ def build_command_table(adapter, ser):
         "send": lambda arg: send_command(ser, arg),
 
         # Frequency Hold
-        "hold frequency": lambda arg: adapter.enterFrequencyHold(ser, float(arg)),
+        "hold frequency": lambda arg: adapter.enter_quick_frequency_hold(ser, float(arg)),
 
         # Dump Memory to File
         "dump memory": lambda: adapter.dumpMemoryToFile(ser),
