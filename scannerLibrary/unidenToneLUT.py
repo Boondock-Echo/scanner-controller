@@ -38,7 +38,7 @@ def validate_ctcss(value):
     elif isinstance(value, str):
         value = value.strip().upper().replace(" HZ", "HZ")
         if not value.endswith("HZ"):
-            value += "Hz"
+            value += "HZ"
 
     if value in CTCSS_reverse_LUT:
         return CTCSS_reverse_LUT[value]
@@ -57,8 +57,8 @@ def validate_dcs(value):
         raise ValueError(f"Invalid DCS code: {value}")
 
     value = str(value).strip().upper()
-    if not value.startswith("DCS "):
-        value = f"DCS {value.zfill(3)}"
+    if not value.startswith("DCS"):
+        value = f"DCS{value.zfill(3)}"
 
     if value in DCS_reverse_LUT:
         return DCS_reverse_LUT[value]
