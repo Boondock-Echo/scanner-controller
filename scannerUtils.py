@@ -20,7 +20,7 @@ class ScannerCommand:
         self.validator = validator
         self.parser = parser
         self.requires_prg = requires_prg
-        self.help = help  # ✅ Add this line
+        self.help = help  # optional help text
 
     def buildCommand(self, value=None):
         if value is None:
