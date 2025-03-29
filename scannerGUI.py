@@ -1,162 +1,175 @@
-# scannerGUI.py — Hybrid GUI for Scanner Control
-
-import tkinter as tk
-from tkinter import ttk, messagebox
-import serial
-import time
-
-from scannerUtils import findAllScannerPorts
-from commandLibrary import (
-    getScannerInterface,
-    readVolume, writeVolume,
-    readSquelch, writeSquelch,
-    readFrequency, writeFrequency,
-    readRSSI, readSMeter,
-    readModel, readSWVer
+import sys
+from PyQt6.QtWidgets import (
+    QApplication, QWidget, QPushButton, QLabel, QVBoxLayout,
+    QGridLayout, QHBoxLayout, QSlider, QProgressBar, QFrame, QComboBox
 )
+from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtGui import QFont
+import serial
+from commandLibrary import getScannerInterface
+from scannerUtils import findAllScannerPorts
 
-class ScannerGUI:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Scanner Control")
+BAUDRATE = 115200
+
+class ScannerGUI(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Scanner Faceplate GUI")
+        self.setStyleSheet("background-color: #222; color: white;")
+        self.font_main = QFont("Courier", 16)
+        self.font_lcd = QFont("Courier", 18, QFont.Weight.Bold)
+
         self.ser = None
-        self.scanner_model = None
-        self.scanner_interface = None
+        self.adapter = None
+        self.scanner_ports = findAllScannerPorts()
 
-        self.port_combo = ttk.Combobox(self.root, state="readonly", width=40)
-        self.connect_button = ttk.Button(self.root, text="Connect", command=self.connect_to_scanner)
-        # Moved to build_connection_ui
+        self.initUI()
+        if self.scanner_ports:
+            self.connectScanner(self.scanner_ports[0][0], self.scanner_ports[0][1])
+            self.updateDisplay()
 
-        self.volume_slider = None
-        self.squelch_slider = None
-        self.command_entry = None
-        self.response_text = None
+            self.timer = QTimer()
+            self.timer.timeout.connect(self.updateDisplay)
+            self.timer.start(3000)
 
-        self.build_connection_ui()
+    def initUI(self):
+        layout = QVBoxLayout()
 
-    def build_connection_ui(self):
-        self.status_label = ttk.Label(self.root, text="No scanner connected.")
-        ttk.Label(self.root, text="Select Scanner Port:").pack(pady=5)
-        detected = findAllScannerPorts()
-        ports = [f"{port} — {model}" for port, model in detected]
-        self.ports_map = {f"{port} — {model}": (port, model) for port, model in detected}
+        # Dropdown to select scanner
+        self.portSelector = QComboBox()
+        for port, model in self.scanner_ports:
+            self.portSelector.addItem(f"{model} ({port})", (port, model))
+        self.portSelector.currentIndexChanged.connect(self.onPortSelected)
+        layout.addWidget(self.portSelector)
 
-        self.port_combo["values"] = ports or ["No scanners found"]
-        if ports:
-            self.port_combo.current(0)
-        else:
-            self.port_combo.config(state="disabled")
-        self.port_combo.pack(pady=5)
-        self.connect_button.pack(pady=5)
-        # Will be re-created in build_connection_ui
+        # Header label
+        self.modelLabel = QLabel("Model: ---")
+        self.modelLabel.setFont(self.font_main)
+        layout.addWidget(self.modelLabel, alignment=Qt.AlignmentFlag.AlignCenter)
 
-    def connect_to_scanner(self):
-        selection = self.port_combo.get()
-        if selection not in self.ports_map:
-            return
+        # LCD-style display
+        self.display = QLabel("Freq: -----.--- MHz")
+        self.display.setFont(self.font_lcd)
+        self.display.setStyleSheet("background-color: #333; padding: 8px;")
+        layout.addWidget(self.display, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        port, model = self.ports_map[selection]
+        # RSSI bar
+        self.rssiBar = QProgressBar()
+        self.rssiBar.setRange(0, 100)
+        self.rssiBar.setTextVisible(True)
+        self.rssiBar.setFormat("RSSI: %p%")
+
+        # Squelch bar
+        self.squelchBar = QProgressBar()
+        self.squelchBar.setRange(0, 100)
+        self.squelchBar.setTextVisible(True)
+        self.squelchBar.setFormat("SQL: %p%")
+
+        barLayout = QVBoxLayout()
+        barLayout.addWidget(self.rssiBar)
+        barLayout.addWidget(self.squelchBar)
+        layout.addLayout(barLayout)
+
+        # Side buttons
+        sideButtonLayout = QHBoxLayout()
+        for label in ["Hold", "Scan", "L/O", "Menu", "Func"]:
+            btn = QPushButton(label)
+            btn.setFixedSize(80, 40)
+            btn.clicked.connect(lambda _, k=label: self.sendKey(k[0]))
+            sideButtonLayout.addWidget(btn)
+        layout.addLayout(sideButtonLayout)
+
+        # Sliders for Volume and Squelch in a compact layout
+        sliderLayout = QHBoxLayout()
+
+        volLayout = QVBoxLayout()
+        volLabel = QLabel("Vol")
+        volLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.volSlider = QSlider(Qt.Orientation.Vertical)
+        self.volSlider.setFixedHeight(80)
+        self.volSlider.setRange(0, 100)
+        self.volSlider.setValue(50)
+        self.volSlider.sliderReleased.connect(self.setVolume)
+        volLayout.addWidget(volLabel)
+        volLayout.addWidget(self.volSlider)
+        sliderLayout.addLayout(volLayout)
+
+        sqlLayout = QVBoxLayout()
+        sqlLabel = QLabel("SQL")
+        sqlLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.sqlSlider = QSlider(Qt.Orientation.Vertical)
+        self.sqlSlider.setFixedHeight(80)
+        self.sqlSlider.setRange(0, 100)
+        self.sqlSlider.setValue(30)
+        self.sqlSlider.sliderReleased.connect(self.setSquelch)
+        sqlLayout.addWidget(sqlLabel)
+        sqlLayout.addWidget(self.sqlSlider)
+        sliderLayout.addLayout(sqlLayout)
+
+        layout.addLayout(sliderLayout)
+
+        # Keypad grid
+        grid = QGridLayout()
+        keys = [
+            "1", "2", "3",
+            "4", "5", "6",
+            "7", "8", "9",
+            "<", "0", ">"
+        ]
+
+        for i, key in enumerate(keys):
+            btn = QPushButton(key)
+            btn.setFixedSize(60, 60)
+            btn.clicked.connect(lambda _, k=key: self.sendKey(k))
+            grid.addWidget(btn, i // 3, i % 3)
+
+        layout.addLayout(grid)
+        self.setLayout(layout)
+
+    def connectScanner(self, port, model):
+        if self.ser:
+            self.ser.close()
+        self.ser = serial.Serial(port, BAUDRATE, timeout=1)
+        self.adapter = getScannerInterface(model)
+        self.modelLabel.setText(f"Model: {model}")
+
+    def onPortSelected(self, index):
+        port, model = self.portSelector.itemData(index)
+        self.connectScanner(port, model)
+        self.updateDisplay()
+
+    def updateDisplay(self):
         try:
-            self.ser = serial.Serial(port, 115200, timeout=1)
-            self.scanner_model = model
-            self.scanner_interface = getScannerInterface(model)
-            self.status_label.config(text=f"Connected to {model} on {port}")
-            self.build_control_ui()
-        except Exception as e:
-            messagebox.showerror("Connection Error", str(e))
+            result = self.adapter.readFrequency(self.ser)
+            self.display.setText(result.split("\t")[-1])
+        except Exception:
+            self.display.setText("Freq: Error")
 
-    def build_control_ui(self):
-        for widget in self.root.winfo_children():
-            widget.destroy()
-
-        # Will be re-created in build_connection_ui
-
-        # Volume
-        ttk.Label(self.root, text="Volume").pack()
-        self.volume_slider = ttk.Scale(self.root, from_=0, to=1, orient=tk.HORIZONTAL, command=self.on_volume_change)
-        self.volume_slider.pack(fill=tk.X, padx=20)
         try:
-            vol = readVolume(self.ser, self.scanner_model)
-            if isinstance(vol, float):
-                self.volume_slider.set(vol)
-        except: pass
+            rssi = self.adapter.readRSSI(self.ser)
+            self.rssiBar.setValue(int(rssi * 100))
+        except Exception:
+            self.rssiBar.setValue(0)
 
-        # Squelch
-        ttk.Label(self.root, text="Squelch").pack()
-        self.squelch_slider = ttk.Scale(self.root, from_=0, to=1, orient=tk.HORIZONTAL, command=self.on_squelch_change)
-        self.squelch_slider.pack(fill=tk.X, padx=20)
         try:
-            squelch = readSquelch(self.ser, self.scanner_model)
-            if isinstance(squelch, float):
-                self.squelch_slider.set(squelch)
-        except: pass
+            value = self.sqlSlider.value()
+            self.squelchBar.setValue(value)
+        except Exception:
+            self.squelchBar.setValue(0)
 
-        # Command entry
-        ttk.Label(self.root, text="Command Entry (e.g., 'read volume', 'send key 123.'):").pack(pady=(10, 0))
-        self.command_entry = ttk.Entry(self.root, width=50)
-        self.command_entry.pack(pady=5)
-        ttk.Button(self.root, text="Send Command", command=self.on_send_command).pack()
+    def sendKey(self, key):
+        self.adapter.sendKey(self.ser, key)
 
-        # Response box
-        self.response_text = tk.Text(self.root, height=10, width=60)
-        self.response_text.pack(pady=10)
+    def setVolume(self):
+        value = self.volSlider.value() / 100.0
+        self.adapter.writeVolume(self.ser, value)
 
-    def on_volume_change(self, val):
-        try:
-            v = float(val)
-            response = writeVolume(self.ser, self.scanner_model, v)
-            self.log_response(f"Set volume → {response}")
-        except Exception as e:
-            self.log_response(f"[Volume Error] {e}")
-
-    def on_squelch_change(self, val):
-        try:
-            s = float(val)
-            response = writeSquelch(self.ser, self.scanner_model, s)
-            self.log_response(f"Set squelch → {response}")
-        except Exception as e:
-            self.log_response(f"[Squelch Error] {e}")
-
-    def on_send_command(self):
-        userInput = self.command_entry.get().strip().lower()
-        try:
-            if userInput == "read volume":
-                result = readVolume(self.ser, self.scanner_model)
-            elif userInput.startswith("write volume"):
-                value = float(userInput.split(" ", 2)[2])
-                result = writeVolume(self.ser, self.scanner_model, value)
-            elif userInput == "read squelch":
-                result = readSquelch(self.ser, self.scanner_model)
-            elif userInput.startswith("write squelch"):
-                value = float(userInput.split(" ", 2)[2])
-                result = writeSquelch(self.ser, self.scanner_model, value)
-            elif userInput == "read frequency":
-                result = readFrequency(self.ser, self.scanner_model)
-            elif userInput.startswith("write frequency"):
-                value = float(userInput.split(" ", 2)[2])
-                result = writeFrequency(self.ser, self.scanner_model, value)
-            elif userInput == "read rssi":
-                result = readRSSI(self.ser, self.scanner_model)
-            elif userInput == "read smeter":
-                result = readSMeter(self.ser, self.scanner_model)
-            elif userInput == "read model":
-                result = readModel(self.ser, self.scanner_model)
-            elif userInput == "read version":
-                result = readSWVer(self.ser, self.scanner_model)
-            elif userInput.startswith("send key"):
-                keySeq = userInput.split(" ", 2)[2]
-                result = getScannerInterface(self.scanner_model).sendKey(self.ser, keySeq)
-            else:
-                result = f"Unknown command: {userInput}"
-        except Exception as e:
-            result = f"[Command Error] {e}"
-        self.log_response(f"> {userInput}\n{result}\n")
-
-    def log_response(self, msg):
-        self.response_text.insert(tk.END, msg + "\n")
-        self.response_text.see(tk.END)
+    def setSquelch(self):
+        value = self.sqlSlider.value() / 100.0
+        self.adapter.writeSquelch(self.ser, value)
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = ScannerGUI(root)
-    root.mainloop()
+    app = QApplication(sys.argv)
+    gui = ScannerGUI()
+    gui.show()
+    sys.exit(app.exec())
