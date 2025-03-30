@@ -21,10 +21,7 @@ The following scanner models are supported through the `commandLibrary`:
 - **SDS100** / **SDS200**
 - **AOR-DV1**
 
-The code should work for pretty much any Uniden scanner and is abstracted enough to allow
-easy porting to other manufacturers as well.
-
-AR-DV1 development is paused while the device in in the shop for repairs.
+The code is designed to work with most Uniden scanners and is abstracted to allow easy porting to other manufacturers. Note that development for the AR-DV1 is paused while the device is under repair.
 
 ## Project Structure
 
@@ -48,10 +45,6 @@ scanner-controller/
 │   ├── scannerUtils.py            # Utility functions for serial communication
 │   ├── main.py                    # Entry point for the application
 │   └── __init__.py
-│
-├── oldgui/                        # Legacy GUI implementation
-│   ├── scannerGui.py
-│   └── scannerGuiOld.py.bak
 │
 ├── icons/                         # SVG icons for the GUI
 │   ├── rotary-knob.svg
