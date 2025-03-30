@@ -1,14 +1,28 @@
+# scannerGui.py
+
 import sys
 import time
+import os
+import serial
+
+
 from PyQt6.QtWidgets import (
-    QApplication, QWidget, QPushButton, QLabel, QVBoxLayout,
-    QGridLayout, QHBoxLayout, QSlider, QProgressBar, QFrame, QComboBox, QMessageBox
+    QWidget, QPushButton, QLabel, QVBoxLayout, QGroupBox,
+    QHBoxLayout, QSlider, QProgressBar, QComboBox, QMessageBox
 )
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QFont
-import serial
-from commandLibrary import getScannerInterface
-from scannerUtils import findAllScannerPorts
+
+
+from .audioControls import buildAudioControls
+from .displayGroup import buildDisplayGroup
+from .signalMeters import buildSignalMeters
+from .controlKeys import buildControlKeys
+from .keypad import buildKeypad
+from .rotaryKnob import buildRotaryKnob
+
+from scanner_gui.commandLibrary import getScannerInterface
+from scanner_gui.scannerUtils import findAllScannerPorts
 
 BAUDRATE = 115200
 
@@ -16,24 +30,8 @@ class ScannerGUI(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Scanner Faceplate GUI")
-        self.setStyleSheet("""
-            QWidget { background-color: #1e1e1e; color: white; }
-            QGroupBox { border: 1px solid #666; margin-top: 10px; }
-            QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 3px 0 3px; }
-            QPushButton {
-                background-color: #444;
-                border: 1px solid #888;
-                border-radius: 5px;
-                padding: 6px;
-            }
-            QPushButton:hover { background-color: #666; }
-            QProgressBar {
-                border: 1px solid #444;
-                border-radius: 3px;
-                text-align: center;
-            }
-            QProgressBar::chunk { background-color: limegreen; }
-        """)
+        self.loadStyleSheet(os.path.join(os.path.dirname(__file__), "style.qss"))
+
         self.font_main = QFont("Courier", 16)
         self.font_lcd = QFont("Courier", 18, QFont.Weight.Bold)
 
@@ -47,120 +45,81 @@ class ScannerGUI(QWidget):
 
         self.refresh_timer = QTimer()
         self.refresh_timer.timeout.connect(self.refreshScannerList)
-        self.refresh_timer.start(30000)  # 30 seconds
+        self.refresh_timer.start(10000)
 
         self.display_timer = QTimer()
         self.display_timer.timeout.connect(self.updateDisplay)
-        self.display_timer.start(500)  # 0.5 seconds
+        self.display_timer.start(250)
 
         self.refreshScannerList(initial=True)
+
+    def loadStyleSheet(self, path: str):
+        try:
+            with open(path, "r") as f:
+                self.setStyleSheet(f.read())
+        except Exception as e:
+            print(f"Warning: Could not load stylesheet: {e}")
 
     def initUI(self):
         outerLayout = QHBoxLayout()
 
-        # Left-side sliders in a group box
-        leftSliders = QVBoxLayout()
-        volLabel = QLabel("Vol")
-        volLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # Left Panel: Knob above sliders
         self.volSlider = QSlider(Qt.Orientation.Vertical)
-        self.volSlider.setRange(0, 100)
-        self.volSlider.setValue(50)
         self.volSlider.sliderReleased.connect(self.setVolume)
-        leftSliders.addWidget(volLabel)
-        leftSliders.addWidget(self.volSlider)
-
-        sqlLabel = QLabel("SQL")
-        sqlLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.sqlSlider = QSlider(Qt.Orientation.Vertical)
-        self.sqlSlider.setRange(0, 100)
-        self.sqlSlider.setValue(30)
         self.sqlSlider.sliderReleased.connect(self.setSquelch)
-        leftSliders.addWidget(sqlLabel)
-        leftSliders.addWidget(self.sqlSlider)
 
-        from PyQt6.QtWidgets import QGroupBox
-        audioGroup = QGroupBox("Audio")
-        audioGroup.setLayout(leftSliders)
-        outerLayout.addWidget(audioGroup)
+        leftPanel = QVBoxLayout()
+        leftPanel.addWidget(
+            buildRotaryKnob(
+                knobPressedCallback=lambda: self.sendKey("^"),
+                rotateLeftCallback=lambda: self.sendKey("<"),
+                rotateRightCallback=lambda: self.sendKey(">")
+            )
+        )
+        leftPanel.addWidget(buildAudioControls(self.volSlider, self.sqlSlider))
+        leftPanel.setAlignment(Qt.AlignmentFlag.AlignTop)
+        leftPanel.setSpacing(20)
+        outerLayout.addLayout(leftPanel)
 
+        # Right Panel: Everything else
         layout = QVBoxLayout()
-        portLayout = QHBoxLayout()
-        self.portSelector = QComboBox()
-        portLayout.addWidget(self.portSelector)
+
+        # Port selector
+        # Port selector: Connect button above dropdown, inside a QGroupBox
+        portLayout = QVBoxLayout()
+
         self.connectButton = QPushButton("Connect")
         self.connectButton.clicked.connect(self.manualConnect)
         portLayout.addWidget(self.connectButton)
-        layout.addLayout(portLayout)
+
+        self.portSelector = QComboBox()
+        portLayout.addWidget(self.portSelector)
+
+        portGroup = QGroupBox("Scanner Port")
+        portGroup.setLayout(portLayout)
+        layout.addWidget(portGroup)
 
         self.modelLabel = QLabel("Model: ---")
         self.modelLabel.setFont(self.font_main)
         layout.addWidget(self.modelLabel, alignment=Qt.AlignmentFlag.AlignCenter)
 
+        # Display
         self.displayLabels = []
-        displayGroupLayout = QVBoxLayout()
-        for _ in range(6):
-            lbl = QLabel("".ljust(16))
-            lbl.setFont(self.font_lcd)
-            lbl.setStyleSheet("background-color: #333; padding: 2px; border-radius: 5px;")
-            self.displayLabels.append(lbl)
-            displayGroupLayout.addWidget(lbl, alignment=Qt.AlignmentFlag.AlignCenter)
-        displayGroup = QGroupBox("Display")
-        displayGroup.setLayout(displayGroupLayout)
-        layout.addWidget(displayGroup)
+        layout.addWidget(buildDisplayGroup(self.font_lcd, self.displayLabels))
 
+        # Signal Meters
         self.rssiBar = QProgressBar()
-        self.rssiBar.setRange(0, 100)
-        self.rssiBar.setTextVisible(True)
-        self.rssiBar.setFormat("RSSI: %p%")
-
         self.squelchBar = QProgressBar()
-        self.squelchBar.setRange(0, 100)
-        self.squelchBar.setTextVisible(True)
-        self.squelchBar.setFormat("SQL: %p%")
+        layout.addWidget(buildSignalMeters(self.rssiBar, self.squelchBar))
 
-        signalGroupLayout = QVBoxLayout()
-        signalGroupLayout.addWidget(self.rssiBar)
-        signalGroupLayout.addWidget(self.squelchBar)
-        signalGroup = QGroupBox("Signal Meters")
-        signalGroup.setLayout(signalGroupLayout)
-        layout.addWidget(signalGroup)
-
-        sideButtonLayout = QHBoxLayout()
-        for label in ["Hold", "Scan", "L/O", "Menu", "Func"]:
-            btn = QPushButton(label)
-            btn.setFixedSize(80, 40)
-            btn.clicked.connect(lambda _, k=label: self.sendKey(k[0]))
-            sideButtonLayout.addWidget(btn)
-        buttonGroup = QGroupBox("Control Keys")
-        buttonGroup.setLayout(sideButtonLayout)
-        layout.addWidget(buttonGroup)
-
-        grid = QGridLayout()
-        keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "E"]
-        for i, key in enumerate(keys):
-            btn = QPushButton(key)
-            btn.setFixedSize(60, 60)
-            btn.clicked.connect(lambda _, k=key: self.sendKey(k))
-            grid.addWidget(btn, i // 3, i % 3)
-        gridGroup = QGroupBox("Keypad")
-        gridGroup.setLayout(grid)
-        layout.addWidget(gridGroup)
+        # Keypad + Vertical Buttons
+        keypadRow = QHBoxLayout()
+        keypadRow.addWidget(buildControlKeys(self.sendKey))  # On the left
+        keypadRow.addWidget(buildKeypad(self.sendKey))       # On the right
+        layout.addLayout(keypadRow)
 
         outerLayout.addLayout(layout)
-
-        knobLayout = QVBoxLayout()
-        knobLabel = QLabel("↻")
-        knobLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        knobLabel.setFont(QFont("Courier", 28))
-        knobLabel.setStyleSheet("background-color: #444; color: white; padding: 20px; border-radius: 40px;")
-        knobLabel.setFixedSize(100, 100)
-        knobLabel.mousePressEvent = self.knobPressed
-        knobLabel.wheelEvent = self.knobScrolled
-        knobLayout.addWidget(knobLabel, alignment=Qt.AlignmentFlag.AlignTop)
-        knobGroup = QGroupBox("Rotary Knob")
-        knobGroup.setLayout(knobLayout)
-        outerLayout.addWidget(knobGroup)
-
         self.setLayout(outerLayout)
 
     def refreshScannerList(self, initial=False):
@@ -207,20 +166,21 @@ class ScannerGUI(QWidget):
             raw = self.adapter.readStatus(self.ser)
             parsed = self.parseStsLine(raw)
             for i, line in enumerate(parsed["screen"]):
-                # Skip the last two lines in MENU mode if they are empty or numeric noise
                 is_menu = "M E N U" in parsed["screen"][0]["text"].upper()
                 if is_menu and i >= 4 and not line["text"].strip().isalpha():
-                    self.displayLabels[i].setText("")
-                    self.displayLabels[i].setStyleSheet("background-color: #222;")
+                    self.displayLabels[i].setVisible(False)
                     continue
+                if i == 0 and not line["text"].strip().isalpha():
+                    self.displayLabels[i].setVisible(False)
+                    continue
+                self.displayLabels[i].setVisible(True)
                 text = line["text"].ljust(16)
-                style = "background-color: #333; color: white; padding: 2px;"
-                if line["underline"]:
-                    style += " text-decoration: underline;"
-                if line["highlight"]:
-                    style += " background-color: white; color: black;"
-                self.displayLabels[i].setText(text)
-                self.displayLabels[i].setStyleSheet(style)
+                label = self.displayLabels[i]
+                label.setText(text)
+                label.setProperty("highlight", line["highlight"])
+                label.setProperty("underline", line["underline"])
+                label.style().unpolish(label)
+                label.style().polish(label)
         except Exception:
             for lbl in self.displayLabels:
                 lbl.setText("Freq: Error")
@@ -247,8 +207,6 @@ class ScannerGUI(QWidget):
     def knobPressed(self, event):
         self.sendKey("^")
 
-    # End of knob events
-
     def sendKey(self, key):
         if self.adapter and self.ser:
             self.adapter.sendKey(self.ser, key)
@@ -266,12 +224,9 @@ class ScannerGUI(QWidget):
     def parseStsLine(self, sts_line: str) -> dict:
         if not sts_line.startswith("STS,"):
             raise ValueError("Not an STS line")
-
-        # Handle trailing commas and empty fields more robustly
         parts = [p.strip() for p in sts_line.strip().split(",")]
         while len(parts) < 23:
-            parts.append("")  # pad with empty fields if needed
-
+            parts.append("")
         status_bits = parts[1]
         screen = []
         for i in range(2, 14, 2):
@@ -282,16 +237,13 @@ class ScannerGUI(QWidget):
                 "underline": modifier == "_" * 16,
                 "highlight": modifier == "*" * 16
             })
-
         key_flags = parts[14:21]
         keys = [flag == "1" for flag in key_flags]
-
         backlight = parts[21] if len(parts) > 21 else ""
         try:
             volume = int(parts[22]) if len(parts) > 22 else 0
         except ValueError:
             volume = 0
-
         return {
             "status_bits": status_bits,
             "screen": screen,
@@ -299,9 +251,3 @@ class ScannerGUI(QWidget):
             "backlight": backlight,
             "volume": volume
         }
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    gui = ScannerGUI()
-    gui.show()
-    sys.exit(app.exec())
