@@ -73,7 +73,7 @@ def build_command_table(adapter, ser):
     }
 
     COMMAND_HELP = {
-        "read volume": "Reads the current volume level.",
+        "read volume": "Reads the current Volume level.",
         "write volume": "Sets volume level (0-1.0). Usage: write volume 0.75",
         "read squelch": "Reads the squelch level.",
         "write squelch": "Sets squelch (0-1.0). Usage: write squelch 0.5",
