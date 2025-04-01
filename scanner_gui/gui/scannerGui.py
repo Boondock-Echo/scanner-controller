@@ -5,7 +5,6 @@ import time
 import os
 import serial
 
-
 from PyQt6.QtWidgets import (
     QWidget, QPushButton, QLabel, QVBoxLayout, QGroupBox,
     QHBoxLayout, QSlider, QProgressBar, QComboBox, QMessageBox

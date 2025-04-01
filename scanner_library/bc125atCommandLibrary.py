@@ -11,7 +11,7 @@ It is used by:
 - The main program to support contextual help (via getHelp)
 """
 
-from scannerUtils import ScannerCommand, validate_enum, validate_cin
+from utilities.shared_utils import ScannerCommand, validate_enum, validate_cin
 
 """
 # search of all 3 letter commands commands (except PRG, POF, ) yielded the following

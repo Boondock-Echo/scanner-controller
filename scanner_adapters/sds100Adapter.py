@@ -1,7 +1,7 @@
 # scanner_adapters/sds100Adapter.py
 
 from scanner_library.sds100CommandLibrary import commands
-from scannerUtils import send_command
+from scanner_adapters.scanner_utils_uniden import send_command
 from scanner_adapters.base_adapter import BaseScannerAdapter
 
 

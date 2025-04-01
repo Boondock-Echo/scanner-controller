@@ -1,4 +1,4 @@
-# scannerAdapters/baseAdapter.py
+# scanner_adapters/baseAdapter.py
 
 class BaseScannerAdapter:
     def readVolume(self, ser): return "Not Supported"

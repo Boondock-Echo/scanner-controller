@@ -1,5 +1,6 @@
 import textwrap
 import time
+from utilities.shared_utils import ScannerCommand, validate_enum
 
 def getHelp(command=None):
     help_map = {

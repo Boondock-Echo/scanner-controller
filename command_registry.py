@@ -1,4 +1,4 @@
-from scannerUtils import send_command
+from scanner_adapters.scanner_utils import send_command
 
 def build_command_table(adapter, ser):
     """

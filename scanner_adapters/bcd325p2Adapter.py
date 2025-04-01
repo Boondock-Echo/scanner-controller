@@ -1,9 +1,6 @@
-# scannerAdapters/bcd325p2Adapter.py (refactored with extended features)
-
-from scannerLibrary import bcd325p2CommandLibrary
-from scannerLibrary.bcd325p2CommandLibrary import commands
-from scannerUtils import send_command
-from scannerAdapters.baseAdapter import BaseScannerAdapter
+from scanner_library.bcd325p2CommandLibrary import commands
+from scanner_adapters.scanner_utils_uniden import send_command
+from scanner_adapters.base_adapter import BaseScannerAdapter
 
 def hex32(value):
     """Convert an integer to a 32-bit hexadecimal string with '0x' prefix."""
@@ -29,7 +26,7 @@ class BCD325P2Adapter(BaseScannerAdapter):
         return message
 
     def getHelp(self, command):
-        from scannerLibrary import bcd325p2CommandLibrary
+        from scanner_library import bcd325p2CommandLibrary
         try:
             return bcd325p2CommandLibrary.getHelp(command)
         except Exception as e:

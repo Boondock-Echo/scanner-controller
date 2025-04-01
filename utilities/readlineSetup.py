@@ -17,7 +17,7 @@ def initialize_readline(COMMANDS):
         import readline  # Unix and macOS
     except ImportError:
         try:
-            import pyreadline as readline  # Windows with pyreadline3
+            import pyreadline3 as readline  # Windows with pyreadline3
         except ImportError:
             print("Note: readline or pyreadline3 not available. Tab-completion disabled.")
             return
