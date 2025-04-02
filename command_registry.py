@@ -42,7 +42,7 @@ def build_command_table(adapter, ser):
         "send key": lambda arg: adapter.sendKey(ser, arg),
 
         # Raw Command
-        "send": lambda arg: send_command(ser, arg),
+        "send": lambda arg: adapter.send_command(ser, arg),
 
         # Frequency Hold
         "hold frequency": lambda arg: adapter.enter_quick_frequency_hold(ser, float(arg)),
@@ -95,7 +95,16 @@ def build_command_table(adapter, ser):
         "write channel": (
             "Writes channel info. Usage: write channel index,name,freq_khz,mod,ctcss,delay,lockout,priority\n"
             "Example: write channel 5,CH5,4625625,FM,100,2,0,1"
-        ),
+        ) 
     }
-
     return COMMANDS, COMMAND_HELP
+"""
+This implementation is causing the program to crash.  Removed for now.
+    COMMANDS["write"].__doc__ = "volume, squelch, frequency",
+    COMMANDS["read"].__doc__ = "volume, squelch, frequency, rssi, smeter, battery, window, status, model, version",
+    COMMANDS["set"].__doc__ = "volume, squelch, frequency",
+    COMMANDS["get"].__doc__ = "volume, squelch, frequency, rssi, smeter, battery, window, status, model, version",
+    COMMANDS["send"].__doc__ = "key, command",
+    COMMANDS["hold"].__doc__ = "frequency",
+    COMMANDS["dump"].__doc__ = "memory",   
+"""
