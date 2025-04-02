@@ -10,7 +10,7 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
-class ScannerCommand:
+class scanner_command:
     def __init__(self, name, valid_range=None, query_format=None, set_format=None,
                  validator=None, parser=None, requires_prg=False, help=None):
         self.name = name.upper()
@@ -78,7 +78,7 @@ def validate_enum(name, allowed_values):
         allowed_values (Iterable[str]): A set or list of valid string values
 
     Returns:
-        function: A validator function to pass into ScannerCommand
+        function: A validator function to pass into scanner_command
     """
     allowed_upper = {v.upper() for v in allowed_values}
 

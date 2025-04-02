@@ -4,7 +4,7 @@ import serial
 from serial.tools import list_ports
 from utilities.logUtils import trim_log_file
 
-class ScannerCommand:
+class scanner_command:
     def __init__(self, name, valid_range=None, query_format=None, set_format=None,
                  validator=None, parser=None, requires_prg=False, help=None):
         self.name = name.upper()

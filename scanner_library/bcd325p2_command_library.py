@@ -1,10 +1,10 @@
 from scanner_library.bcd325p2_command_library import commands
-from utilities.shared_utils import ScannerCommand, validate_enum
+from utilities.shared_utils import scanner_command, validate_enum
 from utilities.scanner_utils import send_command
 from scanner_adapters.base_adapter import BaseScannerAdapter
 import scanner_library.bc125atCommandLibrary
 import time
-from utilities.shared_utils import ScannerCommand, validate_enum
+from utilities.shared_utils import scanner_command, validate_enum
 
 class BC125ATAdapter(BaseScannerAdapter):
     def __init__(self, machineMode=False):

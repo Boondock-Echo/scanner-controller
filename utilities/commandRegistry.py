@@ -1,7 +1,7 @@
 import logging
 import serial
 import time
-from utilities.commandLibrary import ScannerCommand, validate_enum, validate_cin
+from utilities.commandLibrary import scanner_command, validate_enum, validate_cin
 from utilities.serial_utils import clear_serial_buffer, read_response, send_command, wait_for_data
 from logUtils import trim_log_file
 from serial.tools import list_ports

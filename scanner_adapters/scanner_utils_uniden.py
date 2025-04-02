@@ -109,7 +109,7 @@ class UnidenAdapter(BaseScannerAdapter):
             allowed_values (Iterable[str]): A set or list of valid string values
 
         Returns:
-            function: A validator function to pass into ScannerCommand
+            function: A validator function to pass into scanner_command
         """
         allowed_upper = {v.upper() for v in allowed_values}
 
