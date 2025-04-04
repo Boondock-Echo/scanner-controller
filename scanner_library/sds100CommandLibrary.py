@@ -1,5 +1,6 @@
 import textwrap
 import time
+from utilities.shared_utils import scanner_command, validate_enum
 
 def getHelp(command=None):
     help_map = {
@@ -33,7 +34,7 @@ def getHelp(command=None):
     else:
         print("Type getHelp('COMMAND') for details.")
 
-class ScannerCommand:
+class scanner_command:
     def __init__(self, name, valid_range=None, query_format=None, set_format=None,
                  validator=None, parser=None, requires_prg=False):
         self.name = name.upper()
@@ -88,28 +89,28 @@ def listCommands():
     ]
 
 commands = {
-    "MDL": ScannerCommand("MDL"),
-    "VER": ScannerCommand("VER"),
-    "PRG": ScannerCommand("PRG"),
-    "EPG": ScannerCommand("EPG"),
-    "VOL": ScannerCommand("VOL", valid_range=(0, 29)),
-    "SQL": ScannerCommand("SQL", valid_range=(0, 19)),
-    "BLT": ScannerCommand("BLT", requires_prg=True),
-    "BSV": ScannerCommand("BSV", requires_prg=True),
-    "COM": ScannerCommand("COM", requires_prg=True),
-    "CLR": ScannerCommand("CLR", requires_prg=True),
-    "KBP": ScannerCommand("KBP", requires_prg=True),
-    "PRI": ScannerCommand("PRI", requires_prg=True),
-    "DCH": ScannerCommand("DCH", requires_prg=True),
-    "CIN": ScannerCommand("CIN", requires_prg=True),
-    "SCO": ScannerCommand("SCO", requires_prg=True),
-    "GLF": ScannerCommand("GLF", requires_prg=True),
-    "ULF": ScannerCommand("ULF", requires_prg=True),
-    "LOF": ScannerCommand("LOF", requires_prg=True),
-    "CLC": ScannerCommand("CLC", requires_prg=True),
-    "SSG": ScannerCommand("SSG", requires_prg=True),
-    "CSG": ScannerCommand("CSG", requires_prg=True),
-    "CSP": ScannerCommand("CSP", requires_prg=True),
-    "WXS": ScannerCommand("WXS", requires_prg=True),
-    "CNT": ScannerCommand("CNT", requires_prg=True),
+    "MDL": scanner_command("MDL"),
+    "VER": scanner_command("VER"),
+    "PRG": scanner_command("PRG"),
+    "EPG": scanner_command("EPG"),
+    "VOL": scanner_command("VOL", valid_range=(0, 29)),
+    "SQL": scanner_command("SQL", valid_range=(0, 19)),
+    "BLT": scanner_command("BLT", requires_prg=True),
+    "BSV": scanner_command("BSV", requires_prg=True),
+    "COM": scanner_command("COM", requires_prg=True),
+    "CLR": scanner_command("CLR", requires_prg=True),
+    "KBP": scanner_command("KBP", requires_prg=True),
+    "PRI": scanner_command("PRI", requires_prg=True),
+    "DCH": scanner_command("DCH", requires_prg=True),
+    "CIN": scanner_command("CIN", requires_prg=True),
+    "SCO": scanner_command("SCO", requires_prg=True),
+    "GLF": scanner_command("GLF", requires_prg=True),
+    "ULF": scanner_command("ULF", requires_prg=True),
+    "LOF": scanner_command("LOF", requires_prg=True),
+    "CLC": scanner_command("CLC", requires_prg=True),
+    "SSG": scanner_command("SSG", requires_prg=True),
+    "CSG": scanner_command("CSG", requires_prg=True),
+    "CSP": scanner_command("CSP", requires_prg=True),
+    "WXS": scanner_command("WXS", requires_prg=True),
+    "CNT": scanner_command("CNT", requires_prg=True),
 }

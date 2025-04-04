@@ -1,14 +1,14 @@
 import logging
 import serial
-import time
-from scannerUtils import clear_serial_buffer, read_response, send_command, findAllScannerPorts
-from scannerAdapters.bc125atAdapter import BC125ATAdapter
-from scannerAdapters.bcd325p2Adapter import BCD325P2Adapter
-from scannerAdapters.sds100Adapter import SDS100Adapter
-from scannerAdapters.aordv1Adapter import AORDV1Adapter
-from commandRegistry import build_command_table
-from readlineSetup import initialize_readline
 import argparse
+from scanner_adapters.scanner_utils import find_all_scanner_ports
+from scanner_adapters.bc125atAdapter import BC125ATAdapter
+from scanner_adapters.bcd325p2Adapter import BCD325P2Adapter
+from scanner_adapters.sds100Adapter import SDS100Adapter
+from scanner_adapters.aordv1Adapter import AORDV1Adapter
+from command_registry import build_command_table
+from utilities.readlineSetup import initialize_readline
+
 
 # ------------------------------------------------------------------------------
 # LOGGING SETUP
@@ -29,7 +29,7 @@ logging.basicConfig(
 # Maps scanner model names to their respective adapter classes
 SCANNER_ADAPTERS = { # if your scanner adapter is not listed here, add it here
     "BC125AT": BC125ATAdapter(),
-    "BCD325P2": BCD325P2Adapter(),
+    "BCD325P2": BCD325P2Adapter(),  # Ensure this is correctly instantiated
     "SDS100": SDS100Adapter(),
     "AOR-DV1": AORDV1Adapter(),
 }
@@ -156,7 +156,7 @@ def main():
     """
     
     print("Searching for connected scanners...")
-    detected = findAllScannerPorts()
+    detected = find_all_scanner_ports()
 
     if not detected:
         print("No scanners found. Exiting.")

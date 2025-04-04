@@ -3,3 +3,4 @@ PyQt6-Qt6==6.8.2
 PyQt6_sip==13.10.0
 pyreadline3==3.5.4
 pyserial==3.5
+vulture==2.14

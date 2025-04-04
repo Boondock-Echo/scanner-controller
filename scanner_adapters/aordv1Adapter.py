@@ -1,7 +1,7 @@
 # scanner_adapters/aordv1Adapter.py
 
 from scanner_library.aordv1CommandLibrary import commands
-from scannerUtils import send_command
+from utilities.scanner_utils import send_command
 from scanner_adapters.base_adapter import BaseScannerAdapter
 
 

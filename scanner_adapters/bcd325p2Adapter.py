@@ -1,9 +1,6 @@
-# scannerAdapters/bcd325p2Adapter.py (refactored with extended features)
-
-from scannerLibrary import bcd325p2CommandLibrary
-from scannerLibrary.bcd325p2CommandLibrary import commands
-from scannerUtils import send_command
-from scannerAdapters.baseAdapter import BaseScannerAdapter
+from scanner_library.bcd325p2CommandLibrary import commands
+from utilities.scanner_utils import send_command  # Ensure correct import
+from scanner_adapters.base_adapter import BaseScannerAdapter
 
 def hex32(value):
     """Convert an integer to a 32-bit hexadecimal string with '0x' prefix."""
@@ -29,7 +26,7 @@ class BCD325P2Adapter(BaseScannerAdapter):
         return message
 
     def getHelp(self, command):
-        from scannerLibrary import bcd325p2CommandLibrary
+        from scanner_library import bcd325p2CommandLibrary
         try:
             return bcd325p2CommandLibrary.getHelp(command)
         except Exception as e:
@@ -141,7 +138,7 @@ class BCD325P2Adapter(BaseScannerAdapter):
 
         responses = []
         for char in keySeq:
-            if char not in "0123456789<>^.EMFHSLP":
+            if (char not in "0123456789<>^.EMFHSLP"):
                 responses.append(f"{char} → skipped (invalid key)")
                 continue
             try:
@@ -256,3 +253,9 @@ class BCD325P2Adapter(BaseScannerAdapter):
             return self.feedback("OK" in response, f"✅\tChannel {index} written → {response}")
         except Exception as e:
             return self.feedback(False, f"⚠️\t[writeChannelInfo Error] {e}")
+
+    def send_command(self, ser, cmd):
+        """
+        Wrapper for the send_command function to maintain consistency.
+        """
+        return send_command(ser, cmd)

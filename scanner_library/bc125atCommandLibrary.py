@@ -1,4 +1,5 @@
 # bc125atCommandLibrary.py
+from utilities.validators import validate_enum, validate_cin  # Correct imports
 
 """
 BC125AT Command Library
@@ -11,7 +12,7 @@ It is used by:
 - The main program to support contextual help (via getHelp)
 """
 
-from scannerUtils import ScannerCommand, validate_enum, validate_cin
+from utilities.shared_utils import scanner_command, validate_enum, validate_cin
 
 """
 # search of all 3 letter commands commands (except PRG, POF, ) yielded the following
@@ -30,7 +31,7 @@ MNU: MNU,ERR MRD: MRD,00000000,ERR QSH: QSH,ERR ULF: ULF,ERR
 # ------------------------------------------------------------------------------
 
 commands = {
-    "BAV": ScannerCommand(
+    "BAV": scanner_command(
         name="BAV",
         help="""
         Shows battery voltage (10mV units).
@@ -40,7 +41,7 @@ commands = {
         """
     ),
     
-    "BLT": ScannerCommand(
+    "BLT": scanner_command(
         name="BLT",
         validator=validate_enum("BLT", ["AO", "AF", "KY", "KS", "SQ"]),
         requires_prg=True,
@@ -55,7 +56,7 @@ commands = {
         SQ - Squelch only
         """),
     
-   "BPL": ScannerCommand(
+   "BPL": scanner_command(
         name="BPL",
         validator=validate_enum("BPL", ["0","1"]),
         requires_prg=True,
@@ -67,7 +68,7 @@ commands = {
         2: unknown
         """),    
    
-   "BSV": ScannerCommand(
+   "BSV": scanner_command(
         name="BSV",
         
         valid_range=(0, 14),
@@ -80,7 +81,7 @@ commands = {
         """
     ),
 
-    "CIN": ScannerCommand(
+    "CIN": scanner_command(
     name="CIN",
     validator=validate_cin,
     help="""Reads or writes a memory channel.
@@ -103,212 +104,212 @@ commands = {
         ),
     
     
-    "CNT": ScannerCommand(
+    "CNT": scanner_command(
         name="CNT",
         valid_range=(1, 15),
         help="Set LCD contrast (1–15).",
         requires_prg=True
     ),
     
-    "COM": ScannerCommand(
+    "COM": scanner_command(
         name="COM",
         help="Possibly related to COM port config (undocumented). Use with caution.",
         requires_prg=True
     ),
 
-    "CSG": ScannerCommand(
+    "CSG": scanner_command(
         name="CSG",
         help="Custom Search Group status (bitmask of 10 ranges).",
         requires_prg=True
     ),
 
-    "CSP": ScannerCommand(
+    "CSP": scanner_command(
         name="CSP",
         help="Custom search parameters. Format: CSP,<index>,<low>,<high>",
         requires_prg=True
     ),
 
-    "DCH": ScannerCommand(
+    "DCH": scanner_command(
         name="DCH",
         help="Delete channel. Format: DCH,<index> (1–500)",
         requires_prg=True
     ),
 
-    "EPG": ScannerCommand(
+    "EPG": scanner_command(
         name="EPG",
         help="Exit programming mode."
     ),
     
-    "EWP": ScannerCommand(
+    "EWP": scanner_command(
     name="EWP",
     help="Unknown usage"
     ),
 
-    "ESN": ScannerCommand(
+    "ESN": scanner_command(
         name="ESN",
         help="Get scanner ESN (serial number). Returns long identifier."
     ),
 
-    "FWM": ScannerCommand(
+    "FWM": scanner_command(
         name="FWM",
         help="Firmware maintenance command (unknown purpose)."
     ),
 
-    "GLF": ScannerCommand(
+    "GLF": scanner_command(
         name="GLF",
         help="Get global lockout frequency. Repeated calls return next item until GLF,-1.",
         requires_prg=True
     ),
 
-    "GLG": ScannerCommand(
+    "GLG": scanner_command(
         name="GLG",
         help="Reception status dump (format undocumented, experimental)"
     ),
 
-    "JNT": ScannerCommand(
+    "JNT": scanner_command(
         name="JNT",
         help="Jump to channel number tag (undocumented, returns JNT,ERR)."
     ),
 
-    "JPM": ScannerCommand(
+    "JPM": scanner_command(
         name="JPM",
         help="Jump mode command (undocumented, returns JPM,ERR)."
     ),   
    
-   "KBP": ScannerCommand(
+   "KBP": scanner_command(
         name="KBP",
         set_format="KBP,{level},{lock}",
         help="Sets key beep (0:Auto, 99:Off) and key lock (0:Off, 1:On).",
         requires_prg=True
     ),
    
-    "KEY": ScannerCommand(
+    "KEY": scanner_command(
         name="KEY",
         set_format="KEY,{value}",
         help="Simulate keypad input. E.g., KEY,1,P for pressing '1'."
     ),
 
-    "LOF": ScannerCommand(
+    "LOF": scanner_command(
         name="LOF",
         help="Lock out a frequency (in kHz). Format: LOF,<frequency>",
         requires_prg=True
     ),
 
-    "MDL": ScannerCommand(
+    "MDL": scanner_command(
         name="MDL",
         help="Returns scanner model (e.g., BC125AT)."
     ),
 
-    "MMM": ScannerCommand(
+    "MMM": scanner_command(
         name="MMM",
         help="Mystery memory mode (not documented)."
     ),
 
-    "MNU": ScannerCommand(
+    "MNU": scanner_command(
         name="MNU",
         help="Enters menu system (not supported in remote mode)."
     ),
 
-    "MRD": ScannerCommand(
+    "MRD": scanner_command(
         name="MRD",
         help="Reads memory register (debug/test use)."
     ),
 
-    "MWR": ScannerCommand(
+    "MWR": scanner_command(
         name="MWR",
         help="Write memory register (debug/test use)."
     ),
 
-    "PDI": ScannerCommand(
+    "PDI": scanner_command(
         name="PDI",
         help="Possibly peripheral device interface. Undocumented."
     ),
 
-    "PRG": ScannerCommand(
+    "PRG": scanner_command(
         name="PRG",
         help="Enter programming mode."
     ),
 
 
-   "PRI": ScannerCommand(
+   "PRI": scanner_command(
         name="PRI",
         valid_range=(0, 3),
         help="Sets priority mode (0:Off, 1:On, 2:Plus, 3:DND).",
         requires_prg=True
     ),
 
-    "PWR": ScannerCommand(
+    "PWR": scanner_command(
         name="PWR",
         help="Returns RSSI and current frequency. Format: PWR,<rssi>,<freq>"
     ),
  
-   "QSH": ScannerCommand(
+   "QSH": scanner_command(
         name="QSH",
         help="Quick search hold mode (seems broken on BC125AT.  I've tried 42k permutations of commands)\nNext possibility is that it's a chained command or only available in certain modes."
     ),
 
-    "SCG": ScannerCommand(
+    "SCG": scanner_command(
         name="SCG",
         help="Quick group lockout bitmask. Format: SCG,xxxxxxxxxx (each digit is 0 or 1)",
         requires_prg=True
     ),
 
-    "SCO": ScannerCommand(
+    "SCO": scanner_command(
         name="SCO",
         help="Search/Close Call Options. Format: SCO,<delay>,<code_search>",
         requires_prg=True
     ),
 
-    "SQL": ScannerCommand(
+    "SQL": scanner_command(
         name="SQL",
         valid_range=(0, 15),
         help="Set squelch level (0–15)."
     ),
 
-    "SSG": ScannerCommand(
+    "SSG": scanner_command(
         name="SSG",
         help="Service search group (bitmask of 10 categories).",
         requires_prg=True
     ),
 
-    "STS": ScannerCommand(
+    "STS": scanner_command(
         name="STS",
         help="Returns scanner status snapshot (multi-field dump)."
     ),
 
-    "SUM": ScannerCommand(
+    "SUM": scanner_command(
         name="SUM",
         help="Mystery summary command (appears in logs, unknown use)."
     ),
 
-    "TST": ScannerCommand(
+    "TST": scanner_command(
         name="TST",
         help="Enter test mode (be careful!)."
     ),
 
-    "ULF": ScannerCommand(
+    "ULF": scanner_command(
         name="ULF",
         help="Unlock a global lockout frequency. Format: ULF,<frequency>",
         requires_prg=True
     ),
 
-    "VER": ScannerCommand(
+    "VER": scanner_command(
         name="VER",
         help="Returns firmware version."
     ),
 
-    "VOL": ScannerCommand(
+    "VOL": scanner_command(
         name="VOL",
         valid_range=(0, 15),
         help="Set volume level (0–15)."
     ),
 
-    "WIN": ScannerCommand(
+    "WIN": scanner_command(
         name="WIN",
         help="Returns window voltage + frequency (used internally)."
     ),
 
-    "WXS": ScannerCommand(
+    "WXS": scanner_command(
         name="WXS",
         help="NOAA weather settings. WXS,<alert_priority> (0=Off, 1=On)",
         requires_prg=True

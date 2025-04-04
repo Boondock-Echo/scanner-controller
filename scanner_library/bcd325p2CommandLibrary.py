@@ -4,143 +4,143 @@
 BCD325P2 Command Library (refactored)
 
 This file defines the BCD325P2-specific command structure, using the
-shared ScannerCommand class from scannerUtils.py.
+shared scanner_command class from scannerUtils.py.
 
 It supports:
 - The BCD325P2Adapter for building commands
 - The main program for contextual help (via getHelp)
 """
+from utilities.shared_utils import scanner_command, validate_enum
 
-from scannerUtils import ScannerCommand, validate_enum
 
 # ------------------------------------------------------------------------------
 # Command Definitions
 # ------------------------------------------------------------------------------
 
 commands = {
-    "MDL": ScannerCommand("MDL", help="Returns the scanner model (e.g., BCD325P2)."),
-    "VER": ScannerCommand("VER", help="Returns the firmware version."),
-    "PRG": ScannerCommand("PRG", help="Enter programming mode."),
-    "EPG": ScannerCommand("EPG", help="Exit programming mode."),
+    "MDL": scanner_command("MDL", help="Returns the scanner model (e.g., BCD325P2)."),
+    "VER": scanner_command("VER", help="Returns the firmware version."),
+    "PRG": scanner_command("PRG", help="Enter programming mode."),
+    "EPG": scanner_command("EPG", help="Exit programming mode."),
 
-    "VOL": ScannerCommand(
+    "VOL": scanner_command(
         name="VOL",
         valid_range=(0, 15),
         help="Set volume level (0-15)."
     ),
 
-    "SQL": ScannerCommand(
+    "SQL": scanner_command(
         name="SQL",
         valid_range=(0, 15),
         help="Set squelch level (0-15)."
     ),
 
-    "BAV": ScannerCommand(
+    "BAV": scanner_command(
         name="BAV",
         help="Returns battery voltage in 100's of milliVolts\n529 = 5.29 Volts."
     ),
 
-    "WIN": ScannerCommand(
+    "WIN": scanner_command(
         name="WIN",
         help="Returns window voltage and frequency."
     ),
 
-    "PWR": ScannerCommand(
+    "PWR": scanner_command(
         name="PWR",
         help="Returns RSSI and frequency. Format: PWR,<rssi>,<freq>"
     ),
 
-    "STS": ScannerCommand(
+    "STS": scanner_command(
         name="STS",
         help="Returns status display content and various system flags."
     ),
 
-    "GLG": ScannerCommand(
+    "GLG": scanner_command(
         name="GLG",
         help="Get reception status — includes TGID, modulation, squelch, etc."
     ),
 
-    "KEY": ScannerCommand(
+    "KEY": scanner_command(
         name="KEY",
         set_format="KEY,{value}",
         help="Simulates a keypress. Example: KEY,1,P sends the '1' key."
     ),
 
-    "KBP": ScannerCommand(
+    "KBP": scanner_command(
         name="KBP",
         set_format="KBP,{value}",
         requires_prg=True,
         help="Set key beep and key lock. Format: KBP,<level>,<lock>,<safe>"
     ),
 
-    "CLR": ScannerCommand(
+    "CLR": scanner_command(
         name="CLR",
         requires_prg=True,
         help="Clear all scanner memory. (Warning: cannot be undone.)"
     ),
 
-    "CNT": ScannerCommand(
+    "CNT": scanner_command(
         name="CNT",
         valid_range=(1, 15),
         requires_prg=True,
         help="Set LCD contrast (1–15)."
     ),
 
-    "DCH": ScannerCommand(
+    "DCH": scanner_command(
         name="DCH",
         requires_prg=True,
         help="Delete a channel. Format: DCH,<index>"
     ),
 
-    "CIN": ScannerCommand(
+    "CIN": scanner_command(
         name="CIN",
         requires_prg=True,
         help="Get or set channel info. Format: CIN,<index>[,...]"
     ),
 
-    "SCO": ScannerCommand(
+    "SCO": scanner_command(
         name="SCO",
         requires_prg=True,
         help="Search/Close Call settings. Many parameters including AGC, DLY, ATT."
     ),
 
-    "GLF": ScannerCommand(
+    "GLF": scanner_command(
         name="GLF",
         requires_prg=True,
         help="Get next Global Lockout Frequency. Repeat until GLF,-1"
     ),
 
-    "ULF": ScannerCommand(
+    "ULF": scanner_command(
         name="ULF",
         requires_prg=True,
         help="Unlock a frequency from the Global Lockout list. Format: ULF,<freq>"
     ),
 
-    "LOF": ScannerCommand(
+    "LOF": scanner_command(
         name="LOF",
         requires_prg=True,
         help="Lock out a frequency (in kHz). Format: LOF,<frequency>"
     ),
 
-    "CLC": ScannerCommand(
+    "CLC": scanner_command(
         name="CLC",
         requires_prg=True,
         help="Configure Close Call mode (priority, override, alert tones, etc.)"
     ),
 
-    "CSG": ScannerCommand(
+    "CSG": scanner_command(
         name="CSG",
         requires_prg=True,
         help="Custom Search Group status (bitmask of 10 ranges)."
     ),
 
-    "CSP": ScannerCommand(
+    "CSP": scanner_command(
         name="CSP",
         requires_prg=True,
         help="Custom search parameters. Format: CSP,<index>,<low>,<high>,..."
     ),
 
-    "WXS": ScannerCommand(
+    "WXS": scanner_command(
         name="WXS",
         requires_prg=True,
         help="NOAA weather alert and AGC configuration."

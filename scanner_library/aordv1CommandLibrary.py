@@ -26,7 +26,7 @@ def getHelp(command=None):
     else:
         print("Type getHelp('COMMAND') for details.")
 
-class ScannerCommand:
+class scanner_command:
     def __init__(self, name, valid_range=None, query_format=None, set_format=None,
                  validator=None, parser=None, requires_prg=False):
         self.name = name.upper()
@@ -77,24 +77,24 @@ def listCommands():
     ]
 
 commands = {
-    "WI": ScannerCommand("WI"),
-    "VR": ScannerCommand("VR"),
-    "RF": ScannerCommand("RF"),
-    "MD": ScannerCommand("MD"),
-    "AG": ScannerCommand("AG"),
-    "ST": ScannerCommand("ST"),
-    "SH": ScannerCommand("SH"),
-    "SQ": ScannerCommand("SQ"),
-    "NQ": ScannerCommand("NQ"),
-    "LQ": ScannerCommand("LQ"),
-    "VQ": ScannerCommand("VQ"),
-    "CI": ScannerCommand("CI"),
-    "CN": ScannerCommand("CN"),
-    "DI": ScannerCommand("DI"),
-    "DS": ScannerCommand("DS"),
-    "DC": ScannerCommand("DC"),
-    "RX": ScannerCommand("RX"),
-    "ZP": ScannerCommand("ZP"),
-    "QP": ScannerCommand("QP"),
-    "EX": ScannerCommand("EX"),
+    "WI": scanner_command("WI"),
+    "VR": scanner_command("VR"),
+    "RF": scanner_command("RF"),
+    "MD": scanner_command("MD"),
+    "AG": scanner_command("AG"),
+    "ST": scanner_command("ST"),
+    "SH": scanner_command("SH"),
+    "SQ": scanner_command("SQ"),
+    "NQ": scanner_command("NQ"),
+    "LQ": scanner_command("LQ"),
+    "VQ": scanner_command("VQ"),
+    "CI": scanner_command("CI"),
+    "CN": scanner_command("CN"),
+    "DI": scanner_command("DI"),
+    "DS": scanner_command("DS"),
+    "DC": scanner_command("DC"),
+    "RX": scanner_command("RX"),
+    "ZP": scanner_command("ZP"),
+    "QP": scanner_command("QP"),
+    "EX": scanner_command("EX"),
 }

@@ -19,3 +19,12 @@ def buildDisplayGroup(font_lcd, displayLabels: list) -> QGroupBox:
     displayGroup = QGroupBox("Display")
     displayGroup.setLayout(displayGroupLayout)
     return displayGroup
+
+def update_frequency_display(self, frequency):
+    """
+    Updates the frequency display in the GUI.
+    """
+    if frequency is None:
+        self.frequency_label.setText("Freq: Error")
+    else:
+        self.frequency_label.setText(f"Freq: {frequency:.3f} MHz")
