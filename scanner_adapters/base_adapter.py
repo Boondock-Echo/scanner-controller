@@ -1,7 +1,6 @@
 import scanner_library
 from scanner_library.bcd325p2CommandLibrary import commands
-from scanner_library.bc125atCommandLibrary import commands
-
+from scanner_library.bc125atCommandLibrary import commands as bc125at_commands
 import time
 
 class BaseScannerAdapter:
