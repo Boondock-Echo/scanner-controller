@@ -1,6 +1,6 @@
-import sys
 import logging
 import serial
+import argparse
 from scanner_adapters.scanner_utils import find_all_scanner_ports
 from scanner_adapters.bc125atAdapter import BC125ATAdapter
 from scanner_adapters.bcd325p2Adapter import BCD325P2Adapter
@@ -8,7 +8,7 @@ from scanner_adapters.sds100Adapter import SDS100Adapter
 from scanner_adapters.aordv1Adapter import AORDV1Adapter
 from command_registry import build_command_table
 from utilities.readlineSetup import initialize_readline
-import argparse
+
 
 # ------------------------------------------------------------------------------
 # LOGGING SETUP
@@ -29,7 +29,7 @@ logging.basicConfig(
 # Maps scanner model names to their respective adapter classes
 SCANNER_ADAPTERS = { # if your scanner adapter is not listed here, add it here
     "BC125AT": BC125ATAdapter(),
-    "BCD325P2": BCD325P2Adapter(),
+    "BCD325P2": BCD325P2Adapter(),  # Ensure this is correctly instantiated
     "SDS100": SDS100Adapter(),
     "AOR-DV1": AORDV1Adapter(),
 }

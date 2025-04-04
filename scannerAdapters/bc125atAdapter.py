@@ -1,7 +1,10 @@
-from utilities.shared_utils import scanner_command, validate_enum, validate_cin  # Correct imports
+from utilities.shared_utils import scanner_command
 from utilities.scanner_utils import send_command  # Correct location for send_command
 from scanner_adapters.base_adapter import BaseScannerAdapter
-from scanner_library.bc125atCommandLibrary import commands  # Import commands from the correct library
+from scanner_library.commands.bc125at_commands import commands  # Import commands from the correct library
+from utilities.validators import validate_enum, validate_cin  # Correct imports
+#from scanner_adapters.scanner_utils import send_command  # Correct location for send_command    
+
 import time
 
 class BC125ATAdapter(BaseScannerAdapter):
