@@ -22,7 +22,7 @@ class SDS100Adapter(BaseScannerAdapter):
         return send_command(ser, cmd.buildCommand(scaled))
 
     def readSquelch(self, ser):
-        cmd = commands["VOL"]
+        cmd = commands["SQL"]
         response = send_command(ser, cmd.buildCommand())
         try:
             _, value = response.split(",", 1)
