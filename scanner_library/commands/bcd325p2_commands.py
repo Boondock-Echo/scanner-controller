@@ -1,5 +1,4 @@
 from utilities.shared_utils import scanner_command
-from utilities.validators import validate_enum
 
 commands = {
     "VOL": scanner_command(

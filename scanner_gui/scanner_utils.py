@@ -1,4 +1,3 @@
-from scanner_library.bc125atCommandLibrary import commands
 from serial.tools import list_ports
 import serial
 import time
@@ -98,25 +97,6 @@ def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2):
         time.sleep(3)
     logging.error("No scanners found after maximum retries.")
     return []
-
-def trim_log_file(log_file, max_size=1024 * 1024):
-    """
-    Trims the log file to ensure it does not exceed max_size bytes.
-    Keeps only the last max_size bytes of the file.
-    """
-    try:
-        with open(log_file, "rb") as f:
-            f.seek(0, 2)  # Move to the end of the file
-            size = f.tell()
-            if size <= max_size:
-                return
-            f.seek(-max_size, 2)  # Move to the last max_size bytes
-            data = f.read()
-        with open(log_file, "wb") as f:
-            f.write(data)
-        logging.info(f"Trimmed log file {log_file} to {max_size} bytes.")
-    except Exception as e:
-        logging.error(f"Error trimming log file {log_file}: {e}")
 
 def wait_for_data(ser, max_wait=0.3):
     """

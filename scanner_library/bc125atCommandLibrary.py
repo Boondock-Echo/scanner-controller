@@ -1,5 +1,6 @@
 # bc125atCommandLibrary.py
 from utilities.validators import validate_enum, validate_cin  # Correct imports
+from utilities.shared_utils import scanner_command
 
 """
 BC125AT Command Library
@@ -12,7 +13,7 @@ It is used by:
 - The main program to support contextual help (via getHelp)
 """
 
-from utilities.shared_utils import scanner_command, validate_enum, validate_cin
+
 
 """
 # search of all 3 letter commands commands (except PRG, POF, ) yielded the following

@@ -3,7 +3,6 @@ import logging
 import serial
 import re
 from serial.tools import list_ports
-from utilities.logUtils import trim_log_file
 
 # Configure logging
 logging.basicConfig(
@@ -77,22 +76,3 @@ def wait_for_data(ser, max_wait=0.3):
             return True
         time.sleep(0.01)
     return False
-
-def trim_log_file(log_file, max_size=1024 * 1024):
-    """
-    Trims the log file to ensure it does not exceed max_size bytes.
-    Keeps only the last max_size bytes of the file.
-    """
-    try:
-        with open(log_file, "rb") as f:
-            f.seek(0, 2)  # Move to the end of the file
-            size = f.tell()
-            if size <= max_size:
-                return
-            f.seek(-max_size, 2)  # Move to the last max_size bytes
-            data = f.read()
-        with open(log_file, "wb") as f:
-            f.write(data)
-        logging.info(f"Trimmed log file {log_file} to {max_size} bytes.")
-    except Exception as e:
-        logging.error(f"Error trimming log file {log_file}: {e}")

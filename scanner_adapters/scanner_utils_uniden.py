@@ -100,76 +100,6 @@ class UnidenAdapter(BaseScannerAdapter):
             logging.error(f"Error reading response: {e}")
             return ""
 
-    def validate_enum(name, allowed_values):
-        """
-        Returns a validator function that checks if a given value is in allowed_values.
-
-        Args:
-            name (str): The name of the command (for error messages)
-            allowed_values (Iterable[str]): A set or list of valid string values
-
-        Returns:
-            function: A validator function to pass into scanner_command
-        """
-        allowed_upper = {v.upper() for v in allowed_values}
-
-        def validator(value):
-            if str(value).upper() not in allowed_upper:
-                raise ValueError(f"{name} must be one of: {', '.join(sorted(allowed_upper))}")
-        return validator
-
-    def validate_cin(params):
-        """
-        Validates the argument list for the CIN command.
-
-        Args:
-            params (str or list): Should be a comma-separated string or list of values.
-
-        Raises:
-            ValueError: If the format or fields are invalid
-        """
-        if isinstance(params, str):
-            parts = [p.strip() for p in params.split(",")]
-        else:
-            parts = list(params)
-
-        if len(parts) not in {1, 9}:
-            raise ValueError("CIN requires 1 (read) or 9 (write) arguments")
-
-        index = int(parts[0])
-        if not (1 <= index <= 500):
-            raise ValueError("Index must be between 1 and 500")
-
-        if len(parts) == 9:
-            name = parts[1]
-            freq = int(parts[2])
-            mod = parts[3].upper()
-            ctcss = int(parts[4])
-            delay = int(parts[5])
-            lockout = int(parts[6])
-            priority = int(parts[7])
-
-            if len(name) > 16:
-                raise ValueError("Name must be 16 characters or fewer")
-
-            if not (10000 <= freq <= 1300000):
-                raise ValueError("Frequency seems invalid (check units?)")
-
-            if mod not in {"AUTO", "AM", "FM", "NFM"}:
-                raise ValueError("Modulation must be AUTO, AM, FM, or NFM")
-
-            if not (0 <= ctcss <= 231):
-                raise ValueError("CTCSS/DCS code must be 0–231")
-
-            if delay not in {-10, -5, 0, 1, 2, 3, 4, 5}:
-                raise ValueError("Delay must be one of: -10, -5, 0–5")
-
-            if lockout not in {0, 1}:
-                raise ValueError("Lockout must be 0 or 1")
-
-            if priority not in {0, 1}:
-                raise ValueError("Priority must be 0 or 1")
-
     def send_command(ser, cmd):
         """
         Clears the buffer and sends a command (with CR termination) to the scanner.
@@ -259,24 +189,7 @@ class UnidenAdapter(BaseScannerAdapter):
         return detected
     """
 
-    def trim_log_file(log_file, max_size=1024 * 1024):
-        """
-        Trims the log file to ensure it does not exceed max_size bytes.
-        Keeps only the last max_size bytes of the file.
-        """
-        try:
-            with open(log_file, "rb") as f:
-                f.seek(0, 2)  # Move to the end of the file
-                size = f.tell()
-                if size <= max_size:
-                    return
-                f.seek(-max_size, 2)  # Move to the last max_size bytes
-                data = f.read()
-            with open(log_file, "wb") as f:
-                f.write(data)
-            logging.info(f"Trimmed log file {log_file} to {max_size} bytes.")
-        except Exception as e:
-            logging.error(f"Error trimming log file {log_file}: {e}")
+    
 
     def enter_quick_frequency_hold(ser, freq_mhz):
         def write_key_beep(self, ser, level=99, lock=0):

@@ -10,8 +10,7 @@ It supports:
 - The BCD325P2Adapter for building commands
 - The main program for contextual help (via getHelp)
 """
-from utilities.shared_utils import scanner_command, validate_enum
-
+from utilities.shared_utils import scanner_command
 
 # ------------------------------------------------------------------------------
 # Command Definitions
