@@ -28,8 +28,7 @@ if not os.path.exists("scanner_tool.log"):
 
 if os.path.getsize("scanner_tool.log") > 10 * 1024 * 1024:  # 10 MB limit
     logging.info("Log file size exceeded 10 MB. Trimming...")
-    trim_log_file("scanner_tool.log", max_lines=1000)  # Keep the log file manageable
-
+    trim_log_file("scanner_tool.log", max_size=10 * 1024 * 1024)  # Keep the log file manageable
 
 # ------------------------------------------------------------------------------
 # SUPPORTED SCANNER ADAPTERS
