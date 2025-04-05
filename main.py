@@ -1,6 +1,8 @@
+import os
 import logging
 import serial
 import argparse
+from utilities.log_trim import trim_log_file
 from scanner_adapters.scanner_utils import find_all_scanner_ports
 from scanner_adapters.bc125atAdapter import BC125ATAdapter
 from scanner_adapters.bcd325p2Adapter import BCD325P2Adapter
@@ -8,7 +10,6 @@ from scanner_adapters.sds100Adapter import SDS100Adapter
 from scanner_adapters.aordv1Adapter import AORDV1Adapter
 from command_registry import build_command_table
 from utilities.readlineSetup import initialize_readline
-
 
 # ------------------------------------------------------------------------------
 # LOGGING SETUP
@@ -21,6 +22,13 @@ logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
+
+if not os.path.exists("scanner_tool.log"):
+    logging.error("Log file not found. Creating a new one.")    
+
+if os.path.getsize("scanner_tool.log") > 10 * 1024 * 1024:  # 10 MB limit
+    logging.info("Log file size exceeded 10 MB. Trimming...")
+    trim_log_file("scanner_tool.log", max_size=10 * 1024 * 1024)  # Keep the log file manageable
 
 # ------------------------------------------------------------------------------
 # SUPPORTED SCANNER ADAPTERS

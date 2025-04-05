@@ -1,8 +1,5 @@
 import time
 import logging
-from serial.tools import list_ports
-from utilities.logUtils import trim_log_file
-from utilities.validators import validate_enum, validate_cin  # Updated import
 
 class scanner_command:
     def __init__(self, name, valid_range=None, query_format=None, set_format=None,
