@@ -2,7 +2,6 @@ from imaplib import Commands
 import time
 import logging
 import serial
-import re
 import scanner_library
 from scanner_adapters.scanner_utils import send_command, read_response, clear_serial_buffer
 

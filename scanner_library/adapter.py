@@ -1,6 +1,5 @@
 import time
 import logging
-from serial.tools import list_ports
 
 class scanner_command:
     def __init__(self, name, valid_range=None, query_format=None, set_format=None,

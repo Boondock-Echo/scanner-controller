@@ -1,8 +1,6 @@
-from utilities.shared_utils import scanner_command
 from scanner_library.bc125at_command_library import commands  # Import commands from the correct library
 
 from scanner_adapters.base_adapter import BaseScannerAdapter
-from scanner_library.bc125at_command_library import BC125ATAdapter # Import commands from the correct library
 from scanner_adapters.scanner_utils import send_command  # Correct location for send_command    
 
 import time

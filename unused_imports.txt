@@ -1,0 +1,21 @@
+
+Unused imports in ./scanner_adapters\base_adapter.py:
+  Line 28: send_command
+
+Unused imports in ./scanner_adapters\bc125atAdapter.py:
+  Line 2: scanner_library.bc125atCommandLibrary
+
+Unused imports in ./scanner_gui\gui\audioControls.py:
+  Line 3: QSlider
+
+Unused imports in ./scanner_gui\gui\displayGroup.py:
+  Line 4: QFont
+
+Unused imports in ./scanner_gui\gui\scannerGui.py:
+  Line 3: sys
+
+Unused imports in ./scanner_library\bc125at_command_library.py:
+  Line 3: scanner_library.bc125at_command_library
+
+Unused imports in ./scanner_library\bcd325p2_command_library.py:
+  Line 5: scanner_library.bcd325p2CommandLibrary

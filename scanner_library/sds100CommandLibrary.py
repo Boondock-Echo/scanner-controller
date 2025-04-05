@@ -1,4 +1,3 @@
-import textwrap
 import time
 from utilities.shared_utils import scanner_command
 

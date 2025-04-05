@@ -1,7 +1,3 @@
-import scanner_library
-from scanner_library.bcd325p2CommandLibrary import commands
-from scanner_library.bc125atCommandLibrary import commands as bc125at_commands
-import time
 
 class BaseScannerAdapter:
     def readVolume(self, ser):
@@ -35,9 +31,7 @@ class BaseScannerAdapter:
     def readSMeter(self, ser): return "Not Supported"
 
     def readModel(self, ser):
-        from scanner_adapters.scanner_utils import send_command
         return "Not Supported"
 
     def readSWVer(self, ser):
-        from scanner_adapters.scanner_utils import send_command
         return "Not Supported"

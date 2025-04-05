@@ -1,8 +1,5 @@
 import time
-
 import scanner_library.bc125atCommandLibrary
-
-from utilities.shared_utils import scanner_command
 from utilities.scanner_utils import send_command  # Correct location for send_command
 from scanner_adapters.base_adapter import BaseScannerAdapter
 from scanner_library.bc125atCommandLibrary import commands  # Import commands from the correct library
