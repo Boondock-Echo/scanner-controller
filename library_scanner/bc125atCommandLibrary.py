@@ -32,16 +32,7 @@ MNU: MNU,ERR MRD: MRD,00000000,ERR QSH: QSH,ERR ULF: ULF,ERR
 # ------------------------------------------------------------------------------
 
 commands = {
-    "BAV": scanner_command(
-        name="BAV",
-        help="""
-        Shows battery voltage (10mV units).
-        example usage:
-        >>> BAV
-        <<< BAV,558
-        """
-    ),
-    
+
     "BLT": scanner_command(
         name="BLT",
         validator=validate_enum("BLT", ["AO", "AF", "KY", "KS", "SQ"]),
@@ -103,7 +94,6 @@ commands = {
         lockout   : 0 = unlocked, 1 = locked out
         priority  : 0 = off, 1 = on"""
         ),
-    
     
     "CNT": scanner_command(
         name="CNT",
