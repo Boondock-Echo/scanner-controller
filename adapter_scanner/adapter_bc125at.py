@@ -1,26 +1,25 @@
-from utilities.scanner_utils import send_command
-from scanner_adapters.base_adapter import BaseScannerAdapter
-from scanner_library.commands.bcd325p2_commands import commands  # Import commands from the correct library
-
-import scanner_library.bcd325p2CommandLibrary
 import time
+import library_scanner.bc125atCommandLibrary
+from utilities.scanner_utils import send_command  # Correct location for send_command
+from adapter_scanner.base_adapter import BaseScannerAdapter
+from library_scanner.bc125atCommandLibrary import commands  # Import commands from the correct library
 
-class BC325P2Adapter(BaseScannerAdapter):
-    def __init__(self, machineMode=False):
-        self.machineMode = machineMode
+class BC125ATAdapter(BaseScannerAdapter):
+    def __init__(self, machine_mode=False):
+        self.machine_mode = machine_mode
 
     def feedback(self, success, message):
-        if self.machineMode:
+        if self.machine_mode:
             return "OK" if success else "ERROR"
         return message
 
-    def getHelp(self, command):
+    def get_help(self, command):
         try:
-            return scanner_library.bc125atCommandLibrary.getHelp(command)
+            return library_scanner.bc125atCommandLibrary.getHelp(command)
         except Exception as e:
-            return self.feedback(False, f"❌\t[getHelp Error] {e}")
+            return self.feedback(False, f"❌\t[get_help Error] {e}")
 
-    def dumpMemoryToFile(self, ser, filename="memorydump.txt", start=0x00000000, end=0x0000FFFF, step=16):
+    def dump_memory_to_file(self, ser, filename="memorydump.txt", start=0x00000000, end=0x0000FFFF, step=16):
         import sys
 
         def hex32(i): return f"{i:08X}"
@@ -94,7 +93,7 @@ class BC325P2Adapter(BaseScannerAdapter):
         except Exception as e:
             return self.feedback(False, f"❌ [enter_quick_frequency_hold Error] {e}")
 
-    def writeKeyBeep(self, ser, level=99, lock=0):
+    def write_key_beep(self, ser, level=99, lock=0):
         try:
             send_command(ser, "PRG")
             cmd = commands["KBP"]
@@ -104,7 +103,7 @@ class BC325P2Adapter(BaseScannerAdapter):
         except Exception as e:
             return self.feedback(False, f"[writeKeyBeep Error] {e}")
 
-    def readVolume(self, ser):
+    def read_volume(self, ser):
         try:
             response = send_command(ser, commands["VOL"].buildCommand())
             _, value = response.split(",", 1)
@@ -113,7 +112,7 @@ class BC325P2Adapter(BaseScannerAdapter):
         except Exception as e:
             return self.feedback(False, f"❌ [readVolume Error] {e}")
 
-    def writeVolume(self, ser, value):
+    def write_volume(self, ser, value):
         try:
             if not (0.0 <= value <= 1.0):
                 return self.feedback(False, "⚠️ Volume must be between 0.0 and 1.0")
@@ -123,7 +122,7 @@ class BC325P2Adapter(BaseScannerAdapter):
         except Exception as e:
             return self.feedback(False, f"❌ [writeVolume Error] {e}")
 
-    def readSquelch(self, ser):
+    def read_squelch(self, ser):
         try:
             response = send_command(ser, commands["SQL"].buildCommand())
             _, value = response.split(",", 1)
@@ -132,7 +131,7 @@ class BC325P2Adapter(BaseScannerAdapter):
         except Exception as e:
             return self.feedback(False, f"❌ [readSquelch Error] {e}")
 
-    def writeSquelch(self, ser, value):
+    def write_squelch(self, ser, value):
         try:
             if not (0.0 <= value <= 1.0):
                 return self.feedback(False, "❌ Squelch must be between 0.0 and 1.0")
@@ -144,7 +143,7 @@ class BC325P2Adapter(BaseScannerAdapter):
         except Exception as e:
             return self.feedback(False, f"❌ [writeSquelch Error] {e}")
 
-    def readFrequency(self, ser):
+    def read_frequency(self, ser):
         try:
             response = send_command(ser, "PWR")
             parts = response.strip().split(",")
@@ -155,7 +154,7 @@ class BC325P2Adapter(BaseScannerAdapter):
         except Exception as e:
             return self.feedback(False, f"❌ [readFrequency Error] {e}")
 
-    def writeFrequency(self, ser, freq_mhz):
+    def write_frequency(self, ser, freq_mhz):
         try:
             send_command(ser, "PRG")
             send_command(ser, "EPG")
@@ -174,7 +173,7 @@ class BC325P2Adapter(BaseScannerAdapter):
         except Exception as e:
             return self.feedback(False, f"❌ [writeFrequency Error] {e}")
 
-    def readRSSI(self, ser):
+    def read_rssi(self, ser):
         try:
             response = send_command(ser, "PWR")
             parts = response.strip().split(",")
@@ -185,12 +184,12 @@ class BC325P2Adapter(BaseScannerAdapter):
         except Exception as e:
             return self.feedback(False, f"❌ [readRSSI Error] {e}")
 
-    def sendKey(self, ser, keySeq):
-        if not keySeq:
+    def send_key(self, ser, key_seq):
+        if not key_seq:
             return self.feedback(False, "❌ No key(s) provided.")
 
         responses = []
-        for char in keySeq:
+        for char in key_seq:
             if char not in "0123456789<>^.EMFHSLP":
                 responses.append(f"{char} → skipped (invalid key)")
                 continue
@@ -201,19 +200,19 @@ class BC325P2Adapter(BaseScannerAdapter):
                 responses.append(f"❌ {char} → ERROR: {e}")
         return "\n".join(responses)
 
-    def readModel(self, ser):
+    def read_model(self, ser):
         try:
             model = send_command(ser, commands["MDL"].buildCommand())
             return self.feedback(True, f"✅ Model: {model}")
         except Exception as e:
             return self.feedback(False, f"❌ [readModel Error] {e}")
 
-    def readSWVer(self, ser):
+    def read_sw_ver(self, ser):
         try:
             version = send_command(ser, commands["VER"].buildCommand())
             return self.feedback(True, f"✅ Software Version: {version}")
         except Exception as e:
             return self.feedback(False, f"❌ [readSWVer Error] {e}")
 
-    def readSMeter(self, ser):
+    def read_s_meter(self, ser):
         return self.feedback(False, "❌ SMeter not supported")

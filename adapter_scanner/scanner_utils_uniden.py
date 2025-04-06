@@ -2,11 +2,11 @@ from imaplib import Commands
 import time
 import logging
 import serial
-import scanner_library
-from scanner_adapters.scanner_utils import send_command, read_response, clear_serial_buffer
+import library_scanner
+from adapter_scanner.scanner_utils import send_command, read_response, clear_serial_buffer
 
 from serial.tools import list_ports
-from scanner_adapters.base_adapter import BaseScannerAdapter
+from adapter_scanner.base_adapter import BaseScannerAdapter
 
 class UnidenAdapter(BaseScannerAdapter):
     def __init__(self, machine_mode=False):
@@ -19,7 +19,7 @@ class UnidenAdapter(BaseScannerAdapter):
 
     def get_help(self, command):
         try:
-            return scanner_library.bc125atCommandLibrary.getHelp(command)
+            return library_scanner.bc125atCommandLibrary.getHelp(command)
         except Exception as e:
             return self.feedback(False, f"❌\t[get_help Error] {e}")
 

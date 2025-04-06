@@ -1,31 +1,31 @@
 
 class BaseScannerAdapter:
     def readVolume(self, ser):
-        from scanner_adapters.scanner_utils import send_command
+        from adapter_scanner.scanner_utils import send_command
         return "Not Supported"
 
     def writeVolume(self, ser, value):
-        from scanner_adapters.scanner_utils import send_command
+        from adapter_scanner.scanner_utils import send_command
         return "Not Supported"
 
     def readSquelch(self, ser):
-        from scanner_adapters.scanner_utils import send_command
+        from adapter_scanner.scanner_utils import send_command
         return "Not Supported"
 
     def writeSquelch(self, ser, value):
-        from scanner_adapters.scanner_utils import send_command
+        from adapter_scanner.scanner_utils import send_command
         return "Not Supported"
 
     def readFrequency(self, ser):
-        from scanner_adapters.scanner_utils import send_command
+        from adapter_scanner.scanner_utils import send_command
         return "Not Supported"
 
     def writeFrequency(self, ser, value):
-        from scanner_adapters.scanner_utils import send_command
+        from adapter_scanner.scanner_utils import send_command
         return "Not Supported"
 
     def readRSSI(self, ser):
-        from scanner_adapters.scanner_utils import send_command
+        from adapter_scanner.scanner_utils import send_command
         return "Not Supported"
 
     def readSMeter(self, ser): return "Not Supported"

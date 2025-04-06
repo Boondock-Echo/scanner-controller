@@ -1,9 +1,9 @@
 # commandLibrary.py
 
-from scanner_adapters.adapter_bc125at import BC125ATAdapter
-from scanner_adapters.adapter_bcd325p2 import BCD325P2Adapter
-from scanner_adapters.adapter_sds100 import SDS100Adapter
-from scanner_adapters.adapter_ardv1 import AORDV1Adapter
+from adapter_scanner.adapter_bc125at import BC125ATAdapter
+from adapter_scanner.adapter_bcd325p2 import BCD325P2Adapter
+from adapter_scanner.adapter_sds100 import SDS100Adapter
+from adapter_scanner.adapter_ardv1 import AORDV1Adapter
 
 
 def getScannerInterface(model):

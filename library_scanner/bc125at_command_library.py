@@ -1,6 +1,6 @@
 from utilities.scanner_utils_uniden import send_command
-from scanner_adapters.base_adapter import BaseScannerAdapter
-import scanner_library.bc125at_command_library
+from adapter_scanner.base_adapter import BaseScannerAdapter
+import library_scanner.bc125at_command_library
 import time
 from utilities.shared_utils import scanner_command
 
@@ -150,7 +150,7 @@ class BC125ATAdapter(BaseScannerAdapter):
 
     def getHelp(self, command):
         try:
-            return scanner_library.bc125at_command_library.getHelp(command)
+            return library_scanner.bc125at_command_library.getHelp(command)
         except Exception as e:
             return self.feedback(False, f"❌\t[getHelp Error] {e}")
 
