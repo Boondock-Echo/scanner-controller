@@ -1,8 +1,8 @@
 import time
-import library_scanner.bc125atCommandLibrary
+import library_scanner.bc125at_command_library
 from utilities.scanner_utils import send_command  # Correct location for send_command
 from adapter_scanner.base_adapter import BaseScannerAdapter
-from library_scanner.bc125atCommandLibrary import commands  # Import commands from the correct library
+from library_scanner.bc125at_command_library import commands  # Import commands from the correct library
 
 class BC125ATAdapter(BaseScannerAdapter):
     def __init__(self, machine_mode=False):
@@ -15,7 +15,7 @@ class BC125ATAdapter(BaseScannerAdapter):
 
     def get_help(self, command):
         try:
-            return library_scanner.bc125atCommandLibrary.getHelp(command)
+            return library_scanner.bc125at_command_library.getHelp(command)
         except Exception as e:
             return self.feedback(False, f"❌\t[get_help Error] {e}")
 

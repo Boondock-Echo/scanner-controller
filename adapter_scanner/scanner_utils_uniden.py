@@ -19,7 +19,7 @@ class UnidenAdapter(BaseScannerAdapter):
 
     def get_help(self, command):
         try:
-            return library_scanner.bc125atCommandLibrary.getHelp(command)
+            return library_scanner.bc125at_command_library.getHelp(command)
         except Exception as e:
             return self.feedback(False, f"❌\t[get_help Error] {e}")
 

@@ -30,7 +30,7 @@ scanner_gui\gui\signalMeters.py: PyQt6
 scanner_gui\main.py: PyQt6, scanner_gui, sys
 scanner_gui\scannerUtils.py: logging, serial, time
 scanner_gui\scanner_utils.py: logging, library_scanner, serial, time
-library_scanner\bc125atCommandLibrary.py: utilities
+library_scanner\bc125at_command_library.py: utilities
 library_scanner\bc125at_command_library.py: adapter_scanner, library_scanner, time, utilities
 library_scanner\bcd325p2CommandLibrary.py: utilities
 library_scanner\bcd325p2_command_library.py: adapter_scanner, library_scanner, sys, time, utilities
@@ -86,7 +86,7 @@ scanner_gui\main.py
 scanner_gui\scannerUtils.py
 scanner_gui\scanner_utils.py
 library_scanner\aordv1CommandLibrary.py
-library_scanner\bc125atCommandLibrary.py
+library_scanner\bc125at_command_library.py
 library_scanner\bc125at_command_library.py
 library_scanner\bcd325p2CommandLibrary.py
 library_scanner\bcd325p2_command_library.py

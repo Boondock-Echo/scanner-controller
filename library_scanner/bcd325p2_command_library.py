@@ -16,7 +16,7 @@ class BC325P2Adapter(BaseScannerAdapter):
 
     def getHelp(self, command):
         try:
-            return library_scanner.bc125atCommandLibrary.getHelp(command)
+            return library_scanner.bc125at_command_library.getHelp(command)
         except Exception as e:
             return self.feedback(False, f"❌\t[getHelp Error] {e}")
 
