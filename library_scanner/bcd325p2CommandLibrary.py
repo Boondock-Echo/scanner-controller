@@ -1,4 +1,3 @@
-# bcd325p2CommandLibrary.py
 
 """
 BCD325P2 Command Library (refactored)

@@ -6,8 +6,6 @@ from utilities.log_trim import trim_log_file
 from adapter_scanner.scanner_utils import find_all_scanner_ports
 from adapter_scanner.adapter_bc125at import BC125ATAdapter
 from adapter_scanner.adapter_bcd325p2 import BCD325P2Adapter
-from adapter_scanner.adapter_sds100 import SDS100Adapter
-from adapter_scanner.adapter_ardv1 import AORDV1Adapter
 from command_registry import build_command_table
 from utilities.readlineSetup import initialize_readline
 
@@ -37,9 +35,7 @@ if os.path.getsize("scanner_tool.log") > 10 * 1024 * 1024:  # 10 MB limit
 # Maps scanner model names to their respective adapter classes
 adapter_scanner = { # if your scanner adapter is not listed here, add it here
     "BC125AT": BC125ATAdapter(),
-    "BCD325P2": BCD325P2Adapter(),  # Ensure this is correctly instantiated
-    "SDS100": SDS100Adapter(),
-    "AOR-DV1": AORDV1Adapter(),
+    "BCD325P2": BCD325P2Adapter(),
 }
 
 # ------------------------------------------------------------------------------

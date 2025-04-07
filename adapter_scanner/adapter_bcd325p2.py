@@ -1,4 +1,4 @@
-from library_scanner.bcd325p2CommandLibrary import commands
+from library_scanner.commands.commands_uniden_bcd325p2 import commands
 from utilities.scanner_utils import send_command  # Ensure correct import
 from adapter_scanner.base_adapter import BaseScannerAdapter
 
@@ -26,9 +26,9 @@ class BCD325P2Adapter(BaseScannerAdapter):
         return message
 
     def getHelp(self, command):
-        from library_scanner import bcd325p2CommandLibrary
+        from library_scanner.commands.commands_uniden_bcd325p2 import commands
         try:
-            return bcd325p2CommandLibrary.getHelp(command)
+            return commands.getHelp(command)
         except Exception as e:
             return self.feedback(False, f"⚠️ [getHelp Error] {e}")
 
@@ -259,3 +259,7 @@ class BCD325P2Adapter(BaseScannerAdapter):
         Wrapper for the send_command function to maintain consistency.
         """
         return send_command(ser, cmd)
+
+"""
+class BC325P2Adapter(BaseScannerAdapter):
+"""
