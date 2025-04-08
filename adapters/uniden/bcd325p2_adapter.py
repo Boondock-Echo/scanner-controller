@@ -5,7 +5,7 @@ from command_libraries.uniden.bcd325p2_commands import commands
 import sys
 
 def hex32(value):
-    """Convert an integer to a 32-bit hexadecimal string with '0x' prefix."""
+    """Convert an integer to a 32-bit hexadecimal string without '0x' prefix."""
     return f"{value:08X}"
 
 def update_progress(current, total):
@@ -25,7 +25,8 @@ class BCD325P2Adapter(UnidenScannerAdapter):
     
     def __init__(self, machine_mode=False):
         super().__init__(machine_mode, commands)
-        self.machineMode = 'BCD325P2'  # Add this line to fix the attribute error
+        # Set the scanner model identifier to ensure compatibility with parent class methods
+        self.machineMode = 'BCD325P2'
 
     def feedback(self, success, message):
         if self.machineMode:
@@ -35,12 +36,20 @@ class BCD325P2Adapter(UnidenScannerAdapter):
     def getHelp(self, command):
         """
         Get help for a specific BCD325P2 command
+        
+        Args:
+            command: The command to get help for
+            
+        Returns:
+            String containing help text for the specified command
         """
         try:
             cmd = self.commands.get(command.upper())
-            if cmd and cmd.help:
-                return cmd.help
-            return f"No help available for {command}"
+            if not cmd:
+                return f"Command '{command}' not found in command library"
+            if not hasattr(cmd, 'help') or not cmd.help:
+                return f"No help available for command '{command}'"
+            return cmd.help
         except Exception as e:
             return self.feedback(False, f"Error retrieving help: {e}")
     
