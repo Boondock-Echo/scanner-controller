@@ -1,113 +1,47 @@
-from serial.tools import list_ports
-import serial
-import time
-import logging
+"""
+LEGACY SCANNER UTILITIES - REDIRECTS TO NEW LOCATION
+This file is kept for backward compatibility and redirects to utilities/scanner_utils.py
 
-# Scanner Utilities Module
-# This module provides common functions for scanner communication.
+DEPRECATION NOTICE: This module will be removed in version 2.0.0 (estimated Q3 2023).
+All code should import directly from utilities.scanner_utils instead.
+"""
 
-def clear_serial_buffer(ser):
-    """
-    Clears any accumulated data in the serial buffer before sending commands.
-    """
-    try:
-        time.sleep(0.2)  # Allow any ongoing transmission to complete
-        while ser.in_waiting:
-            ser.read(ser.in_waiting)  # Flush buffer
-        logging.debug("Serial buffer cleared.")
-    except Exception as e:
-        logging.error(f"Error clearing serial buffer: {e}")
+import warnings
+import inspect
+import os
+import sys
 
-def read_response(ser, timeout=1.0):
-    """
-    Reads bytes from the serial port until a carriage return (\r) is encountered
-    or the timeout expires.
-    """
-    response_bytes = bytearray()
-    start_time = time.time()
+warnings.warn(
+    "Using adapter_scanner.scanner_utils is deprecated. "
+    "Please use utilities.scanner_utils instead. "
+    "This redirect will be removed in version 2.0.0.",
+    DeprecationWarning, 
+    stacklevel=2
+)
+
+# Import directly from utilities.scanner_utils, but don't create a circular reference
+import utilities.scanner_utils as utils
+
+# Re-export the functions
+clear_serial_buffer = utils.clear_serial_buffer
+read_response = utils.read_response
+send_command = utils.send_command
+find_all_scanner_ports = utils.find_all_scanner_ports
+wait_for_data = utils.wait_for_data
+
+# Utility function to help identify where this legacy module is still being used
+def _log_legacy_usage():
+    """Log where this legacy module is being used to assist with migration"""
+    frame = inspect.currentframe().f_back.f_back
+    caller_file = frame.f_code.co_filename
+    caller_line = frame.f_lineno
     
-    try:
-        while time.time() - start_time < timeout:
-            if ser.in_waiting:
-                byte = ser.read(1)
-                if byte in b'\r\n':  # Stop reading at CR or LF
-                    break
-                response_bytes.extend(byte)
-        response = response_bytes.decode("utf-8", errors="ignore").strip()
-        logging.debug(f"Received response: {response}")
-        return response
-    except Exception as e:
-        logging.error(f"Error reading response: {e}")
-        return ""
+    log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    
+    with open(os.path.join(log_dir, "legacy_usage.log"), "a") as f:
+        f.write(f"{caller_file}:{caller_line} imported adapter_scanner.scanner_utils\n")
 
-def send_command(ser, command):
-    """
-    Sends a command to the scanner and reads the response.
-    """
-    try:
-        logging.debug(f"Sending command: {command} (type: {type(command)})")
-        if not isinstance(command, str):
-            raise ValueError(f"Command must be a string, got {type(command)} instead.")
-        ser.write(f"{command}\r".encode("utf-8"))
-        response = ser.readline().decode("utf-8").strip()
-        logging.debug(f"Received response: {response}")
-        return response
-    except Exception as e:
-        logging.error(f"Error sending command '{command}': {e}")
-        raise
-
-def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2):
-    """
-    Scans all COM ports and returns a list of tuples (port_name, model_code)
-    where model_code matches one of the SCANNER_MODELS keys.
-    """
-    detected = []
-    retries = 0
-    while retries < max_retries:
-        ports = list_ports.comports()
-        for port in ports:
-            logging.info(f"Trying port: {port.device} ({port.description})")
-            try:
-                with serial.Serial(port.device, baudrate, timeout=timeout) as ser:
-                    ser.reset_input_buffer()
-                    time.sleep(0.1)  # allow scanner to wake up
-                    logging.info(f"Sending MDL to {port.device}")
-                    ser.write(b"MDL\r")
-                    wait_for_data(ser, max_wait=0.3)
-                    model_response = read_response(ser)
-                    logging.info(f"Response from {port.device}: {model_response}")
-                    if model_response.startswith("MDL,"):
-                        model_code = model_response.split(",")[1].strip()
-                        detected.append((port.device, model_code))
-                        continue
-
-                    ser.reset_input_buffer()
-                    time.sleep(0.1)
-                    logging.info(f"Sending WI to {port.device}")
-                    ser.write(b"WI\r\n")
-                    wait_for_data(ser, max_wait=0.3)
-                    wi_response = read_response(ser)
-                    logging.info(f"Response from {port.device}: {wi_response}")
-                    if "AR-DV1" in wi_response:
-                        detected.append((port.device, "AOR-DV1"))
-            except Exception as e:
-                logging.warning(f"Error checking port {port.device}: {e}")
-        if detected:
-            return detected
-        retries += 1
-        logging.info("No scanners found. Retrying in 3 seconds...")
-        time.sleep(3)
-    logging.error("No scanners found after maximum retries.")
-    return []
-
-def wait_for_data(ser, max_wait=0.3):
-    """
-    Waits up to max_wait seconds for incoming data on the serial port.
-    Returns True if data is available, otherwise False.
-    """
-    start = time.time()
-    while time.time() - start < max_wait:
-        if ser.in_waiting:
-            return True
-        time.sleep(0.01)
-    return False
+# Only log in non-production environments
+if "PRODUCTION" not in os.environ:
+    _log_legacy_usage()

@@ -3,11 +3,10 @@ import logging
 import serial
 import argparse
 from utilities.log_trim import trim_log_file
-from adapter_scanner.scanner_utils import find_all_scanner_ports
-from adapter_scanner.adapter_bc125at import BC125ATAdapter
-from adapter_scanner.adapter_bcd325p2 import BCD325P2Adapter
+from utilities.scanner_utils import find_all_scanner_ports
 from command_registry import build_command_table
 from utilities.readlineSetup import initialize_readline
+from utilities.scanner_factory import get_scanner_adapter
 
 # ------------------------------------------------------------------------------
 # LOGGING SETUP
@@ -34,9 +33,23 @@ if os.path.getsize("scanner_tool.log") > 10 * 1024 * 1024:  # 10 MB limit
 
 # Maps scanner model names to their respective adapter classes
 adapter_scanner = { # if your scanner adapter is not listed here, add it here
-    "BC125AT": BC125ATAdapter(),
-    "BCD325P2": BCD325P2Adapter(),
+    "BC125AT": "adapters.uniden.bc125at_adapter.BC125ATAdapter",
+    "BCD325P2": "adapters.uniden.bcd325p2_adapter.BCD325P2Adapter",
 }
+
+# Helper function to load the adapter
+def get_adapter(model_name):
+    import importlib
+    
+    if model_name not in adapter_scanner:
+        raise ValueError(f"Unsupported scanner model: {model_name}")
+    
+    try:
+        module_path, class_name = adapter_scanner[model_name].rsplit('.', 1)
+        module = importlib.import_module(module_path)
+        return getattr(module, class_name)()
+    except (ImportError, AttributeError) as e:
+        raise ImportError(f"Error loading adapter for {model_name}: {e}")
 
 # ------------------------------------------------------------------------------
 # HELP COMMAND
@@ -193,7 +206,7 @@ def main():
     # Use the scanner model to select the appropriate adapter
     try:
         with serial.Serial(port, 115200, timeout=1) as ser:
-            adapter = adapter_scanner.get(scanner_model)
+            adapter = get_scanner_adapter(scanner_model, machine_mode)
             if not adapter:
                 print(f"No adapter implemented for {scanner_model}.")
                 return

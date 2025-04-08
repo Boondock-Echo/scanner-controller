@@ -3,10 +3,10 @@ import time
 import logging
 import serial
 import library_scanner
-from adapter_scanner.scanner_utils import send_command, read_response, clear_serial_buffer
+from utilities.scanner_utils import send_command, read_response, clear_serial_buffer
 
 from serial.tools import list_ports
-from adapter_scanner.base_adapter import BaseScannerAdapter
+from adapters.base_adapter import BaseScannerAdapter
 
 class UnidenAdapter(BaseScannerAdapter):
     def __init__(self, machine_mode=False):
@@ -349,3 +349,23 @@ class UnidenAdapter(BaseScannerAdapter):
         except Exception as e:
             return self.feedback(False, f"❌ [enter_quick_frequency_hold Error] {e}")
     """
+
+"""
+LEGACY UNIDEN UTILITIES - REDIRECTS TO NEW LOCATION
+This file is kept for backward compatibility and redirects to utilities/scanner_utils_uniden.py
+"""
+
+import warnings
+warnings.warn(
+    "Using adapter_scanner.scanner_utils_uniden is deprecated. "
+    "Please use utilities.scanner_utils_uniden instead.",
+    DeprecationWarning, 
+    stacklevel=2
+)
+
+from utilities.scanner_utils_uniden import UnidenScannerAdapter
+
+# For compatibility with old code that may directly import this class
+class UnidenAdapter(UnidenScannerAdapter):
+    """Legacy compatibility class for UnidenAdapter"""
+    pass

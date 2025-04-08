@@ -1,12 +1,8 @@
-import time
-import logging
-
-# Shared utilities for scanner adapters
-
-class scanner_command:
+class BaseCommand:
     """
-    Defines a command that can be sent to a scanner
+    Base class for all scanner commands
     """
+    
     def __init__(self, name, valid_range=None, query_format=None, set_format=None,
                  validator=None, parser=None, requires_prg=False, help=None):
         self.name = name.upper()
@@ -16,7 +12,7 @@ class scanner_command:
         self.validator = validator
         self.parser = parser
         self.requires_prg = requires_prg
-        self.help = help  # optional help text
+        self.help = help
 
     def buildCommand(self, value=None):
         """
@@ -40,15 +36,3 @@ class scanner_command:
         if response == "ERR" or "ERR" in response:
             raise Exception(f"{self.name}: Command returned an error: {response}")
         return self.parser(response) if self.parser else response
-
-def clear_serial_buffer(ser):
-    """
-        Clears any accumulated data in the serial buffer before sending commands.
-    """
-    try:
-        time.sleep(0.2)
-        while ser.in_waiting:
-            ser.read(ser.in_waiting)
-        logging.debug("Serial buffer cleared.")
-    except Exception as e:
-        logging.error(f"Error clearing serial buffer: {e}")

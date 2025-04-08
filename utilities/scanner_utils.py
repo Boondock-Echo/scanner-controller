@@ -2,7 +2,6 @@ import time
 import logging
 import serial
 from serial.tools import list_ports
-from adapter_scanner.scanner_utils import clear_serial_buffer
 
 # Configure logging
 logging.basicConfig(
@@ -10,6 +9,17 @@ logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
+
+def clear_serial_buffer(ser):
+    """
+    Clears any accumulated data in the serial buffer before sending commands.
+    """
+    try:
+        if ser.in_waiting:
+            ser.read(ser.in_waiting)
+        logging.debug("Serial buffer cleared")
+    except Exception as e:
+        logging.error(f"Error clearing serial buffer: {e}")
 
 def read_response(ser, timeout=1.0):
     """

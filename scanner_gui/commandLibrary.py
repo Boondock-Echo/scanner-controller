@@ -1,7 +1,10 @@
-# commandLibrary.py
+"""
+Scanner GUI Command Library
+"""
 
-from adapter_scanner.adapter_bc125at import BC125ATAdapter
-from adapter_scanner.adapter_bcd325p2 import BCD325P2Adapter
+# Update imports to use new module paths
+from adapters.uniden.bc125at_adapter import BC125ATAdapter  # Changed from adapter_scanner.adapter_bc125at
+from adapters.uniden.bcd325p2_adapter import BCD325P2Adapter  # Changed from adapter_scanner.adapter_bcd325p2
 
 
 def getScannerInterface(model):

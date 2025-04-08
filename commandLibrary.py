@@ -1,6 +1,10 @@
-from adapter_scanner.adapter_bc125at import BC125ATAdapter
-from adapter_scanner.adapter_bcd325p2 import BCD325P2Adapter
+"""
+Command Library for Scanner Controller
+Provides a unified interface to different scanner adapters.
+"""
 
+from adapters.uniden.bc125at_adapter import BC125ATAdapter
+from adapters.uniden.bcd325p2_adapter import BCD325P2Adapter
 
 def getScannerInterface(model):
     model = model.upper()

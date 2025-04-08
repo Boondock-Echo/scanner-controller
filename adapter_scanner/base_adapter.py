@@ -1,4 +1,19 @@
+"""
+LEGACY ADAPTER - REDIRECTS TO NEW LOCATION
+This file is kept for backward compatibility and redirects to adapters/base_adapter.py
+"""
 
+import warnings
+warnings.warn(
+    "Using adapter_scanner.base_adapter is deprecated. "
+    "Please use adapters.base_adapter instead.",
+    DeprecationWarning, 
+    stacklevel=2
+)
+
+from adapters.base_adapter import BaseScannerAdapter
+
+# Keep original scanner_command definition for backward compatibility
 class scanner_command:
     def __init__(self, name, valid_range=None, query_format=None, set_format=None,
                  validator=None, parser=None, requires_prg=False, help=None):
@@ -19,46 +34,9 @@ class scanner_command:
         elif self.valid_range and not (self.valid_range[0] <= value <= self.valid_range[1]):
             raise ValueError(f"{self.name}: Value must be between {self.valid_range[0]} and {self.valid_range[1]}.")
         return f"{self.set_format.format(value=value)}\r"
-
+    
     def parseResponse(self, response):
         response = response.strip()
         if response == "ERR" or "ERR" in response:
             raise Exception(f"{self.name}: Command returned an error: {response}")
         return self.parser(response) if self.parser else response
-
-class BaseScannerAdapter:
-    def readVolume(self, ser):
-        from adapter_scanner.scanner_utils import send_command
-        return "Not Supported"
-
-    def writeVolume(self, ser, value):
-        from adapter_scanner.scanner_utils import send_command
-        return "Not Supported"
-
-    def readSquelch(self, ser):
-        from adapter_scanner.scanner_utils import send_command
-        return "Not Supported"
-
-    def writeSquelch(self, ser, value):
-        from adapter_scanner.scanner_utils import send_command
-        return "Not Supported"
-
-    def readFrequency(self, ser):
-        from adapter_scanner.scanner_utils import send_command
-        return "Not Supported"
-
-    def writeFrequency(self, ser, value):
-        from adapter_scanner.scanner_utils import send_command
-        return "Not Supported"
-
-    def readRSSI(self, ser):
-        from adapter_scanner.scanner_utils import send_command
-        return "Not Supported"
-
-    def readSMeter(self, ser): return "Not Supported"
-
-    def readModel(self, ser):
-        return "Not Supported"
-
-    def readSWVer(self, ser):
-        return "Not Supported"
