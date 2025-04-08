@@ -44,26 +44,52 @@ def send_command(ser, cmd):
     """
     Clears the buffer and sends a command (with CR termination) to the scanner.
     """
-    clear_serial_buffer(ser)
-    full_cmd = cmd.strip() + "\r"
+    if not ser.is_open:
+        logging.error("Cannot send command - serial port is not open")
+        return ""
+        
     try:
-        ser.write(full_cmd.encode("utf-8").upper)
-        logging.info(f"Sent command: {cmd.upper}")
+        clear_serial_buffer(ser)
+        full_cmd = cmd.strip() + "\r"
+        logging.debug(f"Sending command: {cmd}")
+        
+        # Convert to uppercase and encode as bytes
+        cmd_bytes = full_cmd.upper().encode("utf-8")
+        ser.write(cmd_bytes)
+        
+        # Wait a moment for the command to be processed
+        time.sleep(0.1)
+        
+        # Read the response
+        return read_response(ser)
     except Exception as e:
         logging.error(f"Error sending command {cmd}: {e}")
         return ""
-    return read_response(ser)
 
-def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2):
+def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2, skip_ports=None):
     """
     Scans all COM ports and returns a list of tuples (port_name, model_code)
     where model_code matches one of the SCANNER_MODELS keys.
+    
+    Args:
+        baudrate (int): Baud rate to use when checking ports
+        timeout (float): Timeout for serial operations
+        max_retries (int): Number of times to retry scanning if no scanners found
+        skip_ports (list): Optional list of port names to skip (already in use)
     """
+    if skip_ports is None:
+        skip_ports = []
+        
     detected = []
     retries = 0
     while retries < max_retries:
         ports = list_ports.comports()
         for port in ports:
+            # Skip ports that are already known to be in use
+            if port.device in skip_ports:
+                logging.debug(f"Skipping {port.device} (marked as in use)")
+                continue
+                
             logging.info(f"Trying port: {port.device} ({port.description})")
             try:
                 with serial.Serial(port.device, baudrate, timeout=timeout) as ser:

@@ -4,6 +4,7 @@ import sys
 import time
 import os
 import serial
+import logging
 
 from PyQt6.QtWidgets import (
     QWidget, QPushButton, QLabel, QVBoxLayout, QGroupBox,
@@ -20,8 +21,8 @@ from .controlKeys import buildControlKeys
 from .keypad import buildKeypad
 from .rotaryKnob import buildRotaryKnob
 
-from scanner_gui.commandLibrary import getScannerInterface
-from scanner_gui.scannerUtils import findAllScannerPorts
+from ..commandLibrary import getScannerInterface
+from ..scanner_utils import find_all_scanner_ports
 
 BAUDRATE = 115200
 
@@ -39,12 +40,13 @@ class ScannerGUI(QWidget):
         self.scanner_ports = []
         self.childWindows = []
         self.displayLabels = []
+        self.connected_port = None  # Track which port we're connected to
 
         self.initUI()
 
         self.refresh_timer = QTimer()
         self.refresh_timer.timeout.connect(self.refreshScannerList)
-        self.refresh_timer.start(10000)
+        self.refresh_timer.start(10000)  # Change to 10 seconds as requested
 
         self.display_timer = QTimer()
         self.display_timer.timeout.connect(self.updateDisplay)
@@ -122,7 +124,12 @@ class ScannerGUI(QWidget):
         self.setLayout(outerLayout)
 
     def refreshScannerList(self, initial=False):
-        ports = findAllScannerPorts()
+        # Skip checking ports that we're already connected to
+        if self.connected_port and self.ser and self.ser.is_open:
+            logging.debug(f"Skipping scan of port {self.connected_port} (already connected)")
+            return
+            
+        ports = find_all_scanner_ports()
         if ports != self.scanner_ports:
             self.scanner_ports = ports
             self.portSelector.clear()
@@ -133,14 +140,40 @@ class ScannerGUI(QWidget):
 
     def connectScanner(self, port, model):
         try:
+            # If we're already connected to this port, don't reconnect
+            if self.connected_port == port and self.ser and self.ser.is_open:
+                logging.info(f"Already connected to {model} on {port}")
+                return
+                
+            # Close any existing connection
             if self.ser:
-                self.ser.close()
-            self.ser = serial.Serial(port, BAUDRATE, timeout=1)
-            time.sleep(0.1)
+                try:
+                    self.ser.close()
+                    logging.debug(f"Closed existing connection")
+                except Exception as e:
+                    logging.warning(f"Error closing existing connection: {e}")
+            
+            # Give the OS time to release the port
+            time.sleep(0.5)
+                
+            # Connect to the new port
+            self.ser = serial.Serial(port, BAUDRATE, timeout=1, exclusive=True)
+            time.sleep(0.2)  # Allow the scanner to wake up
+            
+            # Store the port we're connected to
+            self.connected_port = port
+            
+            # Set up the interface
             self.adapter = getScannerInterface(model)
             self.modelLabel.setText(f"Model: {model}")
+            
+            logging.info(f"Successfully connected to {model} on {port}")
         except Exception as e:
+            logging.error(f"Error connecting to {model} on {port}: {e}")
             QMessageBox.critical(self, "Connection Error", f"Could not connect to {model} on {port}:\n{e}")
+            self.connected_port = None
+            self.ser = None
+            self.adapter = None
 
     def manualConnect(self):
         index = self.portSelector.currentIndex()
@@ -207,8 +240,30 @@ class ScannerGUI(QWidget):
         self.sendKey("^")
 
     def sendKey(self, key):
-        if self.adapter and self.ser:
-            self.adapter.sendKey(self.ser, key)
+        """Send a key press to the scanner"""
+        if not self.adapter or not self.ser:
+            logging.warning(f"Cannot send key '{key}': not connected to a scanner")
+            return
+            
+        if not self.ser.is_open:
+            logging.warning(f"Cannot send key '{key}': serial port is closed")
+            try:
+                # Try to reopen the port
+                self.ser.open()
+                logging.info(f"Reopened connection to {self.connected_port}")
+            except Exception as e:
+                logging.error(f"Failed to reopen serial port: {e}")
+                return
+        
+        try:
+            logging.info(f"Sending key: '{key}'")
+            # Use the adapter's sendKey method which now includes the ',P' suffix
+            response = self.adapter.sendKey(self.ser, key)
+            logging.info(f"Response: {response}")
+        except Exception as e:
+            logging.error(f"Error sending key '{key}': {e}")
+            import traceback
+            logging.error(traceback.format_exc())
 
     def setVolume(self):
         if self.adapter and self.ser:
