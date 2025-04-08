@@ -4,7 +4,7 @@ import serial
 import argparse
 from utilities.log_trim import trim_log_file
 from utilities.scanner_utils import find_all_scanner_ports
-from command_registry import build_command_table
+from utilities.core.command_registry import build_command_table
 from utilities.readlineSetup import initialize_readline
 from utilities.scanner_factory import get_scanner_adapter
 

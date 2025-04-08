@@ -63,11 +63,11 @@ except (ImportError, ModuleNotFoundError):
 
 # From commands/command_registry.py
 try:
-    from utilities.commands.command_registry import *
+    from utilities.core.command_registry import *
 except (ImportError, ModuleNotFoundError):
     # Fallback to original location if not yet moved
     try:
-        from utilities.command_registry import *
+        from utilities.core.command_registry import *
     except (ImportError, ModuleNotFoundError):
         print(f"Warning: Could not import command_registry")
 

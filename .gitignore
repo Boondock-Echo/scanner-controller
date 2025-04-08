@@ -29,6 +29,11 @@ MANIFEST
 # Logs
 scanner_tool.log
 
+# Analysis tool outputs
+unused_files.txt
+unused_imports.txt
+dependency_graph.txt
+legacy_report.txt
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

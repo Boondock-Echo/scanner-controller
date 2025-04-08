@@ -3,6 +3,12 @@ Command Registry for Scanner Controller
 Creates a mapping between user commands and adapter functions.
 """
 
+from logging import getLogger
+import time
+from utilities.log_utils import configure_logging
+
+logger = getLogger(__name__)
+
 def build_command_table(adapter, ser):
     """
     Builds the command-to-function dispatcher and help descriptions.
@@ -101,3 +107,14 @@ def build_command_table(adapter, ser):
         ) 
     }
     return COMMANDS, COMMAND_HELP
+
+"""
+This implementation is causing the program to crash.  Removed for now.
+    COMMANDS["write"].__doc__ = "volume, squelch, frequency",
+    COMMANDS["read"].__doc__ = "volume, squelch, frequency, rssi, smeter, battery, window, status, model, version",
+    COMMANDS["set"].__doc__ = "volume, squelch, frequency",
+    COMMANDS["get"].__doc__ = "volume, squelch, frequency, rssi, smeter, battery, window, status, model, version",
+    COMMANDS["send"].__doc__ = "key, command",
+    COMMANDS["hold"].__doc__ = "frequency",
+    COMMANDS["dump"].__doc__ = "memory",   
+"""

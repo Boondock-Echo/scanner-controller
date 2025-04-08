@@ -33,3 +33,70 @@ class scanner_command:
         if response == "ERR" or "ERR" in response:
             raise Exception(f"{self.name}: Command returned an error: {response}")
         return self.parser(response) if self.parser else response
+
+"""
+Command Library for Scanner Controller
+Provides a unified interface to different scanner adapters.
+"""
+
+from adapters.uniden.bc125at_adapter import BC125ATAdapter
+from adapters.uniden.bcd325p2_adapter import BCD325P2Adapter
+
+def getScannerInterface(model):
+    """Return the appropriate adapter class based on scanner model"""
+    if model.upper() == "BC125AT":
+        return BC125ATAdapter
+    elif model.upper() == "BCD325P2":
+        return BCD325P2Adapter
+    else:
+        raise ValueError(f"Unsupported scanner model: {model}")
+
+def readVolume(ser, model):
+    """Read the volume level for the specified scanner model"""
+    adapter = getScannerInterface(model)()
+    return adapter.readVolume(ser)
+
+def writeVolume(ser, model, value):
+    """Set the volume level for the specified scanner model"""
+    adapter = getScannerInterface(model)()
+    return adapter.writeVolume(ser, value)
+
+def readSquelch(ser, model):
+    """Read the squelch level for the specified scanner model"""
+    adapter = getScannerInterface(model)()
+    return adapter.readSquelch(ser)
+
+def writeSquelch(ser, model, value):
+    """Set the squelch level for the specified scanner model"""
+    adapter = getScannerInterface(model)()
+    return adapter.writeSquelch(ser, value)
+
+def readFrequency(ser, model):
+    """Read the current frequency for the specified scanner model"""
+    adapter = getScannerInterface(model)()
+    return adapter.readFrequency(ser)
+
+def writeFrequency(ser, model, value):
+    """Set the frequency for the specified scanner model"""
+    adapter = getScannerInterface(model)()
+    return adapter.writeFrequency(ser, value)
+
+def readRSSI(ser, model):
+    """Read the RSSI for the specified scanner model"""
+    adapter = getScannerInterface(model)()
+    return adapter.readRSSI(ser)
+
+def readSMeter(ser, model):
+    """Read the S-meter value for the specified scanner model"""
+    adapter = getScannerInterface(model)()
+    return adapter.readSMeter(ser)
+
+def readModel(ser, model):
+    """Read the model information for the specified scanner model"""
+    adapter = getScannerInterface(model)()
+    return adapter.readModel(ser)
+
+def readSWVer(ser, model):
+    """Read the software version for the specified scanner model"""
+    adapter = getScannerInterface(model)()
+    return adapter.readSWVer(ser)
