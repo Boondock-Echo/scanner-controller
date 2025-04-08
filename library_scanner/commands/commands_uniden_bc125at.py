@@ -279,3 +279,17 @@ commands = {
         requires_prg=True
     ),
 }
+
+def getHelp(command):
+    """
+    Returns the help string for the specified command (case-insensitive).
+    Returns None if command is not defined.
+    """
+    cmd = commands.get(command.upper())
+    return cmd.help if cmd else None
+
+def listCommands():
+    """
+    Returns a sorted list of all available command names.
+    """
+    return sorted(commands.keys())
