@@ -15,6 +15,10 @@ As of the latest run of the cleanup script, no code in the project is using lega
 | adapter_scanner.adapter_bc125at | adapters.uniden.bc125at_adapter |
 | adapter_scanner.adapter_bcd325p2 | adapters.uniden.bcd325p2_adapter |
 | library_scanner.bcd325p2_command_library | command_libraries.uniden.bcd325p2_commands |
+| scanner_adapters.baseAdapter | adapters.base_adapter |
+| scanner_adapters.bc125atAdapter | adapters.uniden.bc125at_adapter |
+| scanner_adapters.bcd325p2Adapter | adapters.uniden.bcd325p2_adapter |
+| scanner_adapters.sds100Adapter | adapters.uniden.sds100_adapter |
 
 ## How to Check Your Code
 
@@ -27,6 +31,7 @@ python cleanup_legacy.py
 ## Recent Fixes
 
 - Added missing `machineMode` attribute to `BCD325P2Adapter` class to fix "read frequency" command
+- Added redirects for any remaining code in `scanner_adapters` folder to the `adapters` folder
 
 ## Removing Legacy Redirects
 
@@ -38,6 +43,7 @@ Since the migration is complete, the following legacy redirector files can now b
 4. `adapter_scanner/adapter_bcd325p2.py`
 5. `adapter_scanner/scanner_utils_uniden.py`
 6. `library_scanner/bcd325p2_command_library.py`
+7. All files in the `scanner_adapters` folder
 
 ### Recommended Removal Process
 

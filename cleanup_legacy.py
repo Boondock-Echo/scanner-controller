@@ -19,6 +19,11 @@ LEGACY_MODULES = {
     "adapter_scanner.adapter_bc125at": "adapters.uniden.bc125at_adapter",
     "adapter_scanner.adapter_bcd325p2": "adapters.uniden.bcd325p2_adapter",
     "library_scanner.bcd325p2_command_library": "command_libraries.uniden.bcd325p2_commands",
+    # Scanner_adapters legacy modules
+    "scanner_adapters.baseAdapter": "adapters.base_adapter",
+    "scanner_adapters.bc125atAdapter": "adapters.uniden.bc125at_adapter",
+    "scanner_adapters.bcd325p2Adapter": "adapters.uniden.bcd325p2_adapter",
+    "scanner_adapters.sds100Adapter": "adapters.uniden.sds100_adapter",
     # Add other legacy modules as they're identified
 }
 

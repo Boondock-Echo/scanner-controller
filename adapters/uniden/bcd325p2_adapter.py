@@ -25,8 +25,7 @@ class BCD325P2Adapter(UnidenScannerAdapter):
     
     def __init__(self, machine_mode=False):
         super().__init__(machine_mode, commands)
-        # Add the missing machineMode attribute
-        self.machineMode = 'BCD325P2'  # Set an appropriate value for this scanner model
+        self.machineMode = 'BCD325P2'  # Add this line to fix the attribute error
 
     def feedback(self, success, message):
         if self.machineMode:
