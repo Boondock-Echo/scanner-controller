@@ -6,20 +6,20 @@ scanner_gui\__main__.py:
 
 Unresolved Imports:
 build_dependency_graph.py: ast, collections, os
-commandLibrary.py: scanner_adapters
-command_registry.py: scanner_adapters
-main.py: argparse, logging, scanner_adapters, serial, utilities
-scannerAdapters\aordv1Adapter.py: scannerUtils, scanner_adapters, scanner_library
-scannerAdapters\bc125atAdapter.py: scanner_adapters, scanner_library, sys, time, utilities
-scannerAdapters\sds100Adapter.py: scannerUtils, scanner_adapters, scanner_library
-scanner_adapters\aordv1Adapter.py: scanner_adapters, scanner_library, utilities
-scanner_adapters\base_adapter.py: scanner_adapters, scanner_library, time
-scanner_adapters\bc125atAdapter.py: scanner_adapters, scanner_library, sys, time, utilities
-scanner_adapters\bcd325p2Adapter.py: scanner_adapters, scanner_library
-scanner_adapters\scanner_utils.py: logging, scanner_library, serial, time
-scanner_adapters\scanner_utils_uniden.py: imaplib, logging, re, scanner_adapters, scanner_library, serial, sys, time
-scanner_adapters\sds100Adapter.py: scanner_adapters, scanner_library
-scanner_gui\commandLibrary.py: scanner_adapters
+commandLibrary.py: adapter_scanner
+command_registry.py: adapter_scanner
+main.py: argparse, logging, adapter_scanner, serial, utilities
+scannerAdapters\aordv1Adapter.py: scannerUtils, adapter_scanner, library_scanner
+scannerAdapters\bc125atAdapter.py: adapter_scanner, library_scanner, sys, time, utilities
+scannerAdapters\sds100Adapter.py: scannerUtils, adapter_scanner, library_scanner
+adapter_scanner\aordv1Adapter.py: adapter_scanner, library_scanner, utilities
+adapter_scanner\base_adapter.py: adapter_scanner, library_scanner, time
+adapter_scanner\bc125atAdapter.py: adapter_scanner, library_scanner, sys, time, utilities
+adapter_scanner\bcd325p2Adapter.py: adapter_scanner, library_scanner
+adapter_scanner\scanner_utils.py: logging, library_scanner, serial, time
+adapter_scanner\scanner_utils_uniden.py: imaplib, logging, re, adapter_scanner, library_scanner, serial, sys, time
+adapter_scanner\sds100Adapter.py: adapter_scanner, library_scanner
+scanner_gui\commandLibrary.py: adapter_scanner
 scanner_gui\gui\audioControls.py: PyQt6
 scanner_gui\gui\controlKeys.py: PyQt6, typing
 scanner_gui\gui\displayGroup.py: PyQt6
@@ -29,14 +29,14 @@ scanner_gui\gui\scannerGui.py: PyQt6, audioControls, controlKeys, displayGroup, 
 scanner_gui\gui\signalMeters.py: PyQt6
 scanner_gui\main.py: PyQt6, scanner_gui, sys
 scanner_gui\scannerUtils.py: logging, serial, time
-scanner_gui\scanner_utils.py: logging, scanner_library, serial, time
-scanner_library\bc125atCommandLibrary.py: utilities
-scanner_library\bc125at_command_library.py: scanner_adapters, scanner_library, time, utilities
-scanner_library\bcd325p2CommandLibrary.py: utilities
-scanner_library\bcd325p2_command_library.py: scanner_adapters, scanner_library, sys, time, utilities
-scanner_library\commands\bc125at_commands.py: utilities
-scanner_library\commands\bcd325p2_commands.py: utilities
-scanner_library\sds100CommandLibrary.py: textwrap, time, utilities
+scanner_gui\scanner_utils.py: logging, library_scanner, serial, time
+library_scanner\bc125at_command_library.py: utilities
+library_scanner\bc125at_command_library.py: adapter_scanner, library_scanner, time, utilities
+library_scanner\bcd325p2CommandLibrary.py: utilities
+library_scanner\bcd325p2_command_library.py: adapter_scanner, library_scanner, sys, time, utilities
+library_scanner\commands\bc125at_commands.py: utilities
+library_scanner\commands\bcd325p2_commands.py: utilities
+library_scanner\sds100CommandLibrary.py: textwrap, time, utilities
 utilities\UnidenCommandFinder.py: itertools, serial, string, time
 utilities\commandLibrary.py: logging, utilities
 utilities\commandRegistry.py: logUtils, logging, serial, time, utilities
@@ -47,7 +47,7 @@ utilities\logUtils.py: os
 utilities\readlineSetup.py: pyreadline3, readline
 utilities\runFullQSHDiscovery.py: itertools, re, serial, sys, time
 utilities\runQSHDiscovery.py: discoverQSHFormat, scannerUtils, serial, time
-utilities\scanner_utils.py: logging, scanner_adapters, scanner_library, serial, sys, time, utilities
+utilities\scanner_utils.py: logging, adapter_scanner, library_scanner, serial, sys, time, utilities
 utilities\scanner_utils_uniden.py: logging, re, serial, time, utilities
 utilities\serial_utils.py: logging, time
 utilities\shared_utils.py: logging, serial, time, utilities
@@ -65,13 +65,13 @@ scannerAdapters\aordv1Adapter.py
 scannerAdapters\baseAdapter.py
 scannerAdapters\bc125atAdapter.py
 scannerAdapters\sds100Adapter.py
-scanner_adapters\aordv1Adapter.py
-scanner_adapters\base_adapter.py
-scanner_adapters\bc125atAdapter.py
-scanner_adapters\bcd325p2Adapter.py
-scanner_adapters\scanner_utils.py
-scanner_adapters\scanner_utils_uniden.py
-scanner_adapters\sds100Adapter.py
+adapter_scanner\aordv1Adapter.py
+adapter_scanner\base_adapter.py
+adapter_scanner\bc125atAdapter.py
+adapter_scanner\bcd325p2Adapter.py
+adapter_scanner\scanner_utils.py
+adapter_scanner\scanner_utils_uniden.py
+adapter_scanner\sds100Adapter.py
 scanner_gui\__init__.py
 scanner_gui\commandLibrary.py
 scanner_gui\gui\__init__.py
@@ -85,15 +85,15 @@ scanner_gui\gui\signalMeters.py
 scanner_gui\main.py
 scanner_gui\scannerUtils.py
 scanner_gui\scanner_utils.py
-scanner_library\aordv1CommandLibrary.py
-scanner_library\bc125atCommandLibrary.py
-scanner_library\bc125at_command_library.py
-scanner_library\bcd325p2CommandLibrary.py
-scanner_library\bcd325p2_command_library.py
-scanner_library\commands\bc125at_commands.py
-scanner_library\commands\bcd325p2_commands.py
-scanner_library\sds100CommandLibrary.py
-scanner_library\uniden_tone_lut.py
+library_scanner\aordv1CommandLibrary.py
+library_scanner\bc125at_command_library.py
+library_scanner\bc125at_command_library.py
+library_scanner\bcd325p2CommandLibrary.py
+library_scanner\bcd325p2_command_library.py
+library_scanner\commands\bc125at_commands.py
+library_scanner\commands\bcd325p2_commands.py
+library_scanner\sds100CommandLibrary.py
+library_scanner\uniden_tone_lut.py
 utilities\UnidenCommandFinder.py
 utilities\commandLibrary.py
 utilities\commandRegistry.py

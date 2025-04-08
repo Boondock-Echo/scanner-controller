@@ -1,6 +1,11 @@
-# bc125atCommandLibrary.py
-from utilities.validators import validate_enum, validate_cin  # Correct imports
+from utilities.scanner_utils_uniden import send_command
 from utilities.shared_utils import scanner_command
+from utilities.validators import validate_enum, validate_cin  # Correct imports
+
+# ------------------------------------------------------------------------------
+# Command Definitions
+# ------------------------------------------------------------------------------
+
 
 """
 BC125AT Command Library
@@ -11,11 +16,7 @@ query/set formats, help descriptions, and optional validators or parsers.
 It is used by:
 - The BC125ATAdapter to build and parse commands
 - The main program to support contextual help (via getHelp)
-"""
 
-
-
-"""
 # search of all 3 letter commands commands (except PRG, POF, ) yielded the following
 BLT: BLT,NG  BPL: BPL,NG  BSV: BSV,NG  CIN: CIN,NG  CLC: CLC,NG  CLR: CLR,NG  CNT: CNT,NG  COM: COM,NG  CSG: CSG,NG
 CSP: CSP,NG  DCH: DCH,NG  FWM: FWM,NG  KBP: KBP,NG  LOF: LOF,NG  MMM: MMM,NG  MWR: MWR,NG  PDI: PDI,NG  PRI: PRI,NG
@@ -27,6 +28,7 @@ SUM: VER: VER,Version 1.06.06  VOL: VOL,0  WIN: WIN,85,01625500  EWP: EWP,ERR  J
 MNU: MNU,ERR MRD: MRD,00000000,ERR QSH: QSH,ERR ULF: ULF,ERR
 
 """
+
 # ------------------------------------------------------------------------------
 # Command Definitions
 # ------------------------------------------------------------------------------
@@ -41,7 +43,7 @@ commands = {
         <<< BAV,558
         """
     ),
-    
+
     "BLT": scanner_command(
         name="BLT",
         validator=validate_enum("BLT", ["AO", "AF", "KY", "KS", "SQ"]),
@@ -55,23 +57,24 @@ commands = {
         KY - Key press only
         KS - Key press + squelch
         SQ - Squelch only
-        """),
-    
-   "BPL": scanner_command(
+        """
+    ),
+
+    "BPL": scanner_command(
         name="BPL",
-        validator=validate_enum("BPL", ["0","1"]),
+        validator=validate_enum("BPL", ["0", "1"]),
         requires_prg=True,
         help="""
-        Unknown.  Likely selects the bandplan.
+        Unknown. Likely selects the bandplan.
         Valid values:
-        0: unkown
+        0: unknown
         1: unknown
         2: unknown
-        """),    
-   
-   "BSV": scanner_command(
+        """
+    ),
+
+    "BSV": scanner_command(
         name="BSV",
-        
         valid_range=(0, 14),
         requires_prg=True,
         help="""
@@ -82,10 +85,16 @@ commands = {
         """
     ),
 
+    "CLC": scanner_command(
+        name="CLC",
+        requires_prg=True,
+        help="Configure Close Call mode (priority, override, alert tones, etc.)"
+    ),
+
     "CIN": scanner_command(
-    name="CIN",
-    validator=validate_cin,
-    help="""Reads or writes a memory channel.
+        name="CIN",
+        validator=validate_cin,
+        help="""Reads or writes a memory channel.
 
         Read:
         CIN,<index>
@@ -102,16 +111,8 @@ commands = {
         delay     : -10, -5, 0–5
         lockout   : 0 = unlocked, 1 = locked out
         priority  : 0 = off, 1 = on"""
-        ),
-    
-    
-    "CNT": scanner_command(
-        name="CNT",
-        valid_range=(1, 15),
-        help="Set LCD contrast (1–15).",
-        requires_prg=True
     ),
-    
+
     "COM": scanner_command(
         name="COM",
         help="Possibly related to COM port config (undocumented). Use with caution.",
@@ -120,30 +121,25 @@ commands = {
 
     "CSG": scanner_command(
         name="CSG",
-        help="Custom Search Group status (bitmask of 10 ranges).",
-        requires_prg=True
+        requires_prg=True,
+        help="Custom Search Group status (bitmask of 10 ranges)."
     ),
 
     "CSP": scanner_command(
         name="CSP",
-        help="Custom search parameters. Format: CSP,<index>,<low>,<high>",
-        requires_prg=True
+        requires_prg=True,
+        help="Custom search parameters. Format: CSP,<index>,<low>,<high>,..."
     ),
 
     "DCH": scanner_command(
         name="DCH",
-        help="Delete channel. Format: DCH,<index> (1–500)",
-        requires_prg=True
+        requires_prg=True,
+        help="Delete a channel. Format: DCH,<index>"
     ),
 
     "EPG": scanner_command(
         name="EPG",
         help="Exit programming mode."
-    ),
-    
-    "EWP": scanner_command(
-    name="EWP",
-    help="Unknown usage"
     ),
 
     "ESN": scanner_command(
@@ -175,15 +171,15 @@ commands = {
     "JPM": scanner_command(
         name="JPM",
         help="Jump mode command (undocumented, returns JPM,ERR)."
-    ),   
-   
-   "KBP": scanner_command(
+    ),
+
+    "KBP": scanner_command(
         name="KBP",
         set_format="KBP,{level},{lock}",
         help="Sets key beep (0:Auto, 99:Off) and key lock (0:Off, 1:On).",
         requires_prg=True
     ),
-   
+
     "KEY": scanner_command(
         name="KEY",
         set_format="KEY,{value}",
@@ -231,8 +227,7 @@ commands = {
         help="Enter programming mode."
     ),
 
-
-   "PRI": scanner_command(
+    "PRI": scanner_command(
         name="PRI",
         valid_range=(0, 3),
         help="Sets priority mode (0:Off, 1:On, 2:Plus, 3:DND).",
@@ -243,10 +238,10 @@ commands = {
         name="PWR",
         help="Returns RSSI and current frequency. Format: PWR,<rssi>,<freq>"
     ),
- 
-   "QSH": scanner_command(
+
+    "QSH": scanner_command(
         name="QSH",
-        help="Quick search hold mode (seems broken on BC125AT.  I've tried 42k permutations of commands)\nNext possibility is that it's a chained command or only available in certain modes."
+        help="Quick search hold mode (seems broken on BC125AT. I've tried 42k permutations of commands)\nNext possibility is that it's a chained command or only available in certain modes."
     ),
 
     "SCG": scanner_command(
@@ -316,7 +311,6 @@ commands = {
         requires_prg=True
     ),
 }
-
 
 # ------------------------------------------------------------------------------
 # Public API

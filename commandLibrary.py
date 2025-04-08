@@ -1,9 +1,5 @@
-# commandLibrary.py
-
-from scanner_adapters.bc125atAdapter import BC125ATAdapter
-from scanner_adapters.bcd325p2Adapter import BCD325P2Adapter
-from scanner_adapters.sds100Adapter import SDS100Adapter
-from scanner_adapters.aordv1Adapter import AORDV1Adapter
+from adapter_scanner.adapter_bc125at import BC125ATAdapter
+from adapter_scanner.adapter_bcd325p2 import BCD325P2Adapter
 
 
 def getScannerInterface(model):
@@ -12,10 +8,6 @@ def getScannerInterface(model):
         return BC125ATAdapter()
     elif model == "BCD325P2":
         return BCD325P2Adapter()
-    elif model == "SDS100" or model == "SDS200":
-        return SDS100Adapter()
-    elif model == "AOR-DV1":
-        return AORDV1Adapter()
     else:
         raise ValueError(f"Unsupported scanner model: {model}")
 

@@ -1,5 +1,3 @@
-from scanner_adapters.scanner_utils import send_command
-
 def build_command_table(adapter, ser):
     """
     Builds the command-to-function dispatcher and help descriptions.

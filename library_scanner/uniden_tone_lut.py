@@ -1,5 +1,5 @@
 # Project: Universal Scanner Controller
-# file: scanner_library/unidenToneLUT.py
+# file: library_scanner/unidenToneLUT.py
 # created: 2023-10-01
 # author: Mark Hughes w/ contributions from ChatGPT
 # license: MIT
@@ -15,7 +15,7 @@
 # This file is imported by other modules in the scanner library.
 
 # ----- Usage -----
-# from scanner_library.unidenToneLUT import CTCSS_LUT, DCS_LUT, CTCSS_reverse_LUT, DCS_reverse_LUT
+# from library_scanner.unidenToneLUT import CTCSS_LUT, DCS_LUT, CTCSS_reverse_LUT, DCS_reverse_LUT
 # print(CTCSS_LOOKUP[64])  # ➜ "67.1Hz"
 # print(CTCSS_REVERSE_LOOKUP["67.0Hz"])  # ➜ 64
 

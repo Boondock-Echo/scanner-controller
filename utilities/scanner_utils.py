@@ -2,7 +2,7 @@ import time
 import logging
 import serial
 from serial.tools import list_ports
-from scanner_adapters.scanner_utils import clear_serial_buffer
+from adapter_scanner.scanner_utils import clear_serial_buffer
 
 # Configure logging
 logging.basicConfig(

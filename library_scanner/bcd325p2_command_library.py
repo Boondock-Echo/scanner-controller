@@ -1,5 +1,52 @@
+from utilities.scanner_utils import send_command
+from adapter_scanner.base_adapter import BaseScannerAdapter
+from library_scanner.commands.commands_uniden_bcd325p2 import commands  # Import commands from the correct library
 from utilities.shared_utils import scanner_command
-from utilities.validators import validate_enum, validate_cin
+
+import library_scanner.bcd325p2_command_library
+import time
+
+from utilities.validators import validate_enum, validate_cin  # Correct imports
+
+# ------------------------------------------------------------------------------
+# Command Definitions
+# ------------------------------------------------------------------------------
+
+"""
+BCD325P2 Command Library
+
+This file defines the BCD325P2-specific command structure, using the
+shared scanner_command class from scannerUtils.py.
+
+It is used by:
+- The BCD325P2Adapter for building commands 
+
+# Search of all 3-letter commands (except PRG, POF) yielded the following:
+ABP: ABP,NG       ACC: ACC,NG       ACT: ACT,NG       AGC: AGC,NG       AGT: AGT,NG
+AGV: AGV,NG       AOP: AOP,NG       AST: AST,NG       BAV: BAV,480      BBS: BBS,NG
+BLT: BLT,NG       BSP: BSP,NG       BSV: BSV,NG       CBP: CBP,NG       CIE: CIE,NG
+CIN: CIN,NG       CLA: CLA,NG       CLC: CLC,NG       CLR: CLR,NG       CNT: CNT,NG
+COM: COM,NG       CSC: CSC,ERR      CSG: CSG,NG       CSP: CSP,NG       CSY: CSY,NG
+DBC: DBC,NG       DCH: DCH,NG       DGR: DGR,NG       DLA: DLA,NG       DSY: DSY,NG
+EPG: EPG,OK       ESN: ESN,37902048001926,0F0,1       EWP: EWP,ERR      FSC: FSC,OK
+FWD: FWD,NG       FWM: FWM,NG       GCM: GCM,NG       GDO: GDO,NG       GID: GID,,,,,,
+GIE: GIE,NG       GIN: GIN,NG       GLF: GLF,-1       GLG: GLG,,,,,,,,,,,, GLI: GLI,NG
+JNT: JNT,ERR      JPM: JPM,ERR      KBP: KBP,NG       KEY: KEY,ERR      LCT: LCT,NG
+LIH: LIH,NG       LIN: LIN,NG       LIT: LIT,NG       LOF: LOF,NG       LOI: LOI,NG
+MCP: MCP,NG       MDL: MDL,BCD325P2 MEM: MEM,NG       MMM: MMM,NG       MNU: MNU,ERR
+MRD: MRD,00000000,ERR               MWR: MWR,NG       OMS: OMS,NG       PDI: PDI,NG
+POF: POF,OK       PRI: PRI,NG       PRG: PRG,OK       PWR: PWR,241,04623875
+QGL: QGL,NG       QSC: QSC,ERR      QSH: QSH,ERR      QSL: QSL,NG       REV: REV,NG
+RIE: RIE,NG       RMB: RMB,NG       SCN: SCN,NG       SCO: SCO,NG       SCT: SCT,NG
+SGP: SGP,NG       SHK: SHK,NG       SIF: SIF,NG       SIH: SIH,NG       SIN: SIN,NG
+SIT: SIT,NG       SLI: SLI,NG       SQL: SQL,1        SSP: SSP,NG       STS: STS,011000,
+            ,,Qck Save Grp    ,,FireWatch       ,, 462.3875 DCS331,,S0:----------   
+            ,,GRP----------   ,,1,1,0,0,0,0,0,RED,0
+SUM: SUM,00ACH    TFQ: TFQ,NG       TIN: TIN,NG       TON: TON,NG       TRN: TRN,NG
+TST: TST,NG       ULF: ULF,ERR      ULI: ULI,NG       VER: VER,Version 1.09.12
+VOL: VOL,0        WIN: WIN,86,04623875           WXS: WXS,NG
+"""
+
 
 commands = {
     "BAV": scanner_command(
@@ -11,7 +58,7 @@ commands = {
         <<< BAV,558
         """
     ),
-    
+
     "BLT": scanner_command(
         name="BLT",
         validator=validate_enum("BLT", ["AO", "AF", "KY", "KS", "SQ"]),
@@ -25,23 +72,24 @@ commands = {
         KY - Key press only
         KS - Key press + squelch
         SQ - Squelch only
-        """),
-    
-   "BPL": scanner_command(
+        """
+    ),
+
+    "BPL": scanner_command(
         name="BPL",
-        validator=validate_enum("BPL", ["0","1"]),
+        validator=validate_enum("BPL", ["0", "1"]),
         requires_prg=True,
         help="""
-        Unknown.  Likely selects the bandplan.
+        Unknown. Likely selects the bandplan.
         Valid values:
-        0: unkown
+        0: unknown
         1: unknown
         2: unknown
-        """),    
-   
-   "BSV": scanner_command(
+        """
+    ),
+
+    "BSV": scanner_command(
         name="BSV",
-        
         valid_range=(0, 14),
         requires_prg=True,
         help="""
@@ -52,10 +100,16 @@ commands = {
         """
     ),
 
+    "CLC": scanner_command(
+        name="CLC",
+        requires_prg=True,
+        help="Configure Close Call mode (priority, override, alert tones, etc.)"
+    ),
+
     "CIN": scanner_command(
-    name="CIN",
-    validator=validate_cin,
-    help="""Reads or writes a memory channel.
+        name="CIN",
+        validator=validate_cin,
+        help="""Reads or writes a memory channel.
 
         Read:
         CIN,<index>
@@ -72,16 +126,8 @@ commands = {
         delay     : -10, -5, 0–5
         lockout   : 0 = unlocked, 1 = locked out
         priority  : 0 = off, 1 = on"""
-        ),
-    
-    
-    "CNT": scanner_command(
-        name="CNT",
-        valid_range=(1, 15),
-        help="Set LCD contrast (1–15).",
-        requires_prg=True
     ),
-    
+
     "COM": scanner_command(
         name="COM",
         help="Possibly related to COM port config (undocumented). Use with caution.",
@@ -90,30 +136,25 @@ commands = {
 
     "CSG": scanner_command(
         name="CSG",
-        help="Custom Search Group status (bitmask of 10 ranges).",
-        requires_prg=True
+        requires_prg=True,
+        help="Custom Search Group status (bitmask of 10 ranges)."
     ),
 
     "CSP": scanner_command(
         name="CSP",
-        help="Custom search parameters. Format: CSP,<index>,<low>,<high>",
-        requires_prg=True
+        requires_prg=True,
+        help="Custom search parameters. Format: CSP,<index>,<low>,<high>,..."
     ),
 
     "DCH": scanner_command(
         name="DCH",
-        help="Delete channel. Format: DCH,<index> (1–500)",
-        requires_prg=True
+        requires_prg=True,
+        help="Delete a channel. Format: DCH,<index>"
     ),
 
     "EPG": scanner_command(
         name="EPG",
         help="Exit programming mode."
-    ),
-    
-    "EWP": scanner_command(
-    name="EWP",
-    help="Unknown usage"
     ),
 
     "ESN": scanner_command(
@@ -145,15 +186,15 @@ commands = {
     "JPM": scanner_command(
         name="JPM",
         help="Jump mode command (undocumented, returns JPM,ERR)."
-    ),   
-   
-   "KBP": scanner_command(
+    ),
+
+    "KBP": scanner_command(
         name="KBP",
         set_format="KBP,{level},{lock}",
         help="Sets key beep (0:Auto, 99:Off) and key lock (0:Off, 1:On).",
         requires_prg=True
     ),
-   
+
     "KEY": scanner_command(
         name="KEY",
         set_format="KEY,{value}",
@@ -201,8 +242,7 @@ commands = {
         help="Enter programming mode."
     ),
 
-
-   "PRI": scanner_command(
+    "PRI": scanner_command(
         name="PRI",
         valid_range=(0, 3),
         help="Sets priority mode (0:Off, 1:On, 2:Plus, 3:DND).",
@@ -213,10 +253,10 @@ commands = {
         name="PWR",
         help="Returns RSSI and current frequency. Format: PWR,<rssi>,<freq>"
     ),
- 
-   "QSH": scanner_command(
+
+    "QSH": scanner_command(
         name="QSH",
-        help="Quick search hold mode (seems broken on BC125AT.  I've tried 42k permutations of commands)\nNext possibility is that it's a chained command or only available in certain modes."
+        help="Quick search hold mode (seems broken on BC125AT. I've tried 42k permutations of commands)\nNext possibility is that it's a chained command or only available in certain modes."
     ),
 
     "SCG": scanner_command(
@@ -285,19 +325,23 @@ commands = {
         help="NOAA weather settings. WXS,<alert_priority> (0=Off, 1=On)",
         requires_prg=True
     ),
-
-    # ...existing commands...
 }
 
-"""
-# search of all 3 letter commands commands (except PRG, POF, ) yielded the following
-BLT: BLT,NG  BPL: BPL,NG  BSV: BSV,NG  CIN: CIN,NG  CLC: CLC,NG  CLR: CLR,NG  CNT: CNT,NG  COM: COM,NG  CSG: CSG,NG
-CSP: CSP,NG  DCH: DCH,NG  FWM: FWM,NG  KBP: KBP,NG  LOF: LOF,NG  MMM: MMM,NG  MWR: MWR,NG  PDI: PDI,NG  PRI: PRI,NG
-SCG: SCG,NG  SCO: SCO,NG  SSG: SSG,NG  TST: TST,NG  WXS: WXS,NG  BAV: BAV,558 EPG: EPG,OK  ESN: ESN,XXXXXXXXXXXXXX,000,1
-GLF: GLF,-1  GLG: GLG,01625500,NFM,,0,,,SCANNER_001,1,0,,1, 
-MDL: MDL,BC125AT          PWR: PWR,418,01625500     SQL: SQL,0   
-STS: STS,011000,          ,,SCANNER_001     ,,CH001  162.5500 ,,         ,,              ,,1            ,,1,0,0,0,,,5,,3
-SUM: VER: VER,Version 1.06.06  VOL: VOL,0  WIN: WIN,85,01625500  EWP: EWP,ERR  JNT: JNT,ERR JPM: JPM,ERR KEY: KEY,ERR
-MNU: MNU,ERR MRD: MRD,00000000,ERR QSH: QSH,ERR ULF: ULF,ERR
 
-"""
+# ------------------------------------------------------------------------------
+# Public API
+# ------------------------------------------------------------------------------
+
+def getHelp(command):
+    """
+    Returns the help string for the specified command (case-insensitive).
+    Returns None if command is not defined.
+    """
+    cmd = commands.get(command.upper())
+    return cmd.help if cmd else None
+
+def listCommands():
+    """
+    Returns a sorted list of all available command names.
+    """
+    return sorted(commands.keys())
