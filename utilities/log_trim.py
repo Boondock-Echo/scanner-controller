@@ -1,5 +1,6 @@
-import os
 import logging
+import os
+
 
 def trim_log_file(log_file, max_size=1024 * 1024):
     """

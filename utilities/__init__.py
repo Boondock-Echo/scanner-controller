@@ -53,11 +53,11 @@ except (ImportError, ModuleNotFoundError):
 
 # From commands/uniden_command_finder.py
 try:
-    from utilities.commands.uniden_command_finder import *
+    from utilities.research.UnidenCommandFinder import *
 except (ImportError, ModuleNotFoundError):
     # Fallback to original location if not yet moved
     try:
-        from utilities.uniden_command_finder import *
+        from utilities.research.UnidenCommandFinder import *
     except (ImportError, ModuleNotFoundError):
         print(f"Warning: Could not import uniden_command_finder")
 
@@ -71,39 +71,19 @@ except (ImportError, ModuleNotFoundError):
     except (ImportError, ModuleNotFoundError):
         print(f"Warning: Could not import command_registry")
 
-# From tools/discover_qsh_format.py
-try:
-    from utilities.tools.discover_qsh_format import *
-except (ImportError, ModuleNotFoundError):
-    # Fallback to original location if not yet moved
-    try:
-        from utilities.discover_qsh_format import *
-    except (ImportError, ModuleNotFoundError):
-        print(f"Warning: Could not import discover_qsh_format")
-
-# From tools/run_full_qsh_discovery.py
-try:
-    from utilities.tools.run_full_qsh_discovery import *
-except (ImportError, ModuleNotFoundError):
-    # Fallback to original location if not yet moved
-    try:
-        from utilities.run_full_qsh_discovery import *
-    except (ImportError, ModuleNotFoundError):
-        print(f"Warning: Could not import run_full_qsh_discovery")
-
 # From tools/readline_setup.py
 try:
     from utilities.tools.readline_setup import *
 except (ImportError, ModuleNotFoundError):
     # Fallback to original location if not yet moved
     try:
-        from utilities.readline_setup import *
+        from utilities.tools.readline_setup import *
     except (ImportError, ModuleNotFoundError):
         print(f"Warning: Could not import readline_setup")
 
 # From tools/log_utils.py
 try:
-    from utilities.tools.log_utils import *
+    from utilities.log_utils import *
 except (ImportError, ModuleNotFoundError):
     # Fallback to original location if not yet moved
     try:
@@ -120,4 +100,3 @@ except (ImportError, ModuleNotFoundError):
         from utilities.validators import *
     except (ImportError, ModuleNotFoundError):
         print(f"Warning: Could not import validators")
-

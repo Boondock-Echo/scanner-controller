@@ -6,7 +6,8 @@ Provides a unified interface to different scanner adapters.
 from adapters.uniden.bc125at_adapter import BC125ATAdapter
 from adapters.uniden.bcd325p2_adapter import BCD325P2Adapter
 
-def getScannerInterface(model):
+
+def get_scanner_interface(model):
     """Return the appropriate adapter class based on scanner model"""
     if model.upper() == "BC125AT":
         return BC125ATAdapter
@@ -15,7 +16,8 @@ def getScannerInterface(model):
     else:
         raise ValueError(f"Unsupported scanner model: {model}")
 
-def readVolume(ser, model):
+
+def read_volume(ser, model):
     """Read the volume level for the specified scanner model"""
     adapter = getScannerInterface(model)()
-    return adapter.readVolume(ser)
+    return adapter.read_volume(ser)

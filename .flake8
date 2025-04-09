@@ -1,0 +1,32 @@
+[flake8]
+max-line-length = 88
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .eggs,
+    *.egg-info,
+    .venv,
+    venv,
+    env,
+    .env,
+    .tox,
+    .pytest_cache,
+    .coverage,
+    htmlcov,
+    docs/_build,
+    .ruff_cache
+
+# E203: whitespace before ':'
+# W503: line break before binary operator
+ignore = E203, W503
+
+# Show source code for each error
+show-source = True
+
+# Count the number of occurrences of each error/warning
+statistics = True
+
+# Max complexity for functions
+max-complexity = 10

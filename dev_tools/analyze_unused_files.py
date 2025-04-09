@@ -1,6 +1,7 @@
 import os
 import subprocess
 
+
 def find_python_files(directory, excluded_dirs=None):
     """Recursively find all Python files in the given directory, excluding certain folders."""
     python_files = []
@@ -12,10 +13,12 @@ def find_python_files(directory, excluded_dirs=None):
                 python_files.append(os.path.join(root, file))
     return python_files
 
+
 def analyze_file_with_vulture(filepath):
     """Run vulture on a single file and return whether it contains unused code."""
     result = subprocess.run(["vulture", filepath], capture_output=True, text=True)
     return "unused" in result.stdout
+
 
 def find_unused_files(directory):
     """Identify files where all code is unused."""
@@ -26,11 +29,13 @@ def find_unused_files(directory):
             unused_files.append(file)
     return unused_files
 
+
 def save_unused_files(unused_files, output_file="unused_files.txt"):
     """Save the list of unused files to a file."""
     with open(output_file, "w") as f:
         for file in unused_files:
             f.write(file + "\n")
+
 
 if __name__ == "__main__":
     # Use relative path to work regardless of where script is called from

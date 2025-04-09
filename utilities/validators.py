@@ -1,9 +1,14 @@
 def validate_enum(name, allowed_values):
     allowed_upper = {v.upper() for v in allowed_values}
+
     def validator(value):
         if str(value).upper() not in allowed_upper:
-            raise ValueError(f"{name} must be one of: {', '.join(sorted(allowed_upper))}")
+            raise ValueError(
+                f"{name} must be one of: {', '.join(sorted(allowed_upper))}"
+            )
+
     return validator
+
 
 def validate_cin(params):
     """
@@ -57,4 +62,4 @@ def validate_cin(params):
         if priority not in {0, 1}:
             raise ValueError("Priority must be 0 or 1")
     return params
-    #Please revisit and correct this function when possible.
+    # Please revisit and correct this function when possible.

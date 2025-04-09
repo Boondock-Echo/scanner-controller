@@ -1,12 +1,14 @@
+# Import utility for progress bar
+import sys
+
 from adapters.uniden.uniden_base_adapter import UnidenScannerAdapter
 from command_libraries.uniden.bcd325p2_commands import commands
 
-# Import utility for progress bar
-import sys
 
 def hex32(value):
     """Convert an integer to a 32-bit hexadecimal string without '0x' prefix."""
     return f"{value:08X}"
+
 
 def update_progress(current, total):
     """Display a progress bar for long-running operations."""
@@ -18,28 +20,29 @@ def update_progress(current, total):
         sys.stdout.write("\n")
         sys.stdout.flush()
 
+
 class BCD325P2Adapter(UnidenScannerAdapter):
     """
     Adapter for the BCD325P2 scanner
     """
-    
+
     def __init__(self, machine_mode=False):
         super().__init__(machine_mode, commands)
         # Set the scanner model identifier to ensure compatibility with parent class methods
-        self.machineMode = 'BCD325P2'
+        self.machineMode = "BCD325P2"
 
     def feedback(self, success, message):
         if self.machineMode:
             return "OK" if success else "ERROR"
         return message
-    
+
     def getHelp(self, command):
         """
         Get help for a specific BCD325P2 command
-        
+
         Args:
             command: The command to get help for
-            
+
         Returns:
             String containing help text for the specified command
         """
@@ -47,12 +50,12 @@ class BCD325P2Adapter(UnidenScannerAdapter):
             cmd = self.commands.get(command.upper())
             if not cmd:
                 return f"Command '{command}' not found in command library"
-            if not hasattr(cmd, 'help') or not cmd.help:
+            if not hasattr(cmd, "help") or not cmd.help:
                 return f"No help available for command '{command}'"
             return cmd.help
         except Exception as e:
             return self.feedback(False, f"Error retrieving help: {e}")
-    
+
     def readRSSI(self, ser):
         """
         Read the signal strength from the BCD325P2
@@ -65,7 +68,7 @@ class BCD325P2Adapter(UnidenScannerAdapter):
             return self.feedback(False, f"Unexpected PWR response: {response}")
         except Exception as e:
             return self.feedback(False, f"Error reading RSSI: {e}")
-    
+
     def readBatteryVoltage(self, ser):
         """
         Read the battery voltage from the BCD325P2
@@ -77,7 +80,7 @@ class BCD325P2Adapter(UnidenScannerAdapter):
             return round(voltage, 3)
         except Exception as e:
             return self.feedback(False, f"Error reading battery voltage: {e}")
-    
+
     def readWindowVoltage(self, ser):
         """
         Read the window voltage from the BCD325P2
@@ -86,7 +89,7 @@ class BCD325P2Adapter(UnidenScannerAdapter):
             return self.send_command(ser, self.commands["WIN"].buildCommand())
         except Exception as e:
             return self.feedback(False, f"Error reading window voltage: {e}")
-    
+
     def readStatus(self, ser):
         """
         Read the scanner status from the BCD325P2
@@ -95,13 +98,13 @@ class BCD325P2Adapter(UnidenScannerAdapter):
             return self.send_command(ser, self.commands["STS"].buildCommand())
         except Exception as e:
             return self.feedback(False, f"Error reading status: {e}")
-    
+
     def readSMeter(self, ser):
         """
         S-meter (not supported on BCD325P2)
         """
         return self.feedback(False, "S-Meter not supported on BCD325P2")
-    
+
     def readFrequency(self, ser):
         """
         Read the current frequency from the BCD325P2
@@ -115,13 +118,13 @@ class BCD325P2Adapter(UnidenScannerAdapter):
             return self.feedback(False, f"Unexpected response: {response}")
         except Exception as e:
             return self.feedback(False, f"Error reading frequency: {e}")
-    
+
     def writeFrequency(self, ser, freq):
         """
         Set frequency (not directly supported on BCD325P2)
         """
         return self.feedback(False, "Frequency input not supported via direct command.")
-    
+
     def sendKey(self, ser, keySeq):
         """
         Simulate key presses on the BCD325P2
@@ -140,8 +143,10 @@ class BCD325P2Adapter(UnidenScannerAdapter):
             except Exception as e:
                 responses.append(f"{char} → ERROR: {e}")
         return "\n".join(responses)
-    
-    def dumpMemoryToFile(self, ser, filename="memorydump.txt", start=0x00010000, end=0x0001FFFF, step=16):
+
+    def dumpMemoryToFile(
+        self, ser, filename="memorydump.txt", start=0x00010000, end=0x0001FFFF, step=16
+    ):
         """
         Dump scanner memory to a file
         """
@@ -165,17 +170,21 @@ class BCD325P2Adapter(UnidenScannerAdapter):
                         f.write(f"# Unexpected: {response}\n")
                         invalid_streak += 1
                     if invalid_streak >= MAX_INVALID:
-                        return self.feedback(False, f"Aborted early — {MAX_INVALID} invalids.")
+                        return self.feedback(
+                            False, f"Aborted early — {MAX_INVALID} invalids."
+                        )
                     update_progress(i, total_steps)
             self.exitProgrammingMode(ser)
-            return self.feedback(True, f"{valid_count} MRD entries written to {filename}")
+            return self.feedback(
+                True, f"{valid_count} MRD entries written to {filename}"
+            )
         except Exception as e:
-            try: 
+            try:
                 self.exitProgrammingMode(ser)
-            except: 
+            except:
                 pass
             return self.feedback(False, f"Memory Dump Error: {e}")
-    
+
     def readGlobalLockout(self, ser):
         """
         Read global lockout frequencies
@@ -192,7 +201,7 @@ class BCD325P2Adapter(UnidenScannerAdapter):
             return "\n".join(results)
         except Exception as e:
             return self.feedback(False, f"Error reading global lockout: {e}")
-    
+
     def readChannelInfo(self, ser, index):
         """
         Read channel information
@@ -204,8 +213,10 @@ class BCD325P2Adapter(UnidenScannerAdapter):
             return response
         except Exception as e:
             return self.feedback(False, f"Error reading channel info: {e}")
-    
-    def writeChannelInfo(self, ser, index, name, freq_khz, mod, ctcss, delay, lockout, priority):
+
+    def writeChannelInfo(
+        self, ser, index, name, freq_khz, mod, ctcss, delay, lockout, priority
+    ):
         """
         Write channel information
         """
@@ -223,27 +234,32 @@ class BCD325P2Adapter(UnidenScannerAdapter):
                 "0",  # ATT
                 "0",  # ALT
                 "0",  # ALTL
-                "", "", "", "",  # RSV
+                "",
+                "",
+                "",
+                "",  # RSV
                 "0",  # AUDIO_TYPE
                 "0",  # P25NAC
                 "0",  # NUMBER_TAG
                 "OFF",  # ALT_COLOR
                 "0",  # ALT_PATTERN
-                "0"   # VOL_OFFSET
+                "0",  # VOL_OFFSET
             ]
             response = self.send_command(ser, f"CIN,{','.join(parts)}")
             self.exitProgrammingMode(ser)
-            return self.feedback("OK" in response, f"Channel {index} written → {response}")
+            return self.feedback(
+                "OK" in response, f"Channel {index} written → {response}"
+            )
         except Exception as e:
             return self.feedback(False, f"Error writing channel info: {e}")
-    
+
     def enter_quick_frequency_hold(self, ser, freq_mhz):
         """
         Enter frequency hold mode
         """
         try:
             freq_str = f"{float(freq_mhz):08.5f}"
-            freqHectoHertz = round(int(freq_mhz*1_000_000/100))
+            freqHectoHertz = round(int(freq_mhz * 1_000_000 / 100))
             command = f"QSH,{freqHectoHertz}"
             response = self.send_command(ser, command)
             if response.startswith("QSH,OK"):

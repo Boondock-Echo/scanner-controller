@@ -1,15 +1,16 @@
 # rotaryKnob.py
-from PyQt6.QtWidgets import QGroupBox, QPushButton, QHBoxLayout
-from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import QSize
+from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import QGroupBox, QHBoxLayout, QPushButton
 
-    
 
-def buildRotaryKnob(knobPressedCallback=None, rotateLeftCallback=None, rotateRightCallback=None) -> QGroupBox:
+def buildRotaryKnob(
+    knobPressedCallback=None, rotateLeftCallback=None, rotateRightCallback=None
+) -> QGroupBox:
     mainLayout = QHBoxLayout()
     mainLayout.setSpacing(10)
     mainLayout.setContentsMargins(5, 5, 5, 5)
-    
+
     buttonStyle = """
             QPushButton {
                 border: none;

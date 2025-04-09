@@ -3,6 +3,7 @@ Command Registry for Scanner Controller
 Creates a mapping between user commands and adapter functions.
 """
 
+
 def build_command_table(adapter, ser):
     """
     Builds the command-to-function dispatcher and help descriptions.
@@ -21,57 +22,48 @@ def build_command_table(adapter, ser):
         # Volume
         "read volume": lambda: adapter.readVolume(ser),
         "write volume": lambda arg: adapter.writeVolume(ser, float(arg)),
-
         # Squelch
         "read squelch": lambda: adapter.readSquelch(ser),
         "write squelch": lambda arg: adapter.writeSquelch(ser, float(arg)),
-
         # Frequency
         "read frequency": lambda: adapter.readFrequency(ser),
         "write frequency": lambda arg: adapter.writeFrequency(ser, float(arg)),
-
         # Status
         "read rssi": lambda: adapter.readRSSI(ser),
         "read smeter": lambda: adapter.readSMeter(ser),
         "read battery": lambda: adapter.readBatteryVoltage(ser),
         "read window": lambda: adapter.readWindowVoltage(ser),
         "read status": lambda: adapter.readStatus(ser),
-
         # Device Info
         "read model": lambda: adapter.readModel(ser),
         "read version": lambda: adapter.readSWVer(ser),
-
         # Key Simulation
         "send key": lambda arg: adapter.sendKey(ser, arg),
-
         # Raw Command
         "send": lambda arg: adapter.send_command(ser, arg),
-
         # Frequency Hold
-        "hold frequency": lambda arg: adapter.enter_quick_frequency_hold(ser, float(arg)),
-
+        "hold frequency": lambda arg: adapter.enter_quick_frequency_hold(
+            ser, float(arg)
+        ),
         # Dump Memory to File
         "dump memory": lambda: adapter.dumpMemoryToFile(ser),
-
         # Read Global Lockouts
         "read lockout": lambda: adapter.readGlobalLockout(ser),
-
         # Channel I/O
         "read channel": lambda arg: adapter.readChannelInfo(ser, int(arg)),
         "write channel": lambda arg: (
             lambda args: adapter.writeChannelInfo(
                 ser,
                 int(args[0]),  # index
-                args[1],       # name
+                args[1],  # name
                 int(args[2]),  # freq_khz
-                args[3],       # mod
+                args[3],  # mod
                 int(args[4]),  # ctcss
                 int(args[5]),  # delay
                 int(args[6]),  # lockout
-                int(args[7])   # priority
+                int(args[7]),  # priority
             )
         )(arg.split(",")),
-
         # Help gets added in main.py after this table is built
     }
 
@@ -98,6 +90,6 @@ def build_command_table(adapter, ser):
         "write channel": (
             "Writes channel info. Usage: write channel index,name,freq_khz,mod,ctcss,delay,lockout,priority\n"
             "Example: write channel 5,CH5,4625625,FM,100,2,0,1"
-        ) 
+        ),
     }
     return COMMANDS, COMMAND_HELP
