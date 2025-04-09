@@ -38,5 +38,18 @@ def scan_directory(directory):
 
 
 if __name__ == "__main__":
-    scan_directory("c:/Users/mjhug/Documents/GitHub/scanner-controller")
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Convert method names from camelCase to snake_case."
+    )
+    parser.add_argument(
+        "directory",
+        nargs="?",
+        default=os.getcwd(),
+        help="Directory to scan (default: current working directory)",
+    )
+    args = parser.parse_args()
+
+    scan_directory(args.directory)
     print("Method names converted from camelCase to snake_case")
