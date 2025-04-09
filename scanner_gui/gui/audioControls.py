@@ -1,7 +1,8 @@
 # audioControls.py
 
-from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QSlider, QGroupBox
 from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QGroupBox, QHBoxLayout, QLabel, QSlider, QVBoxLayout
+
 
 def buildAudioControls(volSlider, sqlSlider) -> QGroupBox:
     volLayout = QVBoxLayout()

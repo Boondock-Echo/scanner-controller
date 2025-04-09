@@ -29,6 +29,11 @@ MANIFEST
 # Logs
 scanner_tool.log
 
+# Analysis tool outputs
+unused_files.txt
+unused_imports.txt
+dependency_graph.txt
+legacy_report.txt
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -176,3 +181,78 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Virtual environments
+venv/
+env/
+.env/
+.venv/
+ENV/
+virtualenv/
+pythonenv*
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Code coverage
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Editor specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Documentation
+docs/_build/
+docs/api/
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+*.env
+
+# Project specific
+serialport.ini
+config_local.py
+scanner_config.json
+memorydump.txt
+
+# Pre-commit hooks
+.pre-commit-config.yaml

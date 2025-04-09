@@ -1,0 +1,50 @@
+[tool.black]
+line-length = 88
+target-version = ['py37', 'py38', 'py39', 'py310']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | venv
+  | env
+  | _build
+  | buck-out
+  | build
+  | dist
+  | __pycache__
+  | \.ruff_cache
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+skip_glob = [
+    ".git/*",
+    "__pycache__/*",
+    "build/*",
+    "dist/*",
+    "venv/*",
+    "env/*",
+    ".venv/*",
+    ".env/*",
+]
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = "E203, W503"
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
+    "venv",
+    "env",
+    ".venv",
+    ".env",
+]
