@@ -1,10 +1,20 @@
+"""
+Build Dependency Graph module.
+
+This module provides functionality related to build dependency graph.
+"""
+
 import ast
 import os
 from collections import defaultdict
 
 
 def find_python_files(directory):
-    """Recursively find all Python files in the given directory, excluding certain folders."""
+    """
+    Recursively find all Python files in the given directory.
+
+    Exclude certain folders.
+    """
     python_files = []
     for root, dirs, files in os.walk(directory):
         # Exclude certain folders
@@ -60,14 +70,16 @@ def categorize_imports(imports, file_to_module):
                 third_party_imports.append(imp)
             except ImportError:
                 unresolved_imports.append(imp)
-    return local_imports, third_party_imports, unresolved
+    return local_imports, third_party_imports, unresolved_imports
 
 
 def build_dependency_graph(directory):
     """Build a dependency graph for all Python files in the directory."""
     file_to_module = {}
     for filepath in find_python_files(directory):
-        module_name = os.path.relpath(filepath, directory).replace(os.sep, ".")[:-3]
+        module_name = os.path.relpath(filepath, directory).replace(os.sep, ".")[
+            :-3
+        ]
         file_to_module[module_name] = filepath
 
     dependency_graph = defaultdict(set)
@@ -110,7 +122,9 @@ def print_grouped_files(
         print(f"  - {os.path.relpath(file, base_dir)}")
 
 
-def save_unused_files(unreferenced_files, base_dir, output_file="unused_files.txt"):
+def save_unused_files(
+    unreferenced_files, base_dir, output_file="unused_files.txt"
+):
     """Save the list of unused files to a file."""
     with open(output_file, "w", encoding="utf-8") as file:
         for unreferenced_file in sorted(unreferenced_files):

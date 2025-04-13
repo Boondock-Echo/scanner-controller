@@ -1,22 +1,27 @@
-"""
-Script to identify and analyze any remaining files in the scanner_adapters folder
-that need to be migrated to the adapters folder.
+"""Script to identify scanner_adapters files for migration.
+
+This module checks which files need to be migrated to the adapters folder.
 """
 
-import os
-import sys
 from pathlib import Path
 
 
-def scan_legacy_folder(legacy_folder="scanner_adapters", target_folder="adapters"):
-    """Scan the legacy folder and compare with target folder to identify migration status."""
+def scan_legacy_folder(
+    legacy_folder="scanner_adapters", target_folder="adapters"
+):
+    """Scan legacy folder and identify files requiring migration.
 
+    Compares files between legacy and target folders to track migration status.
+    """
     base_dir = Path(__file__).parent
     legacy_path = base_dir / legacy_folder
     target_path = base_dir / target_folder
 
     if not legacy_path.exists():
-        print(f"Legacy folder '{legacy_folder}' does not exist - no migration needed.")
+        print(
+            f"Legacy folder '{legacy_folder}' does not exist - no migration "
+            "needed."
+        )
         return
 
     print(f"Scanning legacy folder: {legacy_path}")
@@ -24,7 +29,8 @@ def scan_legacy_folder(legacy_folder="scanner_adapters", target_folder="adapters
     legacy_files = list(legacy_path.glob("**/*.py"))
     if not legacy_files:
         print(
-            f"No Python files found in {legacy_folder} - folder can be safely removed."
+            "No Python files found in {legacy_folder} - folder can be safely "
+            "removed."
         )
         return
 
@@ -38,9 +44,11 @@ def scan_legacy_folder(legacy_folder="scanner_adapters", target_folder="adapters
         print(f"  Target location: {potential_target}")
 
         if potential_target.exists():
-            print(f"  ✓ Target file exists")
+            print("  ✓ Target file exists")
             # Compare files to see if they have the same functionality
-            with open(file, "r") as f_legacy, open(potential_target, "r") as f_target:
+            with open(file, "r") as f_legacy, open(
+                potential_target, "r"
+            ) as f_target:
                 legacy_content = f_legacy.read()
                 target_content = f_target.read()
 
@@ -64,11 +72,11 @@ def scan_legacy_folder(legacy_folder="scanner_adapters", target_folder="adapters
                     "import warnings" in legacy_content
                     and "DeprecationWarning" in legacy_content
                 ):
-                    print(f"  ✓ Legacy file is already a redirect")
+                    print("  ✓ Legacy file is already a redirect")
                 else:
-                    print(f"  ✗ Legacy file needs to be converted to a redirect")
+                    print("  ✗ Legacy file needs to be converted to a redirect")
         else:
-            print(f"  ✗ Target file does not exist - migration needed")
+            print("  ✗ Target file does not exist - migration needed")
 
 
 if __name__ == "__main__":

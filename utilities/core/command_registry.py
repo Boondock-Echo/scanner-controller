@@ -1,114 +1,163 @@
 """
-Command Registry for Scanner Controller
-Creates a mapping between user commands and adapter functions.
+Command registry for REPL interface.
+
+This module builds the command table and help text for the REPL interface.
 """
 
-import time
-from logging import getLogger
-
-from utilities.log_utils import configure_logging
-
-logger = getLogger(__name__)
+import logging
+from typing import Callable, Dict, Tuple
 
 
-def build_command_table(adapter, ser):
-    """
-    Builds the command-to-function dispatcher and help descriptions.
+def build_command_table(
+    adapter, ser
+) -> Tuple[Dict[str, Callable], Dict[str, str]]:
+    """Build a command table and help text for the REPL interface."""
+    commands = {}
+    help_text = {}
 
-    Parameters:
-        adapter: The scanner adapter instance (e.g., BC125ATAdapter)
-        ser: An open serial.Serial connection to the scanner
-
-    Returns:
-        (COMMANDS, COMMAND_HELP): Tuple of dictionaries:
-            - COMMANDS maps command strings to functions
-            - COMMAND_HELP maps command strings to help descriptions
-    """
-
-    COMMANDS = {
-        # Volume
-        "read volume": lambda: adapter.readVolume(ser),
-        "write volume": lambda arg: adapter.writeVolume(ser, float(arg)),
-        # Squelch
-        "read squelch": lambda: adapter.readSquelch(ser),
-        "write squelch": lambda arg: adapter.writeSquelch(ser, float(arg)),
-        # Frequency
-        "read frequency": lambda: adapter.readFrequency(ser),
-        "write frequency": lambda arg: adapter.writeFrequency(ser, float(arg)),
-        # Status
-        "read rssi": lambda: adapter.readRSSI(ser),
-        "read smeter": lambda: adapter.readSMeter(ser),
-        "read battery": lambda: adapter.readBatteryVoltage(ser),
-        "read window": lambda: adapter.readWindowVoltage(ser),
-        "read status": lambda: adapter.readStatus(ser),
-        # Device Info
-        "read model": lambda: adapter.readModel(ser),
-        "read version": lambda: adapter.readSWVer(ser),
-        # Key Simulation
-        "send key": lambda arg: adapter.sendKey(ser, arg),
-        # Raw Command
-        "send": lambda arg: adapter.send_command(ser, arg),
-        # Frequency Hold
-        "hold frequency": lambda arg: adapter.enter_quick_frequency_hold(
-            ser, float(arg)
+    # Standard command mapping - ensure we're using snake_case method
+    # names consistently
+    command_map = {
+        # Basic commands
+        "read rssi": (
+            "read_rssi",
+            "Read the current signal strength (0.0-1.0)",
         ),
-        # Dump Memory to File
-        "dump memory": lambda: adapter.dumpMemoryToFile(ser),
-        # Read Global Lockouts
-        "read lockout": lambda: adapter.readGlobalLockout(ser),
-        # Channel I/O
-        "read channel": lambda arg: adapter.readChannelInfo(ser, int(arg)),
-        "write channel": lambda arg: (
-            lambda args: adapter.writeChannelInfo(
-                ser,
-                int(args[0]),  # index
-                args[1],  # name
-                int(args[2]),  # freq_khz
-                args[3],  # mod
-                int(args[4]),  # ctcss
-                int(args[5]),  # delay
-                int(args[6]),  # lockout
-                int(args[7]),  # priority
+        "read volume": (
+            "read_volume",
+            "Read the current volume setting (0-29)",
+        ),
+        "read squelch": (
+            "read_squelch",
+            "Read the current squelch level (0-29)",
+        ),
+        "read frequency": ("read_frequency", "Read the current frequency"),
+        "read status": ("read_status", "Read the scanner status"),
+        "read battery": ("read_battery_voltage", "Read the battery voltage"),
+        "read model": ("read_model", "Read the scanner model"),
+        "read version": ("read_sw_ver", "Read the firmware version"),
+        "read smeter": (
+            "read_s_meter",
+            "Read the S-meter value (if available)",
+        ),
+        # Control commands
+        "write volume": (
+            "write_volume",
+            "Set the volume level (0-15). Example: write volume 10",
+        ),
+        "write squelch": (
+            "write_squelch",
+            "Set the squelch level (0-15). Example: write squelch 3",
+        ),
+        "write frequency": (
+            "write_frequency",
+            "Set the frequency in MHz. Example: write frequency 154.3",
+        ),
+        # Direct communication
+        "send": (
+            "send_command",
+            "Send a raw command to the scanner. Example: send MDL",
+        ),
+        # Advanced features
+        "keys": (
+            "send_key",
+            "Send key presses to the scanner. Example: keys 123",
+        ),
+        "hold": (
+            "enter_quick_frequency_hold",
+            "Enter frequency hold mode. Example: hold 154.3",
+        ),
+        "channel": (
+            "read_channel_info",
+            "Read channel information. Example: channel 10",
+        ),
+        "dump": (
+            "dump_memory_to_file",
+            "Dump scanner memory to a file. Example: dump memory.txt",
+        ),
+        "lockouts": ("read_global_lockout", "Read global lockout frequencies"),
+        # Programming mode
+        "prg": ("enter_programming_mode", "Enter programming mode"),
+        "epg": ("exit_programming_mode", "Exit programming mode"),
+    }
+
+    # Build the command table and help text
+    for cmd_name, (method_name, help_str) in command_map.items():
+        if hasattr(adapter, method_name):
+            # Create a closure to capture the method reference
+            method = getattr(adapter, method_name)
+
+            # For methods that require arguments, we wrap them to handle
+            # arg parsing
+            if method_name == "send_command":
+                commands[cmd_name] = lambda arg, m=method, s=ser: m(s, arg)
+            elif method_name == "send_key":
+                commands[cmd_name] = lambda arg, m=method, s=ser: m(s, arg)
+            elif method_name == "write_volume":
+                commands[cmd_name] = lambda arg, m=method, s=ser: m(s, int(arg))
+            elif method_name == "write_squelch":
+                commands[cmd_name] = lambda arg, m=method, s=ser: m(s, int(arg))
+            elif method_name == "write_frequency":
+                commands[cmd_name] = lambda arg, m=method, s=ser: m(
+                    s, float(arg)
+                )
+            elif method_name == "enter_quick_frequency_hold":
+                commands[cmd_name] = lambda arg, m=method, s=ser: m(
+                    s, float(arg)
+                )
+            elif method_name == "read_channel_info":
+                commands[cmd_name] = lambda arg, m=method, s=ser: m(s, int(arg))
+            elif method_name == "dump_memory_to_file":
+                commands[cmd_name] = lambda arg, m=method, s=ser: m(
+                    s, arg or "memorydump.txt"
+                )
+            elif method_name in [
+                "enter_programming_mode",
+                "exit_programming_mode",
+            ]:
+                # These methods just need the serial port
+                commands[cmd_name] = lambda arg="", m=method, s=ser: m(s)
+            else:
+                # For methods without arguments, we create a simple wrapper
+                commands[cmd_name] = lambda arg="", m=method, s=ser: m(s)
+
+            help_text[cmd_name] = help_str
+        else:
+            logging.debug(
+                f"Method {method_name} not found in adapter,"
+                f" skipping command {cmd_name}"
             )
-        )(arg.split(",")),
-        # Help gets added in main.py after this table is built
-    }
 
-    COMMAND_HELP = {
-        "read volume": "Reads the current Volume level.",
-        "write volume": "Sets volume level (0-1.0). Usage: write volume 0.75",
-        "read squelch": "Reads the squelch level.",
-        "write squelch": "Sets squelch (0-1.0). Usage: write squelch 0.5",
-        "read frequency": "Reads the currently tuned frequency (if supported).",
-        "write frequency": "Sets the frequency (MHz). Usage: write frequency 162.550",
-        "read rssi": "Reads the signal strength (RSSI).",
-        "read smeter": "Reads the S-meter value.",
-        "read battery": "Returns the battery voltage (V).",
-        "read window": "Returns the window voltage and frequency.",
-        "read status": "Returns full scanner display state and flags.",
-        "read model": "Returns the scanner model.",
-        "read version": "Returns the firmware version.",
-        "send key": "Simulates keypad input. Usage: send key 123E",
-        "send": "Sends a raw command. Usage: send PWR",
-        "hold frequency": "Enters a frequency hold mode. Usage: hold frequency 851.0125",
-        "dump memory": "Reads all memory entries via CIN and saves to file.",
-        "read lockout": "Lists global lockout frequencies.",
-        "read channel": "Reads a channel by index. Usage: read channel 5",
-        "write channel": (
-            "Writes channel info. Usage: write channel index,name,freq_khz,mod,ctcss,delay,lockout,priority\n"
-            "Example: write channel 5,CH5,4625625,FM,100,2,0,1"
-        ),
-    }
-    return COMMANDS, COMMAND_HELP
+    # Add aliases for common commands
+    if "read rssi" in commands:
+        commands["rssi"] = commands["read rssi"]
+        help_text["rssi"] = help_text["read rssi"] + " (alias for 'read rssi')"
 
+    if "read status" in commands:
+        commands["status"] = commands["read status"]
+        help_text["status"] = (
+            help_text["read status"] + " (alias for 'read status')"
+        )
 
-"""
-This implementation is causing the program to crash.  Removed for now.
-    COMMANDS["write"].__doc__ = "volume, squelch, frequency",
-    COMMANDS["read"].__doc__ = "volume, squelch, frequency, rssi, smeter, battery, window, status, model, version",
-    COMMANDS["set"].__doc__ = "volume, squelch, frequency",
-    COMMANDS["get"].__doc__ = "volume, squelch, frequency, rssi, smeter, battery, window, status, model, version",
-    COMMANDS["send"].__doc__ = "key, command",
-    COMMANDS["hold"].__doc__ = "frequency",
-    COMMANDS["dump"].__doc__ = "memory",
-"""
+    if "read frequency" in commands:
+        commands["freq"] = commands["read frequency"]
+        help_text["freq"] = (
+            help_text["read frequency"] + " (alias for 'read frequency')"
+        )
+
+    if "read squelch" in commands:
+        commands["squelch"] = commands["read squelch"]
+        help_text["squelch"] = (
+            help_text["read squelch"] + " (alias for 'read squelch')"
+        )
+
+    # Add adapter-specific info to help text
+    model_name = (
+        adapter.machine_mode_id
+        if hasattr(adapter, "machine_mode_id")
+        else "Unknown"
+    )
+    for cmd_name in help_text:
+        help_text[cmd_name] = f"[{model_name}] {help_text[cmd_name]}"
+
+    return commands, help_text

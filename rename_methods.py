@@ -1,13 +1,42 @@
+"""
+This module converts mathod names.
+
+CamelCase method names to snake_case
+in Python files. It includes functions to process individual files or
+entire directories.
+"""
+
 import os
 import re
 
+"""
+Rename Methods module.
+
+This module provides functionality related to rename methods.
+"""
+
 
 def convert_camel_to_snake(name):
+    """
+    Convert a camelCase string to snake_case.
+
+    Args:
+        name (str): The camelCase string.
+
+    Returns:
+        str: The converted snake_case string.
+    """
     s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
 
 def process_file(filepath):
+    """
+    Process a Python file to convert camelCase method names to snake_case.
+
+    Args:
+        filepath (str): The path to the Python file.
+    """
     with open(filepath, "r") as f:
         content = f.read()
 
@@ -31,6 +60,12 @@ def process_file(filepath):
 
 
 def scan_directory(directory):
+    """
+    Scan directories.
+
+    Args:
+        directory (str): The directory to scan.
+    """
     for root, _, files in os.walk(directory):
         for file in files:
             if file.endswith(".py"):
@@ -41,7 +76,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Convert method names from camelCase to snake_case."
+        description=("Convert method names from camelCase to snake_case.")
     )
     parser.add_argument(
         "directory",

@@ -1,4 +1,22 @@
+"""Validators module.
+
+This module provides functionality related to validators for command validation.
+"""
+
+
 def validate_enum(name, allowed_values):
+    """Validate that a value is one of a set of allowed values.
+
+    Creates and returns a validator function that checks if the input value
+    is in the allowed set (case-insensitive).
+
+    Args:
+        name (str): Name of the parameter being validated
+        allowed_values (list): List of allowed values
+
+    Returns:
+        function: A validator function that raises ValueError for invalid inputs
+    """
     allowed_upper = {v.upper() for v in allowed_values}
 
     def validator(value):
@@ -11,11 +29,11 @@ def validate_enum(name, allowed_values):
 
 
 def validate_cin(params):
-    """
-    Validates the argument list for the CIN command.
+    """Validate the argument list for the CIN command.
 
     Args:
-        params (str or list): Should be a comma-separated string or list of values.
+        params (str or list): Should be a comma-separated string or
+        list of values.
 
     Raises:
         ValueError: If the format or fields are invalid

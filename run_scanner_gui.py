@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Scanner Controller Launcher
+Scanner Controller Launcher.
 
 This script provides a direct way to launch the Scanner GUI application
 without dependency on Python's module system.
@@ -18,7 +18,7 @@ import sys
 
 
 def setup_logging(debug=False):
-    """Configure logging with console output"""
+    """Configure logging with console output."""
     level = logging.DEBUG if debug else logging.INFO
 
     # Configure root logger
@@ -32,13 +32,15 @@ def setup_logging(debug=False):
     )
 
     # Log startup information
-    logging.info(f"Starting Scanner Controller (Debug={'Yes' if debug else 'No'})")
+    logging.info(
+        f"Starting Scanner Controller (Debug={'Yes' if debug else 'No'})"
+    )
     logging.info(f"Python version: {sys.version}")
     logging.info(f"Running from: {os.path.dirname(os.path.abspath(__file__))}")
 
 
 def clear_pycache():
-    """Clear Python cache to ensure fresh imports"""
+    """Clear Python cache to ensure fresh imports."""
     root_dir = os.path.dirname(os.path.abspath(__file__))
     for dirpath, dirnames, _ in os.walk(root_dir):
         if "__pycache__" in dirnames:
@@ -47,36 +49,40 @@ def clear_pycache():
                 shutil.rmtree(cache_dir)
                 logging.debug(f"Cleared cache directory: {cache_dir}")
             except Exception as e:
-                logging.warning(f"Could not clear cache directory {cache_dir}: {e}")
+                logging.warning(
+                    f"Could not clear cache directory {cache_dir}: {e}"
+                )
 
 
 def monkey_patch_serial():
-    """Patch the serial module to add logging for better debugging"""
+    """Patch the serial module to add logging for better debugging."""
     import serial
 
     original_write = serial.Serial.write
     original_read = serial.Serial.read
 
     def patched_write(self, data):
-        """Log all data written to serial port"""
+        """Log all data written to serial port."""
         if isinstance(data, bytes):
             try:
                 logging.debug(
-                    f"SERIAL WRITE [{self.port}]: {data.decode('ascii', errors='replace')}"
+                    f"SERIAL WRITE [{self.port}]: "
+                    f"{data.decode('ascii', errors='replace')}"
                 )
-            except:
+            except Exception:
                 logging.debug(f"SERIAL WRITE [{self.port}]: {data}")
         return original_write(self, data)
 
     def patched_read(self, size=1):
-        """Log all data read from serial port"""
+        """Log all data read from serial port."""
         data = original_read(self, size)
         if data and len(data) > 0:
             try:
                 logging.debug(
-                    f"SERIAL READ [{self.port}]: {data.decode('ascii', errors='replace')}"
+                    f"SERIAL READ [{self.port}]: "
+                    f"{data.decode('ascii', errors='replace')}"
                 )
-            except:
+            except Exception:
                 logging.debug(f"SERIAL READ [{self.port}]: {data}")
         return data
 
@@ -86,9 +92,19 @@ def monkey_patch_serial():
 
 
 def main():
+    """
+    Launch the Scanner Controller.
+
+    This function sets up logging, applies optional debugging patches,
+    clears Python cache, and launches the Scanner GUI application.
+    """
+    #  Provide functionality for the main entry point.
+
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="Scanner Controller")
-    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
+    parser.add_argument(
+        "--debug", action="store_true", help="Enable debug logging"
+    )
     args = parser.parse_args()
 
     # Set up logging and debugging

@@ -6,28 +6,31 @@
 
 # ----- Description -----
 # This file is part of the Universal Scanner Controller project.
-# This file contains the tone lookup tables (LUT) for CTCSS and DCS tones used in Uniden scanners.
-# It defines the CTCSS and DCS tone codes and their corresponding frequencies.
-# The CTCSS_LUT and DCS_LUT dictionaries map the tone codes to their respective frequencies.
-# The reverse lookup tables (CTCSS_reverse_LUT and DCS_reverse_LUT) are created for quick
-# access to tone codes from frequencies.
-# These dictionaries are used to convert tone codes to human-readable formats.
-# This file is imported by other modules in the scanner library.
+# Define the tone lookup tables (LUT) for CTCSS and DCS tones used in
+# Uniden scanners.
 
 # ----- Usage -----
-# from library_scanner.unidenToneLUT import CTCSS_LUT, DCS_LUT, CTCSS_reverse_LUT, DCS_reverse_LUT
+# from library_scanner.unidenToneLUT import CTCSS_LUT, DCS_LUT,
+#     CTCSS_reverse_LUT, DCS_reverse_LUT
 # print(CTCSS_LOOKUP[64])  # ➜ "67.1Hz"
 # print(CTCSS_REVERSE_LOOKUP["67.0Hz"])  # ➜ 64
-
 # print(DCS_LOOKUP[128])  # ➜ "DCS023"
 # print(DCS_REVERSE_LOOKUP["DCS023"])  # ➜ 128
 
 
+"""
+Uniden Tone Lut module.
+
+This module provides functionality related to uniden tone lut.
+"""
+
+
 def validate_ctcss(value):
     """
-    Validates and normalizes CTCSS input.
-    Accepts: integer code, float/string frequency like "67.0Hz" or "67.0"
-    Returns: valid integer CTCSS code, or raises ValueError
+    Validate and normalize CTCSS input.
+
+    Accepts: integer code, float/string frequency like "67.0Hz" or "67.0".
+    Returns: valid integer CTCSS code, or raises ValueError.
     """
     if isinstance(value, int):
         if value in CTCSS_LUT:
@@ -48,9 +51,10 @@ def validate_ctcss(value):
 
 def validate_dcs(value):
     """
-    Validates and normalizes DCS input.
-    Accepts: integer code, string like "DCS 023" or "023"
-    Returns: valid integer DCS code, or raises ValueError
+    Validate and normalize DCS input.
+
+    Accepts: integer code, string like "DCS 023" or "023".
+    Returns: valid integer DCS code, or raises ValueError.
     """
     if isinstance(value, int):
         if value in DCS_LUT:

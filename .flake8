@@ -1,32 +1,18 @@
 [flake8]
-max-line-length = 88
+max-line-length = 80
 exclude =
     .git,
     __pycache__,
     build,
     dist,
-    .eggs,
-    *.egg-info,
-    .venv,
     venv,
-    env,
-    .env,
-    .tox,
-    .pytest_cache,
-    .coverage,
-    htmlcov,
-    docs/_build,
-    .ruff_cache
-
-# E203: whitespace before ':'
-# W503: line break before binary operator
-ignore = E203, W503
-
-# Show source code for each error
-show-source = True
-
-# Count the number of occurrences of each error/warning
-statistics = True
-
-# Max complexity for functions
-max-complexity = 10
+    .venv
+ignore = W503, E203, I100, I101, I201, I202, D401
+application-import-names =
+    adapters,
+    command_libraries,
+    utilities,
+    scanner_gui
+import-order-style = pep8
+per-file-ignores =
+    main.py: F401, I100, I101, I201, I202, D401

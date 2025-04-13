@@ -5,11 +5,10 @@ This tool helps automate the migration of adapter modules from the old
 scanner_adapters folder to the new adapters folder with proper naming.
 """
 
+# Standard library imports
 import argparse
 import os
 import shutil
-import sys
-from pathlib import Path
 
 # Map of legacy adapter paths to new paths
 ADAPTER_MAPPING = {
@@ -20,9 +19,11 @@ ADAPTER_MAPPING = {
 
 
 def find_legacy_adapters(directory=None):
-    """Find all legacy adapter modules in the scanner_adapters directory"""
+    """Find all legacy adapter modules in the scanner_adapters directory."""
     if directory is None:
-        directory = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        directory = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..")
+        )
 
     legacy_dir = os.path.join(directory, "scanner_adapters")
     if not os.path.exists(legacy_dir):
@@ -38,15 +39,16 @@ def find_legacy_adapters(directory=None):
 
 
 def migrate_adapter(adapter_path, dry_run=True):
-    """Migrate a single adapter to the new location"""
+    """Migrate a single adapter to the new location."""
     filename = os.path.basename(adapter_path)
     module_name = os.path.splitext(filename)[0]
 
     # Determine new path based on naming convention
-    # This is a simplified example - you'd need more logic for your specific case
     if module_name.endswith("Adapter"):
         # Convert camelCase to snake_case
-        new_name = "".join(["_" + c.lower() if c.isupper() else c for c in module_name])
+        new_name = "".join(
+            ["_" + c.lower() if c.isupper() else c for c in module_name]
+        )
         new_name = new_name.lstrip("_")
         if new_name.startswith("adapter_"):
             new_name = new_name[8:] + "_adapter"  # Move "adapter" to end
@@ -62,7 +64,9 @@ def migrate_adapter(adapter_path, dry_run=True):
         else "generic"
     )
 
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    project_root = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..")
+    )
     new_dir = os.path.join(project_root, "adapters", brand)
     os.makedirs(new_dir, exist_ok=True)
 
@@ -85,6 +89,10 @@ def migrate_adapter(adapter_path, dry_run=True):
 
 
 def main():
+    """Execute the adapter migration process.
+
+    Finds legacy adapters and migrates them to the new structure.
+    """
     parser = argparse.ArgumentParser(
         description="Migrate legacy adapter modules to new structure"
     )

@@ -1,3 +1,9 @@
+"""
+Scanner Utils module.
+
+This module provides functionality related to scanner utils.
+"""
+
 import logging
 import time
 
@@ -9,8 +15,9 @@ from serial.tools import list_ports
 
 
 def clear_serial_buffer(ser):
-    """
-    Clears any accumulated data in the serial buffer before sending commands.
+    """Clear any accumulated data in the serial buffer before sending commands.
+
+    Removes all pending data in the serial buffer to ensure clean communication.
     """
     try:
         time.sleep(0.2)  # Allow any ongoing transmission to complete
@@ -22,9 +29,9 @@ def clear_serial_buffer(ser):
 
 
 def read_response(ser, timeout=1.0):
-    """
-    Reads bytes from the serial port until a carriage return (\r) is encountered
-    or the timeout expires.
+    r"""Read bytes from the serial port until a carriage return (\r).
+
+    Reads until a carriage return is encountered or the timeout expires.
     """
     response_bytes = bytearray()
     start_time = time.time()
@@ -45,8 +52,9 @@ def read_response(ser, timeout=1.0):
 
 
 def send_command(ser, cmd):
-    """
-    Clears the buffer and sends a command (with CR termination) to the scanner.
+    """Clear the buffer and send a command to the scanner.
+
+    Sends a command (with CR termination) after clearing the buffer.
     """
     if not ser.is_open:
         logging.error("Cannot send command - serial port is not open")
@@ -74,14 +82,15 @@ def send_command(ser, cmd):
 def find_all_scanner_ports(
     baudrate=115200, timeout=0.5, max_retries=2, skip_ports=None
 ):
-    """
-    Scans all COM ports and returns a list of tuples (port_name, model_code)
-    where model_code matches one of the SCANNER_MODELS keys.
+    """Scan all COM ports and return a list of detected scanners.
+
+    Returns a list of tuples (port_name, model_code) where model_code
+    matches one of the SCANNER_MODELS keys.
 
     Args:
         baudrate (int): Baud rate to use when checking ports
         timeout (float): Timeout for serial operations
-        max_retries (int): Number of times to retry scanning if no scanners found
+        max_retries (int): Number of retries scanning ports if no scanners found
         skip_ports (list): Optional list of port names to skip (already in use)
     """
     if skip_ports is None:
@@ -99,14 +108,18 @@ def find_all_scanner_ports(
 
             logging.info(f"Trying port: {port.device} ({port.description})")
             try:
-                with serial.Serial(port.device, baudrate, timeout=timeout) as ser:
+                with serial.Serial(
+                    port.device, baudrate, timeout=timeout
+                ) as ser:
                     ser.reset_input_buffer()
                     time.sleep(0.1)  # allow scanner to wake up
                     logging.info(f"Sending MDL to {port.device}")
                     ser.write(b"MDL\r")
                     wait_for_data(ser, max_wait=0.3)
                     model_response = read_response(ser)
-                    logging.info(f"Response from {port.device}: {model_response}")
+                    logging.info(
+                        f"Response from {port.device}: {model_response}"
+                    )
                     if model_response.startswith("MDL,"):
                         model_code = model_response.split(",")[1].strip()
                         detected.append((port.device, model_code))
@@ -133,8 +146,8 @@ def find_all_scanner_ports(
 
 
 def wait_for_data(ser, max_wait=0.3):
-    """
-    Waits up to max_wait seconds for incoming data on the serial port.
+    """Wait up to max_wait seconds for incoming data on the serial port.
+
     Returns True if data is available, otherwise False.
     """
     start = time.time()
@@ -143,3 +156,11 @@ def wait_for_data(ser, max_wait=0.3):
             return True
         time.sleep(0.01)
     return False
+
+
+# Configure logging
+logging.basicConfig(
+    filename="scanner_tool.log",
+    level=logging.DEBUG,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)

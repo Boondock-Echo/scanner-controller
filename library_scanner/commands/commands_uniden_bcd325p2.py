@@ -1,4 +1,10 @@
-from utilities.shared_utils import scanner_command
+"""
+Commands Uniden Bcd325P2 module.
+
+This module provides functionality related to commands uniden bcd325p2.
+"""
+
+from utilities.core.shared_utils import scanner_command
 from utilities.validators import validate_cin, validate_enum
 
 commands = {
@@ -52,7 +58,9 @@ commands = {
     "CLC": scanner_command(
         name="CLC",
         requires_prg=True,
-        help="Configure Close Call mode (priority, override, alert tones, etc.)",
+        help="""
+        Configure Close Call mode (priority, override, alert tones, etc.)
+        """,
     ),
     "CIN": scanner_command(
         name="CIN",
@@ -63,7 +71,8 @@ commands = {
         CIN,<index>
 
         Write:
-        CIN,<index>,<name>,<frequency>,<mod>,<ctcss/dcs>,<delay>,<lockout>,<priority>
+        CIN,<index>,<name>,<frequency>,<mod>,<ctcss/dcs>,
+        <delay>,<lockout>,<priority>
 
         Field details:
         index     : 1–500
@@ -77,7 +86,8 @@ commands = {
     ),
     "COM": scanner_command(
         name="COM",
-        help="Possibly related to COM port config (undocumented). Use with caution.",
+        help="Possibly related to COM port config (undocumented). "
+        "Use with caution.",
         requires_prg=True,
     ),
     "CSG": scanner_command(
@@ -91,25 +101,31 @@ commands = {
         help="Custom search parameters. Format: CSP,<index>,<low>,<high>,...",
     ),
     "DCH": scanner_command(
-        name="DCH", requires_prg=True, help="Delete a channel. Format: DCH,<index>"
+        name="DCH",
+        requires_prg=True,
+        help="Delete a channel. Format: DCH,<index>",
     ),
     "EPG": scanner_command(name="EPG", help="Exit programming mode."),
     "ESN": scanner_command(
-        name="ESN", help="Get scanner ESN (serial number). Returns long identifier."
+        name="ESN",
+        help="Get scanner ESN (serial number). Returns long identifier.",
     ),
     "FWM": scanner_command(
         name="FWM", help="Firmware maintenance command (unknown purpose)."
     ),
     "GLF": scanner_command(
         name="GLF",
-        help="Get global lockout frequency. Repeated calls return next item until GLF,-1.",
+        help="Get global lockout frequency. Repeated calls return next item "
+        "until GLF,-1.",
         requires_prg=True,
     ),
     "GLG": scanner_command(
-        name="GLG", help="Reception status dump (format undocumented, experimental)"
+        name="GLG",
+        help="Reception status dump (format undocumented, experimental)",
     ),
     "JNT": scanner_command(
-        name="JNT", help="Jump to channel number tag (undocumented, returns JNT,ERR)."
+        name="JNT",
+        help="Jump to channel number tag (undocumented, returns JNT,ERR).",
     ),
     "JPM": scanner_command(
         name="JPM", help="Jump mode command (undocumented, returns JPM,ERR)."
@@ -130,13 +146,21 @@ commands = {
         help="Lock out a frequency (in kHz). Format: LOF,<frequency>",
         requires_prg=True,
     ),
-    "MDL": scanner_command(name="MDL", help="Returns scanner model (e.g., BC125AT)."),
-    "MMM": scanner_command(name="MMM", help="Mystery memory mode (not documented)."),
+    "MDL": scanner_command(
+        name="MDL", help="Returns scanner model (e.g., BC125AT)."
+    ),
+    "MMM": scanner_command(
+        name="MMM", help="Mystery memory mode (not documented)."
+    ),
     "MNU": scanner_command(
         name="MNU", help="Enters menu system (not supported in remote mode)."
     ),
-    "MRD": scanner_command(name="MRD", help="Reads memory register (debug/test use)."),
-    "MWR": scanner_command(name="MWR", help="Write memory register (debug/test use)."),
+    "MRD": scanner_command(
+        name="MRD", help="Reads memory register (debug/test use)."
+    ),
+    "MWR": scanner_command(
+        name="MWR", help="Write memory register (debug/test use)."
+    ),
     "PDI": scanner_command(
         name="PDI", help="Possibly peripheral device interface. Undocumented."
     ),
@@ -148,15 +172,20 @@ commands = {
         requires_prg=True,
     ),
     "PWR": scanner_command(
-        name="PWR", help="Returns RSSI and current frequency. Format: PWR,<rssi>,<freq>"
+        name="PWR",
+        help="Returns RSSI and current frequency. Format: PWR,<rssi>,<freq>",
     ),
     "QSH": scanner_command(
         name="QSH",
-        help="Quick search hold mode (seems broken on BC125AT. I've tried 42k permutations of commands)\nNext possibility is that it's a chained command or only available in certain modes.",
+        help="Quick search hold mode (seems broken on BC125AT. I've tried 42k "
+        "permutations of commands)\n"
+        "Next possibility is that it's a chained command or only available "
+        "in certain modes.",
     ),
     "SCG": scanner_command(
         name="SCG",
-        help="Quick group lockout bitmask. Format: SCG,xxxxxxxxxx (each digit is 0 or 1)",
+        help="Quick group lockout bitmask. Format: SCG,xxxxxxxxxx "
+        "(each digit is 0 or 1)",
         requires_prg=True,
     ),
     "SCO": scanner_command(
@@ -176,7 +205,8 @@ commands = {
         name="STS", help="Returns scanner status snapshot (multi-field dump)."
     ),
     "SUM": scanner_command(
-        name="SUM", help="Mystery summary command (appears in logs, unknown use)."
+        name="SUM",
+        help="Mystery summary command (appears in logs, unknown use).",
     ),
     "TST": scanner_command(name="TST", help="Enter test mode (be careful!)."),
     "ULF": scanner_command(
@@ -198,10 +228,19 @@ commands = {
     ),
 }
 
+BCD325P2_COMMANDS = {
+    "Command1": scanner_command(
+        "Command1", valid_range=(0, 100), help="Command 1 description"
+    ),
+    "Command2": scanner_command(
+        "Command2", valid_range=(0, 10), help="Command 2 description"
+    ),
+}
+
 
 def getHelp(command):
-    """
-    Returns the help string for the specified command (case-insensitive).
+    """Get the help string for the specified command (case-insensitive).
+
     Returns None if command is not defined.
     """
     cmd = commands.get(command.upper())
@@ -209,7 +248,5 @@ def getHelp(command):
 
 
 def listCommands():
-    """
-    Returns a sorted list of all available command names.
-    """
+    """Get a sorted list of all available command names."""
     return sorted(commands.keys())

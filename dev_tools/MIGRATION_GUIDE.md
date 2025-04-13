@@ -39,7 +39,7 @@ Since the migration is complete, the following legacy redirector files can now b
 
 1. `adapter_scanner/scanner_utils.py`
 2. `adapter_scanner/base_adapter.py`
-3. `adapter_scanner/adapter_bc125at.py` 
+3. `adapter_scanner/adapter_bc125at.py`
 4. `adapter_scanner/adapter_bcd325p2.py`
 5. `adapter_scanner/scanner_utils_uniden.py`
 6. `library_scanner/bcd325p2_command_library.py`

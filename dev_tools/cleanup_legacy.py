@@ -1,16 +1,15 @@
 """
 Utility script to identify and clean up legacy module redirections.
 
-This tool helps identify where legacy module redirects are being used in the codebase,
-making it easier to plan deprecation and removal of these redirects.
+This tool helps identify where legacy module redirects are being used in the
+codebase, making it easier to plan deprecation and removal of these redirects.
 """
 
+# Standard library imports
 import argparse
-import ast
 import os
 import re
 import sys
-from pathlib import Path
 
 # Mapping of legacy modules to their new locations
 LEGACY_MODULES = {
@@ -28,7 +27,8 @@ def find_legacy_usages(directory):
         directory (str): The directory to search in.
 
     Returns:
-        dict: A dictionary where keys are legacy module names and values are lists of file paths where they are used.
+        dict: A dictionary where keys are legacy module names and values are
+            lists of file paths where they are used.
     """
     legacy_usages = {module: [] for module in LEGACY_MODULES}
 
@@ -50,18 +50,29 @@ def report_legacy_usages(usages):
     Print a report of legacy module usages.
 
     Args:
-        usages (dict): A dictionary where keys are legacy module names and values are lists of file paths where they are used.
+        usages (dict): A dictionary where keys are legacy module names and
+            values are lists of file paths where they are used.
     """
     for legacy_module, files in usages.items():
         if files:
-            print(f"Legacy module '{legacy_module}' is used in the following files:")
+            print(
+                f"Legacy module '{legacy_module}' is used in the following "
+                f"files:"
+            )
             for file in files:
                 print(f"  - {file}")
         else:
-            print(f"Legacy module '{legacy_module}' is not used in the codebase.")
+            print(
+                f"Legacy module '{legacy_module}' is not used in the codebase."
+            )
 
 
 def main():
+    """
+    Execute the legacy module usage finder.
+
+    Provides functionality for finding and reporting legacy module usages.
+    """
     parser = argparse.ArgumentParser(
         description="Find and report on legacy module usages"
     )
@@ -72,14 +83,18 @@ def main():
         help="Directory to scan (default: project root)",
     )
     parser.add_argument(
-        "--report-file", "-o", help="Output report to this file instead of stdout"
+        "--report-file",
+        "-o",
+        help="Output report to this file instead of stdout",
     )
 
     args = parser.parse_args()
 
     # Use project root as default if no directory specified
     if args.directory is None:
-        args.directory = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        args.directory = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..")
+        )
 
     usages = find_legacy_usages(args.directory)
 

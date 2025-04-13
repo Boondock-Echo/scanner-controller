@@ -1,23 +1,21 @@
 """
-Command Registry for Scanner Controller
-Creates a mapping between user commands and adapter functions.
+Command registry module.
+
+Provides functionality for building command tables.
 """
 
 
 def build_command_table(adapter, ser):
     """
-    Builds the command-to-function dispatcher and help descriptions.
+    Build command table for the specified adapter.
 
-    Parameters:
-        adapter: The scanner adapter instance (e.g., BC125ATAdapter)
-        ser: An open serial.Serial connection to the scanner
+    Args:
+        adapter: Scanner adapter instance
+        ser: Serial connection object
 
     Returns:
-        (COMMANDS, COMMAND_HELP): Tuple of dictionaries:
-            - COMMANDS maps command strings to functions
-            - COMMAND_HELP maps command strings to help descriptions
+        Dictionary mapping command names to handler functions
     """
-
     COMMANDS = {
         # Volume
         "read volume": lambda: adapter.readVolume(ser),
@@ -72,8 +70,14 @@ def build_command_table(adapter, ser):
         "write volume": "Sets volume level (0-1.0). Usage: write volume 0.75",
         "read squelch": "Reads the squelch level.",
         "write squelch": "Sets squelch (0-1.0). Usage: write squelch 0.5",
-        "read frequency": "Reads the currently tuned frequency (if supported).",
-        "write frequency": "Sets the frequency (MHz). Usage: write frequency 162.550",
+        "read frequency": (
+            "Reads the currently tuned frequency (if supported)."
+            "Usage: read frequency"
+            " (e.g., 162.550)"
+        ),
+        "write frequency": (
+            "Sets the frequency (MHz). Usage: write frequency " "162.550"
+        ),
         "read rssi": "Reads the signal strength (RSSI).",
         "read smeter": "Reads the S-meter value.",
         "read battery": "Returns the battery voltage (V).",
@@ -83,12 +87,15 @@ def build_command_table(adapter, ser):
         "read version": "Returns the firmware version.",
         "send key": "Simulates keypad input. Usage: send key 123E",
         "send": "Sends a raw command. Usage: send PWR",
-        "hold frequency": "Enters a frequency hold mode. Usage: hold frequency 851.0125",
+        "hold frequency": (
+            "Enters a frequency hold mode. Usage: hold frequency " "851.0125"
+        ),
         "dump memory": "Reads all memory entries via CIN and saves to file.",
         "read lockout": "Lists global lockout frequencies.",
         "read channel": "Reads a channel by index. Usage: read channel 5",
         "write channel": (
-            "Writes channel info. Usage: write channel index,name,freq_khz,mod,ctcss,delay,lockout,priority\n"
+            "Writes channel info. Usage: write channel "
+            "index,name,freq_khz,mod,ctcss,delay,lockout,priority\n"
             "Example: write channel 5,CH5,4625625,FM,100,2,0,1"
         ),
     }

@@ -14,30 +14,26 @@ repos:
       - id: flake8
         additional_dependencies:
           [flake8-docstrings, flake8-import-order, flake8-bugbear]
+        args: ["--config=pyproject.toml"]
 
   - repo: https://github.com/psf/black
     rev: 23.9.1
     hooks:
       - id: black
         language_version: python3
+        args: ["--config=pyproject.toml"]
 
   - repo: https://github.com/pycqa/isort
     rev: 5.12.0
     hooks:
       - id: isort
+        args: ["--settings-path=pyproject.toml"]
 
   - repo: local
     hooks:
       - id: run-tests
         name: Run pytest
-        entry: pytest -xvs tests/
-        language: system
-        types: [python]
-        pass_filenames: false
-
-      - id: check-legacy-imports
-        name: Check for legacy imports
-        entry: python -m dev_tools.cleanup_legacy --report-only
+        entry: .\\venv\\Scripts\\pytest.exe -xvs tests/
         language: system
         types: [python]
         pass_filenames: false

@@ -57,12 +57,14 @@ scanner-controller/
 ## Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/yourusername/scanner-controller.git
    cd scanner-controller
    ```
 
 2. Install dependencies:
+
    ```bash
    pip install -r requirements.txt
    ```
@@ -72,6 +74,7 @@ scanner-controller/
 ## Usage
 
 1. Run the application:
+
    ```bash
    python -m scanner_gui.main
    ```
@@ -81,11 +84,69 @@ scanner-controller/
    - Use the sliders, buttons, and keypad to control the scanner.
    - View real-time updates on the display and signal meters.
 
+## Development Setup
+
+1. Install development dependencies:
+
+   ```bash
+   pip install -r requirements-dev.txt
+   ```
+
+2. Install pre-commit hooks:
+
+   ```bash
+   pre-commit install
+   ```
+
+3. Run pre-commit across all files:
+   ```bash
+   pre-commit run --all-files
+   ```
+
+## Code Style
+
+This project uses:
+
+- Black for code formatting
+- Flake8 for code linting with several plugins
+
+The configurations ensure these tools work together without conflicts:
+
+- Black formats code with a line length of 88 characters
+- Flake8 is configured to be compatible with Black's formatting decisions
+
+### Fixing Code Style Issues
+
+When pre-commit shows errors:
+
+1. **Black** (formatter) will automatically fix formatting issues when possible
+2. **Flake8** (linter) will report issues but won't fix them automatically
+
+To fix issues:
+
+```bash
+# First, run Black to auto-format all files
+black .
+
+# Then run Flake8 to see remaining issues
+flake8
+
+# Fix the remaining issues manually, then commit again
+```
+
+Common Flake8 issues include:
+
+- Missing docstrings (D1xx errors)
+- Import ordering (I1xx errors)
+- Unused imports or variables (F4xx errors)
+- Complexity issues (C9xx errors)
+
 ## Development Notes
 
 ### Modular GUI Components
 
 The GUI is modularized into separate components for better maintainability:
+
 - **`audioControls.py`**: Handles volume and squelch sliders.
 - **`controlKeys.py`**: Implements vertical control buttons.
 - **`displayGroup.py`**: Simulates the scanner's LCD display.

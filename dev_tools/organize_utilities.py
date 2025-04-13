@@ -1,3 +1,10 @@
+"""
+Organize Utilities module.
+
+This module provides functionality related to organize utilities.
+"""
+
+# Standard library imports
 import os
 import shutil
 
@@ -16,20 +23,41 @@ for subdir in subdirs:
         with open(init_path, "w") as f:
             f.write(f"# {subdir} utilities package\n")
 
-# Map of file name variations - maps normalized name to possible actual filenames
+# Map of file name variations
+# maps normalized name to possible actual filenames
 file_variations = {
-    "uniden_command_finder.py": ["UnidenCommandFinder.py", "uniden_command_finder.py"],
+    "uniden_command_finder.py": [
+        "uniden_command_finder.py",
+        "uniden_command_finder.py",
+    ],
     "command_registry.py": ["commandRegistry.py", "command_registry.py"],
     "command_library.py": ["commandLibrary.py", "command_library.py"],
-    "discover_qsh_format.py": ["discoverQSHFormat.py", "discover_qsh_format.py"],
+    "discover_qsh_format.py": [
+        "discoverQSHFormat.py",
+        "discover_qsh_format.py",
+        """
+            find all python files function.
+
+            Provides functionality for find all python files.
+            """,
+    ],
     "log_utils.py": ["logUtils.py", "log_utils.py"],
 }
 
 
 # Function to recursively find all Python files
 def find_all_python_files(directory):
+    """Find all Python files in a directory and its subdirectories.
+
+    Args:
+        directory: The directory to search in
+
+    Returns:
+        A dictionary mapping lowercase filenames to tuples of
+        (actual filename, relative path)
+    """
     python_files = {}
-    for root, dirs, files in os.walk(directory):
+    for root, _dirs, files in os.walk(directory):
         for file in files:
             if file.endswith(".py") and file != "__init__.py":
                 rel_path = os.path.relpath(os.path.join(root, file), directory)
@@ -41,7 +69,7 @@ def find_all_python_files(directory):
 print("Scanning utilities directory for existing Python files...")
 all_python_files = find_all_python_files(utilities_dir)
 
-for filename, (actual_name, rel_path) in all_python_files.items():
+for _filename, (actual_name, rel_path) in all_python_files.items():
     if os.path.dirname(rel_path):  # If in a subdirectory
         print(f"Found: {rel_path}")
     else:
@@ -57,7 +85,7 @@ file_categories = {
         "log_trim.py",
     ],
     "commands": [
-        "UnidenCommandFinder.py",
+        "uniden_command_finder.py",
         "uniden_command_finder.py",
         "commandRegistry.py",
         "command_registry.py",
@@ -78,7 +106,7 @@ file_categories = {
 # Map files to their destination folders
 files_to_move = {subdir: [] for subdir in subdirs}
 
-for filename, (actual_name, rel_path) in all_python_files.items():
+for _filename, (actual_name, rel_path) in all_python_files.items():
     full_path = os.path.join(utilities_dir, rel_path)
     target_subdir = None
 
@@ -110,10 +138,12 @@ with open(os.path.join(utilities_dir, "__init__.py"), "w") as f:
     f.write("# This makes the utilities directory a proper Python package\n")
     f.write("# Import commonly used utilities for easy access\n\n")
 
-    # First import known critical modules by name that the application depends on
+    # First import known critical modules by name
+    # that the application depends on
     f.write("# Critical imports that the application depends on\n")
     f.write(
-        "from utilities.core.shared_utils import scanner_command, clear_serial_buffer\n"
+        "from utilities.core.shared_utils import scanner_command, "
+        "clear_serial_buffer\n"
     )
     if any(name == "log_trim.py" for _, name in files_to_move["core"]):
         f.write("from utilities.core.log_trim import trim_log_file\n")
@@ -134,7 +164,7 @@ with open(os.path.join(utilities_dir, "__init__.py"), "w") as f:
     f.write("module_map = {\n")
 
     # Add entries for the research directory files
-    for filename, (actual_name, rel_path) in all_python_files.items():
+    for _filename, (actual_name, rel_path) in all_python_files.items():
         if os.path.dirname(rel_path) == "research":
             module_name = os.path.splitext(actual_name)[0]
             # Determine which subdir this file was moved to
@@ -145,11 +175,12 @@ with open(os.path.join(utilities_dir, "__init__.py"), "w") as f:
                     break
             if target_subdir:
                 f.write(
-                    f"    'utilities.research.{module_name}': 'utilities.{target_subdir}.{module_name}',\n"
+                    f"    'utilities.research.{module_name}': "
+                    f"'utilities.{target_subdir}.{module_name}',\n"
                 )
 
     # Add entries for the root utilities directory files
-    for filename, (actual_name, rel_path) in all_python_files.items():
+    for _filename, (actual_name, rel_path) in all_python_files.items():
         if os.path.dirname(rel_path) == "":  # Root utilities dir
             module_name = os.path.splitext(actual_name)[0]
             # Determine which subdir this file was moved to
@@ -160,7 +191,8 @@ with open(os.path.join(utilities_dir, "__init__.py"), "w") as f:
                     break
             if target_subdir:
                 f.write(
-                    f"    'utilities.{module_name}': 'utilities.{target_subdir}.{module_name}',\n"
+                    f"    'utilities.{module_name}': "
+                    f"'utilities.{target_subdir}.{module_name}',\n"
                 )
 
     f.write("}\n\n")
@@ -183,7 +215,10 @@ with open(os.path.join(utilities_dir, "__init__.py"), "w") as f:
     f.write("            if new_module:\n")
     f.write("                # Store it in sys.modules under both names\n")
     f.write("                self.sys_modules[fullname] = new_module\n")
-    f.write("                return None  # Let the regular import mechanism proceed\n")
+    f.write(
+        "                return None  # Let the regular import "
+        "mechanism proceed\n"
+    )
     f.write("        return None\n\n")
 
     f.write("# Register the import hook\n")

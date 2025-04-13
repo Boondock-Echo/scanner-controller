@@ -256,3 +256,6 @@ memorydump.txt
 
 # Pre-commit hooks
 .pre-commit-config.yaml
+
+# LLM configuration (contains API keys)
+llm_config.json

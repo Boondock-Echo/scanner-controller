@@ -1,3 +1,39 @@
+"""Utility functions for interacting with Uniden-style scanners.
+
+This module provides utility functions for interacting with Uniden-style
+scanners and other compatible devices via serial communication. It includes
+functionality for detecting connected scanners, sending commands, reading
+responses, and managing serial port buffers. The module is designed to work
+with devices that communicate using specific command protocols, such as Uniden
+scanners and AOR-DV1 scanners.
+
+Key Features:
+- Automatically detects connected scanners by scanning available COM ports and
+  identifying devices based on their responses to specific commands.
+- Supports Uniden-style scanners that respond to the "MDL" command with a model
+  code and AOR-DV1 scanners that respond to the "WI" command with "AR-DV1".
+- Provides helper functions for clearing serial buffers, sending commands, and
+  reading responses with configurable timeouts.
+- Includes functionality to wait for incoming data on the serial port within a
+  specified time frame.
+
+Dependencies:
+- `pyserial`: Used for serial communication and port scanning.
+- `re`: Used for regular expression matching to identify scanner responses.
+- `logging`: Used for logging debug information to a file.
+
+Usage:
+This module is intended to be used as part of a larger application for
+controlling and interacting with scanners. It can be imported and its functions
+called to perform tasks such as detecting connected scanners, sending commands,
+and reading responses.
+
+Example:
+Scanner Utils Uniden module.
+
+This module provides functionality related to scanner utils uniden.
+"""
+
 import logging
 import re
 import time
@@ -14,35 +50,31 @@ logging.basicConfig(
 
 
 def clear_serial_buffer(ser):
-    """
-    Clears the serial input and output buffers.
-    """
+    """Clear the serial input and output buffers."""
     ser.reset_input_buffer()
     ser.reset_output_buffer()
 
 
 def read_response(ser, timeout=1.0):
-    """
-    Reads a response from the serial port with a timeout.
-    """
+    """Read a response from the serial port with a timeout."""
     ser.timeout = timeout
     response = ser.read_until(b"\r").decode("utf-8").strip()
     return response
 
 
 def send_command(ser, cmd):
-    """
-    Sends a command to the serial port and returns the response.
-    """
+    """Send a command to the serial port and return the response."""
     ser.write(f"{cmd}\r".encode("utf-8"))
     return read_response(ser)
 
 
 def find_scanner_port(baudrate=115200, timeout=0.5, max_retries=2):
-    """
-    Scans all COM ports and returns a list of tuples (port_name, model_code, adapter_type).
-    - If the scanner responds to "MDL" with "MDL,[A-Za-z0-9,]+", it is treated as a Uniden-style scanner.
-    - If the scanner responds to "WI" with "AR-DV1", it is treated as an AOR-DV1 scanner.
+    """Scan all COM ports and return a list of tuples.
+
+    - If the scanner responds to "MDL" with "MDL,[A-Za-z0-9,]+", it is treated
+      as a Uniden-style scanner.
+    - If the scanner responds to "WI" with "AR-DV1", it is treated as an
+      AOR-DV1 scanner.
     """
     detected = []
     retries = 0
@@ -51,7 +83,9 @@ def find_scanner_port(baudrate=115200, timeout=0.5, max_retries=2):
         ports = list_ports.comports()
         for port in ports:
             try:
-                with serial.Serial(port.device, baudrate, timeout=timeout) as ser:
+                with serial.Serial(
+                    port.device, baudrate, timeout=timeout
+                ) as ser:
                     # Check for Uniden-style scanners
                     ser.write(b"MDL\r")
                     response = read_response(ser)
@@ -72,8 +106,8 @@ def find_scanner_port(baudrate=115200, timeout=0.5, max_retries=2):
 
 
 def wait_for_data(ser, max_wait=0.3):
-    """
-    Waits up to max_wait seconds for incoming data on the serial port.
+    """Wait up to max_wait seconds for incoming data on the serial port.
+
     Returns True if data is available, otherwise False.
     """
     start = time.time()
