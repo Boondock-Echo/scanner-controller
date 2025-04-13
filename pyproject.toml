@@ -14,14 +14,6 @@ use_parentheses = true
 ensure_newline_before_comments = true
 case_sensitive = false
 skip = [".git", "__pycache__", "venv", ".venv"]
-known_first_party = [
-    "utilities",
-    "adapters",
-    "command_libraries",
-    "scanner_gui"
-]
-known_third_party = [
-    "PyQt6",
-    "serial"
-]
+known_first_party = ["utilities","adapters","command_libraries","scanner_gui"]
+known_third_party = ["PyQt6","serial"]
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
