@@ -1,8 +1,29 @@
+"""
+Adapter module.
+
+This module provides functionality related to adapter.
+"""
+
 import logging
 import time
 
 
 class scanner_command:
+    """
+    Represents a scanner command with validation and parsing capabilities.
+
+    Attributes:
+        name (str): The name of the command.
+        valid_range (tuple, optional): The valid range for the command value.
+        query_format (str, optional): The format for query commands.
+        set_format (str, optional): The format for set commands.
+        validator (callable, optional): A function to validate the command
+            value.
+        parser (callable, optional): A function to parse the command response.
+        requires_prg (bool): Indicates if the command requires PRG mode.
+        help (str, optional): Help text for the command.
+    """
+
     def __init__(
         self,
         name,
@@ -14,6 +35,22 @@ class scanner_command:
         requires_prg=False,
         help=None,
     ):
+        """
+        Initialize a scanner_command instance.
+
+        Args:
+            name (str): The name of the command.
+            valid_range (tuple, optional): The valid range for the command
+            value.
+            query_format (str, optional): The format for query commands.
+            set_format (str, optional): The format for set commands.
+            validator (callable, optional): A function to validate the command
+            value.
+            parser (callable, optional): A function to parse the command
+            response.
+            requires_prg (bool): Indicates if the command requires PRG mode.
+            help (str, optional): Help text for the command.
+        """
         self.name = name.upper()
         self.valid_range = valid_range
         self.query_format = query_format if query_format else self.name
@@ -24,6 +61,15 @@ class scanner_command:
         self.help = help  # optional help text
 
     def buildCommand(self, value=None):
+        """
+        Build the command string to send to the scanner.
+
+        Args:
+            value (optional): The value to set for the command.
+
+        Returns:
+            str: The formatted command string.
+        """
         if value is None:
             return f"{self.query_format}\r"
         if self.validator:
@@ -32,20 +78,39 @@ class scanner_command:
             self.valid_range[0] <= value <= self.valid_range[1]
         ):
             raise ValueError(
-                f"{self.name}: Value must be between {self.valid_range[0]} and {self.valid_range[1]}."
+                f"{self.name}: Value must be between "
+                f"{self.valid_range[0]} and {self.valid_range[1]}."
             )
         return f"{self.set_format.format(value=value)}\r"
 
     def parseResponse(self, response):
+        """
+        Parse the response from the scanner.
+
+        Args:
+            response (str): The raw response string.
+
+        Returns:
+            str: The parsed response or the raw response if no parser is
+            provided.
+
+        Raises:
+            Exception: If the response contains an error.
+        """
         response = response.strip()
         if response == "ERR" or "ERR" in response:
-            raise Exception(f"{self.name}: Command returned an error: {response}")
+            raise Exception(
+                f"{self.name}: Command returned an error: {response}"
+            )
         return self.parser(response) if self.parser else response
 
 
 def clear_serial_buffer(ser):
     """
-    Clears any accumulated data in the serial buffer before sending commands.
+    Clear any accumulated data in the serial buffer before sending commands.
+
+    Args:
+        ser: The serial connection object.
     """
     try:
         time.sleep(0.2)
@@ -58,14 +123,21 @@ def clear_serial_buffer(ser):
 
 def parse_frequency_response(response):
     """
-    Parses the frequency response from the scanner.
+    Parse the frequency response from the scanner.
+
+    Args:
+        response (str): The raw response string.
+
+    Returns:
+        float or None: The parsed frequency value, or None if parsing fails.
     """
     try:
-        # Example: Parse the response assuming it returns "STS,<frequency>,<other_data>"
+        # Example: Parse the response assuming it returns
+        # "STS,<frequency>,<other_data>"
         if response.startswith("STS,"):
             parts = response.split(",")
             if len(parts) > 1:
-                return float(parts[1])  # Extract the frequency from the second field
+                return float(parts[1])  # Extract frequency from second field
             else:
                 raise ValueError("Invalid STS response format.")
         else:
@@ -77,7 +149,15 @@ def parse_frequency_response(response):
 
 def send_command_and_parse_response(command, serial_connection):
     """
-    Sends a command to the scanner and parses the response.
+    Send a command to the scanner and parse the response.
+
+    Args:
+        command (str): The command string to send.
+        serial_connection: The serial connection object.
+
+    Returns:
+        float or None: The parsed frequency value, or None if no valid
+        response is found.
     """
     try:
         # Clear the serial buffer before sending the command

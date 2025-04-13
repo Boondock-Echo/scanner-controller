@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Setup script for testing environment
+Setup script for testing environment.
 
 This script:
 1. Creates necessary directories
@@ -17,13 +17,13 @@ from pathlib import Path
 
 
 def create_directories():
-    """Create necessary directories for tests"""
+    """Create necessary directories for tests."""
     os.makedirs("logs", exist_ok=True)
     print("✓ Created logs directory")
 
 
 def install_dependencies():
-    """Install testing dependencies"""
+    """Install testing dependencies."""
     dependencies = [
         "pytest",
         "pytest-cov",
@@ -32,12 +32,14 @@ def install_dependencies():
     ]
 
     print("Installing testing dependencies...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install"] + dependencies)
+    subprocess.check_call(
+        [sys.executable, "-m", "pip", "install"] + dependencies
+    )
     print("✓ Installed testing dependencies")
 
 
 def setup_pre_commit():
-    """Set up pre-commit hooks"""
+    """Set up pre-commit hooks."""
     if os.path.exists(".pre-commit-config.yaml"):
         print("Setting up pre-commit hooks...")
         subprocess.check_call(["pre-commit", "install"])
@@ -47,7 +49,7 @@ def setup_pre_commit():
 
 
 def generate_adapter_fixes():
-    """Generate suggestions for fixing adapters"""
+    """Generate suggestions for fixing adapters."""
     print("\nChecking adapters for common issues...")
 
     # Add the project root to sys.path to allow importing modules
@@ -76,10 +78,14 @@ def generate_adapter_fixes():
                             file_path = inspect.getfile(adapter_class)
                             rel_path = os.path.relpath(file_path, project_root)
 
-                            print(f"⚠ {class_name} missing 'machineMode' attribute")
+                            print(
+                                f"⚠ {class_name} missing 'machineMode' "
+                                f"attribute"
+                            )
                             print(f"  File: {rel_path}")
                             print(
-                                f"  Fix: Add 'self.machineMode = '{expected_mode}'' to __init__ method\n"
+                                f"  Fix: Add 'self.machineMode = "
+                                f"'{expected_mode}'' to __init__ method\n"
                             )
                     except Exception as e:
                         print(f"⚠ Could not instantiate {class_name}: {e}")
@@ -91,7 +97,10 @@ def generate_adapter_fixes():
 
 
 def main():
-    """Main setup function"""
+    """Execute the main setup procedure.
+
+    Sets up the testing environment for Scanner Controller.
+    """
     print("Setting up testing environment for Scanner Controller")
     print("=" * 50)
 

@@ -1,6 +1,4 @@
-"""
-Pytest tests for serial communication functionality
-"""
+"""Pytest tests for serial communication functionality."""
 
 from unittest.mock import MagicMock, patch
 
@@ -8,14 +6,11 @@ import pytest
 
 # Import the module but not the function
 from utilities.core import serial_test
-from utilities.core.pytest_serial_test import scan_for_scanners, send_command
-
-# Correct the import path based on the file location
 
 
 @pytest.fixture
 def mock_serial():
-    """Create a mock serial connection for testing"""
+    """Create a mock serial connection for testing."""
     mock = MagicMock()
 
     # Configure the mock for common commands
@@ -27,9 +22,17 @@ def mock_serial():
     }
 
     def mock_read(size=1):
+        """Mock the serial read function.
+
+        Returns data based on the last command sent.
+        """
         return responses.get(mock.last_command, b"ERR\r")
 
     def mock_write(data):
+        """Mock the serial write function.
+
+        Stores the command and returns the number of bytes written.
+        """
         mock.last_command = data
         return len(data)
 
@@ -43,12 +46,16 @@ def mock_serial():
 
 
 def test_scanner_detection(mock_serial):
-    """Test the scanner detection functionality"""
+    """Test the scanner detection functionality."""
     with patch("serial.Serial", return_value=mock_serial):
         with patch(
             "serial.tools.list_ports.comports",
             return_value=[
-                type("obj", (object,), {"device": "COM1", "description": "Test Port"})()
+                type(
+                    "obj",
+                    (object,),
+                    {"device": "COM1", "description": "Test Port"},
+                )()
             ],
         ):
             port = serial_test.scan_for_scanners()
@@ -56,7 +63,7 @@ def test_scanner_detection(mock_serial):
 
 
 def test_command_sending(mock_serial):
-    """Test sending commands to the scanner"""
+    """Test sending commands to the scanner."""
     with patch("serial.Serial", return_value=mock_serial):
         response = serial_test.send_command("COM1", "MDL")
         assert "BC125AT" in response

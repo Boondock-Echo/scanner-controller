@@ -37,7 +37,7 @@ library_scanner\bcd325p2_command_library.py: adapter_scanner, library_scanner, s
 library_scanner\commands\bc125at_commands.py: utilities
 library_scanner\commands\bcd325p2_commands.py: utilities
 library_scanner\sds100CommandLibrary.py: textwrap, time, utilities
-utilities\UnidenCommandFinder.py: itertools, serial, string, time
+utilities\uniden_command_finder.py: itertools, serial, string, time
 utilities\commandLibrary.py: logging, utilities
 utilities\commandRegistry.py: logUtils, logging, serial, time, utilities
 utilities\command_library.py: logging, utilities
@@ -94,7 +94,7 @@ library_scanner\commands\bc125at_commands.py
 library_scanner\commands\bcd325p2_commands.py
 library_scanner\sds100CommandLibrary.py
 library_scanner\uniden_tone_lut.py
-utilities\UnidenCommandFinder.py
+utilities\uniden_command_finder.py
 utilities\commandLibrary.py
 utilities\commandRegistry.py
 utilities\command_library.py

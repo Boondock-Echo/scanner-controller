@@ -1,13 +1,30 @@
 {
-  "python.formatting.provider": "black",
-  "python.linting.enabled": true,
-  "python.linting.flake8Enabled": true,
-  "python.linting.flake8Args": ["--max-line-length=88", "--ignore=E203,W503"],
+  // Use the dedicated Black extension for formatting
+  "python.formatting.provider": "none",
   "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.organizeImports": true
-  },
+
+  // Black formatter settings
   "[python]": {
     "editor.defaultFormatter": "ms-python.black-formatter"
-  }
+  },
+  "black-formatter.args": ["--line-length", "80"],
+
+  // Autopep8 as backup formatter for specific files if needed
+  "autopep8.args": ["--max-line-length", "80", "--aggressive", "--aggressive"],
+
+  // Linting settings
+  "python.linting.enabled": true,
+  "python.linting.flake8Enabled": true,
+  "python.linting.flake8Args": [
+    "--max-line-length=80",
+    "--extend-ignore=E203" // Needed for compatibility with Black
+  ],
+
+  // Import organization settings
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+
+  // Isort settings for import organization
+  "isort.args": ["--profile", "black", "--line-length", "80"]
 }

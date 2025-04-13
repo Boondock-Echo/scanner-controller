@@ -1,12 +1,41 @@
 # rotaryKnob.py
+"""
+Rotaryknob module.
+
+This module provides functionality related to rotaryknob.
+"""
+
+
 from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QGroupBox, QHBoxLayout, QPushButton
+
+"""
+    buildRotaryKnob function.
+
+    Provides functionality for buildRotaryKnob.
+    """
 
 
 def buildRotaryKnob(
     knobPressedCallback=None, rotateLeftCallback=None, rotateRightCallback=None
 ) -> QGroupBox:
+    """Build a rotary knob UI component.
+
+    This function creates a rotary knob UI component with optional callbacks for
+    knob press, rotate left, and rotate right actions.
+
+    Args:
+        knobPressedCallback (callable, optional): Function to call when the
+            knob is pressed.
+        rotateLeftCallback (callable, optional): Function to call when the
+            knob is rotated left.
+        rotateRightCallback (callable, optional): Function to call when the
+            knob is rotated right.
+
+    Returns:
+        QGroupBox: A group box containing the rotary knob UI component.
+    """
     mainLayout = QHBoxLayout()
     mainLayout.setSpacing(10)
     mainLayout.setContentsMargins(5, 5, 5, 5)

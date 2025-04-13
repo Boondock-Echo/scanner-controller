@@ -1,18 +1,18 @@
 # readlineSetup.py
 
 """
-Provides cross-platform readline support with tab-completion.
-- On Unix/macOS: uses builtin readline
-- On Windows: uses pyreadline3 (if installed)
-- If neither is available, disables tab completion
+Readline setup module.
+
+Provides utilities for command line interface with tab completion.
 """
 
 
 def initialize_readline(COMMANDS):
     """
-    Sets up tab-completion for available COMMANDS.
-    Parameters:
-        COMMANDS (dict): dictionary of available command strings
+    Initialize readline with tab completion for the given commands.
+
+    Args:
+        COMMANDS: Dictionary of available commands
     """
     try:
         import readline  # Unix and macOS
@@ -21,13 +21,14 @@ def initialize_readline(COMMANDS):
             import pyreadline3 as readline  # Windows with pyreadline3
         except ImportError:
             print(
-                "Note: readline or pyreadline3 not available. Tab-completion disabled."
+                "Note: readline or pyreadline3 not available. "
+                "Tab-completion disabled."
             )
             return
 
     def completer(text, state):
-        """
-        Custom completer function for readline.
+        """Complete command line text with tab completion.
+
         Dynamically filters commands and subcommands based on input.
         """
         buffer = readline.get_line_buffer().strip()

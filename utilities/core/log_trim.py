@@ -1,11 +1,18 @@
+"""
+Log Trim module.
+
+This module provides functionality related to log trim.
+"""
+
 import logging
 import os
 
 
 def trim_log_file(log_file, max_size=1024 * 1024):
     """
-    Trims the log file to ensure it does not exceed max_size bytes.
-    Keeps only the last max_size bytes of the file.
+    Trim the log file to ensure it does not exceed max_size bytes.
+
+    Keep only the last max_size bytes of the file.
     """
     if not os.path.exists(log_file):
         return  # Do nothing if the file doesn't exist

@@ -1,3 +1,9 @@
+"""
+uniden_command_finder module.
+
+This module provides functionality related to uniden_command_finder.
+"""
+
 import itertools
 import string
 import time
@@ -7,16 +13,18 @@ from serial.tools import list_ports
 
 
 def find_scanner_port(baudrate=115200, timeout=0.5):
-    """
-    Poll all available COM ports, send the "MDL" command,
-    and return the port name if the response is "MDL,BCD325P2".
-    If not found, waits 5 seconds and retries.
+    """Poll all available COM ports and find the scanner.
+
+    Sends the "MDL" command to each port and returns the port name if the
+    response is "MDL,BCD325P2". If not found, waits 5 seconds and retries.
     """
     while True:
         ports = list_ports.comports()
         for port in ports:
             try:
-                with serial.Serial(port.device, baudrate, timeout=timeout) as ser:
+                with serial.Serial(
+                    port.device, baudrate, timeout=timeout
+                ) as ser:
                     # Clear any pending data
                     ser.reset_input_buffer()
                     ser.reset_output_buffer()
@@ -29,14 +37,17 @@ def find_scanner_port(baudrate=115200, timeout=0.5):
             except Exception as e:
                 print(f"Error on port {port.device}: {e}")
         print(
-            "Scanner not found. Please plug in and turn on the scanner. Retrying in 5 seconds..."
+            "Scanner not found. Please plug in and turn on the scanner. "
+            "Retrying in 5 seconds..."
         )
         time.sleep(5)
 
 
 def read_response(ser, timeout=0.5):
-    """
-    Reads bytes from the serial port until a CR or LF is encountered or the timeout expires.
+    """Read bytes from the serial port until termination or timeout.
+
+    Reads bytes from the serial port until a CR or LF is encountered
+    or the timeout expires.
     """
     response_bytes = bytearray()
     start_time = time.time()
@@ -52,7 +63,8 @@ def read_response(ser, timeout=0.5):
 
 
 def send_command(ser, cmd):
-    """
+    """Send a command to the scanner and return the response.
+
     Sends a command (with CR/LF termination) to the scanner and
     returns the response using read_response().
     """
@@ -66,10 +78,13 @@ def send_command(ser, cmd):
 
 
 def test_all_commands(ser):
-    """
-    Iterates over all three-letter combinations (AAA to ZZZ, skipping "PRG" and "POF", include other functions as they cause failures or multi-line recieved messages lag behind transmissions.),
-    sends each command to the scanner, logs each result to a progress file as we go,
-    and returns the list of results.
+    """Test all possible three-letter command combinations.
+
+    Iterates over all three-letter combinations (AAA to ZZZ, skipping "PRG"
+    and "POF", include other functions as they cause failures or multi-line
+    recieved messages lag behind transmissions.), sends each command to the
+    scanner, logs each result to a progress file as we go, and returns the
+    list of results.
     """
     results = []
     letters = string.ascii_uppercase
@@ -86,7 +101,8 @@ def test_all_commands(ser):
                 response = send_command(ser, cmd)
                 if response.startswith(f"{cmd}:"):
                     print(
-                        f"Mismatch detected for {cmd}. Received: {response}. Retrying..."
+                        f"Mismatch detected for {cmd}. Received: {response}."
+                        "Retrying..."
                     )
                     ser.reset_input_buffer()
                     ser.reset_output_buffer()
@@ -109,9 +125,10 @@ def test_all_commands(ser):
 
 
 def sort_results(results):
-    """
-    Sorts the results so that commands with a response ending in ",NG" appear first,
-    followed by other responses (alphabetically by command).
+    """Sort the results by response type.
+
+    Sorts the results so that commands with a response ending in ",NG"
+    appear first, followed by other responses (alphabetically by command).
     """
     valid = []
     invalid = []
@@ -132,8 +149,8 @@ def sort_results(results):
 
 
 def write_results_to_file(sorted_results, filename="commands.txt"):
-    """
-    Writes the sorted command results to a file.
+    """Write the sorted command results to a file.
+
     Each line in the file is formatted as "COMMAND: RESPONSE".
     """
     with open(filename, "w") as f:
@@ -143,6 +160,11 @@ def write_results_to_file(sorted_results, filename="commands.txt"):
 
 
 def main():
+    """Execute the main command testing sequence.
+
+    Searches for the scanner, connects to it, tests all commands,
+    sorts the results, and writes them to an output file.
+    """
     baudrate = 115200  # Updated baud rate
     print("Searching for Uniden BCD325P2 scanner...")
     port = find_scanner_port(baudrate=baudrate, timeout=0.5)
@@ -156,7 +178,8 @@ def main():
         return
 
     print(
-        "Starting command test over all 3-letter combinations (excluding PRG and POF)..."
+        "Starting command test over all 3-letter combinations "
+        "(excluding PRG and POF)..."
     )
     results = []
     try:

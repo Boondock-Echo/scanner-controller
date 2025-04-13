@@ -1,9 +1,20 @@
+"""
+Analyze Unused Files module.
+
+This module provides functionality related to analyzing unused files.
+"""
+
+# Standard library imports
 import os
 import subprocess
 
 
 def find_python_files(directory, excluded_dirs=None):
-    """Recursively find all Python files in the given directory, excluding certain folders."""
+    """
+    Recursively find all Python files in the given directory.
+
+    Excludes certain folders.
+    """
     python_files = []
     for root, dirs, files in os.walk(directory):
         if excluded_dirs:
@@ -15,13 +26,23 @@ def find_python_files(directory, excluded_dirs=None):
 
 
 def analyze_file_with_vulture(filepath):
-    """Run vulture on a single file and return whether it contains unused code."""
-    result = subprocess.run(["vulture", filepath], capture_output=True, text=True)
+    """
+    Run vulture on a single file.
+
+    Returns whether it contains unused code.
+    """
+    result = subprocess.run(
+        ["vulture", filepath], capture_output=True, text=True
+    )
     return "unused" in result.stdout
 
 
 def find_unused_files(directory):
-    """Identify files where all code is unused."""
+    """
+    Identify files where all code is unused.
+
+    Returns a list of unused files.
+    """
     python_files = find_python_files(directory)
     unused_files = []
     for file in python_files:
@@ -39,7 +60,8 @@ def save_unused_files(unused_files, output_file="unused_files.txt"):
 
 if __name__ == "__main__":
     # Use relative path to work regardless of where script is called from
-    project_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_dir = os.path.join(script_dir, "..")
     unused_files = find_unused_files(project_dir)
 
     print("\nUnused Files:")

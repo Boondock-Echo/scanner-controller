@@ -1,6 +1,13 @@
 #!/usr/bin/env python
+"""
+Run Utility module.
+
+This module provides functionality related to run utility.
+"""
+
+
+# Standard library imports
 import argparse
-import importlib
 import os
 import sys
 
@@ -10,7 +17,7 @@ sys.path.insert(0, script_dir)
 
 
 def list_utilities():
-    """List all available utilities in the subfolders"""
+    """List all available utilities in the subfolders."""
     utility_dirs = [
         "utilities/core",
         "utilities/commands",
@@ -29,7 +36,7 @@ def list_utilities():
 
 
 def run_utility(utility_path, args):
-    """Run a utility with the given arguments"""
+    """Run a utility with the given arguments."""
     if not utility_path.endswith(".py"):
         utility_path += ".py"
 
@@ -71,7 +78,9 @@ if __name__ == "__main__":
     )
     parser.add_argument("utility", nargs="?", help="The utility script to run")
     parser.add_argument(
-        "args", nargs=argparse.REMAINDER, help="Arguments to pass to the utility"
+        "args",
+        nargs=argparse.REMAINDER,
+        help="Arguments to pass to the utility",
     )
 
     args = parser.parse_args()

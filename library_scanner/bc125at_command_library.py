@@ -1,5 +1,10 @@
-from utilities.scanner_utils_uniden import send_command
-from utilities.shared_utils import scanner_command
+"""
+Bc125At Command Library module.
+
+This module provides functionality related to bc125at command library.
+"""
+
+from utilities.core.shared_utils import scanner_command
 from utilities.validators import validate_cin, validate_enum  # Correct imports
 
 # ------------------------------------------------------------------------------
@@ -10,21 +15,26 @@ from utilities.validators import validate_cin, validate_enum  # Correct imports
 """
 BC125AT Command Library
 
-This file defines the BC125AT-specific command structure, including valid ranges,
-query/set formats, help descriptions, and optional validators or parsers.
+This file defines the BC125AT-specific command structure, including valid ranges
+, query/set formats, help descriptions, and optional validators or parsers.
 
 It is used by:
 - The BC125ATAdapter to build and parse commands
 - The main program to support contextual help (via getHelp)
 
-# search of all 3 letter commands commands (except PRG, POF, ) yielded the following
-BLT: BLT,NG  BPL: BPL,NG  BSV: BSV,NG  CIN: CIN,NG  CLC: CLC,NG  CLR: CLR,NG  CNT: CNT,NG  COM: COM,NG  CSG: CSG,NG
-CSP: CSP,NG  DCH: DCH,NG  FWM: FWM,NG  KBP: KBP,NG  LOF: LOF,NG  MMM: MMM,NG  MWR: MWR,NG  PDI: PDI,NG  PRI: PRI,NG
-SCG: SCG,NG  SCO: SCO,NG  SSG: SSG,NG  TST: TST,NG  WXS: WXS,NG  BAV: BAV,558 EPG: EPG,OK  ESN: ESN,XXXXXXXXXXXXXX,000,1
+# search of all 3 letter commands commands (except PRG, POF, ) yielded the
+# following
+BLT: BLT,NG  BPL: BPL,NG  BSV: BSV,NG  CIN: CIN,NG  CLC: CLC,NG  CLR: CLR,NG
+CNT: CNT,NG  COM: COM,NG  CSG: CSG,NG  CSP: CSP,NG  DCH: DCH,NG  FWM: FWM,NG
+KBP: KBP,NG  LOF: LOF,NG  MMM: MMM,NG  MWR: MWR,NG  PDI: PDI,NG  PRI: PRI,NG
+SCG: SCG,NG  SCO: SCO,NG  SSG: SSG,NG  TST: TST,NG  WXS: WXS,NG  BAV: BAV,558
+EPG: EPG,OK  ESN: ESN,XXXXXXXXXXXXXX,000,1
 GLF: GLF,-1  GLG: GLG,01625500,NFM,,0,,,SCANNER_001,1,0,,1,
 MDL: MDL,BC125AT          PWR: PWR,418,01625500     SQL: SQL,0
-STS: STS,011000,          ,,SCANNER_001     ,,CH001  162.5500 ,,         ,,              ,,1            ,,1,0,0,0,,,5,,3
-SUM: VER: VER,Version 1.06.06  VOL: VOL,0  WIN: WIN,85,01625500  EWP: EWP,ERR  JNT: JNT,ERR JPM: JPM,ERR KEY: KEY,ERR
+STS: STS,011000,          ,,SCANNER_001     ,,CH001  162.5500 ,,
+,,              ,,1            ,,1,0,0,0,,,5,,3
+SUM: VER: VER,Version 1.06.06  VOL: VOL,0  WIN: WIN,85,01625500  EWP: EWP,ERR
+JNT: JNT,ERR JPM: JPM,ERR KEY: KEY,ERR
 MNU: MNU,ERR MRD: MRD,00000000,ERR QSH: QSH,ERR ULF: ULF,ERR
 
 """
@@ -84,7 +94,9 @@ commands = {
     "CLC": scanner_command(
         name="CLC",
         requires_prg=True,
-        help="Configure Close Call mode (priority, override, alert tones, etc.)",
+        help="""
+        Configure Close Call mode (priority, override, alert tones, etc.)
+        """,
     ),
     "CIN": scanner_command(
         name="CIN",
@@ -95,7 +107,8 @@ commands = {
         CIN,<index>
 
         Write:
-        CIN,<index>,<name>,<frequency>,<mod>,<ctcss/dcs>,<delay>,<lockout>,<priority>
+        CIN,<index>,<name>,<frequency>,<mod>,<ctcss/dcs>,<delay>,<lockout>,
+        <priority>
 
         Field details:
         index     : 1–500
@@ -109,7 +122,8 @@ commands = {
     ),
     "COM": scanner_command(
         name="COM",
-        help="Possibly related to COM port config (undocumented). Use with caution.",
+        help="Possibly related to COM port config (undocumented). "
+        "Use with caution.",
         requires_prg=True,
     ),
     "CSG": scanner_command(
@@ -123,25 +137,32 @@ commands = {
         help="Custom search parameters. Format: CSP,<index>,<low>,<high>,...",
     ),
     "DCH": scanner_command(
-        name="DCH", requires_prg=True, help="Delete a channel. Format: DCH,<index>"
+        name="DCH",
+        requires_prg=True,
+        help="Delete a channel. Format: DCH,<index>",
     ),
     "EPG": scanner_command(name="EPG", help="Exit programming mode."),
     "ESN": scanner_command(
-        name="ESN", help="Get scanner ESN (serial number). Returns long identifier."
+        name="ESN",
+        help="Get scanner ESN (serial number). Returns long identifier.",
     ),
     "FWM": scanner_command(
         name="FWM", help="Firmware maintenance command (unknown purpose)."
     ),
     "GLF": scanner_command(
         name="GLF",
-        help="Get global lockout frequency. Repeated calls return next item until GLF,-1.",
+        help="""
+        Get global lockout frequency.
+        Repeated calls return next item until GLF,-1.""",
         requires_prg=True,
     ),
     "GLG": scanner_command(
-        name="GLG", help="Reception status dump (format undocumented, experimental)"
+        name="GLG",
+        help="Reception status dump (format undocumented, experimental)",
     ),
     "JNT": scanner_command(
-        name="JNT", help="Jump to channel number tag (undocumented, returns JNT,ERR)."
+        name="JNT",
+        help="Jump to channel number tag (undocumented, returns JNT,ERR).",
     ),
     "JPM": scanner_command(
         name="JPM", help="Jump mode command (undocumented, returns JPM,ERR)."
@@ -162,13 +183,21 @@ commands = {
         help="Lock out a frequency (in kHz). Format: LOF,<frequency>",
         requires_prg=True,
     ),
-    "MDL": scanner_command(name="MDL", help="Returns scanner model (e.g., BC125AT)."),
-    "MMM": scanner_command(name="MMM", help="Mystery memory mode (not documented)."),
+    "MDL": scanner_command(
+        name="MDL", help="Returns scanner model (e.g., BC125AT)."
+    ),
+    "MMM": scanner_command(
+        name="MMM", help="Mystery memory mode (not documented)."
+    ),
     "MNU": scanner_command(
         name="MNU", help="Enters menu system (not supported in remote mode)."
     ),
-    "MRD": scanner_command(name="MRD", help="Reads memory register (debug/test use)."),
-    "MWR": scanner_command(name="MWR", help="Write memory register (debug/test use)."),
+    "MRD": scanner_command(
+        name="MRD", help="Reads memory register (debug/test use)."
+    ),
+    "MWR": scanner_command(
+        name="MWR", help="Write memory register (debug/test use)."
+    ),
     "PDI": scanner_command(
         name="PDI", help="Possibly peripheral device interface. Undocumented."
     ),
@@ -180,15 +209,21 @@ commands = {
         requires_prg=True,
     ),
     "PWR": scanner_command(
-        name="PWR", help="Returns RSSI and current frequency. Format: PWR,<rssi>,<freq>"
+        name="PWR",
+        help="Returns RSSI and current frequency. Format: PWR,<rssi>,<freq>",
     ),
     "QSH": scanner_command(
         name="QSH",
-        help="Quick search hold mode (seems broken on BC125AT. I've tried 42k permutations of commands)\nNext possibility is that it's a chained command or only available in certain modes.",
+        help="Quick search hold mode (seems broken on BC125AT. "
+        "I've tried 42k permutations of commands)\n"
+        "Next possibility is that it's a chained command or only available "
+        "in certain modes.",
     ),
     "SCG": scanner_command(
         name="SCG",
-        help="Quick group lockout bitmask. Format: SCG,xxxxxxxxxx (each digit is 0 or 1)",
+        help="""
+        Quick group lockout bitmask. Format: SCG,xxxxxxxxxx
+        (each digit is 0 or 1)""",
         requires_prg=True,
     ),
     "SCO": scanner_command(
@@ -208,7 +243,8 @@ commands = {
         name="STS", help="Returns scanner status snapshot (multi-field dump)."
     ),
     "SUM": scanner_command(
-        name="SUM", help="Mystery summary command (appears in logs, unknown use)."
+        name="SUM",
+        help="Mystery summary command (appears in logs, unknown use).",
     ),
     "TST": scanner_command(name="TST", help="Enter test mode (be careful!)."),
     "ULF": scanner_command(
@@ -228,6 +264,14 @@ commands = {
         help="NOAA weather settings. WXS,<alert_priority> (0=Off, 1=On)",
         requires_prg=True,
     ),
+    "SomeCommand": scanner_command(
+        "SomeCommand", valid_range=(0, 100), help="Some command description"
+    ),
+    "AnotherCommand": scanner_command(
+        "AnotherCommand",
+        valid_range=(0, 10),
+        help="Another command description",
+    ),
 }
 
 # ------------------------------------------------------------------------------
@@ -237,7 +281,8 @@ commands = {
 
 def getHelp(command):
     """
-    Returns the help string for the specified command (case-insensitive).
+    Get the help string for the specified command (case-insensitive).
+
     Returns None if command is not defined.
     """
     cmd = commands.get(command.upper())
@@ -245,7 +290,5 @@ def getHelp(command):
 
 
 def listCommands():
-    """
-    Returns a sorted list of all available command names.
-    """
+    """Return a sorted list of all available command names."""
     return sorted(commands.keys())
