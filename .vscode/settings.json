@@ -8,5 +8,8 @@
     "editor.codeActionsOnSave": {
       "source.organizeImports": "never"
     }
-  }
+  },
+  "python.linting.enabled": true,
+  "python.linting.flake8Enabled": true,
+  "python.linting.flake8Args": ["--max-line-length=80", "--extend-ignore=E203"]
 }

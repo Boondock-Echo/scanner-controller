@@ -25,8 +25,6 @@ from library_scanner.bc125at_command_library import (
     Commands,  # Assuming this is the correct location
 )
 
-# Local application/library specific imports
-
 
 class UnidenAdapter(BaseScannerAdapter):
     """
@@ -54,7 +52,8 @@ class UnidenAdapter(BaseScannerAdapter):
             message (str): The message to return if not in machine mode.
 
         Returns:
-            str: "OK" or "ERROR" if in machine mode, otherwise the provided message.
+            str: "OK" or "ERROR" if in machine mode, otherwise the provided
+            message.
         """
         if self.machine_mode:
             return "OK" if success else "ERROR"
@@ -68,7 +67,8 @@ class UnidenAdapter(BaseScannerAdapter):
             command (str): The command for which help information is requested.
 
         Returns:
-            str: Help information for the command or an error message if unavailable.
+            str: Help information for the command or an error message if
+            unavailable.
         """
         try:
             return library_scanner.bc125at_command_library.getHelp(command)
@@ -76,7 +76,12 @@ class UnidenAdapter(BaseScannerAdapter):
             return self.feedback(False, f"❌\t[get_help Error] {e}")
 
     def dump_memory_to_file(
-        self, ser, filename="memorydump.txt", start=0x00000000, end=0x0000FFFF, step=16
+        self,
+        ser,
+        filename="memorydump.txt",
+        start=0x00000000,
+        end=0x0000FFFF,
+        step=16,
     ):
         """
         Dump the memory of the scanner to a file.
@@ -127,7 +132,8 @@ class UnidenAdapter(BaseScannerAdapter):
                         invalid_streak += 1
                     if invalid_streak >= MAX_INVALID:
                         return self.feedback(
-                            False, f"❌ \nAborted early — {MAX_INVALID} invalids."
+                            False,
+                            f"❌ \nAborted early — {MAX_INVALID} " "invalids.",
                         )
                     update_progress(i, total_steps)
             send_command(ser, "EPG")
@@ -142,7 +148,12 @@ class UnidenAdapter(BaseScannerAdapter):
             return self.feedback(False, f"[Memory Dump Error] {e}")
 
     def clear_serial_buffer(ser):
-        """Clear accumulated data in the serial buffer before sending commands."""
+        """
+        Clear accumulated data in the serial buffer before sending commands.
+
+        Clears any leftover data from previous commands to ensure the scanner
+        is ready for new commands. This prevents interference from old data.
+        """
         try:
             time.sleep(0.2)
             while ser.in_waiting:
@@ -220,7 +231,9 @@ class UnidenAdapter(BaseScannerAdapter):
             ports = list_ports.comports()
             for port in ports:
                 try:
-                    with serial.Serial(port.device, baudrate, timeout=timeout) as ser:
+                    with serial.Serial(
+                        port.device, baudrate, timeout=timeout
+                    ) as ser:
                         ser.write(b"MDL\r")
                         response = read_response(ser)
                         if response.startswith("MDL"):
@@ -247,10 +260,14 @@ class UnidenAdapter(BaseScannerAdapter):
             try:
                 send_command(ser, "PRG")
                 cmd = Commands["KBP"]
-                response = send_command(ser, cmd.buildCommand(f"{level},{lock}"))
+                response = send_command(
+                    ser, cmd.buildCommand(f"{level},{lock}")
+                )
                 send_command(ser, "EPG")
                 return self.feedback(
-                    True, f"✅ Set key beep to {level}, lock to {lock} → {response}"
+                    True,
+                    f"✅ Set key beep to {level}, lock to {lock} →"
+                    f"{response}",
                 )
             except Exception as e:
                 return self.feedback(False, f"[writeKeyBeep Error] {e}")
@@ -287,7 +304,9 @@ class UnidenAdapter(BaseScannerAdapter):
         """
         try:
             if not (0.0 <= value <= 1.0):
-                return self.feedback(False, "⚠️ Volume must be between 0.0 and 1.0")
+                return self.feedback(
+                    False, "⚠️ Volume must be between 0.0 " "and 1.0"
+                )
             scaled = int(round(value * 15))
             response = send_command(ser, Commands["VOL"].buildCommand(scaled))
             return self.feedback(
@@ -304,7 +323,8 @@ class UnidenAdapter(BaseScannerAdapter):
             ser (serial.Serial): The serial connection to the scanner.
 
         Returns:
-            str: Feedback message indicating the squelch level or an error message.
+            str: Feedback message indicating the squelch level or an error "
+            "message.
         """
         try:
             response = send_command(ser, Commands["SQL"].buildCommand())
@@ -327,7 +347,9 @@ class UnidenAdapter(BaseScannerAdapter):
         """
         try:
             if not (0.0 <= value <= 1.0):
-                return self.feedback(False, "❌ Squelch must be between 0.0 and 1.0")
+                return self.feedback(
+                    False, "❌ Squelch must be between 0.0 " "and 1.0"
+                )
             scaled = int(round(value * 15))
             send_command(ser, "PRG")
             response = send_command(ser, Commands["SQL"].buildCommand(scaled))
@@ -346,14 +368,17 @@ class UnidenAdapter(BaseScannerAdapter):
             ser (serial.Serial): The serial connection to the scanner.
 
         Returns:
-            str: Feedback message indicating the frequency in MHz or an error message.
+            str: Feedback message indicating the frequency in MHz or an error
+            message.
         """
         try:
             response = send_command(ser, "PWR")
             parts = response.strip().split(",")
             if len(parts) == 3 and parts[0] == "PWR":
                 freq_mhz = (int(parts[2]) * 100) / 1_000_000
-                return self.feedback(True, f"✅ Frequency: {round(freq_mhz, 5)} MHz")
+                return self.feedback(
+                    True, "✅ Frequency:" f" {round(freq_mhz, 5)} MHz"
+                )
             return self.feedback(False, f"❌ Unexpected response: {response}")
         except Exception as e:
             return self.feedback(False, f"❌ [readFrequency Error] {e}")
@@ -443,7 +468,8 @@ class UnidenAdapter(BaseScannerAdapter):
             ser (serial.Serial): The serial connection to the scanner.
 
         Returns:
-            str: Feedback message indicating the model information or an error message.
+            str: Feedback message indicating the model information or an error
+            message.
         """
         try:
             model = send_command(ser, Commands["MDL"].buildCommand())
@@ -459,7 +485,8 @@ class UnidenAdapter(BaseScannerAdapter):
             ser (serial.Serial): The serial connection to the scanner.
 
         Returns:
-            str: Feedback message indicating the software version or an error message.
+            str: Feedback message indicating the software version or an error
+            message.
         """
         try:
             version = send_command(ser, Commands["VER"].buildCommand())

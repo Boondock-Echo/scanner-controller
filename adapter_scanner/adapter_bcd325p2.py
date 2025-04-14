@@ -4,9 +4,10 @@ This module provides an adapter for the Uniden BCD325P2 scanner.
 It includes methods for interacting with the scanner, such as reading and
 writing settings, handling commands, and managing memory dumps.
 """
+
 from adapter_scanner.base_adapter import BaseScannerAdapter
 from library_scanner.commands.commands_uniden_bcd325p2 import commands
-from utilities.scanner_utils import send_command  # Ensure correct import
+from utilities.scanner_utils import send_command
 
 
 def hex32(value):
@@ -47,7 +48,8 @@ class BCD325P2Adapter(BaseScannerAdapter):
 
         :param success: A boolean indicating if the operation was successful.
         :param message: A string containing the feedback message.
-        :return: "OK" or "ERROR" if machineMode is enabled, otherwise the message.
+        :return: "OK" or "ERROR" if machineMode is enabled, otherwise the
+        message.
         """
         if self.machineMode:
             return "OK" if success else "ERROR"
@@ -90,7 +92,8 @@ class BCD325P2Adapter(BaseScannerAdapter):
         Read the current volume level from the scanner.
 
         :param ser: The serial connection to the scanner.
-        :return: The volume level as a float between 0.0 and 1.0, or an error message.
+        :return: The volume level as a float between 0.0 and 1.0, or an error
+        message.
         """
         try:
             response = send_command(ser, commands["VOL"].buildCommand())
@@ -104,7 +107,8 @@ class BCD325P2Adapter(BaseScannerAdapter):
         Set the volume level on the scanner.
 
         :param ser: The serial connection to the scanner.
-        :param value: A float between 0.0 and 1.0 representing the desired volume level.
+        :param value: A float between 0.0 and 1.0 representing the desired
+        volume level.
         :return: Feedback message indicating success or failure.
         """
         try:
@@ -136,7 +140,8 @@ class BCD325P2Adapter(BaseScannerAdapter):
         Set the squelch level on the scanner.
 
         :param ser: The serial connection to the scanner.
-        :param value: A float between 0.0 and 1.0 representing the desired squelch
+        :param value: A float between 0.0 and 1.0 representing the desired
+        squelch
             level.
         :return: Feedback message indicating success or failure.
         """
@@ -178,14 +183,17 @@ class BCD325P2Adapter(BaseScannerAdapter):
         Read the Received Signal Strength Indicator (RSSI) from the scanner.
 
         :param ser: The serial connection to the scanner.
-        :return: The RSSI value as a float between 0.0 and 1.0, or an error message.
+        :return: The RSSI value as a float between 0.0 and 1.0, or an error
+        message.
         """
         try:
             response = send_command(ser, commands["PWR"].buildCommand())
             parts = response.split(",")
             if len(parts) == 3:
                 return round(int(parts[1]) / 1023.0, 3)
-            return self.feedback(False, f"⚠️\tUnexpected PWR response: {response}")
+            return self.feedback(
+                False, f"⚠️\tUnexpected PWR response:" f" {response}"
+            )
         except Exception as e:
             return self.feedback(False, f"⚠️\t[readRSSI Error] {e}")
 
@@ -233,7 +241,8 @@ class BCD325P2Adapter(BaseScannerAdapter):
         Read the S-Meter value from the scanner.
 
         :param ser: The serial connection to the scanner.
-        :return: A feedback message indicating that the S-Meter is not supported.
+        :return: A feedback message indicating that the S-Meter is not
+        supported.
         """
         return self.feedback(False, "⚠️\tSMeter not supported on BCD325P2")
 
@@ -242,7 +251,8 @@ class BCD325P2Adapter(BaseScannerAdapter):
         Read the current frequency from the scanner.
 
         :param ser: The serial connection to the scanner.
-        :return: Feedback message with the frequency in MHz or an error message.
+        :return: Feedback message with the frequency in MHz or an error
+        message.
         """
         try:
             response = send_command(ser, "PWR")
@@ -261,7 +271,8 @@ class BCD325P2Adapter(BaseScannerAdapter):
 
         :param ser: The serial connection to the scanner.
         :param freq: The desired frequency in MHz.
-        :return: Feedback message indicating that this operation is not supported.
+        :return: Feedback message indicating that this operation is not
+        supported.
         """
         return self.feedback(
             False, "⚠️\tFrequency input not supported via direct command."
@@ -305,12 +316,19 @@ class BCD325P2Adapter(BaseScannerAdapter):
             payload = f"{level},{lock},{safe}"
             response = send_command(ser, f"KBP,{payload}")
             self.exitProgrammingMode(ser)
-            return self.feedback("OK" in response, f"✅\tKey beep set → {response}")
+            return self.feedback(
+                "OK" in response, "✅\tKey beep set →" f"{response}"
+            )
         except Exception as e:
             return self.feedback(False, f"⚠️\t[writeKeyBeep Error] {e}")
 
     def dumpMemoryToFile(
-        self, ser, filename="memorydump.txt", start=0x00010000, end=0x0001FFFF, step=16
+        self,
+        ser,
+        filename="memorydump.txt",
+        start=0x00010000,
+        end=0x0001FFFF,
+        step=16,
     ):
         """
         Dump the memory of the scanner to a file.
@@ -343,7 +361,8 @@ class BCD325P2Adapter(BaseScannerAdapter):
                         invalid_streak += 1
                     if invalid_streak >= MAX_INVALID:
                         return self.feedback(
-                            False, f"⚠️\t\nAborted early — {MAX_INVALID} invalids."
+                            False,
+                            f"⚠️\t\nAborted early — {MAX_INVALID} invalids.",
                         )
                     update_progress(i, total_steps)
             send_command(ser, "EPG")
@@ -373,19 +392,24 @@ class BCD325P2Adapter(BaseScannerAdapter):
             command = f"QSH,{freqHectoHertz}"
             response = send_command(ser, command)
             if response.startswith("QSH,OK"):
-                return self.feedback(True, f"Entered frequency hold at {freq_str} MHz")
+                return self.feedback(
+                    True, "Entered frequency hold at" f"{freq_str} MHz"
+                )
             return self.feedback(
                 False, f"⚠️\tFailed to enter frequency hold: {response}"
             )
         except Exception as e:
-            return self.feedback(False, f"⚠️\t[enter_quick_frequency_hold Error] {e}")
+            return self.feedback(
+                False, f"⚠️\t[enter_quick_frequency_hold Error] {e}"
+            )
 
     def readGlobalLockout(self, ser):
         """
         Read the global lockout frequencies from the scanner.
 
         :param ser: The serial connection to the scanner.
-        :return: A string containing the global lockout frequencies or an error message.
+        :return: A string containing the global lockout frequencies or an error
+        message.
         """
         try:
             self.enterProgrammingMode(ser)

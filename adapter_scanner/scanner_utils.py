@@ -66,7 +66,9 @@ def send_command(ser, command):
     try:
         logging.debug(f"Sending command: {command} (type: {type(command)})")
         if not isinstance(command, str):
-            raise ValueError(f"Command must be a string, got {type(command)} instead.")
+            raise ValueError(
+                "Command must be a string, got" f"{type(command)} instead."
+            )
         ser.write(f"{command}\r".encode("utf-8"))
         response = ser.readline().decode("utf-8").strip()
         logging.debug(f"Received response: {response}")
@@ -90,14 +92,18 @@ def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2):
         for port in ports:
             logging.info(f"Trying port: {port.device} ({port.description})")
             try:
-                with serial.Serial(port.device, baudrate, timeout=timeout) as ser:
+                with serial.Serial(
+                    port.device, baudrate, timeout=timeout
+                ) as ser:
                     ser.reset_input_buffer()
                     time.sleep(0.1)  # allow scanner to wake up
                     logging.info(f"Sending MDL to {port.device}")
                     ser.write(b"MDL\r")
                     wait_for_data(ser, max_wait=0.3)
                     model_response = read_response(ser)
-                    logging.info(f"Response from {port.device}: {model_response}")
+                    logging.info(
+                        f"Response from {port.device}: " f"{model_response}"
+                    )
                     if model_response.startswith("MDL,"):
                         model_code = model_response.split(",")[1].strip()
                         detected.append((port.device, model_code))

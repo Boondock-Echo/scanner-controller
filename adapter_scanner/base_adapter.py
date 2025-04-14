@@ -3,7 +3,8 @@ This module provides the base classes for scanner commands and scanner adapters.
 
 Classes:
 - scanner_command: Represents a command that can be sent to a scanner.
-- BaseScannerAdapter: Provides a base implementation for scanner adapter functionality.
+- BaseScannerAdapter: Provides a base implementation for scanner adapter
+functionality.
 """
 
 
@@ -16,7 +17,8 @@ class scanner_command:
         valid_range (tuple, optional): The valid range for the command value.
         query_format (str, optional): The format for query commands.
         set_format (str, optional): The format for set commands.
-        validator (callable, optional): A function to validate the command value.
+        validator (callable, optional): A function to validate the command
+        value.
         parser (callable, optional): A function to parse the command response.
         requires_prg (bool): Indicates if the command requires programming mode.
         help (str, optional): Help text for the command.
@@ -38,12 +40,16 @@ class scanner_command:
 
         Args:
             name (str): The name of the command.
-            valid_range (tuple, optional): The valid range for the command value.
+            valid_range (tuple, optional): The valid range for the command
+            value.
             query_format (str, optional): The format for query commands.
             set_format (str, optional): The format for set commands.
-            validator (callable, optional): A function to validate the command value.
-            parser (callable, optional): A function to parse the command response.
-            requires_prg (bool): Indicates if the command requires programming mode.
+            validator (callable, optional): A function to validate the command
+            value.
+            parser (callable, optional): A function to parse the command
+            response.
+            requires_prg (bool): Indicates if the command requires programming
+            mode.
             help (str, optional): Help text for the command.
         """
         self.name = name.upper()
@@ -100,7 +106,9 @@ class scanner_command:
         """
         response = response.strip()
         if response == "ERR" or "ERR" in response:
-            raise Exception(f"{self.name}: Command returned an error: {response}")
+            raise Exception(
+                f"{self.name}: Command returned an" f"error: {response}"
+            )
         return self.parser(response) if self.parser else response
 
 

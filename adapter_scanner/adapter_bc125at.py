@@ -55,7 +55,12 @@ class BC125ATAdapter(BaseScannerAdapter):
             return self.feedback(False, f"❌\t[get_help Error] {e}")
 
     def dump_memory_to_file(
-        self, ser, filename="memorydump.txt", start=0x00000000, end=0x0000FFFF, step=16
+        self,
+        ser,
+        filename="memorydump.txt",
+        start=0x00000000,
+        end=0x0000FFFF,
+        step=16,
     ):
         """
         Dump the memory of the scanner to a file.
@@ -103,7 +108,8 @@ class BC125ATAdapter(BaseScannerAdapter):
                         invalid_streak += 1
                     if invalid_streak >= MAX_INVALID:
                         return self.feedback(
-                            False, f"❌ \nAborted early — {MAX_INVALID} invalids."
+                            False,
+                            "❌ \nAborted early — " f"{MAX_INVALID} invalids.",
                         )
                     update_progress(i, total_steps)
             send_command(ser, "EPG")
@@ -149,7 +155,8 @@ class BC125ATAdapter(BaseScannerAdapter):
                 if abs(actual_freq - freq_mhz) < 0.005:
                     return self.feedback(
                         True,
-                        f"✅ Frequency {freq_str} MHz entered and confirmed via PWR "
+                        f"✅ Frequency {freq_str} MHz entered and "
+                        "confirmed via PWR "
                         f"({actual_freq:.5f} MHz)",
                     )
                 else:
@@ -158,9 +165,13 @@ class BC125ATAdapter(BaseScannerAdapter):
                         f"⚠️ Entered {freq_str} MHz, but PWR returned "
                         f"{actual_freq:.5f} MHz",
                     )
-            return self.feedback(False, f"❌ PWR returned unexpected: {response}")
+            return self.feedback(
+                False, "❌ PWR returned unexpected: " f"{response}"
+            )
         except Exception as e:
-            return self.feedback(False, f"❌ [enter_quick_frequency_hold Error] {e}")
+            return self.feedback(
+                False, "❌ [enter_quick_frequency_hold Error]" f"{e}"
+            )
 
     def write_key_beep(self, ser, level=99, lock=0):
         """
@@ -187,7 +198,8 @@ class BC125ATAdapter(BaseScannerAdapter):
         Read the current volume level from the scanner.
 
         :param ser: The serial connection to the scanner.
-        :return: Feedback message indicating the current volume level or an error.
+        :return: Feedback message indicating the current volume level or
+        an error.
         """
         try:
             response = send_command(ser, commands["VOL"].buildCommand())
@@ -207,7 +219,9 @@ class BC125ATAdapter(BaseScannerAdapter):
         """
         try:
             if not (0.0 <= value <= 1.0):
-                return self.feedback(False, "⚠️ Volume must be between 0.0 and 1.0")
+                return self.feedback(
+                    False, "⚠️ Volume must be between 0.0" "and 1.0"
+                )
             scaled = int(round(value * 15))
             response = send_command(ser, commands["VOL"].buildCommand(scaled))
             return self.feedback(
@@ -221,7 +235,8 @@ class BC125ATAdapter(BaseScannerAdapter):
         Read the current squelch level from the scanner.
 
         :param ser: The serial connection to the scanner.
-        :return: Feedback message indicating the current squelch level or an error.
+        :return: Feedback message indicating the current squelch level or an
+        error.
         """
         try:
             response = send_command(ser, commands["SQL"].buildCommand())
@@ -241,7 +256,9 @@ class BC125ATAdapter(BaseScannerAdapter):
         """
         try:
             if not (0.0 <= value <= 1.0):
-                return self.feedback(False, "❌ Squelch must be between 0.0 and 1.0")
+                return self.feedback(
+                    False, "❌ Squelch must be between 0.0 " "and 1.0"
+                )
             scaled = int(round(value * 15))
             send_command(ser, "PRG")
             response = send_command(ser, commands["SQL"].buildCommand(scaled))
@@ -257,14 +274,17 @@ class BC125ATAdapter(BaseScannerAdapter):
         Read the current frequency from the scanner.
 
         :param ser: The serial connection to the scanner.
-        :return: Feedback message indicating the current frequency in MHz or an error.
+        :return: Feedback message indicating the current frequency in MHz or
+        an error.
         """
         try:
             response = send_command(ser, "PWR")
             parts = response.strip().split(",")
             if len(parts) == 3 and parts[0] == "PWR":
                 freq_mhz = (int(parts[2]) * 100) / 1_000_000
-                return self.feedback(True, f"✅ Frequency: {round(freq_mhz, 5)} MHz")
+                return self.feedback(
+                    True, "✅ Frequency: " f"{round(freq_mhz, 5)} MHz"
+                )
             return self.feedback(False, f"❌ Unexpected response: {response}")
         except Exception as e:
             return self.feedback(False, f"❌ [readFrequency Error] {e}")
@@ -299,7 +319,7 @@ class BC125ATAdapter(BaseScannerAdapter):
 
     def read_rssi(self, ser):
         """
-        Read the current RSSI (Received Signal Strength Indicator) from the scanner.
+        Read the RSSI (Received Signal Strength Indicator) from the scanner.
 
         :param ser: The serial connection to the scanner.
         :return: Feedback message indicating the RSSI value or an error.

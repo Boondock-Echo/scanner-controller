@@ -15,20 +15,20 @@ repos:
     -   id: flake8
         additional_dependencies: [
             'flake8-docstrings',
-            'flake8-import-order',
             'flake8-bugbear',
             'flake8-comprehensions',
         ]
-        args: ['--max-line-length=88', '--extend-ignore=E203']
+        args: ['--max-line-length=80', '--extend-ignore=E203,E231,I']
 
 -   repo: https://github.com/psf/black
     rev: 23.3.0
     hooks:
     -   id: black
         language_version: python3
+        args: ['--line-length=80']
 
 -   repo: https://github.com/pycqa/isort
     rev: 5.12.0
     hooks:
     -   id: isort
-        args: ["--profile", "black"]
+        args: ["--profile", "black", "--line-length=80"]
