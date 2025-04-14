@@ -1,6 +1,7 @@
 import logging
-import serial
 import time
+
+import serial
 from serial.tools import list_ports
 
 # Configure logging
@@ -10,9 +11,19 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
+
 class scanner_command:
-    def __init__(self, name, valid_range=None, query_format=None, set_format=None,
-                 validator=None, parser=None, requires_prg=False, help=None):
+    def __init__(
+        self,
+        name,
+        valid_range=None,
+        query_format=None,
+        set_format=None,
+        validator=None,
+        parser=None,
+        requires_prg=False,
+        help=None,
+    ):
         self.name = name.upper()
         self.valid_range = valid_range
         self.query_format = query_format if query_format else self.name
@@ -27,8 +38,12 @@ class scanner_command:
             return f"{self.query_format}\r"
         if self.validator:
             self.validator(value)
-        elif self.valid_range and not (self.valid_range[0] <= value <= self.valid_range[1]):
-            raise ValueError(f"{self.name}: Value must be between {self.valid_range[0]} and {self.valid_range[1]}.")
+        elif self.valid_range and not (
+            self.valid_range[0] <= value <= self.valid_range[1]
+        ):
+            raise ValueError(
+                f"{self.name}: Value must be between {self.valid_range[0]} and {self.valid_range[1]}."
+            )
         return f"{self.set_format.format(value=value)}\r"
 
     def parseResponse(self, response):
@@ -36,6 +51,7 @@ class scanner_command:
         if response == "ERR" or "ERR" in response:
             raise Exception(f"{self.name}: Command returned an error: {response}")
         return self.parser(response) if self.parser else response
+
 
 def clear_serial_buffer(ser):
     """
@@ -49,6 +65,7 @@ def clear_serial_buffer(ser):
     except Exception as e:
         logging.error(f"Error clearing serial buffer: {e}")
 
+
 def read_response(ser, timeout=1.0):
     """
     Reads bytes from the serial port until a carriage return (\r or \n) is encountered.
@@ -59,7 +76,7 @@ def read_response(ser, timeout=1.0):
             byte = ser.read(1)
             if not byte:
                 break  # timeout reached
-            if byte in b'\r\n':
+            if byte in b"\r\n":
                 break
             response_bytes.extend(byte)
         response = response_bytes.decode("utf-8", errors="ignore").strip()
@@ -68,6 +85,7 @@ def read_response(ser, timeout=1.0):
     except Exception as e:
         logging.error(f"Error reading response: {e}")
         return ""
+
 
 def validate_enum(name, allowed_values):
     """
@@ -84,8 +102,12 @@ def validate_enum(name, allowed_values):
 
     def validator(value):
         if str(value).upper() not in allowed_upper:
-            raise ValueError(f"{name} must be one of: {', '.join(sorted(allowed_upper))}")
+            raise ValueError(
+                f"{name} must be one of: {', '.join(sorted(allowed_upper))}"
+            )
+
     return validator
+
 
 def validate_cin(params):
     """
@@ -139,6 +161,7 @@ def validate_cin(params):
         if priority not in {0, 1}:
             raise ValueError("Priority must be 0 or 1")
 
+
 def send_command(ser, cmd):
     """
     Clears the buffer and sends a command (with CR termination) to the scanner.
@@ -153,6 +176,7 @@ def send_command(ser, cmd):
         return ""
     return read_response(ser)
 
+
 def wait_for_data(ser, max_wait=0.3):
     """
     Waits up to max_wait seconds for incoming data on the serial port.
@@ -164,6 +188,7 @@ def wait_for_data(ser, max_wait=0.3):
             return True
         time.sleep(0.01)
     return False
+
 
 def findAllScannerPorts(baudrate=115200, timeout=0.5, max_retries=2):
     """
@@ -208,4 +233,3 @@ def findAllScannerPorts(baudrate=115200, timeout=0.5, max_retries=2):
         time.sleep(3)
     logging.error("No scanners found after maximum retries.")
     return []
-

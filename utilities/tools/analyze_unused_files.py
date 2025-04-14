@@ -1,9 +1,35 @@
+"""
+Analyze Unused Files module.
+
+This script uses vulture to identify Python files in the project that contain
+unused code or appear to be entirely unused. It generates a report listing
+these files to help with code cleanup and maintenance.
+"""
+
+import argparse
 import os
 import subprocess
 
 
+def parse_arguments():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Find unused Python files in a project."
+    )
+    parser.add_argument(
+        "-d",
+        "--directory",
+        default=os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")),
+        help="Directory to analyze (default: project root)",
+    )
+    return parser.parse_args()
+
+
 def find_python_files(directory, excluded_dirs=None):
-    """Recursively find all Python files in the given directory, excluding certain folders."""
+    """Find Python files recursively.
+
+    Searches the directory tree while skipping excluded directories.
+    """
     python_files = []
     excluded_dirs = excluded_dirs or {"venv", "__pycache__", ".git"}
     for root, dirs, files in os.walk(directory):
@@ -16,7 +42,10 @@ def find_python_files(directory, excluded_dirs=None):
 
 
 def analyze_file_with_vulture(filepath):
-    """Run vulture on a single file and return whether it contains unused code."""
+    """Check a file for unused code.
+
+    Uses the vulture tool to detect potentially unused code in the file.
+    """
     try:
         result = subprocess.run(
             ["vulture", filepath],
@@ -54,7 +83,10 @@ def save_unused_files(unused_files, output_file="unused_files.txt"):
 
 
 if __name__ == "__main__":
-    project_dir = r"c:\Users\mjhug\Documents\GitHub\scanner-controller"
+    args = parse_arguments()
+    project_dir = args.directory
+
+    print(f"Analyzing directory: {project_dir}")
     unused_files = find_unused_files(project_dir)
 
     print("\nUnused Files:")

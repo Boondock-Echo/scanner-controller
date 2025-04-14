@@ -7,9 +7,19 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
+
 class scanner_command:
-    def __init__(self, name, valid_range=None, query_format=None, set_format=None,
-                 validator=None, parser=None, requires_prg=False, help=None):
+    def __init__(
+        self,
+        name,
+        valid_range=None,
+        query_format=None,
+        set_format=None,
+        validator=None,
+        parser=None,
+        requires_prg=False,
+        help=None,
+    ):
         self.name = name.upper()
         self.valid_range = valid_range
         self.query_format = query_format if query_format else self.name
@@ -24,8 +34,12 @@ class scanner_command:
             return f"{self.query_format}\r"
         if self.validator:
             self.validator(value)
-        elif self.valid_range and not (self.valid_range[0] <= value <= self.valid_range[1]):
-            raise ValueError(f"{self.name}: Value must be between {self.valid_range[0]} and {self.valid_range[1]}.")
+        elif self.valid_range and not (
+            self.valid_range[0] <= value <= self.valid_range[1]
+        ):
+            raise ValueError(
+                f"{self.name}: Value must be between {self.valid_range[0]} and {self.valid_range[1]}."
+            )
         return f"{self.set_format.format(value=value)}\r"
 
     def parseResponse(self, response):

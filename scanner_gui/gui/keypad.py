@@ -1,7 +1,9 @@
 # keypad.py
 
-from PyQt6.QtWidgets import QGroupBox, QPushButton, QGridLayout
 from typing import Callable
+
+from PyQt6.QtWidgets import QGridLayout, QGroupBox, QPushButton
+
 
 def buildKeypad(callback: Callable[[str], None]) -> QGroupBox:
     grid = QGridLayout()

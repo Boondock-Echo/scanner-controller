@@ -1,0 +1,12 @@
+{
+  "CodeGPT.apiKey": "CodeGPT Plus",
+  "editor.formatOnSave": false,
+  "python.formatting.provider": "black",
+  "python.sortImports.args": ["--profile", "black"],
+  "isort.args": ["--profile", "black"],
+  "[python]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "never"
+    }
+  }
+}

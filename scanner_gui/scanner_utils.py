@@ -1,10 +1,12 @@
-from serial.tools import list_ports
-import serial
-import time
 import logging
+import time
+
+import serial
+from serial.tools import list_ports
 
 # Scanner Utilities Module
 # This module provides common functions for scanner communication.
+
 
 def clear_serial_buffer(ser):
     """
@@ -18,6 +20,7 @@ def clear_serial_buffer(ser):
     except Exception as e:
         logging.error(f"Error clearing serial buffer: {e}")
 
+
 def read_response(ser, timeout=1.0):
     """
     Reads bytes from the serial port until a carriage return (\r) is encountered
@@ -25,12 +28,12 @@ def read_response(ser, timeout=1.0):
     """
     response_bytes = bytearray()
     start_time = time.time()
-    
+
     try:
         while time.time() - start_time < timeout:
             if ser.in_waiting:
                 byte = ser.read(1)
-                if byte in b'\r\n':  # Stop reading at CR or LF
+                if byte in b"\r\n":  # Stop reading at CR or LF
                     break
                 response_bytes.extend(byte)
         response = response_bytes.decode("utf-8", errors="ignore").strip()
@@ -39,6 +42,7 @@ def read_response(ser, timeout=1.0):
     except Exception as e:
         logging.error(f"Error reading response: {e}")
         return ""
+
 
 def send_command(ser, cmd):
     """
@@ -53,6 +57,7 @@ def send_command(ser, cmd):
         logging.error(f"Error sending command {cmd}: {e}")
         return ""
     return read_response(ser)
+
 
 def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2):
     """
@@ -97,6 +102,7 @@ def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2):
         time.sleep(3)
     logging.error("No scanners found after maximum retries.")
     return []
+
 
 def wait_for_data(ser, max_wait=0.3):
     """

@@ -1,15 +1,17 @@
-import time
 import logging
-import serial
 import re
+import time
+
+import serial
 from serial.tools import list_ports
 
 # Configure logging
 logging.basicConfig(
     filename="scanner_tool.log",
     level=logging.DEBUG,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-    )
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
+
 
 def clear_serial_buffer(ser):
     """
@@ -17,6 +19,7 @@ def clear_serial_buffer(ser):
     """
     ser.reset_input_buffer()
     ser.reset_output_buffer()
+
 
 def read_response(ser, timeout=1.0):
     """
@@ -26,12 +29,14 @@ def read_response(ser, timeout=1.0):
     response = ser.read_until(b"\r").decode("utf-8").strip()
     return response
 
+
 def send_command(ser, cmd):
     """
     Sends a command to the serial port and returns the response.
     """
     ser.write(f"{cmd}\r".encode("utf-8"))
     return read_response(ser)
+
 
 def find_scanner_port(baudrate=115200, timeout=0.5, max_retries=2):
     """
@@ -64,6 +69,7 @@ def find_scanner_port(baudrate=115200, timeout=0.5, max_retries=2):
                 continue
         retries += 1
     return detected
+
 
 def wait_for_data(ser, max_wait=0.3):
     """

@@ -1,7 +1,9 @@
 # controlKeys.py
 
-from PyQt6.QtWidgets import QGroupBox, QPushButton, QVBoxLayout
 from typing import Callable
+
+from PyQt6.QtWidgets import QGroupBox, QPushButton, QVBoxLayout
+
 
 def buildControlKeys(callback: Callable[[str], None]) -> QGroupBox:
     sideButtonLayout = QVBoxLayout()

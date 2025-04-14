@@ -1,5 +1,6 @@
-import os
 import ast
+import os
+
 
 def find_unused_imports(file_path):
     """
@@ -32,6 +33,7 @@ def find_unused_imports(file_path):
     unused_imports = [name for name in imports if name not in used_names]
     return [(name, imports[name]) for name in unused_imports]
 
+
 def scan_directory_for_unused_imports(directory, output_file):
     """
     Recursively scans a directory for Python files and checks for unused imports.
@@ -50,6 +52,7 @@ def scan_directory_for_unused_imports(directory, output_file):
                         for name, lineno in unused_imports:
                             f.write(f"  Line {lineno}: {name}\n")
                         print(f"Logged unused imports in {file_path}")
+
 
 if __name__ == "__main__":
     # Specify the directory to scan

@@ -1,14 +1,27 @@
-from serial.tools import list_ports
-import serial
-import time
+"""
+Scanner Utilities Module.
+
+This module provides utility functions for communicating with scanners over
+serial ports. It includes functions for clearing buffers, sending commands,
+reading responses, and detecting connected scanners.
+"""
+
 import logging
+import time
+
+import serial
+from serial.tools import list_ports
 
 # Scanner Utilities Module
 # This module provides common functions for scanner communication.
 
+
 def clear_serial_buffer(ser):
     """
-    Clears any accumulated data in the serial buffer before sending commands.
+    Clear any accumulated data in the serial buffer before sending commands.
+
+    This is important to ensure that the scanner is ready for new commands.
+    It prevents any leftover data from previous commands from interfering with.
     """
     try:
         time.sleep(0.2)  # Allow any ongoing transmission to complete
@@ -18,19 +31,22 @@ def clear_serial_buffer(ser):
     except Exception as e:
         logging.error(f"Error clearing serial buffer: {e}")
 
+
 def read_response(ser, timeout=1.0):
-    """
+    r"""
+    Read response from serial port.
+
     Reads bytes from the serial port until a carriage return (\r) is encountered
     or the timeout expires.
     """
     response_bytes = bytearray()
     start_time = time.time()
-    
+
     try:
         while time.time() - start_time < timeout:
             if ser.in_waiting:
                 byte = ser.read(1)
-                if byte in b'\r\n':  # Stop reading at CR or LF
+                if byte in b"\r\n":  # Stop reading at CR or LF
                     break
                 response_bytes.extend(byte)
         response = response_bytes.decode("utf-8", errors="ignore").strip()
@@ -40,9 +56,12 @@ def read_response(ser, timeout=1.0):
         logging.error(f"Error reading response: {e}")
         return ""
 
+
 def send_command(ser, command):
-    """
-    Sends a command to the scanner and reads the response.
+    r"""
+    Send a command to the scanner and reads the response.
+
+    Sends the command followed by a carriage return (\r) to the scanner.
     """
     try:
         logging.debug(f"Sending command: {command} (type: {type(command)})")
@@ -56,8 +75,11 @@ def send_command(ser, command):
         logging.error(f"Error sending command '{command}': {e}")
         raise
 
+
 def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2):
     """
+    Scan all com ports and detect connected scanners.
+
     Scans all COM ports and returns a list of tuples (port_name, model_code)
     where model_code matches one of the SCANNER_MODELS keys.
     """
@@ -100,9 +122,11 @@ def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2):
     logging.error("No scanners found after maximum retries.")
     return []
 
+
 def wait_for_data(ser, max_wait=0.3):
     """
-    Waits up to max_wait seconds for incoming data on the serial port.
+    Wait up to max_wait seconds for incoming data on the serial port.
+
     Returns True if data is available, otherwise False.
     """
     start = time.time()

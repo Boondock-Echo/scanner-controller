@@ -7,6 +7,7 @@ Provides cross-platform readline support with tab-completion.
 - If neither is available, disables tab completion
 """
 
+
 def initialize_readline(COMMANDS):
     """
     Sets up tab-completion for available COMMANDS.
@@ -19,10 +20,11 @@ def initialize_readline(COMMANDS):
         try:
             import pyreadline3 as readline  # Windows with pyreadline3
         except ImportError:
-            print("Note: readline or pyreadline3 not available. Tab-completion disabled.")
+            print(
+                "Note: readline or pyreadline3 not available. Tab-completion disabled."
+            )
             return
-    
-    
+
     def completer(text, state):
         """
         Custom completer function for readline.
@@ -34,13 +36,17 @@ def initialize_readline(COMMANDS):
         # If no input or first word, suggest top-level commands
         if len(parts) == 0 or (len(parts) == 1 and not buffer.endswith(" ")):
             matches = [cmd for cmd in COMMANDS if cmd.startswith(text)]
-        
+
         # If input contains a space, suggest subcommands or arguments
         elif len(parts) >= 1:
             command = parts[0].lower()
             if command in COMMANDS:
                 # Get subcommands or arguments for the matched command
-                subcommands = COMMANDS[command].__doc__.split() if COMMANDS[command].__doc__ else []
+                subcommands = (
+                    COMMANDS[command].__doc__.split()
+                    if COMMANDS[command].__doc__
+                    else []
+                )
                 matches = [sub for sub in subcommands if sub.startswith(text)]
             else:
                 matches = []

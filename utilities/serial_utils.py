@@ -1,6 +1,7 @@
 import logging
 import time
 
+
 def clear_serial_buffer(ser):
     """
     Clears any accumulated data in the serial buffer before sending commands.
@@ -13,6 +14,7 @@ def clear_serial_buffer(ser):
     except Exception as e:
         logging.error(f"Error clearing serial buffer: {e}")
 
+
 def read_response(ser, timeout=1.0):
     """
     Reads bytes from the serial port until a carriage return (\r or \n) is encountered.
@@ -23,7 +25,7 @@ def read_response(ser, timeout=1.0):
             byte = ser.read(1)
             if not byte:
                 break  # timeout reached
-            if byte in b'\r\n':
+            if byte in b"\r\n":
                 break
             response_bytes.extend(byte)
         response = response_bytes.decode("utf-8", errors="ignore").strip()
@@ -32,6 +34,7 @@ def read_response(ser, timeout=1.0):
     except Exception as e:
         logging.error(f"Error reading response: {e}")
         return ""
+
 
 def send_command(ser, cmd):
     """
@@ -46,6 +49,7 @@ def send_command(ser, cmd):
         logging.error(f"Error sending command {cmd}: {e}")
         return ""
     return read_response(ser)
+
 
 def wait_for_data(ser, max_wait=0.3):
     """

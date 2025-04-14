@@ -1,29 +1,37 @@
 # scannerGui.py
 
+import os
 import sys
 import time
-import os
-import serial
 
-from PyQt6.QtWidgets import (
-    QWidget, QPushButton, QLabel, QVBoxLayout, QGroupBox,
-    QHBoxLayout, QSlider, QProgressBar, QComboBox, QMessageBox
-)
+import serial
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QFont
-
-
-from .audioControls import buildAudioControls
-from .displayGroup import buildDisplayGroup
-from .signalMeters import buildSignalMeters
-from .controlKeys import buildControlKeys
-from .keypad import buildKeypad
-from .rotaryKnob import buildRotaryKnob
+from PyQt6.QtWidgets import (
+    QComboBox,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QMessageBox,
+    QProgressBar,
+    QPushButton,
+    QSlider,
+    QVBoxLayout,
+    QWidget,
+)
 
 from scanner_gui.commandLibrary import getScannerInterface
 from scanner_gui.scannerUtils import findAllScannerPorts
 
+from .audioControls import buildAudioControls
+from .controlKeys import buildControlKeys
+from .displayGroup import buildDisplayGroup
+from .keypad import buildKeypad
+from .rotaryKnob import buildRotaryKnob
+from .signalMeters import buildSignalMeters
+
 BAUDRATE = 115200
+
 
 class ScannerGUI(QWidget):
     def __init__(self):
@@ -73,7 +81,7 @@ class ScannerGUI(QWidget):
             buildRotaryKnob(
                 knobPressedCallback=lambda: self.sendKey("^"),
                 rotateLeftCallback=lambda: self.sendKey("<"),
-                rotateRightCallback=lambda: self.sendKey(">")
+                rotateRightCallback=lambda: self.sendKey(">"),
             )
         )
         leftPanel.addWidget(buildAudioControls(self.volSlider, self.sqlSlider))
@@ -115,7 +123,7 @@ class ScannerGUI(QWidget):
         # Keypad + Vertical Buttons
         keypadRow = QHBoxLayout()
         keypadRow.addWidget(buildControlKeys(self.sendKey))  # On the left
-        keypadRow.addWidget(buildKeypad(self.sendKey))       # On the right
+        keypadRow.addWidget(buildKeypad(self.sendKey))  # On the right
         layout.addLayout(keypadRow)
 
         outerLayout.addLayout(layout)
@@ -140,7 +148,11 @@ class ScannerGUI(QWidget):
             self.adapter = getScannerInterface(model)
             self.modelLabel.setText(f"Model: {model}")
         except Exception as e:
-            QMessageBox.critical(self, "Connection Error", f"Could not connect to {model} on {port}:\n{e}")
+            QMessageBox.critical(
+                self,
+                "Connection Error",
+                f"Could not connect to {model} on {port}:\n{e}",
+            )
 
     def manualConnect(self):
         index = self.portSelector.currentIndex()
@@ -231,11 +243,13 @@ class ScannerGUI(QWidget):
         for i in range(2, 14, 2):
             text = parts[i] if i < len(parts) else ""
             modifier = parts[i + 1] if i + 1 < len(parts) else ""
-            screen.append({
-                "text": text.strip(),
-                "underline": modifier == "_" * 16,
-                "highlight": modifier == "*" * 16
-            })
+            screen.append(
+                {
+                    "text": text.strip(),
+                    "underline": modifier == "_" * 16,
+                    "highlight": modifier == "*" * 16,
+                }
+            )
         key_flags = parts[14:21]
         keys = [flag == "1" for flag in key_flags]
         backlight = parts[21] if len(parts) > 21 else ""
@@ -248,5 +262,5 @@ class ScannerGUI(QWidget):
             "screen": screen,
             "keys": keys,
             "backlight": backlight,
-            "volume": volume
+            "volume": volume,
         }

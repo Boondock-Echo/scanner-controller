@@ -1,6 +1,7 @@
 # signalMeters.py
 
-from PyQt6.QtWidgets import QVBoxLayout, QProgressBar, QGroupBox
+from PyQt6.QtWidgets import QGroupBox, QProgressBar, QVBoxLayout
+
 
 def buildSignalMeters(rssiBar: QProgressBar, squelchBar: QProgressBar) -> QGroupBox:
     rssiBar.setRange(0, 100)

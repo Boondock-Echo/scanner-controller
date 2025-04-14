@@ -1,6 +1,7 @@
-import os
 import ast
+import os
 from collections import defaultdict
+
 
 def find_python_files(directory):
     """Recursively find all Python files in the given directory, excluding certain folders."""
@@ -14,6 +15,7 @@ def find_python_files(directory):
                 python_files.append(os.path.join(root, file))
     return python_files
 
+
 def extract_imports(filepath):
     """Extract all imports from a Python file."""
     try:
@@ -22,16 +24,17 @@ def extract_imports(filepath):
     except Exception as e:
         print(f"Error parsing {filepath}: {e}")
         return set()
-    
+
     imports = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
-                imports.add(alias.name.split('.')[0])
+                imports.add(alias.name.split(".")[0])
         elif isinstance(node, ast.ImportFrom):
             if node.module:
-                imports.add(node.module.split('.')[0])
+                imports.add(node.module.split(".")[0])
     return imports
+
 
 def extract_dynamic_imports(filepath):
     """Detect dynamic imports in a Python file."""
@@ -46,7 +49,9 @@ def extract_dynamic_imports(filepath):
     for node in ast.walk(tree):
         # Detect usage of importlib.import_module
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
-            if node.func.attr == "import_module" and isinstance(node.func.value, ast.Name):
+            if node.func.attr == "import_module" and isinstance(
+                node.func.value, ast.Name
+            ):
                 if node.func.value.id == "importlib" and len(node.args) > 0:
                     if isinstance(node.args[0], ast.Str):
                         dynamic_imports.add(node.args[0].s)
@@ -58,6 +63,7 @@ def extract_dynamic_imports(filepath):
                     dynamic_imports.add(node.args[0].s)
 
     return dynamic_imports
+
 
 def categorize_imports(imports, file_to_module):
     """Categorize imports as local, third-party, or unresolved."""
@@ -71,6 +77,7 @@ def categorize_imports(imports, file_to_module):
             unresolved_imports.add(imported_module)
 
     return local_imports, unresolved_imports
+
 
 def build_dependency_graph(directory):
     """Build a dependency graph for all Python files in the directory."""
@@ -87,7 +94,9 @@ def build_dependency_graph(directory):
         dynamic_imports = extract_dynamic_imports(file)
         all_imports = imports.union(dynamic_imports)
 
-        local_imports, unresolved_imports = categorize_imports(all_imports, file_to_module)
+        local_imports, unresolved_imports = categorize_imports(
+            all_imports, file_to_module
+        )
         for imported_module in local_imports:
             for other_file, other_module in file_to_module.items():
                 if imported_module == other_module and file != other_file:
@@ -95,6 +104,7 @@ def build_dependency_graph(directory):
         unresolved[file].update(unresolved_imports)
 
     return graph, unresolved
+
 
 def print_dependency_graph(graph, unresolved, base_dir):
     """Print the dependency graph and unresolved imports."""
@@ -118,8 +128,12 @@ def print_dependency_graph(graph, unresolved, base_dir):
             relative_file = os.path.relpath(file, base_dir)
             print(f"{relative_file}: {', '.join(sorted(imports))}")
 
-def print_grouped_files(referenced_files, unreferenced_files, base_dir, tree_view=False):
+
+def print_grouped_files(
+    referenced_files, unreferenced_files, base_dir, tree_view=False
+):
     """Print referenced and unreferenced files, optionally in a tree view."""
+
     def print_tree(files):
         tree = defaultdict(list)
         for file in files:
@@ -150,12 +164,14 @@ def print_grouped_files(referenced_files, unreferenced_files, base_dir, tree_vie
         for file in sorted(unreferenced_files):
             print(os.path.relpath(file, base_dir))
 
+
 def save_unused_files(unreferenced_files, base_dir, output_file="unused_files.txt"):
     """Save the list of unused files to a file."""
     with open(output_file, "w", encoding="utf-8") as file:
         for unused_file in sorted(unreferenced_files):
             file.write(f"{os.path.relpath(unused_file, base_dir)}\n")
     print(f"\nUnused files saved to {output_file}")
+
 
 if __name__ == "__main__":
     project_dir = r"c:\Users\mjhug\Documents\GitHub\scanner-controller"
@@ -169,7 +185,9 @@ if __name__ == "__main__":
     unreferenced_files = set(all_files) - referenced_files
 
     # Set `tree_view=True` to enable tree view output
-    print_grouped_files(referenced_files, unreferenced_files, project_dir, tree_view=False)
+    print_grouped_files(
+        referenced_files, unreferenced_files, project_dir, tree_view=False
+    )
 
     # Save unused files to a file
     save_unused_files(unreferenced_files, project_dir)
