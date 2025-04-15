@@ -14,9 +14,9 @@ class scanner_command:
     """
     Represent a command for the scanner device.
 
-    This class encapsulates the details of a scanner command, including its name,
-    valid range, formats for querying and setting values, validation logic, and
-    response parsing functionality.
+    This class encapsulates the details of a scanner command, including its
+    name, valid range, formats for querying and setting values, validation
+    logic, and response parsing functionality.
     """
 
     def __init__(
@@ -101,7 +101,9 @@ class scanner_command:
         """
         response = response.strip()
         if response == "ERR" or "ERR" in response:
-            raise Exception(f"{self.name}: Command returned an error: {response}")
+            raise Exception(
+                f"{self.name}: Command returned an error: {response}"
+            )
         return self.parser(response) if self.parser else response
 
 
@@ -129,11 +131,14 @@ def parse_frequency_response(response):
     and extracts the frequency value.
     """
     try:
-        # Example: Parse the response assuming it returns "STS,<frequency>,<other_data>"
+        # Example: Parse the response assuming it returns
+        # "STS,<frequency>,<other_data>"
         if response.startswith("STS,"):
             parts = response.split(",")
             if len(parts) > 1:
-                return float(parts[1])  # Extract the frequency from the second field
+                return float(
+                    parts[1]
+                )  # Extract the frequency from the second field
             else:
                 raise ValueError("Invalid STS response format.")
         else:

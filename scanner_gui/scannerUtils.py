@@ -1,3 +1,11 @@
+"""
+Scanner Interaction Module.
+
+This module provides utility functions and classes for interacting with a
+scanner device via serial communication. It includes command validation,
+response parsing, and port scanning.
+"""
+
 import logging
 import time
 
@@ -13,6 +21,13 @@ logging.basicConfig(
 
 
 class scanner_command:
+    """
+    Represent a scanner command with validation, formatting, and parsing.
+
+    This class is used to construct commands for a scanner device, validate
+    input values, and parse responses from the scanner.
+    """
+
     def __init__(
         self,
         name,
@@ -24,6 +39,23 @@ class scanner_command:
         requires_prg=False,
         help=None,
     ):
+        """
+        Initialize a scanner_command instance.
+
+        Args:
+            name (str): The name of the command.
+            valid_range (tuple, optional): A tuple specifying the valid range
+                for the command's value.
+            query_format (str, optional): The format string for query commands.
+            set_format (str, optional): The format string for set commands.
+            validator (function, optional): A custom validation function for
+            the command's value.
+            parser (function, optional): A custom parsing function for the
+            command's response.
+            requires_prg (bool, optional): Indicates if the command requires a
+            PRG prefix.
+            help (str, optional): Help text describing the command.
+        """
         self.name = name.upper()
         self.valid_range = valid_range
         self.query_format = query_format if query_format else self.name
@@ -34,6 +66,16 @@ class scanner_command:
         self.help = help  # optional help text
 
     def buildCommand(self, value=None):
+        """
+        Build a command string for the scanner.
+
+        Args:
+            value (optional): The value to include in the command.
+                If None, a query command is built.
+
+        Returns:
+            str: The formatted command string.
+        """
         if value is None:
             return f"{self.query_format}\r"
         if self.validator:
@@ -42,20 +84,41 @@ class scanner_command:
             self.valid_range[0] <= value <= self.valid_range[1]
         ):
             raise ValueError(
-                f"{self.name}: Value must be between {self.valid_range[0]} and {self.valid_range[1]}."
+                (
+                    f"{self.name}: Value must be between {self.valid_range[0]} "
+                    f"and {self.valid_range[1]}."
+                )
             )
         return f"{self.set_format.format(value=value)}\r"
 
     def parseResponse(self, response):
+        """
+        Parse the response from the scanner.
+
+        Args:
+            response (str): The raw response string from the scanner.
+
+        Returns:
+            str: The parsed response if a parser is provided,
+            otherwise the raw response.
+
+        Raises:
+            Exception: If the response contains an error message.
+        """
         response = response.strip()
         if response == "ERR" or "ERR" in response:
-            raise Exception(f"{self.name}: Command returned an error: {response}")
+            raise Exception(
+                f"{self.name}: Command returned an error: {response}"
+            )
         return self.parser(response) if self.parser else response
 
 
 def clear_serial_buffer(ser):
-    """
-    Clears any accumulated data in the serial buffer before sending commands.
+    r"""
+    Clear any accumulated data in the serial buffer before sending commands.
+
+    This function ensures that the serial buffer is empty before a new command
+    is sent to avoid interference from previous data.
     """
     try:
         time.sleep(0.2)
@@ -67,8 +130,10 @@ def clear_serial_buffer(ser):
 
 
 def read_response(ser, timeout=1.0):
-    """
-    Reads bytes from the serial port until a carriage return (\r or \n) is encountered.
+    r"""
+    Read bytes from the serial port until a carriage return (\r or \n).
+
+    This function collects incoming bytes and returns them as a string.
     """
     response_bytes = bytearray()
     try:
@@ -89,7 +154,7 @@ def read_response(ser, timeout=1.0):
 
 def validate_enum(name, allowed_values):
     """
-    Returns a validator function that checks if a given value is in allowed_values.
+    Return a validator function and check if a given value is in allowed_values.
 
     Args:
         name (str): The name of the command (for error messages)
@@ -111,10 +176,11 @@ def validate_enum(name, allowed_values):
 
 def validate_cin(params):
     """
-    Validates the argument list for the CIN command.
+    Validate the argument list for the CIN command.
 
     Args:
-        params (str or list): Should be a comma-separated string or list of values.
+        params (str or list): Should be a comma-separated string or list of
+        values.
 
     Raises:
         ValueError: If the format or fields are invalid
@@ -164,7 +230,11 @@ def validate_cin(params):
 
 def send_command(ser, cmd):
     """
-    Clears the buffer and sends a command (with CR termination) to the scanner.
+    Clear the buffer and send a command (with CR termination) to the scanner.
+
+    Clears the serial buffer before sending the command to ensure that
+    no previous data interferes with the command. The command is terminated with
+    a carriage return.
     """
     clear_serial_buffer(ser)
     full_cmd = cmd.strip() + "\r"
@@ -179,8 +249,10 @@ def send_command(ser, cmd):
 
 def wait_for_data(ser, max_wait=0.3):
     """
-    Waits up to max_wait seconds for incoming data on the serial port.
-    Returns True if data is available, otherwise False.
+    Wait for data on the serial port.
+
+    Return True if data is available within max_wait seconds, otherwise return
+    False.
     """
     start = time.time()
     while time.time() - start < max_wait:
@@ -192,6 +264,8 @@ def wait_for_data(ser, max_wait=0.3):
 
 def findAllScannerPorts(baudrate=115200, timeout=0.5, max_retries=2):
     """
+    Find all scanner ports and return a list of detected scanners.
+
     Scans all COM ports and returns a list of tuples (port_name, model_code)
     where model_code matches one of the SCANNER_MODELS keys.
     """
@@ -202,14 +276,18 @@ def findAllScannerPorts(baudrate=115200, timeout=0.5, max_retries=2):
         for port in ports:
             logging.info(f"Trying port: {port.device} ({port.description})")
             try:
-                with serial.Serial(port.device, baudrate, timeout=timeout) as ser:
+                with serial.Serial(
+                    port.device, baudrate, timeout=timeout
+                ) as ser:
                     ser.reset_input_buffer()
                     time.sleep(0.1)  # allow scanner to wake up
                     logging.info(f"Sending MDL to {port.device}")
                     ser.write(b"MDL\r")
                     wait_for_data(ser, max_wait=0.3)
                     model_response = read_response(ser)
-                    logging.info(f"Response from {port.device}: {model_response}")
+                    logging.info(
+                        f"Response from {port.device}: {model_response}"
+                    )
                     if model_response.startswith("MDL,"):
                         model_code = model_response.split(",")[1].strip()
                         detected.append((port.device, model_code))
