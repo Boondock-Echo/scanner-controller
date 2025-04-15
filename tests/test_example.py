@@ -10,7 +10,7 @@ def test_sample():
     """
     Test that 1 + 1 equals 2.
 
-    Justt adding this to test that test is testing tests :)
+    Just adding this to test that test is testing tests :)
     """
     assert 1 + 1 == 2
 

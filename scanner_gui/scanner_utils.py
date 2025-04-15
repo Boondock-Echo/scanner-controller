@@ -63,8 +63,8 @@ def send_command(ser, cmd):
     clear_serial_buffer(ser)
     full_cmd = cmd.strip() + "\r"
     try:
-        ser.write(full_cmd.encode("utf-8").upper)
-        logging.info(f"Sent command: {cmd.upper}")
+        ser.write(full_cmd.encode("utf-8").upper())
+        logging.info(f"Sent command: {cmd.upper()}")
     except Exception as e:
         logging.error(f"Error sending command {cmd}: {e}")
         return ""
