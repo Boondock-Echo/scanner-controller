@@ -1,8 +1,22 @@
+"""
+This module provides utility functions and classes for scanner control.
+
+It includes serial buffer management and command handling.
+"""
+
 import logging
 import time
 
 
 class scanner_command:
+    """
+    Represent a scanner command with validation, formatting, and parsing.
+
+    This class is used to construct commands for a scanner, validate input
+    values,
+    format commands for sending, and parse responses from the scanner.
+    """
+
     def __init__(
         self,
         name,
@@ -14,6 +28,23 @@ class scanner_command:
         requires_prg=False,
         help=None,
     ):
+        """
+        Initialize a scanner_command instance.
+
+        Args:
+            name (str): The name of the command.
+            valid_range (tuple, optional): A tuple specifying the valid range
+                for the command value.
+            query_format (str, optional): The format string for query commands.
+            set_format (str, optional): The format string for set commands.
+            validator (callable, optional): A function to validate the command
+            value.
+            parser (callable, optional): A function to parse the response from
+            the scanner.
+            requires_prg (bool, optional): Whether the command requires a
+            program mode.
+            help (str, optional): Help text describing the command.
+        """
         self.name = name.upper()
         self.valid_range = valid_range
         self.query_format = query_format if query_format else self.name
@@ -24,6 +55,19 @@ class scanner_command:
         self.help = help  # optional help text
 
     def buildCommand(self, value=None):
+        """
+        Build a command string for the scanner.
+
+        Args:
+            value (optional): The value to set for the command.
+                If None, a query command is built.
+
+        Returns:
+            str: The formatted command string.
+
+        Raises:
+            ValueError: If the value is out of the valid range.
+        """
         if value is None:
             return f"{self.query_format}\r"
         if self.validator:
@@ -32,20 +76,41 @@ class scanner_command:
             self.valid_range[0] <= value <= self.valid_range[1]
         ):
             raise ValueError(
-                f"{self.name}: Value must be between {self.valid_range[0]} and {self.valid_range[1]}."
+                (
+                    f"{self.name}: Value must be between {self.valid_range[0]} "
+                    f"and {self.valid_range[1]}."
+                )
             )
         return f"{self.set_format.format(value=value)}\r"
 
     def parseResponse(self, response):
+        """
+        Parse the response from the scanner.
+
+        Args:
+            response (str): The raw response string from the scanner.
+
+        Returns:
+            str: The parsed response if a parser is provided, otherwise the raw
+            response.
+
+        Raises:
+            Exception: If the response contains an error.
+        """
         response = response.strip()
         if response == "ERR" or "ERR" in response:
-            raise Exception(f"{self.name}: Command returned an error: {response}")
+            raise Exception(
+                f"{self.name}: Command returned an error: {response}"
+            )
         return self.parser(response) if self.parser else response
 
 
 def clear_serial_buffer(ser):
     """
-    Clears any accumulated data in the serial buffer before sending commands.
+    Clear accumulated data in the serial buffer before sending commands.
+
+    This function clears the serial input and output buffers before sending
+    commands.
     """
     try:
         time.sleep(0.2)

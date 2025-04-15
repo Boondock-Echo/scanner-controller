@@ -1,4 +1,25 @@
+"""
+This module contains utility functions for validating input parameters.
+
+Used in scanner-controller operations.
+"""
+
+
 def validate_enum(name, allowed_values):
+    """
+    Validate a given value is within the allowed enumeration values.
+
+    Args:
+        name (str): The name of the parameter being validated.
+        allowed_values (iterable): A collection of allowed values.
+
+    Returns:
+        function: A validator function that raises ValueError if the value is
+        invalid.
+
+    Raises:
+        ValueError: If the value is not in the allowed enumeration.
+    """
     allowed_upper = {v.upper() for v in allowed_values}
 
     def validator(value):
@@ -12,10 +33,11 @@ def validate_enum(name, allowed_values):
 
 def validate_cin(params):
     """
-    Validates the argument list for the CIN command.
+    Validate the argument list for the CIN command.
 
     Args:
-        params (str or list): Should be a comma-separated string or list of values.
+        params (str or list): Should be a comma-separated string or list of
+        values.
 
     Raises:
         ValueError: If the format or fields are invalid

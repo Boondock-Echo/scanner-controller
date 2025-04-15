@@ -1,11 +1,16 @@
+"""
+This module provides functionality to analyze Python files for unused imports.
+
+It includes functions to scan individual files or entire directories and outputs
+the results to a specified file.
+"""
+
 import ast
 import os
 
 
 def find_unused_imports(file_path):
-    """
-    Analyzes a Python file to find unused imports.
-    """
+    """Analyzes a Python file to find unused imports."""
     with open(file_path, "r", encoding="utf-8") as file:
         try:
             tree = ast.parse(file.read(), filename=file_path)
@@ -36,7 +41,8 @@ def find_unused_imports(file_path):
 
 def scan_directory_for_unused_imports(directory, output_file):
     """
-    Recursively scans a directory for Python files and checks for unused imports.
+    Recursively scan a directory for Python files and checks for unused imports.
+
     Outputs the results to a file.
     """
     with open(output_file, "w", encoding="utf-8") as f:

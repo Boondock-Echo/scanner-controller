@@ -1,3 +1,10 @@
+"""
+This module is part of the scanner tool library.
+
+This module provides the `scanner_command` class for building and parsing
+commands for a scanner tool, with validation and logging capabilities.
+"""
+
 import logging
 
 # Configure logging
@@ -9,6 +16,27 @@ logging.basicConfig(
 
 
 class scanner_command:
+    """
+    A class representing a command for the scanner tool.
+
+    Represents a command for the scanner tool, providing methods to build
+    commands, validate input values, and parse responses from the scanner.
+
+    Attributes:
+        name (str): The name of the command.
+        valid_range (tuple, optional): A tuple specifying the valid range
+        for the command's value.
+        query_format (str, optional): The format string for query commands.
+        set_format (str, optional): The format string for set commands.
+        validator (callable, optional): A custom validation function for the
+        command's value.
+        parser (callable, optional): A custom parsing function for the command's
+        response.
+        requires_prg (bool): Indicates if the command requires a program to be
+        loaded.
+        help (str, optional): Help text describing the command.
+    """
+
     def __init__(
         self,
         name,
@@ -20,6 +48,23 @@ class scanner_command:
         requires_prg=False,
         help=None,
     ):
+        """
+        Initialize a scanner_command instance.
+
+        Args:
+            name (str): The name of the command.
+            valid_range (tuple, optional): A tuple specifying the valid range
+            for the command's value.
+            query_format (str, optional): The format string for query commands.
+            set_format (str, optional): The format string for set commands.
+            validator (callable, optional): A custom validation function for the
+            command's value.
+            parser (callable, optional): A custom parsing function for the
+            command's response.
+            requires_prg (bool): Indicates if the command requires a program to
+            be loaded.
+            help (str, optional): Help text describing the command.
+        """
         self.name = name.upper()
         self.valid_range = valid_range
         self.query_format = query_format if query_format else self.name
@@ -30,6 +75,19 @@ class scanner_command:
         self.help = help  # optional help text
 
     def buildCommand(self, value=None):
+        """
+        Build a command string for the scanner tool.
+
+        Args:
+            value (optional): The value to set for the command. If None, a query
+            command is built.
+
+        Returns:
+            str: The formatted command string.
+
+        Raises:
+            ValueError: If the value is out of the valid range.
+        """
         if value is None:
             return f"{self.query_format}\r"
         if self.validator:
@@ -38,12 +96,30 @@ class scanner_command:
             self.valid_range[0] <= value <= self.valid_range[1]
         ):
             raise ValueError(
-                f"{self.name}: Value must be between {self.valid_range[0]} and {self.valid_range[1]}."
+                (
+                    f"{self.name}: Value must be between {self.valid_range[0]} "
+                    f"and {self.valid_range[1]}."
+                )
             )
         return f"{self.set_format.format(value=value)}\r"
 
     def parseResponse(self, response):
+        """
+        Parse the response from the scanner tool.
+
+        Args:
+            response (str): The raw response string from the scanner.
+
+        Returns:
+            str: The parsed response, or the raw response if no parser is
+            defined.
+
+        Raises:
+            Exception: If the response contains an error.
+        """
         response = response.strip()
         if response == "ERR" or "ERR" in response:
-            raise Exception(f"{self.name}: Command returned an error: {response}")
+            raise Exception(
+                f"{self.name}: Command returned an error: {response}"
+            )
         return self.parser(response) if self.parser else response

@@ -1,12 +1,28 @@
+"""
+This module provides tools to analyze Python project dependencies.
+
+It includes functions to find Python files, extract imports, build a dependency
+graph,
+and identify unused files in a project directory.
+"""
+
 import ast
 import os
 from collections import defaultdict
 
 
 def find_python_files(directory):
-    """Recursively find all Python files in the given directory, excluding certain folders."""
+    """
+    Recursively find all Python files in the given directory.
+
+    Outputs the results to a file. Excludes certain folders.
+    """
     python_files = []
-    excluded_dirs = {"venv", "__pycache__", ".git"}  # Add directories to exclude here
+    excluded_dirs = {
+        "venv",
+        "__pycache__",
+        ".git",
+    }  # Add directories to exclude here
     for root, dirs, files in os.walk(directory):
         # Modify dirs in-place to skip excluded directories
         dirs[:] = [d for d in dirs if d not in excluded_dirs]
@@ -85,11 +101,13 @@ def build_dependency_graph(directory):
     graph = defaultdict(list)
     unresolved = defaultdict(set)
     file_to_module = {
-        file: os.path.splitext(os.path.relpath(file, directory))[0].replace(os.sep, ".")
+        file: os.path.splitext(os.path.relpath(file, directory))[0].replace(
+            os.sep, "."
+        )
         for file in python_files
     }
 
-    for file, module in file_to_module.items():
+    for file, _module in file_to_module.items():
         imports = extract_imports(file)
         dynamic_imports = extract_dynamic_imports(file)
         all_imports = imports.union(dynamic_imports)
@@ -118,7 +136,7 @@ def print_dependency_graph(graph, unresolved, base_dir):
         print(f"{relative_file}:")
         if dependencies:
             for dependency in sorted(dependencies):
-                print(f"  -> {os.path.relpath(dependency, base_dir)}")
+                print(f"--->{os.path.relpath(dependency, base_dir)}")
         else:
             print("  (No dependencies)")
 
@@ -165,7 +183,9 @@ def print_grouped_files(
             print(os.path.relpath(file, base_dir))
 
 
-def save_unused_files(unreferenced_files, base_dir, output_file="unused_files.txt"):
+def save_unused_files(
+    unreferenced_files, base_dir, output_file="unused_files.txt"
+):
     """Save the list of unused files to a file."""
     with open(output_file, "w", encoding="utf-8") as file:
         for unused_file in sorted(unreferenced_files):

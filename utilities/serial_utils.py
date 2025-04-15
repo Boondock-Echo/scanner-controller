@@ -1,11 +1,15 @@
+"""
+This module provides utility functions for serial communication.
+
+Including clearing buffers, sending commands, and reading responses.
+"""
+
 import logging
 import time
 
 
 def clear_serial_buffer(ser):
-    """
-    Clears any accumulated data in the serial buffer before sending commands.
-    """
+    """Clear accumulated data in the serial buffer before sending commands."""
     try:
         time.sleep(0.2)
         while ser.in_waiting:
@@ -16,8 +20,11 @@ def clear_serial_buffer(ser):
 
 
 def read_response(ser, timeout=1.0):
-    """
-    Reads bytes from the serial port until a carriage return (\r or \n) is encountered.
+    r"""
+    Read bytes from the serial port until a carriage return is encountered.
+
+    This function continues reading until a timeout occurs or a carriage return
+    is found.
     """
     response_bytes = bytearray()
     try:
@@ -38,7 +45,9 @@ def read_response(ser, timeout=1.0):
 
 def send_command(ser, cmd):
     """
-    Clears the buffer and sends a command (with CR termination) to the scanner.
+    Clear the buffer and send a command (with CR termination) to the scanner.
+
+    Return the response from the scanner.
     """
     clear_serial_buffer(ser)
     full_cmd = cmd.strip() + "\r"
@@ -53,7 +62,8 @@ def send_command(ser, cmd):
 
 def wait_for_data(ser, max_wait=0.3):
     """
-    Waits up to max_wait seconds for incoming data on the serial port.
+    Wait up to max_wait seconds for incoming data on the serial port.
+
     Returns True if data is available, otherwise False.
     """
     start = time.time()

@@ -78,7 +78,7 @@ def show_help(COMMANDS, COMMAND_HELP, command="", adapter=None):
     if not command:
         print("\nAvailable commands:")
         for cmd in sorted(COMMANDS):
-            print(f"  - {cmd}")
+            print(f"--->{cmd}")
         print("\nType 'help <command>' for details.")
         return
     # Display help for a specific command
@@ -212,7 +212,9 @@ def main():
     # ----------------------------------------
     parser = argparse.ArgumentParser(description="Scanner Interface")
     parser.add_argument(
-        "--machine", action="store_true", help="Use machine-friendly output (no icons)"
+        "--machine",
+        action="store_true",
+        help="Use machine-friendly output (no icons)",
     )
     args = parser.parse_args()
 
@@ -237,7 +239,8 @@ def main():
         else:  # multiple scanners found, prompt user to select
             selection = int(
                 input(
-                    "\nSelect a scanner to connect to " "(enter number or 0 to exit): "
+                    "\nSelect a scanner to connect to "
+                    "(enter number or 0 to exit): "
                 )
             )
         if selection == 0:  # 0 to exit

@@ -9,3 +9,4 @@ application-import-names =
     scanner_gui
 per-file-ignores =
     __init__.py:F401
+exclude = .venv,.pytest_cache,.github,__pycache__

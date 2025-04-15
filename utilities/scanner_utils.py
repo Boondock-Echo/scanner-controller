@@ -25,7 +25,8 @@ def read_response(ser, timeout=1.0):
     r"""
     Read response from serial port.
 
-    Reads bytes from the serial port until a carriage return (\r or \n) is encountered.
+    Reads bytes from the serial port until a carriage return (\r or \n) is
+    encountered.
     """
     response_bytes = bytearray()
     try:
@@ -88,14 +89,18 @@ def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2):
         for port in ports:
             logging.info(f"Trying port: {port.device} ({port.description})")
             try:
-                with serial.Serial(port.device, baudrate, timeout=timeout) as ser:
+                with serial.Serial(
+                    port.device, baudrate, timeout=timeout
+                ) as ser:
                     ser.reset_input_buffer()
                     time.sleep(0.1)  # allow scanner to wake up
                     logging.info(f"Sending MDL to {port.device}")
                     ser.write(b"MDL\r")
                     wait_for_data(ser, max_wait=0.3)
                     model_response = read_response(ser)
-                    logging.info(f"Response from {port.device}: {model_response}")
+                    logging.info(
+                        f"Response from {port.device}: {model_response}"
+                    )
                     if model_response.startswith("MDL,"):
                         model_code = model_response.split(",")[1].strip()
                         detected.append((port.device, model_code))

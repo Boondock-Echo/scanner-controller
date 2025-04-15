@@ -19,7 +19,9 @@ def parse_arguments():
     parser.add_argument(
         "-d",
         "--directory",
-        default=os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")),
+        default=os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..")
+        ),
         help="Directory to analyze (default: project root)",
     )
     return parser.parse_args()
