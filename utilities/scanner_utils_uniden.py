@@ -50,31 +50,45 @@ logging.basicConfig(
 
 
 def clear_serial_buffer(ser):
-    """Clear the serial input and output buffers."""
+    """
+    Clear accumulated data in the serial buffer.
+
+    This function clears the serial input and output buffers before sending
+    commands.
+    """
     ser.reset_input_buffer()
     ser.reset_output_buffer()
 
 
 def read_response(ser, timeout=1.0):
-    """Read a response from the serial port with a timeout."""
+    """
+    Read bytes from the serial port until a carriage return.
+
+    Reads a response from the serial port with a timeout.
+    """
     ser.timeout = timeout
     response = ser.read_until(b"\r").decode("utf-8").strip()
     return response
 
 
 def send_command(ser, cmd):
-    """Send a command to the serial port and return the response."""
+    """
+    Clear the buffer and send a command (with CR termination) to a scanner.
+
+    This function sends a command to the serial port and returns the response.
+    """
     ser.write(f"{cmd}\r".encode("utf-8"))
     return read_response(ser)
 
 
 def find_scanner_port(baudrate=115200, timeout=0.5, max_retries=2):
-    """Scan all COM ports and return a list of tuples.
+    """
+    Scan all COM ports and return a list of tuples.
 
     - If the scanner responds to "MDL" with "MDL,[A-Za-z0-9,]+", it is treated
-      as a Uniden-style scanner.
-    - If the scanner responds to "WI" with "AR-DV1", it is treated as an
-      AOR-DV1 scanner.
+    as a Uniden-style scanner.
+    - If the scanner responds to "WI" with "AR-DV1", it is treated as an AOR-DV1
+    scanner.
     """
     detected = []
     retries = 0
@@ -106,9 +120,10 @@ def find_scanner_port(baudrate=115200, timeout=0.5, max_retries=2):
 
 
 def wait_for_data(ser, max_wait=0.3):
-    """Wait up to max_wait seconds for incoming data on the serial port.
+    """
+    Wait up to max_wait seconds for incoming data on the serial port.
 
-    Returns True if data is available, otherwise False.
+    Return True if data is available, otherwise False.
     """
     start = time.time()
     while time.time() - start < max_wait:

@@ -1,10 +1,11 @@
+"""
+Control Keys Module.
+
+This module provides a function to build a control keys group box
+with buttons for a PyQt6 GUI application.
+"""
+
 # controlKeys.py
-
-"""
-Controlkeys module.
-
-This module provides functionality related to controlkeys.
-"""
 
 from typing import Callable
 
@@ -13,14 +14,16 @@ from PyQt6.QtWidgets import QGroupBox, QPushButton, QVBoxLayout
 
 def buildControlKeys(callback: Callable[[str], None]) -> QGroupBox:
     """
-    Build and return a QGroupBox containing control key buttons.
+    Build a control keys group box with buttons.
 
     Args:
-        callback: A callable that takes a string argument, triggered on
-        button click.
+        callback (Callable[[str], None]): A function to handle button clicks.
+                                          The function receives the first
+                                          character of the button label as an
+                                          argument.
 
     Returns:
-        QGroupBox: A group box containing the control key buttons.
+        QGroupBox: A group box containing the control keys buttons.
     """
     sideButtonLayout = QVBoxLayout()
     labels = ["Hold", "Scan", "L/O", "Menu", "Func"]

@@ -1,5 +1,6 @@
 """
-Scanner_Gui package.
+This package initializes the scanner GUI module.
 
-This package provides scanner_gui-related functionality.
+It contains the necessary components for the scanner controller's graphical
+interface.
 """

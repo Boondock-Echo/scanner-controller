@@ -1,10 +1,8 @@
-# scanner_gui/__main__.py
 """
-  Main   module.
+Entry point for the scanner GUI application.
 
-This module provides functionality related to   main  .
+This is the entry point for the scanner GUI application.
 """
-
 
 from .main import main
 

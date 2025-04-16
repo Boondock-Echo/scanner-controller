@@ -1,5 +1,5 @@
 """
-Gui package.
+Package initialization for the scanner GUI module.
 
-This package provides gui-related functionality.
+This package initializes the GUI components for the scanner controller.
 """

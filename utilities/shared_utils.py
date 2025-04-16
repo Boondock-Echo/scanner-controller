@@ -1,40 +1,20 @@
 """
-This module is part of the scanner tool library.
+This module provides utility functions and classes for scanner control.
 
-This module provides the `scanner_command` class for building and parsing
-commands for a scanner tool, with validation and logging capabilities.
+It includes serial buffer management and command handling.
 """
 
 import logging
-
-# Configure logging
-logging.basicConfig(
-    filename="scanner_tool.log",
-    level=logging.DEBUG,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
+import time
 
 
 class scanner_command:
     """
-    A class representing a command for the scanner tool.
+    Represent a scanner command with validation, formatting, and parsing.
 
-    Represents a command for the scanner tool, providing methods to build
-    commands, validate input values, and parse responses from the scanner.
-
-    Attributes:
-        name (str): The name of the command.
-        valid_range (tuple, optional): A tuple specifying the valid range
-        for the command's value.
-        query_format (str, optional): The format string for query commands.
-        set_format (str, optional): The format string for set commands.
-        validator (callable, optional): A custom validation function for the
-        command's value.
-        parser (callable, optional): A custom parsing function for the command's
-        response.
-        requires_prg (bool): Indicates if the command requires a program to be
-        loaded.
-        help (str, optional): Help text describing the command.
+    This class is used to construct commands for a scanner, validate input
+    values,
+    format commands for sending, and parse responses from the scanner.
     """
 
     def __init__(
@@ -54,15 +34,15 @@ class scanner_command:
         Args:
             name (str): The name of the command.
             valid_range (tuple, optional): A tuple specifying the valid range
-            for the command's value.
+                for the command value.
             query_format (str, optional): The format string for query commands.
             set_format (str, optional): The format string for set commands.
-            validator (callable, optional): A custom validation function for the
-            command's value.
-            parser (callable, optional): A custom parsing function for the
-            command's response.
-            requires_prg (bool): Indicates if the command requires a program to
-            be loaded.
+            validator (callable, optional): A function to validate the command
+            value.
+            parser (callable, optional): A function to parse the response from
+            the scanner.
+            requires_prg (bool, optional): Whether the command requires a
+            program mode.
             help (str, optional): Help text describing the command.
         """
         self.name = name.upper()
@@ -76,11 +56,11 @@ class scanner_command:
 
     def buildCommand(self, value=None):
         """
-        Build a command string for the scanner tool.
+        Build a command string for the scanner.
 
         Args:
-            value (optional): The value to set for the command. If None, a query
-            command is built.
+            value (optional): The value to set for the command.
+                If None, a query command is built.
 
         Returns:
             str: The formatted command string.
@@ -105,14 +85,14 @@ class scanner_command:
 
     def parseResponse(self, response):
         """
-        Parse the response from the scanner tool.
+        Parse the response from the scanner.
 
         Args:
             response (str): The raw response string from the scanner.
 
         Returns:
-            str: The parsed response, or the raw response if no parser is
-            defined.
+            str: The parsed response if a parser is provided, otherwise the raw
+            response.
 
         Raises:
             Exception: If the response contains an error.
@@ -122,7 +102,20 @@ class scanner_command:
             raise Exception(
                 f"{self.name}: Command returned an error: {response}"
             )
-            raise Exception(
-                f"{self.name}: Command returned an error: {response}"
-            )
         return self.parser(response) if self.parser else response
+
+
+def clear_serial_buffer(ser):
+    """
+    Clear accumulated data in the serial buffer before sending commands.
+
+    This function clears the serial input and output buffers before sending
+    commands.
+    """
+    try:
+        time.sleep(0.2)
+        while ser.in_waiting:
+            ser.read(ser.in_waiting)
+        logging.debug("Serial buffer cleared.")
+    except Exception as e:
+        logging.error(f"Error clearing serial buffer: {e}")

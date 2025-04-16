@@ -1,39 +1,14 @@
-# main.py
-
 """
-Main module.
+This is the main entry point for the scanner GUI application.
 
-This module provides functionality related to main.
+It initializes the PyQt application and launches the ScannerGUI interface.
 """
 
 # Standard library imports
-import logging
 import os
-import shutil
 import sys
 
-# Third-party imports
 from PyQt6.QtWidgets import QApplication, QMessageBox
-
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-
-
-def clear_pycache():
-    """Clear all __pycache__ directories to ensure fresh imports."""
-    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    logging.info(f"Clearing cached Python files in {root_dir}")
-
-    for dirpath, dirnames, _filenames in os.walk(root_dir):
-        if "__pycache__" in dirnames:
-            pycache_path = os.path.join(dirpath, "__pycache__")
-            try:
-                shutil.rmtree(pycache_path)
-                logging.info(f"Removed cache directory: {pycache_path}")
-            except Exception as e:
-                logging.warning(f"Could not remove {pycache_path}: {e}")
 
 
 def main():
@@ -42,9 +17,6 @@ def main():
     Clears Python cache, initializes the GUI, checks for port accessibility,
     and runs the main application loop.
     """
-    # Clear cache on startup
-    clear_pycache()
-
     # Import here after cache clearing
     try:
         # Application imports
@@ -62,6 +34,12 @@ def main():
             from scanner_gui.gui.scannerGui import ScannerGUI
 
     # Start the application
+    """
+    Run the scanner GUI application.
+
+    The main function initializes the PyQt application and launches the
+    ScannerGUI interface.
+    """
     app = QApplication(sys.argv)
 
     # Show warning if COM ports are inaccessible
@@ -99,5 +77,6 @@ def main():
 
 
 # This allows the script to be run directly
+
 if __name__ == "__main__":
     main()

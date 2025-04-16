@@ -58,12 +58,14 @@ scanner-controller/
 
 1. Clone the repository:
 
+
    ```bash
    git clone https://github.com/yourusername/scanner-controller.git
    cd scanner-controller
    ```
 
 2. Install dependencies:
+
 
    ```bash
    pip install -r requirements.txt
@@ -74,6 +76,7 @@ scanner-controller/
 ## Usage
 
 1. Run the application:
+
 
    ```bash
    python -m scanner_gui.main
@@ -141,11 +144,28 @@ Common Flake8 issues include:
 - Unused imports or variables (F4xx errors)
 - Complexity issues (C9xx errors)
 
+## Development Setup
+
+To clear all `__pycache__` directories, run the following script:
+
+```bash
+python scripts/clear_pycache.py
+```
+
+To analyze unused files or imports, or to build a dependency graph, use the following scripts:
+
+```bash
+python utilities/analyze_unused_files.py
+python utilities/analyze_unused_imports.py
+python utilities/build_dependency_graph.py
+```
+
 ## Development Notes
 
 ### Modular GUI Components
 
 The GUI is modularized into separate components for better maintainability:
+
 
 - **`audioControls.py`**: Handles volume and squelch sliders.
 - **`controlKeys.py`**: Implements vertical control buttons.

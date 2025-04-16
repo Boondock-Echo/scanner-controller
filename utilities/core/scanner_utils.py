@@ -15,7 +15,6 @@ from serial.tools import list_ports
 
 # Import from core serial utilities - remove unused imports
 from utilities.core.serial_utils import read_response, wait_for_data
-from utilities.core.shared_utils import send_command
 
 
 def find_all_scanner_ports(

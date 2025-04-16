@@ -1,22 +1,25 @@
 """
-Bc125At Command Library module.
+BC125AT Command Library.
 
-This module provides functionality related to bc125at command library.
+This module defines the command structure and API for the BC125AT scanner.
+It includes command definitions, validators, and helper functions for
+interacting with the scanner.
 """
 
-from utilities.core.shared_utils import scanner_command
+# Removed unused import: send_command
+from utilities.shared_utils import scanner_command
 from utilities.validators import validate_cin, validate_enum  # Correct imports
 
 # ------------------------------------------------------------------------------
 # Command Definitions
 # ------------------------------------------------------------------------------
 
-
 """
-BC125AT Command Library
+BC125AT Command Library.
 
-This file defines the BC125AT-specific command structure, including valid ranges
-, query/set formats, help descriptions, and optional validators or parsers.
+This file defines the BC125AT-specific command structure, including valid
+ranges, query/set formats, help descriptions, and optional validators or
+parsers.
 
 It is used by:
 - The BC125ATAdapter to build and parse commands
@@ -31,11 +34,11 @@ SCG: SCG,NG  SCO: SCO,NG  SSG: SSG,NG  TST: TST,NG  WXS: WXS,NG  BAV: BAV,558
 EPG: EPG,OK  ESN: ESN,XXXXXXXXXXXXXX,000,1
 GLF: GLF,-1  GLG: GLG,01625500,NFM,,0,,,SCANNER_001,1,0,,1,
 MDL: MDL,BC125AT          PWR: PWR,418,01625500     SQL: SQL,0
-STS: STS,011000,          ,,SCANNER_001     ,,CH001  162.5500 ,,
-,,              ,,1            ,,1,0,0,0,,,5,,3
+STS: STS,011000,          ,,SCANNER_001     ,,CH001  162.5500 ,,         ,
+,              ,,1            ,,1,0,0,0,,,5,,3
 SUM: VER: VER,Version 1.06.06  VOL: VOL,0  WIN: WIN,85,01625500  EWP: EWP,ERR
-JNT: JNT,ERR JPM: JPM,ERR KEY: KEY,ERR
-MNU: MNU,ERR MRD: MRD,00000000,ERR QSH: QSH,ERR ULF: ULF,ERR
+JNT: JNT,ERR JPM: JPM,ERR KEY: KEY,ERR MNU: MNU,ERR MRD: MRD,00000000,ERR
+QSH: QSH,ERR ULF: ULF,ERR
 
 """
 
@@ -95,8 +98,7 @@ commands = {
         name="CLC",
         requires_prg=True,
         help="""
-        Configure Close Call mode (priority, override, alert tones, etc.)
-        """,
+        Configure Close Call mode (priority, override, alert tones, etc.)""",
     ),
     "CIN": scanner_command(
         name="CIN",
@@ -107,8 +109,8 @@ commands = {
         CIN,<index>
 
         Write:
-        CIN,<index>,<name>,<frequency>,<mod>,<ctcss/dcs>,<delay>,<lockout>,
-        <priority>
+        CIN,<index>,<name>,<frequency>,<mod>,<ctcss/dcs>,
+        <delay>,<lockout>,<priority>
 
         Field details:
         index     : 1–500
@@ -122,8 +124,9 @@ commands = {
     ),
     "COM": scanner_command(
         name="COM",
-        help="Possibly related to COM port config (undocumented). "
-        "Use with caution.",
+        help="""
+        Possibly related to COM port config (undocumented). Use with caution.
+        """,
         requires_prg=True,
     ),
     "CSG": scanner_command(
@@ -151,9 +154,10 @@ commands = {
     ),
     "GLF": scanner_command(
         name="GLF",
-        help="""
-        Get global lockout frequency.
-        Repeated calls return next item until GLF,-1.""",
+        help=(
+            "Get global lockout frequency. Repeated calls return next item "
+            "until GLF,-1."
+        ),
         requires_prg=True,
     ),
     "GLG": scanner_command(
@@ -214,16 +218,18 @@ commands = {
     ),
     "QSH": scanner_command(
         name="QSH",
-        help="Quick search hold mode (seems broken on BC125AT. "
-        "I've tried 42k permutations of commands)\n"
-        "Next possibility is that it's a chained command or only available "
-        "in certain modes.",
+        help=(
+            "Quick search hold mode (seems broken on BC125AT. I've tried 42k "
+            "permutations of commands)\nNext possibility is that it's a chained"
+            "command or only available in certain modes."
+        ),
     ),
     "SCG": scanner_command(
         name="SCG",
-        help="""
-        Quick group lockout bitmask. Format: SCG,xxxxxxxxxx
-        (each digit is 0 or 1)""",
+        help=(
+            "Quick group lockout bitmask. Format: SCG,xxxxxxxxxx "
+            "(each digit is 0 or 1)"
+        ),
         requires_prg=True,
     ),
     "SCO": scanner_command(
@@ -264,14 +270,6 @@ commands = {
         help="NOAA weather settings. WXS,<alert_priority> (0=Off, 1=On)",
         requires_prg=True,
     ),
-    "SomeCommand": scanner_command(
-        "SomeCommand", valid_range=(0, 100), help="Some command description"
-    ),
-    "AnotherCommand": scanner_command(
-        "AnotherCommand",
-        valid_range=(0, 10),
-        help="Another command description",
-    ),
 }
 
 # ------------------------------------------------------------------------------
@@ -281,7 +279,7 @@ commands = {
 
 def getHelp(command):
     """
-    Get the help string for the specified command (case-insensitive).
+    Return the help string for the specified command (case-insensitive).
 
     Returns None if command is not defined.
     """
@@ -290,5 +288,10 @@ def getHelp(command):
 
 
 def listCommands():
-    """Return a sorted list of all available command names."""
+    """
+    Return a sorted list of all available command names.
+
+    This is used for the help command in the main program.
+    The command names are sorted alphabetically for easier navigation.
+    """
     return sorted(commands.keys())

@@ -1,10 +1,9 @@
 """
-Module to communicate with scanners.
+Scanner Utilities Module.
 
 This module provides utility functions for communicating with scanners over
-serial ports.
-It includes functions for clearing buffers, sending commands, reading responses,
-and detecting scanner ports.
+serial ports. It includes functions for clearing buffers, sending commands,
+reading responses, and detecting connected scanners.
 """
 
 import logging
@@ -18,9 +17,11 @@ from serial.tools import list_ports
 
 
 def clear_serial_buffer(ser):
-    """Clear any accumulated data in the serial buffer before sending commands.
+    """
+    Clear any accumulated data in the serial buffer before sending commands.
 
-    Removes all pending data in the serial buffer to ensure clean communication.
+    This is important to ensure that the scanner is ready for new commands.
+    It prevents any leftover data from previous commands from interfering with.
     """
     try:
         time.sleep(0.2)  # Allow any ongoing transmission to complete
@@ -33,9 +34,9 @@ def clear_serial_buffer(ser):
 
 def read_response(ser, timeout=1.0):
     r"""
-    Read bytes from serial port.
+    Read response from serial port.
 
-    Read bytes from the serial port until a carriage return (\r) is encountered
+    Reads bytes from the serial port until a carriage return (\r) is encountered
     or the timeout expires.
     """
     response_bytes = bytearray()
@@ -56,41 +57,39 @@ def read_response(ser, timeout=1.0):
         return ""
 
 
-def send_command(ser, cmd):
-    """
-    Clear the buffer and sends a command (with CR termination) to the scanner.
+def send_command(ser, command):
+    r"""
+    Send a command to the scanner and reads the response.
 
-    The command is converted to uppercase before sending.
-    The response is read and returned.
+    Sends the command followed by a carriage return (\r) to the scanner.
     """
-    clear_serial_buffer(ser)
-    full_cmd = cmd.strip() + "\r"
     try:
-        ser.write(full_cmd.encode("utf-8").upper())
-        logging.info(f"Sent command: {cmd.upper()}")
+        logging.debug(f"Sending command: {command} (type: {type(command)})")
+        if not isinstance(command, str):
+            raise ValueError(
+                "Command must be a string, got" f"{type(command)} instead."
+            )
+        ser.write(f"{command}\r".encode("utf-8"))
+        response = ser.readline().decode("utf-8").strip()
+        logging.debug(f"Received response: {response}")
+        return response
     except Exception as e:
-        logging.error(f"Error sending command {cmd}: {e}")
-        return ""
+        logging.error(f"Error sending command '{command}': {e}")
+        raise
 
 
 def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2):
     """
-    Scan all COM ports and returns a list of tuples (port_name, model_code).
+    Scan all com ports and detect connected scanners.
 
-    Each tuple contains the port name and the model code of the detected scanner
+    Scans all COM ports and returns a list of tuples (port_name, model_code)
     where model_code matches one of the SCANNER_MODELS keys.
     """
     detected = []
     retries = 0
-    skip_ports = []
     while retries < max_retries:
         ports = list_ports.comports()
         for port in ports:
-            # Skip ports that are already known to be in use
-            if port.device in skip_ports:
-                logging.debug(f"Skipping {port.device} (marked as in use)")
-                continue
-
             logging.info(f"Trying port: {port.device} ({port.description})")
             try:
                 with serial.Serial(
@@ -103,10 +102,7 @@ def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2):
                     wait_for_data(ser, max_wait=0.3)
                     model_response = read_response(ser)
                     logging.info(
-                        f"Response from {port.device}: {model_response}"
-                    )
-                    logging.info(
-                        f"Response from {port.device}: {model_response}"
+                        f"Response from {port.device}: " f"{model_response}"
                     )
                     if model_response.startswith("MDL,"):
                         model_code = model_response.split(",")[1].strip()

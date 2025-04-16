@@ -51,12 +51,10 @@ def validate_cin(params):
     Validate the argument list for the CIN command.
 
     Args:
-        params (str or list): Should be a comma-separated string or
-            list of values.
-
+        params (str or list): Should be a comma-separated string or list of
+        values.
     Raises:
         ValueError: If the format or fields are invalid
-
     Returns:
         The validated params (unchanged if valid)
     """

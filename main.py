@@ -1,7 +1,9 @@
 """
-Main module.
+Scanner Controller main module.
 
-This module provides functionality related to main.
+This is the main entry point for the scanner controller application.
+It provides command-line interface for interacting with various scanner models
+through their respective adapters.
 """
 
 # Standard library imports
@@ -9,26 +11,32 @@ import argparse
 
 # Third-party imports
 import importlib
-import json
+
+# Standard library imports
 import logging
 import os
-import re
-import sys
 import threading
-from pathlib import Path
 
 import serial
 
+# Local application/relative imports
+from adapter_scanner.adapter_bc125at import BC125ATAdapter
+from adapter_scanner.adapter_bcd325p2 import BCD325P2Adapter
+from adapter_scanner.scanner_utils import find_all_scanner_ports
+
 # Application imports
 from utilities.core.command_registry import build_command_table
-from utilities.core.scanner_utils import find_all_scanner_ports
 from utilities.core.shared_utils import diagnose_connection_issues
 from utilities.help_topics import get_extended_help
-from utilities.log_trim import trim_log_file
 from utilities.readlineSetup import initialize_readline
 from utilities.scanner_factory import get_scanner_adapter
+from utilities.tools.log_trim import trim_log_file
 
-# ------------------------------------------------------------------------------
+# from command_registry import build_command_table
+
+
+# Third-party imports
+
 # LOGGING SETUP
 # ------------------------------------------------------------------------------
 
@@ -46,6 +54,9 @@ def setup_logging(log_level=logging.DEBUG):
         format="%(asctime)s - %(levelname)s - %(message)s",
     )
 
+
+if not os.path.exists("scanner_tool.log"):
+    logging.error("Log file not found. Creating a new one.")
     if not os.path.exists("scanner_tool.log"):
         logging.error("Log file not found. Creating a new one.")
 
@@ -55,8 +66,11 @@ def setup_logging(log_level=logging.DEBUG):
             "scanner_tool.log", max_size=10 * 1024 * 1024
         )  # Keep the log file manageable
 
-
 setup_logging()
+if os.path.getsize("scanner_tool.log") > 10 * 1024 * 1024:  # 10 MB limit
+    logging.info("Log file size exceeded 10 MB. Trimming...")
+    # Keep the log file manageable
+    trim_log_file("scanner_tool.log", max_size=10 * 1024 * 1024)
 
 # ------------------------------------------------------------------------------
 # SUPPORTED SCANNER ADAPTERS
@@ -100,9 +114,16 @@ def get_adapter(model_name):
         raise ImportError(f"Error loading adapter for {model_name}: {e}")
 
 
+adapter_scanner = {  # if your scanner adapter is not listed here, add it here
+    "BC125AT": BC125ATAdapter(),
+    "BCD325P2": BCD325P2Adapter(),
+}
+
 # ------------------------------------------------------------------------------
 # HELP COMMAND
 # ------------------------------------------------------------------------------
+
+
 def show_help(COMMANDS, COMMAND_HELP, command="", adapter=None):
     """
     Display help for a command or list all available commands.
@@ -112,7 +133,21 @@ def show_help(COMMANDS, COMMAND_HELP, command="", adapter=None):
         COMMAND_HELP (dict): Dictionary of help texts for commands.
         command (str): Specific command to display help for.
         adapter (object): Scanner adapter instance.
+    Display help information for commands.
+
+    This function displays help for a given command. If no command is given,
+    it lists available commands. It attempts to fetch help from the
+    device-specific command library if connected to a scanner and help is not
+    found elsewhere.
+
+    Args:
+        COMMANDS (dict): Dictionary mapping command names to handler functions.
+        COMMAND_HELP (dict): Dictionary mapping command names to help strings.
+        command (str, optional): The command to show help for. Defaults to "".
+        adapter (object, optional): The scanner adapter. Defaults to None.
     """
+    # Display general help if no command is provided
+    # Display help for a specific command if provided
     if not command:
         categories = {
             "Reading Information": [
@@ -156,7 +191,18 @@ def show_help(COMMANDS, COMMAND_HELP, command="", adapter=None):
                 print(f"  - {cmd}")
 
         print("\nType 'help <command>' for details about a specific command.")
+        for cmd in sorted(COMMANDS):
+            print(f"--->{cmd}")
+        print("\nType 'help <command>' for details.")
         return
+
+    # Display help for a specific command
+    # If the command is in COMMAND_HELP, print the help message
+    # If the command is not in COMMAND_HELP, attempt to fetch device-specific
+    # help via adapter.getHelp("CMD")
+    # If no help is found, print "No help found for '{command}'."
+    # If an error occurs while fetching device-specific help, print
+    # "[Error fetching device-specific help]: {e}".
 
     cmd = command.strip().lower()
     if cmd in COMMAND_HELP:
@@ -176,6 +222,10 @@ def show_help(COMMANDS, COMMAND_HELP, command="", adapter=None):
                     f"\n[{adapter.__class__.__name__}] help for"
                     f" '{command.upper()}':\n  {specific_help}"
                 )
+                print(
+                    f"\n[{adapter.__class__.__name__}] help for "
+                    f"'{command.upper()}':\n  {specific_help}"
+                )
                 return
         except Exception as e:
             print(f"[Error fetching device-specific help]: {e}")
@@ -186,6 +236,8 @@ def show_help(COMMANDS, COMMAND_HELP, command="", adapter=None):
 # ------------------------------------------------------------------------------
 # COMMAND PARSER
 # ------------------------------------------------------------------------------
+
+
 def parse_command(input_str, COMMANDS):
     """
     Parse user input into a command and its arguments.
@@ -196,6 +248,17 @@ def parse_command(input_str, COMMANDS):
 
     Returns:
         tuple: Parsed command and arguments.
+    Parse user input into a command and its arguments.
+
+    Supports aliases like 'get' → 'read' and 'set' → 'write'.
+    Attempts to match the longest prefix first (up to 3 words).
+
+    Args:
+        input_str (str): The raw user input string.
+        COMMANDS (dict): Dictionary of available commands.
+
+    Returns:
+        tuple: A tuple of (command, arguments).
     """
     parts = input_str.strip().split()
     if not parts:
@@ -216,6 +279,8 @@ def parse_command(input_str, COMMANDS):
 # ------------------------------------------------------------------------------
 # MAIN INTERACTIVE COMMAND LOOP
 # ------------------------------------------------------------------------------
+
+
 def main_loop(adapter, ser, COMMANDS, COMMAND_HELP, machine_mode=False):
     """
     REPL-style loop that prompts the user for commands and executes them.
@@ -226,6 +291,18 @@ def main_loop(adapter, ser, COMMANDS, COMMAND_HELP, machine_mode=False):
         COMMANDS (dict): Dictionary of available commands.
         COMMAND_HELP (dict): Dictionary of help texts for commands.
         machine_mode (bool): Whether to use machine-friendly output.
+    Run the main interactive command loop.
+
+    Provides a REPL-style interface that prompts for commands and executes
+    them using the COMMANDS dictionary.
+
+    Args:
+        adapter (object): The scanner adapter instance.
+        ser (serial.Serial): The serial connection to the scanner.
+        COMMANDS (dict): Dictionary mapping command names to handler functions.
+        COMMAND_HELP (dict): Dictionary mapping command names to help strings.
+        machine_mode (bool, optional): Whether to use machine-friendly output.
+            Defaults to False.
     """
     print("Type 'help' for a list of commands.\n")
     while True:
@@ -256,6 +333,11 @@ def main_loop(adapter, ser, COMMANDS, COMMAND_HELP, machine_mode=False):
                             if not formatted_result.lower().startswith("error")
                             else "ERROR"
                         )
+                        print(
+                            "OK"
+                            if not str(result).lower().startswith("error")
+                            else "ERROR"
+                        )
                     else:
                         print(formatted_result)
 
@@ -277,7 +359,7 @@ class TimeoutError(Exception):
 
 def with_timeout(timeout_seconds, default_result=None):
     """
-    Decorator to apply timeout to a function.
+    Apply timeout to a function.
 
     Parameters:
         timeout_seconds (float): Maximum time in seconds to allow function to
@@ -286,10 +368,10 @@ def with_timeout(timeout_seconds, default_result=None):
         TimeoutError if None.
 
     Returns:
-        Decorated function with timeout capability.
+        Function with timeout capability.
     """
 
-    def decorator(func):
+    def timeout_function(func):
         def wrapper(*args, **kwargs):
             result = [default_result]
             exception = [None]
@@ -319,15 +401,23 @@ def with_timeout(timeout_seconds, default_result=None):
 
         return wrapper
 
-    return decorator
+    return timeout_function
 
 
 def main():
     """
-    Main program entry point.
+    Enter main program.
 
     Detects scanner, sets up adapter, and launches command loop.
+
+    Execute the main program.
+
+    This is the main entry point for the application. It detects connected
+    scanners, sets up the appropriate adapter, and launches the command loop.
     """
+    # ----------------------------------------
+    # Parse CLI options
+    # ----------------------------------------
     parser = argparse.ArgumentParser(description="Scanner Interface")
     parser.add_argument(
         "--machine",
@@ -377,6 +467,15 @@ def main():
                 )
             )
         if selection == 0:
+            selection = 1  # only one scanner found, auto-select
+        else:  # multiple scanners found, prompt user to select
+            selection = int(
+                input(
+                    "\nSelect a scanner to connect to "
+                    "(enter number or 0 to exit): "
+                )
+            )
+        if selection == 0:  # 0 to exit
             print("Exiting.")
             return
         if 1 <= selection <= len(detected):
@@ -405,6 +504,8 @@ def main():
 
                 COMMANDS, COMMAND_HELP = build_command_table(adapter, ser)
 
+                # Inject help command after table is built
+                # for access to help dictionary
                 COMMANDS["help"] = lambda arg="": show_help(
                     COMMANDS, COMMAND_HELP, arg, adapter
                 )

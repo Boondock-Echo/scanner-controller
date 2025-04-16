@@ -155,8 +155,7 @@ def fix_one_file(filepath, use_llm=False):
     if choice.lower() == "y":
         print("\nApplying Black formatter:")
         subprocess.run(
-            ["black", "--config=pyproject.toml", filepath],
-            capture_output=False,
+            ["black", "--config=pyproject.toml", filepath], capture_output=False
         )
     else:
         print("\033[1;33mSkipping Black formatter.\033[0m")
@@ -848,9 +847,7 @@ def main():
         help="Use AI to help fix remaining issues",
     )
     parser.add_argument(
-        "--configure-llm",
-        action="store_true",
-        help="Configure LLM settings",
+        "--configure-llm", action="store_true", help="Configure LLM settings"
     )
     parser.add_argument(
         "--use-config",

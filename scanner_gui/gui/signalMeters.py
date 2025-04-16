@@ -1,34 +1,28 @@
 # signalMeters.py
 
 """
-Signalmeters module.
+Signal Meters Module.
 
-This module provides functionality related to signalmeters.
+This module provides a function to build signal meter widgets
+using PyQt6, including RSSI and squelch progress bars.
 """
 
 from PyQt6.QtWidgets import QGroupBox, QProgressBar, QVBoxLayout
-
-"""
-    buildSignalMeters function.
-
-    Provides functionality for buildSignalMeters.
-    """
 
 
 def buildSignalMeters(
     rssiBar: QProgressBar, squelchBar: QProgressBar
 ) -> QGroupBox:
-    """Build a group box containing signal meter progress bars.
-
-    Creates a signal meters group with RSSI and squelch bars configured
-    for display with percentages.
+    """
+    Build a signal meter group box containing RSSI and squelch progress bars.
 
     Args:
-        rssiBar: Progress bar for displaying RSSI values
-        squelchBar: Progress bar for displaying squelch values
+        rssiBar (QProgressBar): The progress bar for RSSI
+            (Received Signal Strength Indicator).
+        squelchBar (QProgressBar): The progress bar for squelch level.
 
     Returns:
-        QGroupBox containing the configured signal meters
+        QGroupBox: A group box containing the signal meter widgets.
     """
     rssiBar.setRange(0, 100)
     rssiBar.setTextVisible(True)

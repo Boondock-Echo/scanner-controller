@@ -1,18 +1,19 @@
 [flake8]
 max-line-length = 80
+extend-ignore = E203,I
+# Make sure docstring checking is NOT in the ignored list
+select = E,F,W,C,D  # Explicitly include D for docstring checks
 exclude =
-    .git,
-    __pycache__,
-    build,
-    dist,
-    venv,
-    .venv
-ignore = W503, E203, I100, I101, I201, I202, D401
-application-import-names =
-    adapters,
-    command_libraries,
-    utilities,
-    scanner_gui
-import-order-style = pep8
+    .venv/*,
+    .venv/**,
+    venv/*,
+    .git/*,
+    __pycache__/*,
+    .pytest_cache/*,
+    .github/*,
+    build/*,
+    dist/*,
+    pyproject.toml
 per-file-ignores =
-    main.py: F401, I100, I101, I201, I202, D401
+    __init__.py: F401,F403
+    tests/*: D  # Optionally skip docstring checks in test files

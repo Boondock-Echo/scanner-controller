@@ -1,9 +1,8 @@
-# audioControls.py
-
 """
-Audiocontrols module.
+This module provides the audio controls for the scanner GUI.
 
-This module provides functionality related to audiocontrols.
+It includes a function to build a PyQt6 QGroupBox containing volume and squelch
+sliders.
 """
 
 from PyQt6.QtCore import Qt
@@ -12,11 +11,11 @@ from PyQt6.QtWidgets import QGroupBox, QHBoxLayout, QLabel, QVBoxLayout
 
 def buildAudioControls(volSlider, sqlSlider) -> QGroupBox:
     """
-    Build and return a QGroupBox containing volume and squelch sliders.
+    Build a QGroupBox containing volume and squelch sliders.
 
     Args:
-        volSlider: A QSlider for controlling volume.
-        sqlSlider: A QSlider for controlling squelch.
+        volSlider: A QSlider for controlling the volume.
+        sqlSlider: A QSlider for controlling the squelch.
 
     Returns:
         QGroupBox: A group box containing the sliders.

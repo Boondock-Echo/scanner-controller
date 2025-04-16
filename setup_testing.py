@@ -24,12 +24,7 @@ def create_directories():
 
 def install_dependencies():
     """Install testing dependencies."""
-    dependencies = [
-        "pytest",
-        "pytest-cov",
-        "pytest-mock",
-        "pre-commit",
-    ]
+    dependencies = ["pytest", "pytest-cov", "pytest-mock", "pre-commit"]
 
     print("Installing testing dependencies...")
     subprocess.check_call(

@@ -1,10 +1,11 @@
 """
-Commands Uniden Bc125At module.
+This module defines commands for the Uniden BC125AT scanner.
 
-This module provides functionality related to commands uniden bc125at.
+Each command is represented as a dictionary entry with its name,
+validation rules, and help documentation.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.shared_utils import scanner_command
 from utilities.validators import validate_cin, validate_enum
 
 commands = {
@@ -71,7 +72,8 @@ commands = {
         CIN,<index>
 
         Write:
-        CIN,<index>,<name>,<frequency>,<mod>,<ctcss/dcs>,<delay>,<lockout>,<priority>
+        CIN,<index>,<name>,<frequency>,<mod>,
+        <ctcss/dcs>,<delay>,<lockout>,<priority>
 
         Field details:
         index     : 1–500
@@ -85,8 +87,9 @@ commands = {
     ),
     "COM": scanner_command(
         name="COM",
-        help="Possibly related to COM port config (undocumented). "
-        "Use with caution.",
+        help="""
+        Possibly related to COM port config (undocumented). Use with caution.
+        """,
         requires_prg=True,
     ),
     "CSG": scanner_command(
@@ -114,8 +117,10 @@ commands = {
     ),
     "GLF": scanner_command(
         name="GLF",
-        help="Get global lockout frequency. Repeated calls return next item "
-        "until GLF,-1.",
+        help=(
+            "Get global lockout frequency. Repeated calls return next item "
+            "until GLF,-1."
+        ),
         requires_prg=True,
     ),
     "GLG": scanner_command(
@@ -175,16 +180,14 @@ commands = {
         help="Returns RSSI and current frequency. Format: PWR,<rssi>,<freq>",
     ),
     "QSH": scanner_command(
-        name="QSH",
-        help="Quick search hold mode (seems broken on BC125AT. I've tried 42k "
-        "permutations of commands)\n"
-        "Next possibility is that it's a chained command or only available "
-        "in certain modes.",
+        name="QSH", help=("Quick search hold mode seems broken on BC125AT. ")
     ),
     "SCG": scanner_command(
         name="SCG",
-        help="Quick group lockout bitmask. Format: SCG,xxxxxxxxxx "
-        "(each digit is 0 or 1)",
+        help=(
+            "Quick group lockout bitmask. "
+            "Format: SCG,xxxxxxxxxx (each digit is 0 or 1)"
+        ),
         requires_prg=True,
     ),
     "SCO": scanner_command(
@@ -227,25 +230,22 @@ commands = {
     ),
 }
 
-BC125AT_COMMANDS = {
-    "Command1": scanner_command(
-        "Command1", valid_range=(0, 100), help="Command 1 description"
-    ),
-    "Command2": scanner_command(
-        "Command2", valid_range=(0, 10), help="Command 2 description"
-    ),
-}
-
 
 def getHelp(command):
-    """Get the help string for the specified command (case-insensitive).
+    """
+    Return the help string for the specified command (case-insensitive).
 
-    Returns None if command is not defined.
+    Return None if command is not defined.
     """
     cmd = commands.get(command.upper())
     return cmd.help if cmd else None
 
 
 def listCommands():
-    """Get a sorted list of all available command names."""
+    """
+    Return a sorted list of all available command names.
+
+    This function retrieves the keys from the commands dictionary,
+    sorts them, and returns the sorted list.
+    """
     return sorted(commands.keys())

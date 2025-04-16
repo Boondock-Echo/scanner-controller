@@ -1,36 +1,22 @@
-# Project: Universal Scanner Controller
-# file: library_scanner/unidenToneLUT.py
-# created: 2023-10-01
-# author: Mark Hughes w/ contributions from ChatGPT
-# license: MIT
+"""
+This module is part of the Universal Scanner Controller project.
 
-# ----- Description -----
-# This file is part of the Universal Scanner Controller project.
-# Define the tone lookup tables (LUT) for CTCSS and DCS tones used in
-# Uniden scanners.
+It provides tone lookup tables (LUT) for CTCSS and DCS tones used in Uniden
+scanners. The module includes mappings for tone codes to frequencies and reverse
+mappings for frequencies to tone codes. It also provides validation functions
+for CTCSS and DCS inputs.
+"""
 
-# ----- Usage -----
-# from library_scanner.unidenToneLUT import CTCSS_LUT, DCS_LUT,
-#     CTCSS_reverse_LUT, DCS_reverse_LUT
-# print(CTCSS_LOOKUP[64])  # ➜ "67.1Hz"
-# print(CTCSS_REVERSE_LOOKUP["67.0Hz"])  # ➜ 64
 # print(DCS_LOOKUP[128])  # ➜ "DCS023"
 # print(DCS_REVERSE_LOOKUP["DCS023"])  # ➜ 128
-
-
-"""
-Uniden Tone Lut module.
-
-This module provides functionality related to uniden tone lut.
-"""
 
 
 def validate_ctcss(value):
     """
     Validate and normalize CTCSS input.
 
-    Accepts: integer code, float/string frequency like "67.0Hz" or "67.0".
-    Returns: valid integer CTCSS code, or raises ValueError.
+    Accepts: integer code, float/string frequency like "67.0Hz" or "67.0"
+    Returns: valid integer CTCSS code, or raises ValueError
     """
     if isinstance(value, int):
         if value in CTCSS_LUT:
@@ -53,8 +39,8 @@ def validate_dcs(value):
     """
     Validate and normalize DCS input.
 
-    Accepts: integer code, string like "DCS 023" or "023".
-    Returns: valid integer DCS code, or raises ValueError.
+    Accepts: integer code, string like "DCS 023" or "023"
+    Returns: valid integer DCS code, or raises ValueError
     """
     if isinstance(value, int):
         if value in DCS_LUT:

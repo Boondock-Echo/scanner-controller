@@ -1,10 +1,13 @@
+"""
+Create a scanner GUI using PyQt6.
+
+This module provides a function to build the display group
+for the scanner GUI.
+It includes a function to update the frequency display.
+It also includes a function to build signal meters using PyQt6.
+"""
+
 # displayGroup.py
-
-"""
-Displaygroup module.
-
-This module provides functionality related to displaygroup.
-"""
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QGroupBox, QLabel, QVBoxLayout
@@ -12,14 +15,14 @@ from PyQt6.QtWidgets import QGroupBox, QLabel, QVBoxLayout
 
 def buildDisplayGroup(font_lcd, displayLabels: list) -> QGroupBox:
     """
-    Build and return a display group.
+    Build a display group for the scanner GUI.
 
     Args:
         font_lcd: The font to be used for the display labels.
         displayLabels (list): A list to store the QLabel objects.
 
     Returns:
-        QGroupBox: The constructed display group.
+        QGroupBox: A group box containing the display labels.
     """
     displayGroupLayout = QVBoxLayout()
 
@@ -33,6 +36,9 @@ def buildDisplayGroup(font_lcd, displayLabels: list) -> QGroupBox:
         displayGroupLayout.addWidget(
             lbl, alignment=Qt.AlignmentFlag.AlignCenter
         )
+        displayGroupLayout.addWidget(
+            lbl, alignment=Qt.AlignmentFlag.AlignCenter
+        )
 
     displayGroup = QGroupBox("Display")
     displayGroup.setLayout(displayGroupLayout)
@@ -43,9 +49,7 @@ def update_frequency_display(self, frequency):
     """
     Update the frequency display in the GUI.
 
-    Args:
-        frequency (float or None): The frequency value to display.
-        If None, an error message is shown.
+    Updates the frequency display in the GUI.
     """
     if frequency is None:
         self.frequency_label.setText("Freq: Error")

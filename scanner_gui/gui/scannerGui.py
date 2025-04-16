@@ -1,20 +1,20 @@
 """
-Scanner GUI module.
+scannerGui.py.
 
-This module provides a graphical user interface for controlling scanner radios.
-It implements a virtual faceplate with controls that match physical scanner
-operations including frequency display, signal meters, volume/squelch controls,
-and keypad input.
+This module defines the ScannerGUI class, which provides a graphical user
+interface
+for controlling and interacting with a scanner device. It includes features
+such as
+port selection, display updates, signal meters, and keypad controls.
 """
 
-# Standard library imports
+# scannerGui.py
+
 import logging
 import os
 import time
 
 import serial
-
-# Third-party imports
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import (
@@ -30,9 +30,9 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-# Local imports
-from ..commandLibrary import getScannerInterface
-from ..scanner_utils import find_all_scanner_ports
+from scanner_gui.commandLibrary import getScannerInterface
+from scanner_gui.scannerUtils import findAllScannerPorts
+
 from .audioControls import buildAudioControls
 from .controlKeys import buildControlKeys
 from .displayGroup import buildDisplayGroup
@@ -45,17 +45,26 @@ BAUDRATE = 115200
 
 class ScannerGUI(QWidget):
     """
-    Main scanner GUI window class.
+    Graphical user interface for controlling and interacting with a scanner.
 
-    This class implements a virtual scanner faceplate with LCD display,
-    control keys, frequency entry keypad, and various control elements.
-    It handles all communication with the physical scanner device.
+    This class provides features such as port selection, display updates,
+    signal meters, and keypad controls, allowing users to manage scanner
+    operations effectively.
     """
 
     def __init__(self):
-        """Initialize the Scanner GUI."""
+        """
+        Initialize the ScannerGUI instance.
+
+        Sets up the GUI components, initializes timers for refreshing the
+        scanner list and updating the display, and performs an initial
+        refresh of the scanner list.
+        """
         super().__init__()
         self.setWindowTitle("Scanner Faceplate GUI")
+        self.loadStyleSheet(
+            os.path.join(os.path.dirname(__file__), "style.qss")
+        )
         self.loadStyleSheet(
             os.path.join(os.path.dirname(__file__), "style.qss")
         )
@@ -84,10 +93,13 @@ class ScannerGUI(QWidget):
 
     def loadStyleSheet(self, path: str):
         """
-        Load and apply a QSS stylesheet from a file.
+        Load and apply a stylesheet to the GUI.
+
+        This method reads a stylesheet file from the given path and applies
+        it to the GUI. If the file cannot be loaded, a warning is printed.
 
         Args:
-            path: Path to the QSS file
+            path (str): The file path to the stylesheet.
         """
         try:
             with open(path, "r") as f:
@@ -97,10 +109,10 @@ class ScannerGUI(QWidget):
 
     def initUI(self):
         """
-        Initialize and layout all GUI components.
+        Initialize the user interface components of the ScannerGUI.
 
-        Sets up the main layout with all controls, display elements,
-        and arranges them in the appropriate structure.
+        This method sets up the layout, widgets, and controls for the GUI,
+        including the port selector, display, signal meters, and keypad.
         """
         outerLayout = QHBoxLayout()
 
@@ -146,6 +158,9 @@ class ScannerGUI(QWidget):
         layout.addWidget(
             self.modelLabel, alignment=Qt.AlignmentFlag.AlignCenter
         )
+        layout.addWidget(
+            self.modelLabel, alignment=Qt.AlignmentFlag.AlignCenter
+        )
 
         # Display
         self.displayLabels = []
@@ -167,22 +182,18 @@ class ScannerGUI(QWidget):
 
     def refreshScannerList(self, initial=False):
         """
-        Refresh the list of available scanner devices.
+        Refresh the list of available scanner ports.
 
-        Scans for connected scanners and updates the port selection dropdown.
+        This method updates the scanner port list by finding all available
+        scanner ports and populating the port selector dropdown. If this is
+        the initial call and only one port is found, it automatically connects
+        to that port.
 
         Args:
-            initial: If True, automatically connect to the first scanner found
+            initial (bool): Whether this is the initial call to refresh the
+                            scanner list.
         """
-        # Skip checking ports that we're already connected to
-        if self.connected_port and self.ser and self.ser.is_open:
-            logging.debug(
-                f"Skipping scan of port {self.connected_port} "
-                f"(already connected)"
-            )
-            return
-
-        ports = find_all_scanner_ports()
+        ports = findAllScannerPorts()
         if ports != self.scanner_ports:
             self.scanner_ports = ports
             self.portSelector.clear()
@@ -193,22 +204,17 @@ class ScannerGUI(QWidget):
 
     def connectScanner(self, port, model):
         """
-        Connect to a scanner device.
+        Connect to the scanner device on the specified port.
 
-        Establishes a serial connection to the specified port and
-        initializes the appropriate adapter for the scanner model.
+        This method establishes a serial connection to the scanner device
+        using the provided port and model. It also initializes the scanner
+        interface adapter and updates the model label in the GUI.
 
         Args:
-            port: Serial port name to connect to
-            model: Scanner model identifier
+            port (str): The serial port to connect to.
+            model (str): The model of the scanner device.
         """
         try:
-            # If we're already connected to this port, don't reconnect
-            if self.connected_port == port and self.ser and self.ser.is_open:
-                logging.info(f"Already connected to {model} on {port}")
-                return
-
-            # Close any existing connection
             if self.ser:
                 try:
                     self.ser.close()
@@ -232,21 +238,19 @@ class ScannerGUI(QWidget):
 
             logging.info(f"Successfully connected to {model} on {port}")
         except Exception as e:
-            logging.error(f"Error connecting to {model} on {port}: {e}")
             QMessageBox.critical(
                 self,
                 "Connection Error",
                 f"Could not connect to {model} on {port}:\n{e}",
             )
-            self.connected_port = None
-            self.ser = None
-            self.adapter = None
 
     def manualConnect(self):
         """
-        Manually connect to the selected scanner from the dropdown.
+        Manually connect to the selected scanner port.
 
-        Called when the Connect button is pressed.
+        This method retrieves the currently selected port and model from the
+        port selector dropdown and attempts to establish a connection to the
+        scanner device.
         """
         index = self.portSelector.currentIndex()
         data = self.portSelector.itemData(index)
@@ -256,10 +260,13 @@ class ScannerGUI(QWidget):
 
     def onPortSelected(self, index):
         """
-        Handle selection of a port from the dropdown.
+        Handle the event when a port is selected from the dropdown.
+
+        This method creates a new ScannerGUI window, connects it to the
+        selected port and model, and displays the new window.
 
         Args:
-            index: Index of the selected port in the dropdown
+            index (int): The index of the selected item in the port selector.
         """
         data = self.portSelector.itemData(index)
         if data:
@@ -271,10 +278,11 @@ class ScannerGUI(QWidget):
 
     def updateDisplay(self):
         """
-        Update the display with the current scanner state.
+        Update the scanner display and signal meters.
 
-        Reads the scanner's display and status information and
-        updates the GUI elements accordingly.
+        This method retrieves the current status from the scanner interface,
+        updates the display labels with the parsed screen data, and adjusts
+        the signal meters (RSSI and squelch) based on the scanner's readings.
         """
         if not self.adapter or not self.ser:
             return
@@ -322,10 +330,14 @@ class ScannerGUI(QWidget):
 
     def knobScrolled(self, event):
         """
-        Handle rotary knob scroll events.
+        Handle the knob scroll event.
+
+        This method determines the direction of the scroll based on the angle
+        delta of the event and sends the corresponding key command to the
+        scanner.
 
         Args:
-            event: Scroll event containing angle information
+            event: The scroll event containing the angle delta.
         """
         angle = event.angleDelta().y()
         if angle > 0:
@@ -335,75 +347,67 @@ class ScannerGUI(QWidget):
 
     def knobPressed(self, event):
         """
-        Handle rotary knob press events.
+        Handle the knob press event.
+
+        This method sends the corresponding key command to the scanner
+        when the knob is pressed.
 
         Args:
-            event: Press event
+            event: The press event triggering the knob action.
         """
         self.sendKey("^")
 
     def sendKey(self, key):
         """
-        Send a key press to the scanner.
+        Send a key command to the scanner.
+
+        This method sends the specified key command to the scanner device
+        through the adapter and serial connection.
 
         Args:
-            key: Key character or code to send
+            key (str): The key command to send to the scanner.
         """
-        if not self.adapter or not self.ser:
-            logging.warning(
-                f"Cannot send key '{key}': not connected to a scanner"
-            )
-            return
-
-        if not self.ser.is_open:
-            logging.warning(f"Cannot send key '{key}': serial port is closed")
-            try:
-                # Try to reopen the port
-                self.ser.open()
-                logging.info(f"Reopened connection to {self.connected_port}")
-            except Exception as e:
-                logging.error(f"Failed to reopen serial port: {e}")
-                return
-
-        try:
-            logging.info(f"Sending key: '{key}'")
-            # Use adapter's sendKey method which now includes the ',P' suffix
-            response = self.adapter.sendKey(self.ser, key)
-            logging.info(f"Response: {response}")
-        except Exception as e:
-            logging.error(f"Error sending key '{key}': {e}")
-            # Third-party imports
-            import traceback
-
-            logging.error(traceback.format_exc())
+        if self.adapter and self.ser:
+            self.adapter.sendKey(self.ser, key)
 
     def setVolume(self):
-        """Set the scanner volume based on slider position."""
+        """
+        Set the volume level on the scanner.
+
+        This method retrieves the current value from the volume slider,
+        scales it to a range between 0 and 1, and sends the volume level
+        to the scanner device through the adapter and serial connection.
+        """
         if self.adapter and self.ser:
             value = self.volSlider.value() / 100.0
             self.adapter.writeVolume(self.ser, value)
 
     def setSquelch(self):
-        """Set the scanner squelch based on slider position."""
+        """
+        Set the squelch level on the scanner.
+
+        This method retrieves the current value from the squelch slider,
+        scales it to a range between 0 and 1, and sends the squelch level
+        to the scanner device through the adapter and serial connection.
+        """
         if self.adapter and self.ser:
             value = self.sqlSlider.value() / 100.0
             self.adapter.writeSquelch(self.ser, value)
 
     def parseStsLine(self, sts_line: str) -> dict:
         """
-        Parse a status line from the scanner.
+        Parse an STS line from the scanner.
 
-        Converts the STS command response into a structured dictionary
-        with display text and scanner state information.
+        This method processes a status (STS) line received from the scanner,
+        extracting information such as screen data, key flags, backlight status,
+        and volume level.
 
         Args:
-            sts_line: Raw status line from the scanner
+            sts_line (str): The status line string to parse.
 
         Returns:
-            Dictionary containing parsed status information
-
-        Raises:
-            ValueError: If the line doesn't start with "STS,"
+            dict: A dictionary containing parsed data, including screen text,
+                  key flags, backlight status, and volume level.
         """
         if not sts_line.startswith("STS,"):
             raise ValueError("Not an STS line")
@@ -415,6 +419,13 @@ class ScannerGUI(QWidget):
         for i in range(2, 14, 2):
             text = parts[i] if i < len(parts) else ""
             modifier = parts[i + 1] if i + 1 < len(parts) else ""
+            screen.append(
+                {
+                    "text": text.strip(),
+                    "underline": modifier == "_" * 16,
+                    "highlight": modifier == "*" * 16,
+                }
+            )
             screen.append(
                 {
                     "text": text.strip(),

@@ -1,7 +1,11 @@
 """
-uniden_command_finder module.
+Module to find and test commands on the Uniden BCD325P2 scanner.
 
-This module provides functionality related to uniden_command_finder.
+This module provides utilities for communicating with and testing commands on
+the Uniden BCD325P2 scanner.
+
+It includes functions for finding the scanner's COM port, sending commands, and
+logging results.
 """
 
 import itertools
@@ -13,10 +17,11 @@ from serial.tools import list_ports
 
 
 def find_scanner_port(baudrate=115200, timeout=0.5):
-    """Poll all available COM ports and find the scanner.
+    """
+    Poll all available COM ports, send the "MDL" command.
 
-    Sends the "MDL" command to each port and returns the port name if the
-    response is "MDL,BCD325P2". If not found, waits 5 seconds and retries.
+    Return the port name if the response is "MDL,BCD325P2".
+    If not found, waits 5 seconds and retries.
     """
     while True:
         ports = list_ports.comports()
@@ -37,16 +42,19 @@ def find_scanner_port(baudrate=115200, timeout=0.5):
             except Exception as e:
                 print(f"Error on port {port.device}: {e}")
         print(
-            "Scanner not found. Please plug in and turn on the scanner. "
-            "Retrying in 5 seconds..."
+            (
+                "Scanner not found. Please plug in and turn on the scanner. "
+                "Retrying in 5 seconds..."
+            )
         )
         time.sleep(5)
 
 
 def read_response(ser, timeout=0.5):
-    """Read bytes from the serial port until termination or timeout.
+    """
+    Read a response from the serial port until a CR or LF is encountered.
 
-    Reads bytes from the serial port until a CR or LF is encountered
+    Read bytes from the serial port until a CR or LF is encountered
     or the timeout expires.
     """
     response_bytes = bytearray()
@@ -63,7 +71,8 @@ def read_response(ser, timeout=0.5):
 
 
 def send_command(ser, cmd):
-    """Send a command to the scanner and return the response.
+    """
+    Send a command to the scanner and return the response..
 
     Sends a command (with CR/LF termination) to the scanner and
     returns the response using read_response().
@@ -78,13 +87,14 @@ def send_command(ser, cmd):
 
 
 def test_all_commands(ser):
-    """Test all possible three-letter command combinations.
+    """
+    Test all three-letter commands (AAA to ZZZ) on the scanner.
 
     Iterates over all three-letter combinations (AAA to ZZZ, skipping "PRG"
     and "POF", include other functions as they cause failures or multi-line
-    recieved messages lag behind transmissions.), sends each command to the
-    scanner, logs each result to a progress file as we go, and returns the
-    list of results.
+    received messages lag behind transmissions.), sends each command to the
+    scanner, logs each result to a progress file as we go, and returns the list
+    of results.
     """
     results = []
     letters = string.ascii_uppercase
@@ -125,10 +135,11 @@ def test_all_commands(ser):
 
 
 def sort_results(results):
-    """Sort the results by response type.
+    """
+    Sorts the command results based on the response.
 
-    Sorts the results so that commands with a response ending in ",NG"
-    appear first, followed by other responses (alphabetically by command).
+    Sorts the results so that commands with a response ending in ",NG" appear
+    first, followed by other responses (alphabetically by command).
     """
     valid = []
     invalid = []
@@ -149,8 +160,10 @@ def sort_results(results):
 
 
 def write_results_to_file(sorted_results, filename="commands.txt"):
-    """Write the sorted command results to a file.
+    """
+    Write the sorted command results to a file.
 
+    Writes the sorted command results to a file.
     Each line in the file is formatted as "COMMAND: RESPONSE".
     """
     with open(filename, "w") as f:
@@ -160,10 +173,11 @@ def write_results_to_file(sorted_results, filename="commands.txt"):
 
 
 def main():
-    """Execute the main command testing sequence.
+    """
+    Find the scanner, test commands, and save results.
 
-    Searches for the scanner, connects to it, tests all commands,
-    sorts the results, and writes them to an output file.
+    This function searches for the Uniden BCD325P2 scanner, tests all
+    three-letter commands, sorts the results, and writes them to a file.
     """
     baudrate = 115200  # Updated baud rate
     print("Searching for Uniden BCD325P2 scanner...")
@@ -178,8 +192,8 @@ def main():
         return
 
     print(
-        "Starting command test over all 3-letter combinations "
-        "(excluding PRG and POF)..."
+        "Starting command test over all 3-letter combinations (excluding PRG "
+        "and POF)..."
     )
     results = []
     try:

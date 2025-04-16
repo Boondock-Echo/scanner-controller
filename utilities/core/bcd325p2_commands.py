@@ -12,12 +12,10 @@ commands = {
         help="Returns RSSI and frequency. Format: PWR,<rssi>,<freq>.",
     ),
     "BAV": scanner_command(
-        name="BAV",
-        help="Returns battery voltage in 100's of milliVolts.",
+        name="BAV", help="Returns battery voltage in 100's of milliVolts."
     ),
     "WIN": scanner_command(
-        name="WIN",
-        help="Returns window voltage and frequency.",
+        name="WIN", help="Returns window voltage and frequency."
     ),
     "STS": scanner_command(
         name="STS",
@@ -34,7 +32,6 @@ commands = {
         help="Get or set channel info. Format: CIN,<index>[,...].",
     ),
     "QSH": scanner_command(
-        name="QSH",
-        help="Quick search/hold mode. Format: QSH,<freq_kHz>.",
+        name="QSH", help="Quick search/hold mode. Format: QSH,<freq_kHz>."
     ),
 }

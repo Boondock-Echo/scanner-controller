@@ -57,8 +57,6 @@ This module provides functionality related to command library.
 
 import logging
 
-from adapters.uniden.bc125at_adapter import BC125ATAdapter
-
 # Configure logging
 logging.basicConfig(
     filename="scanner_tool.log",
