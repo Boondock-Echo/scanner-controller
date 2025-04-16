@@ -1,5 +1,5 @@
 """
-scanner_utils.py.
+Module to communicate with scanners.
 
 This module provides utility functions for communicating with scanners over
 serial ports.
@@ -18,7 +18,10 @@ from serial.tools import list_ports
 
 
 def clear_serial_buffer(ser):
-    """Clear accumulated data in the serial buffer before sending commands."""
+    """Clear any accumulated data in the serial buffer before sending commands.
+
+    Removes all pending data in the serial buffer to ensure clean communication.
+    """
     try:
         time.sleep(0.2)  # Allow any ongoing transmission to complete
         while ser.in_waiting:
@@ -68,7 +71,6 @@ def send_command(ser, cmd):
     except Exception as e:
         logging.error(f"Error sending command {cmd}: {e}")
         return ""
-    return read_response(ser)
 
 
 def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2):
@@ -80,9 +82,15 @@ def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2):
     """
     detected = []
     retries = 0
+    skip_ports = []
     while retries < max_retries:
         ports = list_ports.comports()
         for port in ports:
+            # Skip ports that are already known to be in use
+            if port.device in skip_ports:
+                logging.debug(f"Skipping {port.device} (marked as in use)")
+                continue
+
             logging.info(f"Trying port: {port.device} ({port.description})")
             try:
                 with serial.Serial(
@@ -94,6 +102,9 @@ def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2):
                     ser.write(b"MDL\r")
                     wait_for_data(ser, max_wait=0.3)
                     model_response = read_response(ser)
+                    logging.info(
+                        f"Response from {port.device}: {model_response}"
+                    )
                     logging.info(
                         f"Response from {port.device}: {model_response}"
                     )

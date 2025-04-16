@@ -1,8 +1,37 @@
-"""
-Provide utilities for interacting with Uniden and AOR-DV1 scanners.
+"""Utility functions for interacting with Uniden-style scanners.
 
-It includes functions for detecting scanner ports, sending commands, and
-reading responses.
+This module provides utility functions for interacting with Uniden-style
+scanners and other compatible devices via serial communication. It includes
+functionality for detecting connected scanners, sending commands, reading
+responses, and managing serial port buffers. The module is designed to work
+with devices that communicate using specific command protocols, such as Uniden
+scanners and AOR-DV1 scanners.
+
+Key Features:
+- Automatically detects connected scanners by scanning available COM ports and
+  identifying devices based on their responses to specific commands.
+- Supports Uniden-style scanners that respond to the "MDL" command with a model
+  code and AOR-DV1 scanners that respond to the "WI" command with "AR-DV1".
+- Provides helper functions for clearing serial buffers, sending commands, and
+  reading responses with configurable timeouts.
+- Includes functionality to wait for incoming data on the serial port within a
+  specified time frame.
+
+Dependencies:
+- `pyserial`: Used for serial communication and port scanning.
+- `re`: Used for regular expression matching to identify scanner responses.
+- `logging`: Used for logging debug information to a file.
+
+Usage:
+This module is intended to be used as part of a larger application for
+controlling and interacting with scanners. It can be imported and its functions
+called to perform tasks such as detecting connected scanners, sending commands,
+and reading responses.
+
+Example:
+Scanner Utils Uniden module.
+
+This module provides functionality related to scanner utils uniden.
 """
 
 import logging

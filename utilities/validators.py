@@ -1,28 +1,43 @@
 """
-This module contains utility functions for validating input parameters.
+Validators module.
 
-Used in scanner-controller operations.
+This module provides validation functions for scanner commands and parameters.
+These validators ensure that command parameters meet the required format and
+value constraints before being sent to the scanner, preventing errors and
+improving reliability.
 """
 
 
 def validate_enum(name, allowed_values):
     """
-    Validate a given value is within the allowed enumeration values.
+    Create a validator function that checks if a value is in an allowed set.
 
     Args:
-        name (str): The name of the parameter being validated.
-        allowed_values (iterable): A collection of allowed values.
+        name (str): Name of the parameter being validated
+            (used in error messages)
+        allowed_values (list): List of allowed values for the parameter
 
     Returns:
-        function: A validator function that raises ValueError if the value is
-        invalid.
+        function: A validator function that raises ValueError if the input is
+            invalid
 
-    Raises:
-        ValueError: If the value is not in the allowed enumeration.
+    Example:
+        >>> validate_mode = validate_enum("MODE", ["AUTO", "AM", "FM", "NFM"])
+        >>> validate_mode("FM")  # No error
+        >>> validate_mode("LSB")  # Raises ValueError
     """
     allowed_upper = {v.upper() for v in allowed_values}
 
     def validator(value):
+        """
+        Validate that a value is in the allowed set (case-insensitive).
+
+        Args:
+            value: The value to validate
+
+        Raises:
+            ValueError: If the value is not in the allowed set
+        """
         if str(value).upper() not in allowed_upper:
             raise ValueError(
                 f"{name} must be one of: {', '.join(sorted(allowed_upper))}"
@@ -38,9 +53,10 @@ def validate_cin(params):
     Args:
         params (str or list): Should be a comma-separated string or list of
         values.
-
     Raises:
         ValueError: If the format or fields are invalid
+    Returns:
+        The validated params (unchanged if valid)
     """
     if isinstance(params, str):
         parts = [p.strip() for p in params.split(",")]
@@ -84,4 +100,3 @@ def validate_cin(params):
         if priority not in {0, 1}:
             raise ValueError("Priority must be 0 or 1")
     return params
-    # Please revisit and correct this function when possible.

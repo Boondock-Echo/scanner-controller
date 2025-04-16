@@ -14,7 +14,19 @@ def initialize_readline(COMMANDS):
     Set up tab-completion for available COMMANDS.
 
     Parameters:
-        COMMANDS (dict): dictionary of available command strings
+        COMMANDS (dict): Dictionary mapping command strings to their handler
+                        functions.
+                        The function docstrings are used to extract
+                        subcommands.
+
+    Returns:
+        None: The function configures readline in-place and doesn't return
+              a value.
+
+    Note:
+        Command handlers should have docstrings that list their
+        subcommands/arguments for proper tab completion of second-level
+        commands.
     """
     try:
         import readline  # Unix and macOS
@@ -51,6 +63,11 @@ def initialize_readline(COMMANDS):
                     if COMMANDS[command].__doc__
                     else []
                 )
+                subcommands = (
+                    COMMANDS[command].__doc__.split()
+                    if COMMANDS[command].__doc__
+                    else []
+                )
                 matches = [sub for sub in subcommands if sub.startswith(text)]
             else:
                 matches = []
@@ -63,6 +80,9 @@ def initialize_readline(COMMANDS):
         except IndexError:
             return None
 
+    # Configure readline settings
     readline.set_completer(completer)
-    readline.parse_and_bind("tab: complete")
-    readline.set_history_length(100)
+    readline.parse_and_bind(
+        "tab: complete"
+    )  # Map tab key to completion function
+    readline.set_history_length(100)  # Store last 100 commands in history

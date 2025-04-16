@@ -1,9 +1,8 @@
 """
-This module defines commands for the Uniden BCD325P2 scanner.
+Uniden BCD325P2 scanner command definitions.
 
-Each command is represented as a dictionary entry with its name,
-validator, help text, and other attributes. It also provides utility
-functions to retrieve help text and list all available commands.
+This module contains the command set specific to the Uniden BCD325P2 scanner
+model. Each command includes its name, help text, and validation requirements.
 """
 
 from utilities.shared_utils import scanner_command
@@ -73,8 +72,8 @@ commands = {
         CIN,<index>
 
         Write:
-        CIN,<index>,<name>,<frequency>,<mod>,
-        <ctcss/dcs>,<delay>,<lockout>,<priority>
+        CIN,<index>,<name>,<frequency>,<mod>,<ctcss/dcs>,<delay>,<lockout>,
+        <priority>
 
         Field details:
         index     : 1–500
@@ -118,10 +117,10 @@ commands = {
     ),
     "GLF": scanner_command(
         name="GLF",
-        help=(
-            "Get global lockout frequency. Repeated calls return next item "
-            "until GLF,-1."
-        ),
+        help="""
+        Get global lockout frequency. Repeated calls return next item
+        until GLF,-1.
+        """,
         requires_prg=True,
     ),
     "GLG": scanner_command(
@@ -182,18 +181,17 @@ commands = {
     ),
     "QSH": scanner_command(
         name="QSH",
-        help=(
-            "Quick search hold mode (seems broken on BC125AT. I've tried 42k "
-            "permutations of commands)\nNext possibility is that it's a "
-            "chained command or only available in certain modes."
-        ),
+        help="""
+        Quick search hold mode (seems broken on BC125AT. I've tried 42k
+        permutations of commands) Next possibility is that it's a chained
+        command or only available in certain modes.
+        """,
     ),
     "SCG": scanner_command(
         name="SCG",
-        help=(
-            "Quick group lockout bitmask. Format: SCG,xxxxxxxxxx "
-            "(each digit is 0 or 1)"
-        ),
+        help="""
+        Quick group lockout bitmask. Format: SCG,xxxxxxxxxx
+        (each digit is 0 or 1)""",
         requires_prg=True,
     ),
     "SCO": scanner_command(
@@ -239,9 +237,9 @@ commands = {
 
 def getHelp(command):
     """
-    Return the help string for the specified command (case-insensitive).
+    Return the help string for the specified command.
 
-    Return None if command is not defined.
+    Returns None if command is not defined.
     """
     cmd = commands.get(command.upper())
     return cmd.help if cmd else None
@@ -251,7 +249,6 @@ def listCommands():
     """
     Return a sorted list of all available command names.
 
-    This includes commands that are not yet implemented.
-    The list is sorted alphabetically.
+    Returns an empty list if no commands are defined.
     """
     return sorted(commands.keys())

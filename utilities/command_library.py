@@ -122,4 +122,7 @@ class scanner_command:
             raise Exception(
                 f"{self.name}: Command returned an error: {response}"
             )
+            raise Exception(
+                f"{self.name}: Command returned an error: {response}"
+            )
         return self.parser(response) if self.parser else response

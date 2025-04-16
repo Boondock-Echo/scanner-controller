@@ -10,6 +10,7 @@ port selection, display updates, signal meters, and keypad controls.
 
 # scannerGui.py
 
+import logging
 import os
 import time
 
@@ -64,6 +65,9 @@ class ScannerGUI(QWidget):
         self.loadStyleSheet(
             os.path.join(os.path.dirname(__file__), "style.qss")
         )
+        self.loadStyleSheet(
+            os.path.join(os.path.dirname(__file__), "style.qss")
+        )
 
         self.font_main = QFont("Courier", 16)
         self.font_lcd = QFont("Courier", 18, QFont.Weight.Bold)
@@ -73,12 +77,13 @@ class ScannerGUI(QWidget):
         self.scanner_ports = []
         self.childWindows = []
         self.displayLabels = []
+        self.connected_port = None  # Track which port we're connected to
 
         self.initUI()
 
         self.refresh_timer = QTimer()
         self.refresh_timer.timeout.connect(self.refreshScannerList)
-        self.refresh_timer.start(10000)
+        self.refresh_timer.start(10000)  # Change to 10 seconds as requested
 
         self.display_timer = QTimer()
         self.display_timer.timeout.connect(self.updateDisplay)
@@ -153,6 +158,9 @@ class ScannerGUI(QWidget):
         layout.addWidget(
             self.modelLabel, alignment=Qt.AlignmentFlag.AlignCenter
         )
+        layout.addWidget(
+            self.modelLabel, alignment=Qt.AlignmentFlag.AlignCenter
+        )
 
         # Display
         self.displayLabels = []
@@ -208,11 +216,27 @@ class ScannerGUI(QWidget):
         """
         try:
             if self.ser:
-                self.ser.close()
-            self.ser = serial.Serial(port, BAUDRATE, timeout=1)
-            time.sleep(0.1)
+                try:
+                    self.ser.close()
+                    logging.debug("Closed existing connection")
+                except Exception as e:
+                    logging.warning(f"Error closing existing connection: {e}")
+
+            # Give the OS time to release the port
+            time.sleep(0.5)
+
+            # Connect to the new port
+            self.ser = serial.Serial(port, BAUDRATE, timeout=1, exclusive=True)
+            time.sleep(0.2)  # Allow the scanner to wake up
+
+            # Store the port we're connected to
+            self.connected_port = port
+
+            # Set up the interface
             self.adapter = getScannerInterface(model)
             self.modelLabel.setText(f"Model: {model}")
+
+            logging.info(f"Successfully connected to {model} on {port}")
         except Exception as e:
             QMessageBox.critical(
                 self,
@@ -296,6 +320,13 @@ class ScannerGUI(QWidget):
             self.squelchBar.setValue(value)
         except Exception:
             self.squelchBar.setValue(0)
+
+        try:
+            # Try to reopen the port
+            self.ser.open()
+            logging.info(f"Reopened connection to {self.connected_port}")
+        except Exception as e:
+            logging.error(f"Failed to reopen serial port: {e}")
 
     def knobScrolled(self, event):
         """
@@ -388,6 +419,13 @@ class ScannerGUI(QWidget):
         for i in range(2, 14, 2):
             text = parts[i] if i < len(parts) else ""
             modifier = parts[i + 1] if i + 1 < len(parts) else ""
+            screen.append(
+                {
+                    "text": text.strip(),
+                    "underline": modifier == "_" * 16,
+                    "highlight": modifier == "*" * 16,
+                }
+            )
             screen.append(
                 {
                     "text": text.strip(),

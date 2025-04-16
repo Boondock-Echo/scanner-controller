@@ -36,6 +36,9 @@ def buildDisplayGroup(font_lcd, displayLabels: list) -> QGroupBox:
         displayGroupLayout.addWidget(
             lbl, alignment=Qt.AlignmentFlag.AlignCenter
         )
+        displayGroupLayout.addWidget(
+            lbl, alignment=Qt.AlignmentFlag.AlignCenter
+        )
 
     displayGroup = QGroupBox("Display")
     displayGroup.setLayout(displayGroupLayout)

@@ -110,6 +110,9 @@ class scanner_command:
             raise Exception(
                 f"{self.name}: Command returned an error: {response}"
             )
+            raise Exception(
+                f"{self.name}: Command returned an error: {response}"
+            )
         return self.parser(response) if self.parser else response
 
 
@@ -171,6 +174,10 @@ def validate_enum(name, allowed_values):
                 f"{name} must be one of: {', '.join(sorted(allowed_upper))}"
             )
 
+            raise ValueError(
+                f"{name} must be one of: {', '.join(sorted(allowed_upper))}"
+            )
+
     return validator
 
 
@@ -179,6 +186,8 @@ def validate_cin(params):
     Validate the argument list for the CIN command.
 
     Args:
+        params (str or list): Should be a comma-separated string or list of
+        values.
         params (str or list): Should be a comma-separated string or list of
         values.
 
@@ -285,6 +294,9 @@ def findAllScannerPorts(baudrate=115200, timeout=0.5, max_retries=2):
                     ser.write(b"MDL\r")
                     wait_for_data(ser, max_wait=0.3)
                     model_response = read_response(ser)
+                    logging.info(
+                        f"Response from {port.device}: {model_response}"
+                    )
                     logging.info(
                         f"Response from {port.device}: {model_response}"
                     )

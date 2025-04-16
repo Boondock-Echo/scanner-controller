@@ -5,8 +5,6 @@ It includes a function to build a PyQt6 QGroupBox containing volume and squelch
 sliders.
 """
 
-# audioControls.py
-
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QGroupBox, QHBoxLayout, QLabel, QVBoxLayout
 

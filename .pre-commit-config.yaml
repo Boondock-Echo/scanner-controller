@@ -1,34 +1,48 @@
+# Pre-commit hooks configuration
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
-    -   id: trailing-whitespace
-    -   id: end-of-file-fixer
-    -   id: check-yaml
-    -   id: check-added-large-files
-    -   id: debug-statements
-    -   id: check-ast
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
 
--   repo: https://github.com/pycqa/flake8
-    rev: 6.0.0
+  - repo: https://github.com/PyCQA/flake8
+    rev: 6.1.0
     hooks:
-    -   id: flake8
-        additional_dependencies: [
-            'flake8-docstrings',
-            'flake8-bugbear',
-            'flake8-comprehensions',
-        ]
-        args: ['--max-line-length=80', '--extend-ignore=E203,E231,I']
+      - id: flake8
+        additional_dependencies:
+          [flake8-docstrings, flake8-import-order, flake8-bugbear]
+        types: [python]
+        exclude: '(^|/)(\.venv|venv|\.git|__pycache__|\.pytest_cache|\.github)/'
+        # More robust exclude pattern that will definitely catch .venv directory
 
--   repo: https://github.com/psf/black
-    rev: 23.3.0
+  - repo: https://github.com/psf/black
+    rev: 23.9.1
     hooks:
-    -   id: black
+      - id: black
         language_version: python3
-        args: ['--line-length=80']
+        args: ["--config=pyproject.toml"]
 
--   repo: https://github.com/pycqa/isort
+  - repo: https://github.com/pycqa/isort
     rev: 5.12.0
     hooks:
-    -   id: isort
-        args: ["--profile", "black", "--line-length=80"]
+      - id: isort
+        args: ["--settings-path=pyproject.toml"]
+
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: .venv/Scripts/pytest.exe
+        language: system
+        pass_filenames: false
+        types: [python]
+
+      - id: isort
+        name: isort
+        entry: .venv/Scripts/isort.exe
+        language: system
+        types: [python]
+        args: ["--profile", "black"]

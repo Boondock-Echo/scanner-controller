@@ -14,7 +14,6 @@ from utilities.validators import validate_cin, validate_enum  # Correct imports
 # Command Definitions
 # ------------------------------------------------------------------------------
 
-
 """
 BC125AT Command Library.
 

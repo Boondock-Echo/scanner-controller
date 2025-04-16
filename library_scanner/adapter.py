@@ -104,6 +104,9 @@ class scanner_command:
             raise Exception(
                 f"{self.name}: Command returned an error: {response}"
             )
+            raise Exception(
+                f"{self.name}: Command returned an error: {response}"
+            )
         return self.parser(response) if self.parser else response
 
 
@@ -131,6 +134,8 @@ def parse_frequency_response(response):
     and extracts the frequency value.
     """
     try:
+        # Example: Parse the response assuming it returns
+        # "STS,<frequency>,<other_data>"
         # Example: Parse the response assuming it returns
         # "STS,<frequency>,<other_data>"
         if response.startswith("STS,"):
@@ -167,6 +172,11 @@ def send_command_and_parse_response(command, serial_connection):
         time.sleep(0.1)
 
         # Read the response and handle decoding errors
+        raw_response = (
+            serial_connection.read(serial_connection.in_waiting)
+            .decode("utf-8", errors="ignore")
+            .strip()
+        )
         raw_response = (
             serial_connection.read(serial_connection.in_waiting)
             .decode("utf-8", errors="ignore")
