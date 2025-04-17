@@ -16,42 +16,8 @@ import shutil
 import subprocess
 import sys
 
-
-def setup_logging(debug=False):
-    """Configure logging with console output."""
-    level = logging.DEBUG if debug else logging.INFO
-
-    # Configure root logger
-    logging.basicConfig(
-        level=level,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        handlers=[
-            logging.FileHandler("scanner_controller.log"),
-            logging.StreamHandler(sys.stdout),
-        ],
-    )
-
-    # Log startup information
-    logging.info(
-        f"Starting Scanner Controller (Debug={'Yes' if debug else 'No'})"
-    )
-    logging.info(f"Python version: {sys.version}")
-    logging.info(f"Running from: {os.path.dirname(os.path.abspath(__file__))}")
-
-
-def clear_pycache():
-    """Clear Python cache to ensure fresh imports."""
-    root_dir = os.path.dirname(os.path.abspath(__file__))
-    for dirpath, dirnames, _ in os.walk(root_dir):
-        if "__pycache__" in dirnames:
-            cache_dir = os.path.join(dirpath, "__pycache__")
-            try:
-                shutil.rmtree(cache_dir)
-                logging.debug(f"Cleared cache directory: {cache_dir}")
-            except Exception as e:
-                logging.warning(
-                    f"Could not clear cache directory {cache_dir}: {e}"
-                )
+# Import the logging utilities
+from utilities.log_utils import configure_logging
 
 
 def monkey_patch_serial():
@@ -91,6 +57,21 @@ def monkey_patch_serial():
     logging.debug("Serial port operations patched for debugging")
 
 
+def clear_pycache():
+    """Clear Python cache to ensure fresh imports."""
+    root_dir = os.path.dirname(os.path.abspath(__file__))
+    for dirpath, dirnames, _ in os.walk(root_dir):
+        if "__pycache__" in dirnames:
+            cache_dir = os.path.join(dirpath, "__pycache__")
+            try:
+                shutil.rmtree(cache_dir)
+                logging.debug(f"Cleared cache directory: {cache_dir}")
+            except Exception as e:
+                logging.warning(
+                    f"Could not clear cache directory {cache_dir}: {e}"
+                )
+
+
 def main():
     """
     Launch the Scanner Controller.
@@ -98,8 +79,6 @@ def main():
     This function sets up logging, applies optional debugging patches,
     clears Python cache, and launches the Scanner GUI application.
     """
-    #  Provide functionality for the main entry point.
-
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="Scanner Controller")
     parser.add_argument(
@@ -107,8 +86,16 @@ def main():
     )
     args = parser.parse_args()
 
-    # Set up logging and debugging
-    setup_logging(args.debug)
+    # Set up logging and debugging using the centralized logging utility
+    level = logging.DEBUG if args.debug else logging.INFO
+    log_file = os.path.join("logs", "scanner_controller.log")
+    logger = configure_logging(log_file=log_file, level=level)
+
+    # Log startup information
+    debug_status = 'Yes' if args.debug else 'No'
+    logger.info(f"Starting Scanner Controller (Debug={debug_status})")
+    logger.info(f"Python version: {sys.version}")
+    logger.info(f"Running from: {os.path.dirname(os.path.abspath(__file__))}")
 
     # Apply monkey patching for debugging if requested
     if args.debug:
@@ -125,24 +112,24 @@ def main():
     sys.path.insert(0, repo_root)
 
     try:
-        logging.info("Starting Scanner GUI application...")
+        logger.info("Starting Scanner GUI application...")
         from scanner_gui.main import main
 
         main()
     except ImportError as e:
-        logging.error(f"Import error: {e}")
+        logger.error(f"Import error: {e}")
 
         # Execute the script directly as a fallback
         try:
-            logging.info("Attempting to run script directly...")
+            logger.info("Attempting to run script directly...")
             cmd = [sys.executable, main_script]
             if args.debug:
                 cmd.append("--debug")
             result = subprocess.run(cmd)
             sys.exit(result.returncode)
         except Exception as e:
-            logging.error(f"Error running script: {e}")
-            logging.info("Please try running with: python -m scanner_gui")
+            logger.error(f"Error running script: {e}")
+            logger.info("Please try running with: python -m scanner_gui")
             sys.exit(1)
 
 

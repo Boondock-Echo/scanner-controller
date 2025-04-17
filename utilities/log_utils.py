@@ -14,8 +14,10 @@ Typical usage:
 import logging
 import os
 
+from utilities.tools.log_trim import trim_log_file
 
-def configure_logging(log_file="scanner_controller.log", level=logging.INFO):
+
+def configure_logging(log_file=None, level=logging.INFO, max_size_mb=10):
     """
     Configure logging for the scanner controller.
 
@@ -24,45 +26,49 @@ def configure_logging(log_file="scanner_controller.log", level=logging.INFO):
     while the console logger has a simpler format for readability.
 
     Parameters:
-        log_file (str): Path to the log file. Defaults to
-        "scanner_controller.log" in the current directory.
+        log_file (str): Path to the log file. If None, defaults to
+                       "logs/scanner_tool.log" in the current directory.
         level (int): Logging level threshold. Uses logging module constants:
                     DEBUG (10), INFO (20), WARNING (30), ERROR (40),
                     CRITICAL (50).
                     Defaults to logging.INFO.
+        max_size_mb (int): Maximum log file size in MB before trimming.
+                          Defaults to 10MB.
 
     Returns:
         logging.Logger: The root logger configured with file
         and console handlers.
 
     Examples:
-        >>> logger = configure_logging("app.log", logging.DEBUG)
+        >>> logger = configure_logging(level=logging.DEBUG)
         >>> logger.debug("Debug message")
         >>> logger.info("Info message")
-
-        # With custom path
-        >>> logger = configure_logging("logs/scanner.log")
-        >>> logger.error("Error message")
     """
+    # Set default log file if not provided
+    if log_file is None:
+        log_file = os.path.join("logs", "scanner_tool.log")
+
     # Create logs directory if it doesn't exist
     log_dir = os.path.dirname(log_file)
     if log_dir and not os.path.exists(log_dir):
-        os.makedirs(log_dir)
+        os.makedirs(log_dir, exist_ok=True)
 
-    # Configure file-based logging with timestamps and detailed information
+    # Configure logging with file and console handlers
     logging.basicConfig(
-        filename=log_file,
         level=level,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        format="%(asctime)s - %(levelname)s - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
+        handlers=[logging.FileHandler(log_file), logging.StreamHandler()],
     )
 
-    # Add console handler for immediate feedback during execution
-    console = logging.StreamHandler()
-    console.setLevel(level)
-    formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
-    console.setFormatter(formatter)
-    logging.getLogger("").addHandler(console)
+    # Check if log file needs trimming
+    max_size_bytes = max_size_mb * 1024 * 1024
+    if os.path.exists(log_file) and os.path.getsize(log_file) > max_size_bytes:
+        logging.info(f"Log file size exceeded {max_size_mb} MB. Trimming...")
+        # Keep the log file manageable
+        trim_log_file(log_file, max_size=max_size_bytes)
+
+    logging.info("Logging setup complete.")
 
     # Return the root logger with both handlers attached
     return logging.getLogger("")
@@ -86,9 +92,5 @@ def get_logger(name=None):
     Examples:
         >>> logger = get_logger("my_module")
         >>> logger.info("Module initialized")
-
-        # Get the root logger
-        >>> root_logger = get_logger()
-        >>> root_logger.error("Application error")
     """
     return logging.getLogger(name)

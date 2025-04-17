@@ -5,14 +5,11 @@ This module provides the `scanner_command` class for building and parsing
 commands for a scanner tool, with validation and logging capabilities.
 """
 
-import logging
+# Import centralized logging utilities
+from utilities.log_utils import get_logger
 
-# Configure logging
-logging.basicConfig(
-    filename="scanner_tool.log",
-    level=logging.DEBUG,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
+# Get a logger for this module
+logger = get_logger(__name__)
 
 
 class scanner_command:

@@ -55,14 +55,11 @@ Command Library module.
 This module provides functionality related to command library.
 """
 
-import logging
+# Import centralized logging utilities
+from utilities.log_utils import get_logger
 
-# Configure logging
-logging.basicConfig(
-    filename="scanner_tool.log",
-    level=logging.DEBUG,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
+# Get a logger for this module
+logger = get_logger(__name__)
 
 
 class scanner_command:
