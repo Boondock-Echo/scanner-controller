@@ -8,13 +8,8 @@ through their respective adapters.
 
 # Standard library imports
 import argparse
-
-# Third-party imports
 import importlib
-
-# Standard library imports
 import logging
-import os
 import threading
 
 import serial
@@ -28,61 +23,23 @@ from adapter_scanner.scanner_utils import find_all_scanner_ports
 from utilities.core.command_registry import build_command_table
 from utilities.core.shared_utils import diagnose_connection_issues
 from utilities.help_topics import get_extended_help
+from utilities.log_utils import configure_logging
 from utilities.readlineSetup import initialize_readline
 from utilities.scanner_factory import get_scanner_adapter
-from utilities.tools.log_trim import trim_log_file
 
-# from command_registry import build_command_table
-
-
-# Third-party imports
-
+# ------------------------------------------------------------------------------
 # LOGGING SETUP
 # ------------------------------------------------------------------------------
 
-
-def setup_logging(log_level=logging.DEBUG):
-    """
-    Set up logging configuration with the specified log level.
-
-    Configures handlers, formatters and other logging settings based on the
-    specified level.
-    """
-    logging.basicConfig(
-        filename="scanner_tool.log",
-        level=log_level,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-    )
-
-
-if not os.path.exists("scanner_tool.log"):
-    logging.error("Log file not found. Creating a new one.")
-    if not os.path.exists("scanner_tool.log"):
-        logging.error("Log file not found. Creating a new one.")
-
-    if os.path.getsize("scanner_tool.log") > 10 * 1024 * 1024:  # 10 MB limit
-        logging.info("Log file size exceeded 10 MB. Trimming...")
-        trim_log_file(
-            "scanner_tool.log", max_size=10 * 1024 * 1024
-        )  # Keep the log file manageable
-
-setup_logging()
-if os.path.getsize("scanner_tool.log") > 10 * 1024 * 1024:  # 10 MB limit
-    logging.info("Log file size exceeded 10 MB. Trimming...")
-    # Keep the log file manageable
-    trim_log_file("scanner_tool.log", max_size=10 * 1024 * 1024)
+# Configure logging
+logger = configure_logging(level=logging.DEBUG)
 
 # ------------------------------------------------------------------------------
 # SUPPORTED SCANNER ADAPTERS
 # ------------------------------------------------------------------------------
 
 # Maps scanner model names to their respective adapter classes
-adapter_scanner = {  # if your scanner adapter is not listed here, add it here
-    """
-    get adapter function.
-
-    Provides functionality for get adapter.
-    """
+adapter_scanner = {
     "BC125AT": "adapters.uniden.bc125at_adapter.BC125ATAdapter",
     "BCD325P2": "adapters.uniden.bcd325p2_adapter.BCD325P2Adapter",
 }
@@ -342,7 +299,7 @@ def main_loop(adapter, ser, COMMANDS, COMMAND_HELP, machine_mode=False):
                         print(formatted_result)
 
             except Exception as e:
-                logging.error(f"Command error: {str(e)}", exc_info=True)
+                logger.error(f"Command error: {str(e)}", exc_info=True)
                 print(f"[Error] {e}")
         else:
             print("Unknown command. Type 'help' for options.")
@@ -449,7 +406,7 @@ def main():
         ):
             diagnose_connection_issues()
 
-        logging.error("No scanners found. Exiting.")
+        logger.error("No scanners found. Exiting.")
         return
 
     print("Scanners detected:")
@@ -519,11 +476,11 @@ def main():
                     "Timeout while initializing scanner adapter. Scanner"
                     " may be unresponsive."
                 )
-                logging.error("Timeout while initializing scanner adapter")
+                logger.error("Timeout while initializing scanner adapter")
                 return
 
     except Exception as e:
-        logging.error(f"Error communicating with scanner: {e}")
+        logger.error(f"Error communicating with scanner: {e}")
         print(f"Error communicating with scanner: {e}")
 
 

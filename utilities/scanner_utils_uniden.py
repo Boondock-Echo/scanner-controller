@@ -34,19 +34,17 @@ Scanner Utils Uniden module.
 This module provides functionality related to scanner utils uniden.
 """
 
-import logging
 import re
 import time
 
 import serial
 from serial.tools import list_ports
 
-# Configure logging
-logging.basicConfig(
-    filename="scanner_tool.log",
-    level=logging.DEBUG,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
+# Import centralized logging utilities
+from utilities.log_utils import get_logger
+
+# Get a logger for this module
+logger = get_logger(__name__)
 
 
 def clear_serial_buffer(ser):
@@ -101,8 +99,11 @@ def find_scanner_port(baudrate=115200, timeout=0.5, max_retries=2):
                     port.device, baudrate, timeout=timeout
                 ) as ser:
                     # Check for Uniden-style scanners
+                    logger.info(f"Trying port: {port.device}")
+                    logger.info(f"Port description: {port.description}")
                     ser.write(b"MDL\r")
                     response = read_response(ser)
+                    logger.info(f"Response from {port.device}: {response}")
                     if mdl_pattern.match(response):
                         model_code = mdl_pattern.match(response).group(1)
                         detected.append((port.device, model_code, "uniden"))
@@ -111,11 +112,21 @@ def find_scanner_port(baudrate=115200, timeout=0.5, max_retries=2):
                     # Check for AOR-DV1 scanners
                     ser.write(b"WI\r")
                     response = read_response(ser)
+                    logger.info(f"Response from {port.device}: {response}")
                     if response.strip() == "AR-DV1":
                         detected.append((port.device, "AR-DV1", "aordv1"))
-            except Exception:
+            except Exception as e:
+                logger.warning(f"Error checking port {port.device}: {e}")
                 continue
+
+        if detected:
+            return detected
+
         retries += 1
+        logger.info("No scanners found. Retrying in 3 seconds...")
+        time.sleep(3)
+
+    logger.error("No scanners found after maximum retries.")
     return detected
 
 
