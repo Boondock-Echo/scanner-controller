@@ -6,7 +6,7 @@ model. Each command includes its name, help text, and validation requirements.
 """
 
 from utilities.shared_utils import scanner_command
-from utilities.validators import validate_cin, validate_enum
+from utilities.validators import validate_enum
 
 commands = {
     "BAV": scanner_command(
@@ -65,7 +65,6 @@ commands = {
     ),
     "CIN": scanner_command(
         name="CIN",
-        validator=validate_cin,
         help="""Reads or writes a memory channel.
 
         Read:
