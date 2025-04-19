@@ -42,61 +42,99 @@ def validate_enum(name, allowed_values):
             raise ValueError(
                 f"{name} must be one of: {', '.join(sorted(allowed_upper))}"
             )
+        return value
 
     return validator
 
 
-def validate_cin(params):
+def validate_param_constraints(param_constraints):
     """
-    Validate the argument list for the CIN command.
+    Create a validator function based on parameter constraints.
 
     Args:
-        params (str or list): Should be a comma-separated string or list of
-        values.
-    Raises:
-        ValueError: If the format or fields are invalid
+        param_constraints (list): List of (type, constraint) tuples
+            where 'type' is a Python type (int, str, etc.)
+            and 'constraint' can be:
+                - None (no constraint)
+                - tuple(min, max) for numeric ranges
+                - set of allowed values
+                - callable validator function
+
     Returns:
-        The validated params (unchanged if valid)
+        function: A validator function for command parameters
     """
-    if isinstance(params, str):
-        parts = [p.strip() for p in params.split(",")]
-    else:
-        parts = list(params)
 
-    if len(parts) not in {1, 9}:
-        raise ValueError("CIN requires 1 (read) or 9 (write) arguments")
+    def validator(params):
+        if isinstance(params, str):
+            parts = [p.strip() for p in params.split(",")]
+        else:
+            parts = list(params)
 
-    index = int(parts[0])
-    if not (1 <= index <= 500):
-        raise ValueError("Index must be between 1 and 500")
+        if len(parts) != len(param_constraints):
+            raise ValueError(
+                f"Expected {len(param_constraints)} parameters,"
+                f" got {len(parts)}"
+            )
 
-    if len(parts) == 9:
-        name = parts[1]
-        freq = int(parts[2])
-        mod = parts[3].upper()
-        ctcss = int(parts[4])
-        delay = int(parts[5])
-        lockout = int(parts[6])
-        priority = int(parts[7])
+        for i, (value, (param_type, constraint)) in enumerate(
+            zip(parts, param_constraints)
+        ):
+            # Validate type
+            try:
+                typed_value = param_type(value)
+                parts[i] = typed_value  # Update with typed value
+            except ValueError:
+                raise ValueError(
+                    f"Parameter {i+1} should be a valid {param_type.__name__}"
+                )
 
-        if len(name) > 16:
-            raise ValueError("Name must be 16 characters or fewer")
+            # Validate constraints
+            if constraint is None:
+                continue
+            elif isinstance(constraint, tuple) and len(constraint) == 2:
+                min_val, max_val = constraint
+                if not (min_val <= typed_value <= max_val):
+                    raise ValueError(
+                        f"Parameter {i+1} must be between {min_val} and "
+                        f"{max_val}"
+                    )
+            elif isinstance(constraint, set):
+                if typed_value not in constraint:
+                    raise ValueError(
+                        f"Parameter {i+1} must be one of:"
+                        f" {', '.join(map(str, sorted(constraint)))}"
+                    )
+            elif callable(constraint):
+                try:
+                    constraint(typed_value)
+                except ValueError as e:
+                    raise ValueError(f"Parameter {i+1}: {str(e)}")
 
-        if not (10000 <= freq <= 1300000):
-            raise ValueError("Frequency seems invalid (check units?)")
+        return params
 
-        if mod not in {"AUTO", "AM", "FM", "NFM"}:
-            raise ValueError("Modulation must be AUTO, AM, FM, or NFM")
+    return validator
 
-        if not (0 <= ctcss <= 231):
-            raise ValueError("CTCSS/DCS code must be 0–231")
 
-        if delay not in {-10, -5, 0, 1, 2, 3, 4, 5}:
-            raise ValueError("Delay must be one of: -10, -5, 0–5")
+def validate_binary_options(options_count):
+    """
+    Create a validator for a binary options field (e.g., '01101').
 
-        if lockout not in {0, 1}:
-            raise ValueError("Lockout must be 0 or 1")
+    Args:
+        options_count (int): The number of binary digits in the field
 
-        if priority not in {0, 1}:
-            raise ValueError("Priority must be 0 or 1")
-    return params
+    Returns:
+        function: A validator function for binary option strings
+    """
+
+    def validator(value):
+        value = str(value)
+        if len(value) != options_count or not all(
+            digit in "01" for digit in value
+        ):
+            raise ValueError(
+                f"Value must be a {options_count}-digit binary string"
+                f" (e.g., {'0' * options_count})"
+            )
+        return value
+
+    return validator

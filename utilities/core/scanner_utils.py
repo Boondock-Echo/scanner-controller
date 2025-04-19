@@ -13,26 +13,125 @@ import time
 import serial
 from serial.tools import list_ports
 
-# Import from core serial utilities - remove unused imports
-from utilities.core.serial_utils import read_response, wait_for_data
+# Remove the circular import
+# DO NOT import from utilities.core.scanner_utils here!
+
+
+def clear_serial_buffer(ser):
+    """
+    Clear accumulated data in the serial buffer before sending commands.
+
+    Args:
+        ser (serial.Serial): The serial connection to the scanner.
+    """
+    try:
+        time.sleep(0.2)
+        while ser.in_waiting:
+            ser.read(ser.in_waiting)
+        logging.debug("Serial buffer cleared.")
+    except Exception as e:
+        logging.error(f"Error clearing serial buffer: {e}")
+
+
+def wait_for_data(ser, max_wait=0.3):
+    """
+    Wait for data to appear in the serial buffer.
+
+    Args:
+        ser (serial.Serial): The serial connection to the scanner.
+        max_wait (float): Maximum time to wait in seconds.
+
+    Returns:
+        bool: True if data appeared within the timeout, False otherwise.
+    """
+    start_time = time.time()
+    while time.time() - start_time < max_wait:
+        if ser.in_waiting > 0:
+            return True
+        time.sleep(0.01)
+    return False
+
+
+def read_response(ser, timeout=1.0):
+    """
+    Read a response from the scanner.
+
+    Reads until a complete response is received or timeout occurs.
+    Handles both CR and CR+LF line endings.
+
+    Args:
+        ser (serial.Serial): The serial connection to the scanner.
+        timeout (float): Maximum time to wait for a response in seconds.
+
+    Returns:
+        str: The response string with line endings removed.
+    """
+    start_time = time.time()
+    response = b""
+
+    while True:
+        if time.time() - start_time > timeout:
+            break
+
+        if ser.in_waiting > 0:
+            new_data = ser.read(ser.in_waiting)
+            response += new_data
+
+            # Check for trailing CR or CRLF
+            if response.endswith(b'\r\n') or response.endswith(b'\r'):
+                break
+        else:
+            time.sleep(0.01)
+
+    # Convert to string and remove trailing CR/LF
+    response_str = response.decode('ascii', errors='replace').strip()
+    logging.debug(f"Received: {response_str}")
+    return response_str
+
+
+def send_command(ser, command):
+    """
+    Send a command to the scanner and read the response.
+
+    Args:
+        ser (serial.Serial): The serial connection to the scanner.
+        command (str or bytes): The command to send.
+
+    Returns:
+        str: The response from the scanner.
+    """
+    # Clear any existing data
+    clear_serial_buffer(ser)
+
+    # Ensure command is bytes with CR termination
+    if isinstance(command, str):
+        command = command.encode('ascii')
+    if not command.endswith(b'\r'):
+        command += b'\r'
+
+    # Send command
+    logging.debug(f"Sending: {command}")
+    ser.write(command)
+
+    # Read response
+    return read_response(ser)
 
 
 def find_all_scanner_ports(
     baudrate=115200, timeout=0.5, max_retries=2, skip_ports=None
 ):
     """
-    Find all connected scanner devices.
-
-    Test communication on available ports.
+    Scan all com ports and detect connected scanners.
 
     Args:
-        baudrate: The serial connection speed to use
-        timeout: Serial connection timeout in seconds
-        max_retries: Number of retry attempts for detection
-        skip_ports: List of ports to skip when scanning
+        baudrate (int): The baud rate to use for scanner communication.
+        timeout (float): Timeout for serial communication in seconds.
+        max_retries (int): Number of times to retry scanning if no scanners are
+        found.
+        skip_ports (list): List of port names to skip.
 
     Returns:
-        List of tuples (port_name, model_code) for detected scanners
+        list: A list of tuples (port_name, model_code) for detected scanners.
     """
     if skip_ports is None:
         skip_ports = []
@@ -40,17 +139,10 @@ def find_all_scanner_ports(
     detected = []
     retries = 0
 
-    while retries < max_retries and not detected:
-        ports = list(list_ports.comports())
+    while retries < max_retries:
+        ports = list_ports.comports()
 
-        if not ports:
-            logging.warning("No COM ports detected on this system")
-            retries += 1
-            time.sleep(1)
-            continue
-
-        # Log available ports for diagnostic purposes
-        logging.info(f"Found {len(ports)} COM ports to check")
+        logging.info(f"Available ports: {len(ports)}")
         for port_info in ports:
             logging.info(
                 f"Available port: {port_info.device} - {port_info.description}"
@@ -96,13 +188,12 @@ def find_all_scanner_ports(
             except Exception as e:
                 logging.warning(f"Error testing port {port}: {str(e)}")
 
-        if not detected:
-            retries += 1
-            if retries < max_retries:
-                logging.info("No scanners found. Retrying in 3 seconds...")
-                time.sleep(3)
+        if detected:
+            return detected
 
-    if not detected:
-        logging.error("No scanners found after maximum retries.")
+        retries += 1
+        logging.info("No scanners found. Retrying in 3 seconds...")
+        time.sleep(3)
 
-    return detected
+    logging.error("No scanners found after maximum retries.")
+    return []

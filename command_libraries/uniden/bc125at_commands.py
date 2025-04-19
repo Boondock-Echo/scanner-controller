@@ -4,12 +4,90 @@
 Bc125At Commands module.
 
 This module provides functionality related to bc125at commands.
+It includes command definitions, help text, and utility functions for
+interacting with the BC125AT scanner.
 """
-
 
 # Application imports
 from utilities.core.shared_utils import scanner_command
-from utilities.validators import validate_cin, validate_enum
+from utilities.validators import validate_enum, validate_param_constraints
+
+
+# Build validators using the general validation framework
+def validate_cin(params):
+    """
+    Validate the argument list for the CIN command.
+
+    Args:
+        params (str or list): Should be a comma-separated string or list of
+        values.
+
+    Raises:
+        ValueError: If the format or fields are invalid
+    Returns:
+        The validated params (unchanged if valid)
+    """
+    if isinstance(params, str):
+        parts = [p.strip() for p in params.split(",")]
+    else:
+        parts = list(params)
+
+    if len(parts) not in {1, 9}:
+        raise ValueError("CIN requires 1 (read) or 9 (write) arguments")
+
+    index = int(parts[0])
+    if not (1 <= index <= 500):
+        raise ValueError("Index must be between 1 and 500")
+
+    if len(parts) == 9:
+        name = parts[1]
+        freq = int(parts[2])
+        mod = parts[3].upper()
+        ctcss = int(parts[4])
+        delay = int(parts[5])
+        lockout = int(parts[6])
+        priority = int(parts[7])
+
+        if len(name) > 16:
+            raise ValueError("Name must be 16 characters or fewer")
+
+        if not (10000 <= freq <= 1300000):
+            raise ValueError("Frequency seems invalid (check units?)")
+
+        if mod not in {"AUTO", "AM", "FM", "NFM"}:
+            raise ValueError("Modulation must be AUTO, AM, FM, or NFM")
+
+        if not (0 <= ctcss <= 231):
+            raise ValueError("CTCSS/DCS code must be 0–231")
+
+        if delay not in {-10, -5, 0, 1, 2, 3, 4, 5}:
+            raise ValueError("Delay must be one of: -10, -5, 0–5")
+
+        if lockout not in {0, 1}:
+            raise ValueError("Lockout must be 0 or 1")
+
+        if priority not in {0, 1}:
+            raise ValueError("Priority must be 0 or 1")
+    return params
+
+
+# Define validators for specific commands
+validate_kbp = validate_param_constraints(
+    [
+        (
+            int,
+            lambda x: x == 99 or 0 <= x <= 15,
+        ),  # beep level (0=Auto, 1-15, 99=OFF)
+        (int, {0, 1}),  # lock (0=OFF, 1=ON)
+    ]
+)
+
+validate_sco = validate_param_constraints(
+    [
+        (int, {-10, -5, -2, 0, 1, 2, 5, 10, 30}),  # delay
+        (int, {0, 1, 2}),  # code_search
+    ]
+)
 
 commands = {
     "BAV": scanner_command(
@@ -62,12 +140,14 @@ commands = {
     "CLC": scanner_command(
         name="CLC",
         requires_prg=True,
-        help="Configure Close Call mode (priority, override,"
-        " alert tones, etc.)",
+        help=(
+            "Configure Close Call mode (priority, override, alert tones, etc.)"
+        ),
     ),
     "CIN": scanner_command(
         name="CIN",
         validator=validate_cin,
+        requires_prg=True,
         help="""Reads or writes a memory channel.
 
         Read:
@@ -138,8 +218,9 @@ commands = {
     "KBP": scanner_command(
         name="KBP",
         set_format="KBP,{level},{lock}",
-        help="Sets key beep (0:Auto, 99:Off) and key lock (0:Off, 1:On).",
+        validator=validate_kbp,
         requires_prg=True,
+        help="Sets key beep (0:Auto, 99:Off) and key lock (0:Off, 1:On).",
     ),
     "KEY": scanner_command(
         name="KEY",
@@ -199,6 +280,7 @@ commands = {
     ),
     "SCO": scanner_command(
         name="SCO",
+        validator=validate_sco,
         help="Search/Close Call Options. Format: SCO,<delay>,<code_search>",
         requires_prg=True,
     ),

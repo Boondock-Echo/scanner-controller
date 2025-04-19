@@ -8,19 +8,17 @@ through their respective adapters.
 
 # Standard library imports
 import argparse
-import importlib
 import logging
 import threading
 
 import serial
 
-# Local application/relative imports
-from adapter_scanner.adapter_bc125at import BC125ATAdapter
-from adapter_scanner.adapter_bcd325p2 import BCD325P2Adapter
-from adapter_scanner.scanner_utils import find_all_scanner_ports
-
 # Application imports
 from utilities.core.command_registry import build_command_table
+
+# Local application/relative imports
+# Replace legacy imports with utilities
+from utilities.core.scanner_utils import find_all_scanner_ports
 from utilities.core.shared_utils import diagnose_connection_issues
 from utilities.help_topics import get_extended_help
 from utilities.log_utils import configure_logging
@@ -38,42 +36,11 @@ logger = configure_logging(level=logging.DEBUG)
 # SUPPORTED SCANNER ADAPTERS
 # ------------------------------------------------------------------------------
 
-# Maps scanner model names to their respective adapter classes
+# Maps scanner model names to their respective adapter instances
+# Using scanner_factory instead of direct imports
 adapter_scanner = {
-    "BC125AT": "adapters.uniden.bc125at_adapter.BC125ATAdapter",
-    "BCD325P2": "adapters.uniden.bcd325p2_adapter.BCD325P2Adapter",
-}
-
-
-# Helper function to load the adapter
-def get_adapter(model_name):
-    """
-    Load the adapter for the given scanner model.
-
-    Parameters:
-        model_name (str): The name of the scanner model.
-
-    Returns:
-        object: The adapter instance for the scanner model.
-
-    Raises:
-        ValueError: If the scanner model is unsupported.
-        ImportError: If there is an error loading the adapter.
-    """
-    if model_name not in adapter_scanner:
-        raise ValueError(f"Unsupported scanner model: {model_name}")
-
-    try:
-        module_path, class_name = adapter_scanner[model_name].rsplit(".", 1)
-        module = importlib.import_module(module_path)
-        return getattr(module, class_name)()
-    except (ImportError, AttributeError) as e:
-        raise ImportError(f"Error loading adapter for {model_name}: {e}")
-
-
-adapter_scanner = {  # if your scanner adapter is not listed here, add it here
-    "BC125AT": BC125ATAdapter(),
-    "BCD325P2": BCD325P2Adapter(),
+    "BC125AT": get_scanner_adapter("BC125AT"),
+    "BCD325P2": get_scanner_adapter("BCD325P2"),
 }
 
 # ------------------------------------------------------------------------------
@@ -149,7 +116,7 @@ def show_help(COMMANDS, COMMAND_HELP, command="", adapter=None):
 
         print("\nType 'help <command>' for details about a specific command.")
         for cmd in sorted(COMMANDS):
-            print(f"--->{cmd}")
+            print(f"  - {cmd}")
         print("\nType 'help <command>' for details.")
         return
 
