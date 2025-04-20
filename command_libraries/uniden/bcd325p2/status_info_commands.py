@@ -128,3 +128,7 @@ STATUS_INFO_COMMANDS = {
         """,
     ),
 }
+
+# Set source module for each command
+for cmd in STATUS_INFO_COMMANDS.values():
+    cmd.source_module = "STATUS_INFO_COMMANDS"

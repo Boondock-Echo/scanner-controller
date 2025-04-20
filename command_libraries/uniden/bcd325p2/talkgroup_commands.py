@@ -190,3 +190,7 @@ TALKGROUP_COMMANDS = {
         """,
     ),
 }
+
+# Set source module for each command
+for cmd in TALKGROUP_COMMANDS.values():
+    cmd.source_module = "TALKGROUP_COMMANDS"

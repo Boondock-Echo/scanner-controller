@@ -200,3 +200,7 @@ SPECIALIZED_COMMANDS = {
         """,
     ),
 }
+
+# Set source module for each command
+for cmd in SPECIALIZED_COMMANDS.values():
+    cmd.source_module = "SPECIALIZED_COMMANDS"

@@ -1,5 +1,9 @@
 """
 Close Call related scanner commands for the BCD325P2.
+
+Close Call is a feature that allows the scanner to detect and tune to nearby
+signals, even if they are not programmed into the scanner. The commands in this
+section are related to the Close Call feature.
 """
 
 from utilities.core.shared_utils import scanner_command
@@ -9,77 +13,6 @@ from utilities.validators import (
 )
 
 CLOSE_CALL_COMMANDS = {
-    "CLOSE_CALL_BSP": scanner_command(
-        name="BSP",
-        requires_prg=True,
-        set_format="BSP,{freq},{step},{span},{max_hold}",
-        validator=validate_param_constraints(
-            [
-                (int, None),  # frequency
-                (
-                    int,
-                    {
-                        500,
-                        625,
-                        750,
-                        833,
-                        1000,
-                        1250,
-                        1500,
-                        2000,
-                        2500,
-                        5000,
-                        10000,
-                    },
-                ),  # step
-                (
-                    str,
-                    {
-                        "0.2M",
-                        "0.4M",
-                        "0.6M",
-                        "0.8M",
-                        "1M",
-                        "2M",
-                        "4M",
-                        "6M",
-                        "8M",
-                        "10M",
-                        "20M",
-                        "40M",
-                        "60M",
-                        "80M",
-                        "100M",
-                        "120M",
-                        "140M",
-                        "160M",
-                        "180M",
-                        "200M",
-                        "250M",
-                        "300M",
-                        "350M",
-                        "400M",
-                        "450M",
-                        "500M",
-                    },
-                ),  # span
-                (int, {0, 1}),  # max_hold
-            ]
-        ),
-        help="""Get/Set Band Scope System Settings.
-
-        Format:
-        BSP - Get current settings
-        BSP,[FRQ],[STP],[SPN],[MAX_HOLD] - Set Band Scope
-
-        Parameters:
-        FRQ : Center Frequency
-        STP : Step (500:5kHz, 625:6.25kHz, 750:7.5kHz, 833:8.33kHz,
-        1000:10kHz, etc.)
-        SPN : Sweep Span (0.2M to 500M)
-        MAX_HOLD : Max hold display (0:OFF, 1:ON)
-        """,
-    ),
     "CLC": scanner_command(
         name="CLC",
         requires_prg=True,
@@ -226,3 +159,7 @@ CLOSE_CALL_COMMANDS = {
         """,
     ),
 }
+
+# Set source module for each command
+for cmd in CLOSE_CALL_COMMANDS.values():
+    cmd.source_module = "CLOSE_CALL_COMMANDS"

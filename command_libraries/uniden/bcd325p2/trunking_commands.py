@@ -866,3 +866,7 @@ TRUNKING_COMMANDS = {
         """,
     ),
 }
+
+# Set source module for each command
+for cmd in TRUNKING_COMMANDS.values():
+    cmd.source_module = "TRUNKING_COMMANDS"

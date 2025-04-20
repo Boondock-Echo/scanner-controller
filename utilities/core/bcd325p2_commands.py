@@ -1,37 +1,88 @@
 """
-BCD325P2 Commands module.
+BCD325P2 commands bridge module.
 
-This module defines the commands for the BCD325P2 scanner.
+This module imports commands from the appropriate command libraries
+and ensures they're properly categorized for the help system.
 """
 
-from utilities.core.shared_utils import scanner_command
+# Import commands from command libraries
+from command_libraries.uniden.bcd325p2.basic_commands import BASIC_COMMANDS
+from command_libraries.uniden.bcd325p2.channel_group_commands import (
+    CHANNEL_GROUP_COMMANDS,
+)
+from command_libraries.uniden.bcd325p2.close_call_commands import (
+    CLOSE_CALL_COMMANDS,
+)
+from command_libraries.uniden.bcd325p2.freq_management_commands import (
+    FREQUENCY_MANAGEMENT_COMMANDS,
+)
+from command_libraries.uniden.bcd325p2.gps_location_commands import (
+    GPS_LOCATION_COMMANDS,
+)
+from command_libraries.uniden.bcd325p2.programming_commands import (
+    PROGRAMMING_CONTROL_COMMANDS,
+)
+from command_libraries.uniden.bcd325p2.scan_config_commands import (
+    SCANNER_CONFIGURATION_COMMANDS,
+)
+from command_libraries.uniden.bcd325p2.scan_search_commands import (
+    SCAN_SEARCH_COMMANDS,
+)
+from command_libraries.uniden.bcd325p2.specialized_functions import (
+    SPECIALIZED_COMMANDS,
+)
+from command_libraries.uniden.bcd325p2.system_commands import (
+    SYSTEM_CONFIGURATION_COMMANDS,
+)
+from command_libraries.uniden.bcd325p2.trunking_commands import (
+    TRUNKING_COMMANDS,
+)
 
-commands = {
-    "PWR": scanner_command(
-        name="PWR",
-        help="Returns RSSI and frequency. Format: PWR,<rssi>,<freq>.",
-    ),
-    "BAV": scanner_command(
-        name="BAV", help="Returns battery voltage in 100's of milliVolts."
-    ),
-    "WIN": scanner_command(
-        name="WIN", help="Returns window voltage and frequency."
-    ),
-    "STS": scanner_command(
-        name="STS",
-        help="Returns status display content and various system flags.",
-    ),
-    "GLF": scanner_command(
-        name="GLF",
-        requires_prg=True,
-        help="Get next Global Lockout Frequency. Repeat until GLF,-1.",
-    ),
-    "CIN": scanner_command(
-        name="CIN",
-        requires_prg=True,
-        help="Get or set channel info. Format: CIN,<index>[,...].",
-    ),
-    "QSH": scanner_command(
-        name="QSH", help="Quick search/hold mode. Format: QSH,<freq_kHz>."
-    ),
-}
+# Aggregate all commands into one dictionary
+commands = {}
+commands.update(BASIC_COMMANDS)
+commands.update(CHANNEL_GROUP_COMMANDS)
+commands.update(CLOSE_CALL_COMMANDS)
+commands.update(FREQUENCY_MANAGEMENT_COMMANDS)
+commands.update(GPS_LOCATION_COMMANDS)
+commands.update(PROGRAMMING_CONTROL_COMMANDS)
+commands.update(SCANNER_CONFIGURATION_COMMANDS)
+commands.update(SCAN_SEARCH_COMMANDS)
+commands.update(SPECIALIZED_COMMANDS)
+commands.update(SYSTEM_CONFIGURATION_COMMANDS)
+commands.update(TRUNKING_COMMANDS)
+
+# Ensure all commands have their source_module set
+for module_name, module_dict in {
+    "BASIC_COMMANDS": BASIC_COMMANDS,
+    "CHANNEL_GROUP_COMMANDS": CHANNEL_GROUP_COMMANDS,
+    "CLOSE_CALL_COMMANDS": CLOSE_CALL_COMMANDS,
+    "FREQUENCY_MANAGEMENT_COMMANDS": FREQUENCY_MANAGEMENT_COMMANDS,
+    "GPS_LOCATION_COMMANDS": GPS_LOCATION_COMMANDS,
+    "PROGRAMMING_CONTROL_COMMANDS": PROGRAMMING_CONTROL_COMMANDS,
+    "SCANNER_CONFIGURATION_COMMANDS": SCANNER_CONFIGURATION_COMMANDS,
+    "SCAN_SEARCH_COMMANDS": SCAN_SEARCH_COMMANDS,
+    "SPECIALIZED_COMMANDS": SPECIALIZED_COMMANDS,
+    "SYSTEM_CONFIGURATION_COMMANDS": SYSTEM_CONFIGURATION_COMMANDS,
+    "TRUNKING_COMMANDS": TRUNKING_COMMANDS,
+}.items():
+    for cmd in module_dict.values():
+        cmd.source_module = module_name
+        # Make sure command name exists for lookup
+        if not hasattr(cmd, 'name'):
+            cmd.name = next(k for k, v in module_dict.items() if v is cmd)
+
+
+def getHelp(command):
+    """
+    Return the help string for the specified command (case-insensitive).
+
+    Returns None if command is not defined.
+    """
+    cmd = commands.get(command.upper())
+    return cmd.help if cmd else None
+
+
+def listCommands():
+    """Return a sorted list of all available command names."""
+    return sorted(commands.keys())

@@ -172,3 +172,7 @@ GPS_LOCATION_COMMANDS = {
         """,
     ),
 }
+
+# Set source module for each command
+for cmd in GPS_LOCATION_COMMANDS.values():
+    cmd.source_module = "GPS_LOCATION_COMMANDS"

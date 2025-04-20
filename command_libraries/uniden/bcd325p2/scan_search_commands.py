@@ -685,3 +685,7 @@ SCAN_SEARCH_COMMANDS = {
         """,
     ),
 }
+
+# Set source module for each command
+for cmd in SCAN_SEARCH_COMMANDS.values():
+    cmd.source_module = "SCAN_SEARCH_COMMANDS"
