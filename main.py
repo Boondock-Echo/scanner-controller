@@ -148,49 +148,65 @@ def show_help(COMMANDS, COMMAND_HELP, command="", adapter=None):
     else:
         general_commands = standard_commands
 
-    # 2. Get device-specific command categories for alignment calculation
-    device_specific_categories = []
-    if adapter and hasattr(adapter, "commands"):
-        all_commands = adapter.commands
-        command_groups = {}
+    # Process device-specific commands from adapter
+    ds_categories = []
+    command_groups = {}
 
-        for cmd_name, cmd_obj in all_commands.items():
-            # Skip commands already covered in general commands
-            if any(
-                cmd_name.lower() == gc.lower()
-                for gc in sum(general_commands.values(), [])
-            ):
-                continue
+    # Helper function to process adapter commands and extract categories
+    def process_adapter_commands(adapter, general_commands):
+        """Process adapter commands and extract categories.
 
-            # Get category name
-            if hasattr(cmd_obj, 'source_module') and cmd_obj.source_module:
-                category_name = cmd_obj.source_module.replace('_', ' ').title()
-                if category_name.endswith(" Commands"):
-                    category_name = category_name[:-9]
-            else:
-                category_name = "Other"
+        Args:
+            adapter: The scanner adapter instance
+            general_commands: Dictionary of high-level commands
 
-            device_specific_categories.append(category_name)
+        Returns:
+            tuple: (category_names, command_groups)
+        """
+        categories = []
+        cmd_groups = {}
 
-            if category_name not in command_groups:
-                command_groups[category_name] = []
-            command_groups[category_name].append(cmd_name)
+        if adapter and hasattr(adapter, "commands"):
+            for cmd_name, cmd_obj in adapter.commands.items():
+                # Skip commands already covered in general commands
+                if any(
+                    cmd_name.lower() == gc.lower()
+                    for gc in sum(general_commands.values(), [])
+                ):
+                    continue
+
+                # Get category name
+                if hasattr(cmd_obj, 'source_module') and cmd_obj.source_module:
+                    category_name = cmd_obj.source_module.replace(
+                        '_', ' '
+                    ).title()
+                    if category_name.endswith(" Commands"):
+                        category_name = category_name[:-9]
+                else:
+                    category_name = "Other"
+
+                categories.append(category_name)
+
+                if category_name not in cmd_groups:
+                    cmd_groups[category_name] = []
+                cmd_groups[category_name].append(cmd_name)
+
+        return categories, cmd_groups
+
+    # Process adapter commands once
+    ds_categories, command_groups = process_adapter_commands(
+        adapter, general_commands
+    )
 
     # Find longest category name across both high-level and device-specific
     # commands
-    all_categories = list(general_commands.keys()) + device_specific_categories
+    all_categories = list(general_commands.keys()) + ds_categories
     max_category_length = (
         max(len(name) for name in all_categories) if all_categories else 0
     )
 
     # Display high-level commands using the grid format with aligned colons
-    print(
-        """
-================================================================================
-||                              Universal Commands                            ||
-================================================================================
-          """
-    )
+    print("\nHigh-Level Commands:")
     cols_hl = 3  # Fewer columns for longer command names
 
     for category, cmds in general_commands.items():
@@ -213,46 +229,8 @@ def show_help(COMMANDS, COMMAND_HELP, command="", adapter=None):
             print()  # End line for category
 
     # 2. Device-specific commands from command libraries
-    if adapter and hasattr(adapter, "commands"):
-        print(
-            """
-================================================================================
-||                          Device Specific Commands                          ||
-================================================================================
-              """
-        )
-        # Get all commands from the adapter
-        all_commands = adapter.commands
-
-        # Dynamically discover command categories
-        command_groups = {}
-        for cmd_name, cmd_obj in all_commands.items():
-            # Skip commands already covered in general commands
-            if any(
-                cmd_name.lower() == gc.lower()
-                for gc in sum(general_commands.values(), [])
-            ):
-                continue
-
-            # Get category name
-            if hasattr(cmd_obj, 'source_module') and cmd_obj.source_module:
-                category_name = cmd_obj.source_module.replace('_', ' ').title()
-                if category_name.endswith(" Commands"):
-                    category_name = category_name[:-9]
-            else:
-                category_name = "Other"
-
-            if category_name not in command_groups:
-                command_groups[category_name] = []
-            command_groups[category_name].append(cmd_name)
-
-        # Find the longest category name for proper alignment
-        if command_groups:
-            max_category_length = max(
-                len(name) for name in command_groups.keys()
-            )
-        else:
-            max_category_length = 0
+    if command_groups:
+        print("\nDevice-Specific Commands:")
 
         # Display each category with aligned colons and consistent command
         # spacing
@@ -261,7 +239,8 @@ def show_help(COMMANDS, COMMAND_HELP, command="", adapter=None):
         for category_name in sorted(command_groups.keys()):
             commands = sorted(command_groups[category_name])
             if commands:
-                # Print the category name with aligned colons
+                # Print the category name with aligned colons using global max
+                # length
                 print(f"{category_name:{max_category_length}}: ", end="")
 
                 # Calculate indentation for wrapped lines
