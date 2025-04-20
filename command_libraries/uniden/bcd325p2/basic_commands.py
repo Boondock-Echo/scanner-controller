@@ -1,5 +1,8 @@
 """
 Basic scanner commands for the BCD325P2.
+
+Basic commands include settings for backlight, battery save, contrast,
+key beep, volume, squelch, power off, key press, and opening message.
 """
 
 from utilities.core.shared_utils import scanner_command
@@ -184,4 +187,7 @@ BASIC_COMMANDS = {
         """,
     ),
 }
-# KBP, BLT, BSV, CNT, VOL, SQL, POF, KEY, OMS
+
+# Set source module for each command
+for cmd in BASIC_COMMANDS.values():
+    cmd.source_module = "BASIC_COMMANDS"

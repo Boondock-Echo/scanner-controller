@@ -1,7 +1,10 @@
 """
 Command registry module.
 
-Provides functionality for building command tables.
+Provides functionality for building command tables. These commands are used to
+interact with the scanner adapter and perform various operations.
+This module is designed to be used with a scanner adapter and a serial
+connection object.
 """
 
 
@@ -16,25 +19,26 @@ def build_command_table(adapter, ser):
     Returns:
         Dictionary mapping command names to handler functions
     """
+    # Primary commands use get/set
     COMMANDS = {
         # Volume
-        "read volume": lambda: adapter.readVolume(ser),
-        "write volume": lambda arg: adapter.writeVolume(ser, float(arg)),
+        "get volume": lambda: adapter.readVolume(ser),
+        "set volume": lambda arg: adapter.writeVolume(ser, float(arg)),
         # Squelch
-        "read squelch": lambda: adapter.readSquelch(ser),
-        "write squelch": lambda arg: adapter.writeSquelch(ser, float(arg)),
+        "get squelch": lambda: adapter.readSquelch(ser),
+        "set squelch": lambda arg: adapter.writeSquelch(ser, float(arg)),
         # Frequency
-        "read frequency": lambda: adapter.readFrequency(ser),
-        "write frequency": lambda arg: adapter.writeFrequency(ser, float(arg)),
+        "get frequency": lambda: adapter.readFrequency(ser),
+        "set frequency": lambda arg: adapter.writeFrequency(ser, float(arg)),
         # Status
-        "read rssi": lambda: adapter.readRSSI(ser),
-        "read smeter": lambda: adapter.readSMeter(ser),
-        "read battery": lambda: adapter.readBatteryVoltage(ser),
-        "read window": lambda: adapter.readWindowVoltage(ser),
-        "read status": lambda: adapter.readStatus(ser),
+        "get rssi": lambda: adapter.readRSSI(ser),
+        "get smeter": lambda: adapter.readSMeter(ser),
+        "get battery": lambda: adapter.readBatteryVoltage(ser),
+        "get window": lambda: adapter.readWindowVoltage(ser),
+        "get status": lambda: adapter.readStatus(ser),
         # Device Info
-        "read model": lambda: adapter.readModel(ser),
-        "read version": lambda: adapter.readSWVer(ser),
+        "get model": lambda: adapter.readModel(ser),
+        "get version": lambda: adapter.readSWVer(ser),
         # Key Simulation
         "send key": lambda arg: adapter.sendKey(ser, arg),
         # Raw Command
@@ -46,10 +50,10 @@ def build_command_table(adapter, ser):
         # Dump Memory to File
         "dump memory": lambda: adapter.dumpMemoryToFile(ser),
         # Read Global Lockouts
-        "read lockout": lambda: adapter.readGlobalLockout(ser),
+        "get lockout": lambda: adapter.readGlobalLockout(ser),
         # Channel I/O
-        "read channel": lambda arg: adapter.readChannelInfo(ser, int(arg)),
-        "write channel": lambda arg: (
+        "get channel": lambda arg: adapter.readChannelInfo(ser, int(arg)),
+        "set channel": lambda arg: (
             lambda args: adapter.writeChannelInfo(
                 ser,
                 int(args[0]),  # index
@@ -65,38 +69,57 @@ def build_command_table(adapter, ser):
         # Help gets added in main.py after this table is built
     }
 
+    # Add backwards compatibility aliases for read/write
+    for cmd, handler in list(COMMANDS.items()):
+        if cmd.startswith("get "):
+            COMMANDS["read " + cmd[4:]] = handler
+        elif cmd.startswith("set "):
+            COMMANDS["write " + cmd[4:]] = handler
+
     COMMAND_HELP = {
-        "read volume": "Reads the current Volume level.",
-        "write volume": "Sets volume level (0-1.0). Usage: write volume 0.75",
-        "read squelch": "Reads the squelch level.",
-        "write squelch": "Sets squelch (0-1.0). Usage: write squelch 0.5",
-        "read frequency": (
+        "get volume": "Reads the current Volume level.",
+        "set volume": "Sets volume level (0-1.0). Usage: set volume 0.75",
+        "get squelch": "Reads the squelch level.",
+        "set squelch": "Sets squelch (0-1.0). Usage: set squelch 0.5",
+        "get frequency": (
             "Reads the currently tuned frequency (if supported)."
-            "Usage: read frequency"
+            "Usage: get frequency"
             " (e.g., 162.550)"
         ),
-        "write frequency": (
-            "Sets the frequency (MHz). Usage: write frequency " "162.550"
+        "set frequency": (
+            "Sets the frequency (MHz). Usage: set frequency " "162.550"
         ),
-        "read rssi": "Reads the signal strength (RSSI).",
-        "read smeter": "Reads the S-meter value.",
-        "read battery": "Returns the battery voltage (V).",
-        "read window": "Returns the window voltage and frequency.",
-        "read status": "Returns full scanner display state and flags.",
-        "read model": "Returns the scanner model.",
-        "read version": "Returns the firmware version.",
+        "get rssi": "Reads the signal strength (RSSI).",
+        "get smeter": "Reads the S-meter value.",
+        "get battery": "Returns the battery voltage (V).",
+        "get window": "Returns the window voltage and frequency.",
+        "get status": "Returns full scanner display state and flags.",
+        "get model": "Returns the scanner model.",
+        "get version": "Returns the firmware version.",
         "send key": "Simulates keypad input. Usage: send key 123E",
         "send": "Sends a raw command. Usage: send PWR",
         "hold frequency": (
             "Enters a frequency hold mode. Usage: hold frequency " "851.0125"
         ),
         "dump memory": "Reads all memory entries via CIN and saves to file.",
-        "read lockout": "Lists global lockout frequencies.",
-        "read channel": "Reads a channel by index. Usage: read channel 5",
-        "write channel": (
-            "Writes channel info. Usage: write channel "
+        "get lockout": "Lists global lockout frequencies.",
+        "get channel": "Reads a channel by index. Usage: get channel 5",
+        "set channel": (
+            "Writes channel info. Usage: set channel "
             "index,name,freq_khz,mod,ctcss,delay,lockout,priority\n"
-            "Example: write channel 5,CH5,4625625,FM,100,2,0,1"
+            "Example: set channel 5,CH5,4625625,FM,100,2,0,1"
         ),
     }
+
+    # Add backwards compatibility help entries
+    for cmd, help_text in list(COMMAND_HELP.items()):
+        if cmd.startswith("get "):
+            COMMAND_HELP["read " + cmd[4:]] = (
+                help_text + "\n(Alias: " + cmd + ")"
+            )
+        elif cmd.startswith("set "):
+            COMMAND_HELP["write " + cmd[4:]] = (
+                help_text + "\n(Alias: " + cmd + ")"
+            )
+
     return COMMANDS, COMMAND_HELP

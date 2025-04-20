@@ -40,3 +40,7 @@ PROGRAMMING_CONTROL_COMMANDS = {
         """,
     ),
 }
+
+# Set source module for each command
+for cmd in PROGRAMMING_CONTROL_COMMANDS.values():
+    cmd.source_module = "PROGRAMMING_CONTROL_COMMANDS"

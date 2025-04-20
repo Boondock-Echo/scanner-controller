@@ -163,3 +163,7 @@ SCANNER_CONFIGURATION_COMMANDS = {
         """,
     ),
 }
+
+# Set source module for each command
+for cmd in SCANNER_CONFIGURATION_COMMANDS.values():
+    cmd.source_module = "SCANNER_CONFIGURATION_COMMANDS"

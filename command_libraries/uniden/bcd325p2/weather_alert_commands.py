@@ -101,3 +101,7 @@ WEATHER_ALERT_COMMANDS = {
         """,
     ),
 }
+
+# Set source module for each command
+for cmd in WEATHER_ALERT_COMMANDS.values():
+    cmd.source_module = "WEATHER_ALERT_COMMANDS"

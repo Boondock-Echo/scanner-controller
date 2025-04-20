@@ -8,7 +8,7 @@ This module provides functionality related to bcd325p2 adapter.
 # Standard library imports
 import sys
 
-# Application imports
+# Application importsex
 from adapters.uniden.uniden_base_adapter import UnidenScannerAdapter
 
 # Import commands directly from the decoupled module
@@ -53,6 +53,8 @@ class BCD325P2Adapter(UnidenScannerAdapter):
         # Set the scanner model identifier to ensure compatibility
         # with parent class methods
         self.machine_mode_id = "BCD325P2"
+        # Make sure all commands are accessible by the help system
+        self.commands = commands
 
     def feedback(self, success, message):
         """Format feedback based on machine_mode setting."""

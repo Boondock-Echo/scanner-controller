@@ -57,104 +57,108 @@ def show_help(COMMANDS, COMMAND_HELP, command="", adapter=None):
         COMMAND_HELP (dict): Dictionary of help texts for commands.
         command (str): Specific command to display help for.
         adapter (object): Scanner adapter instance.
-    Display help information for commands.
-
-    This function displays help for a given command. If no command is given,
-    it lists available commands. It attempts to fetch help from the
-    device-specific command library if connected to a scanner and help is not
-    found elsewhere.
-
-    Args:
-        COMMANDS (dict): Dictionary mapping command names to handler functions.
-        COMMAND_HELP (dict): Dictionary mapping command names to help strings.
-        command (str, optional): The command to show help for. Defaults to "".
-        adapter (object, optional): The scanner adapter. Defaults to None.
     """
-    # Display general help if no command is provided
-    # Display help for a specific command if provided
-    if not command:
-        categories = {
-            "Reading Information": [
-                "read",
-                "status",
-                "rssi",
-                "freq",
-                "squelch",
-            ],
-            "Controlling Scanner": ["write", "hold", "keys"],
-            "Programming": ["channel", "prg", "epg", "dump", "lockouts"],
-            "Other": ["send", "help"],
-        }
-
-        print("\nAvailable commands:")
-        available_cmds = sorted(COMMANDS.keys())
-
-        for category, prefixes in categories.items():
-            matching_cmds = []
-            for prefix in prefixes:
-                matching_cmds.extend(
-                    [cmd for cmd in available_cmds if cmd.startswith(prefix)]
-                )
-
-            if matching_cmds:
-                print(f"\n{category}:")
-                for cmd in sorted(matching_cmds):
-                    print(f"  - {cmd}")
-
-        all_categorized = set()
-        for prefixes in categories.values():
-            for prefix in prefixes:
-                all_categorized.update(
-                    [cmd for cmd in available_cmds if cmd.startswith(prefix)]
-                )
-
-        remaining = set(available_cmds) - all_categorized
-        if remaining:
-            print("\nMiscellaneous:")
-            for cmd in sorted(remaining):
-                print(f"  - {cmd}")
-
-        print("\nType 'help <command>' for details about a specific command.")
-        for cmd in sorted(COMMANDS):
-            print(f"  - {cmd}")
-        print("\nType 'help <command>' for details.")
-        return
-
     # Display help for a specific command
-    # If the command is in COMMAND_HELP, print the help message
-    # If the command is not in COMMAND_HELP, attempt to fetch device-specific
-    # help via adapter.getHelp("CMD")
-    # If no help is found, print "No help found for '{command}'."
-    # If an error occurs while fetching device-specific help, print
-    # "[Error fetching device-specific help]: {e}".
+    if command:
+        cmd = command.strip().lower()
+        if cmd in COMMAND_HELP:
+            print(f"\nHelp for '{cmd}':\n  {COMMAND_HELP[cmd]}")
 
-    cmd = command.strip().lower()
-    if cmd in COMMAND_HELP:
-        print(f"\nHelp for '{cmd}':\n  {COMMAND_HELP[cmd]}")
+            extended_help = get_extended_help(cmd)
+            if extended_help:
+                print(f"\n{extended_help}")
 
-        extended_help = get_extended_help(cmd)
-        if extended_help:
-            print(f"\n{extended_help}")
+            return
 
+        if adapter and hasattr(adapter, "get_help"):
+            try:
+                specific_help = adapter.get_help(command.upper())
+                if specific_help:
+                    print(
+                        f"\n[{adapter.__class__.__name__}] help for"
+                        f" '{command.upper()}':\n  {specific_help}"
+                    )
+                    return
+            except Exception as e:
+                print(f"[Error fetching device-specific help]: {e}")
+
+        print(f"No help found for '{command}'.")
         return
 
-    if adapter and hasattr(adapter, "get_help"):
-        try:
-            specific_help = adapter.get_help(command.upper())
-            if specific_help:
-                print(
-                    f"\n[{adapter.__class__.__name__}] help for"
-                    f" '{command.upper()}':\n  {specific_help}"
-                )
-                print(
-                    f"\n[{adapter.__class__.__name__}] help for "
-                    f"'{command.upper()}':\n  {specific_help}"
-                )
-                return
-        except Exception as e:
-            print(f"[Error fetching device-specific help]: {e}")
+    # Display general help (no specific command provided)
+    print("\nAvailable Commands:")
+    print("=================")
 
-    print(f"No help found for '{command}'.")
+    # 1. General scanner commands (from adapter)
+    # Update to use get/set as primary command categories
+    general_commands = {
+        "Get Commands": [
+            cmd for cmd in sorted(COMMANDS) if cmd.startswith("get ")
+        ],
+        "Set Commands": [
+            cmd for cmd in sorted(COMMANDS) if cmd.startswith("set ")
+        ],
+        "Controlling Scanner": [
+            cmd
+            for cmd in sorted(COMMANDS)
+            if cmd.startswith(("hold ", "send ", "dump "))
+        ],
+        "Other": ["help", "exit"],
+    }
+
+    for category, cmds in general_commands.items():
+        if cmds:
+            print(f"\n{category}:")
+            # Format in columns (3 columns)
+            for i in range(0, len(cmds), 3):
+                row = cmds[i : i + 3]
+                print("  " + "  ".join(f"{cmd:<20}" for cmd in row))
+
+    # 2. Device-specific commands from command libraries
+    if adapter and hasattr(adapter, "commands"):
+        print("\nDevice-Specific Commands:")
+        print("=======================")
+
+        # Get all commands from the adapter
+        all_commands = adapter.commands
+
+        # Dynamically discover command categories
+        command_groups = {}
+        for cmd_name, cmd_obj in all_commands.items():
+            # Skip commands that are already covered in the general commands
+            if any(
+                cmd_name.lower() == gc.lower()
+                for gc in sum(general_commands.values(), [])
+            ):
+                continue
+
+            # Get the source module if available, or use "Other Commands"
+            if hasattr(cmd_obj, 'source_module') and cmd_obj.source_module:
+                # Format the category name more nicely
+                category_name = cmd_obj.source_module.replace('_', ' ').title()
+                # Remove "Commands" if it appears at the end to avoid redundancy
+                if category_name.endswith(" Commands"):
+                    category_name = category_name[:-9]
+            else:
+                category_name = "Other Commands"
+
+            # Add command to its category
+            if category_name not in command_groups:
+                command_groups[category_name] = []
+            command_groups[category_name].append(cmd_name)
+
+        # Display commands by category
+        for category_name in sorted(command_groups.keys()):
+            commands = sorted(command_groups[category_name])
+            if commands:
+                print(f"\n{category_name}:")
+                # Format in columns (5 columns for these shorter commands)
+                for i in range(0, len(commands), 5):
+                    row = commands[i : i + 5]
+                    print("  " + "  ".join(f"{cmd:<8}" for cmd in row))
+
+    print("\nType 'help <command>' for details about a specific command.")
+    print("Example: 'help get frequency' or 'help CNT'")
 
 
 # ------------------------------------------------------------------------------
@@ -172,26 +176,19 @@ def parse_command(input_str, COMMANDS):
 
     Returns:
         tuple: Parsed command and arguments.
-    Parse user input into a command and its arguments.
 
-    Supports aliases like 'get' → 'read' and 'set' → 'write'.
+    Supports aliases: 'read' → 'get' and 'write' → 'set'.
     Attempts to match the longest prefix first (up to 3 words).
-
-    Args:
-        input_str (str): The raw user input string.
-        COMMANDS (dict): Dictionary of available commands.
-
-    Returns:
-        tuple: A tuple of (command, arguments).
     """
     parts = input_str.strip().split()
     if not parts:
         return "", ""
 
-    if parts[0].lower() == "get":
-        parts[0] = "read"
-    elif parts[0].lower() == "set":
-        parts[0] = "write"
+    # Convert legacy read/write commands to get/set
+    if parts[0].lower() == "read":
+        parts[0] = "get"
+    elif parts[0].lower() == "write":
+        parts[0] = "set"
 
     for i in range(min(3, len(parts)), 0, -1):
         candidate = " ".join(parts[:i]).lower()
@@ -255,11 +252,6 @@ def main_loop(adapter, ser, COMMANDS, COMMAND_HELP, machine_mode=False):
                         print(
                             "OK"
                             if not formatted_result.lower().startswith("error")
-                            else "ERROR"
-                        )
-                        print(
-                            "OK"
-                            if not str(result).lower().startswith("error")
                             else "ERROR"
                         )
                     else:
@@ -381,27 +373,22 @@ def main():
         print(f"  {scannerPortIndex}. {port} — {model}")
 
     try:
-        if scannerPortIndex == 1:
-            selection = 1
+        if len(detected) == 1:
+            selection = 1  # Auto-select if only one scanner is found
         else:
-            selection = int(
-                input(
-                    "\nSelect a scanner to connect to (enter number or "
-                    "0 to exit): "
+            try:
+                selection = int(
+                    input(
+                        "\nSelect a scanner to connect to"
+                        "(enter number or 0 to exit): "
+                    )
                 )
-            )
-        if selection == 0:
-            selection = 1  # only one scanner found, auto-select
-        else:  # multiple scanners found, prompt user to select
-            selection = int(
-                input(
-                    "\nSelect a scanner to connect to "
-                    "(enter number or 0 to exit): "
-                )
-            )
-        if selection == 0:  # 0 to exit
-            print("Exiting.")
-            return
+                if selection == 0:  # Exit if user selects 0
+                    print("Exiting.")
+                    return
+            except ValueError:
+                print("Invalid input. Exiting.")
+                return
         if 1 <= selection <= len(detected):
             port, scanner_model = detected[selection - 1]
         else:

@@ -207,3 +207,7 @@ CHANNEL_GROUP_COMMANDS = {
         """,
     ),
 }
+
+# Set source module for each command
+for cmd in CHANNEL_GROUP_COMMANDS.values():
+    cmd.source_module = "CHANNEL_GROUP_COMMANDS"
