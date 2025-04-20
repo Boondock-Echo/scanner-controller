@@ -1,13 +1,15 @@
 {
   "CodeGPT.apiKey": "CodeGPT Plus",
   "editor.formatOnSave": true,
-  "editor.rulers": [80,88],
+  "editor.rulers": [80, 88],
   "python.formatting.provider": "black",
   "python.sortImports.args": ["--profile", "black"],
   "isort.args": ["--profile", "black"],
   "[python]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "ms-python.python",
     "editor.codeActionsOnSave": {
-      "source.organizeImports": "never"
+      "source.organizeImports": true
     }
   },
   "python.linting.enabled": true,
@@ -23,9 +25,10 @@
     "**/site-packages/**",
     "venv/**"
   ],
-  "python.pythonPath": ".\\.venv\\Scripts\\python.exe",
   "python.testing.pytestPath": ".\\.venv\\Scripts\\pytest.exe",
-  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+  "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+  "python.interpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+  "python.analysis.extraPaths": ["${workspaceFolder}"],
   "python.terminal.activateEnvironment": true,
   "terminal.integrated.defaultProfile.windows": "Command Prompt"
 }

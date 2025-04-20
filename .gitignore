@@ -259,3 +259,5 @@ memorydump.txt
 
 # LLM configuration (contains API keys)
 llm_config.json
+.gitignore
+.vscode/settings.json
