@@ -86,79 +86,208 @@ def show_help(COMMANDS, COMMAND_HELP, command="", adapter=None):
         return
 
     # Display general help (no specific command provided)
-    print("\nAvailable Commands:")
-    print("=================")
+
+    print(
+        """
+    ██   ██ ███████ ██      ██████      ███    ███ ███████ ███    ██ ██    ██
+    ██   ██ ██      ██      ██   ██     ████  ████ ██      ████   ██ ██    ██
+    ███████ █████   ██      ██████      ██ ████ ██ █████   ██ ██  ██ ██    ██
+    ██   ██ ██      ██      ██          ██  ██  ██ ██      ██  ██ ██ ██    ██
+    ██   ██ ███████ ███████ ██          ██      ██ ███████ ██   ████  ██████
+          """
+    )
 
     # 1. General scanner commands (from adapter)
-    # Update to use get/set as primary command categories
-    general_commands = {
+    # Define standard high-level commands that should be available
+    standard_commands = {
         "Get Commands": [
-            cmd for cmd in sorted(COMMANDS) if cmd.startswith("get ")
+            "get frequency",
+            "get volume",
+            "get squelch",
+            "get mode",
+            "get status",
+            "get channel",
+            "get system",
+            "get backlight",
+            "get battery",
         ],
         "Set Commands": [
-            cmd for cmd in sorted(COMMANDS) if cmd.startswith("set ")
+            "set frequency",
+            "set volume",
+            "set squelch",
+            "set mode",
+            "set backlight",
+            "set contrast",
         ],
         "Controlling Scanner": [
-            cmd
-            for cmd in sorted(COMMANDS)
-            if cmd.startswith(("hold ", "send ", "dump "))
+            "hold frequency",
+            "send key",
+            "dump memory",
+            "scan start",
+            "scan stop",
         ],
         "Other": ["help", "exit"],
     }
 
-    for category, cmds in general_commands.items():
-        if cmds:
-            print(f"\n{category}:")
-            # Format in columns (3 columns)
-            for i in range(0, len(cmds), 3):
-                row = cmds[i : i + 3]
-                print("  " + "  ".join(f"{cmd:<20}" for cmd in row))
+    # Check if any high-level commands exist in COMMANDS
+    has_high_level_commands = any(
+        cmd.startswith(("get ", "set ", "hold ", "send ", "dump "))
+        for cmd in COMMANDS
+    )
 
-    # 2. Device-specific commands from command libraries
+    # Use compact display format for both high-level and device-specific
+    # commands
+    if has_high_level_commands:
+        general_commands = {
+            "Get Commands": [
+                cmd for cmd in sorted(COMMANDS) if cmd.startswith("get ")
+            ],
+            "Set Commands": [
+                cmd for cmd in sorted(COMMANDS) if cmd.startswith("set ")
+            ],
+            "Controlling Scanner": [
+                cmd
+                for cmd in sorted(COMMANDS)
+                if cmd.startswith(("hold ", "send ", "dump "))
+            ],
+            "Other": ["help", "exit"],
+        }
+    else:
+        general_commands = standard_commands
+
+    # 2. Get device-specific command categories for alignment calculation
+    ds_categories = []
     if adapter and hasattr(adapter, "commands"):
-        print("\nDevice-Specific Commands:")
-        print("=======================")
-
-        # Get all commands from the adapter
         all_commands = adapter.commands
-
-        # Dynamically discover command categories
         command_groups = {}
+
         for cmd_name, cmd_obj in all_commands.items():
-            # Skip commands that are already covered in the general commands
+            # Skip commands already covered in general commands
             if any(
                 cmd_name.lower() == gc.lower()
                 for gc in sum(general_commands.values(), [])
             ):
                 continue
 
-            # Get the source module if available, or use "Other Commands"
+            # Get category name
             if hasattr(cmd_obj, 'source_module') and cmd_obj.source_module:
-                # Format the category name more nicely
                 category_name = cmd_obj.source_module.replace('_', ' ').title()
-                # Remove "Commands" if it appears at the end to avoid redundancy
                 if category_name.endswith(" Commands"):
                     category_name = category_name[:-9]
             else:
-                category_name = "Other Commands"
+                category_name = "Other"
 
-            # Add command to its category
+            ds_categories.append(category_name)
+
             if category_name not in command_groups:
                 command_groups[category_name] = []
             command_groups[category_name].append(cmd_name)
 
-        # Display commands by category
+    # Find longest category name across both high-level and device-specific
+    # commands
+    all_categories = list(general_commands.keys()) + ds_categories
+    max_category_length = (
+        max(len(name) for name in all_categories) if all_categories else 0
+    )
+
+    # Display high-level commands using the grid format with aligned colons
+    print(
+        """
+╔══════════════════════════╗
+║ Device Specific Commands ║
+╚══════════════════════════╝
+          """
+    )
+    cols_hl = 3  # Fewer columns for longer command names
+
+    for category, cmds in general_commands.items():
+        if cmds:
+            # Print category name with aligned colon - using the global max
+            # length
+            print(f"{category:{max_category_length}}: ", end="")
+
+            # Calculate indentation for wrapped lines
+            indent = max_category_length + 2  # category length + colon + space
+
+            # Print commands in a grid with appropriate spacing
+            for i, cmd in enumerate(sorted(cmds)):
+                # High-level commands are longer, so give them more space
+                print(f"{cmd:<15}", end="  ")
+
+                # Add newline and indentation for wrapped lines
+                if (i + 1) % cols_hl == 0 and i < len(cmds) - 1:
+                    print("\n" + " " * indent, end="")
+            print()  # End line for category
+
+    # 2. Device-specific commands from command libraries
+    if adapter and hasattr(adapter, "commands"):
+        print(
+            """
+╔══════════════════════════╗
+║ Device Specific Commands ║
+╚══════════════════════════╝
+              """
+        )
+        # Get all commands from the adapter
+        all_commands = adapter.commands
+
+        # Dynamically discover command categories
+        command_groups = {}
+        for cmd_name, cmd_obj in all_commands.items():
+            # Skip commands already covered in general commands
+            if any(
+                cmd_name.lower() == gc.lower()
+                for gc in sum(general_commands.values(), [])
+            ):
+                continue
+
+            # Get category name
+            if hasattr(cmd_obj, 'source_module') and cmd_obj.source_module:
+                category_name = cmd_obj.source_module.replace('_', ' ').title()
+                if category_name.endswith(" Commands"):
+                    category_name = category_name[:-9]
+            else:
+                category_name = "Other"
+
+            if category_name not in command_groups:
+                command_groups[category_name] = []
+            command_groups[category_name].append(cmd_name)
+
+        # Find the longest category name for proper alignment
+        if command_groups:
+            max_category_length = max(
+                len(name) for name in command_groups.keys()
+            )
+        else:
+            max_category_length = 0
+
+        # Display each category with aligned colons and consistent command
+        # spacing
+        cols = 5  # Number of columns in the grid
+
         for category_name in sorted(command_groups.keys()):
             commands = sorted(command_groups[category_name])
             if commands:
-                print(f"\n{category_name}:")
-                # Format in columns (5 columns for these shorter commands)
-                for i in range(0, len(commands), 5):
-                    row = commands[i : i + 5]
-                    print("  " + "  ".join(f"{cmd:<8}" for cmd in row))
+                # Print the category name with aligned colons
+                print(f"{category_name:{max_category_length}}: ", end="")
+
+                # Calculate indentation for wrapped lines
+                indent = (
+                    max_category_length + 2
+                )  # category length + colon + space
+
+                # Print commands with consistent spacing
+                for i, cmd in enumerate(commands):
+                    print(
+                        f"{cmd:4}", end="  "
+                    )  # 4 chars for command + 2 spaces
+
+                    # Add newline and indentation for wrapped lines
+                    if (i + 1) % cols == 0 and i < len(commands) - 1:
+                        print("\n" + " " * indent, end="")
+                print()  # End line for category
 
     print("\nType 'help <command>' for details about a specific command.")
-    print("Example: 'help get frequency' or 'help CNT'")
 
 
 # ------------------------------------------------------------------------------
