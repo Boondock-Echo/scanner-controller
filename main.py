@@ -36,13 +36,6 @@ logger = configure_logging(level=logging.DEBUG)
 # SUPPORTED SCANNER ADAPTERS
 # ------------------------------------------------------------------------------
 
-# Maps scanner model names to their respective adapter instances
-# Using scanner_factory instead of direct imports
-adapter_scanner = {
-    "BC125AT": get_scanner_adapter("BC125AT"),
-    "BCD325P2": get_scanner_adapter("BCD325P2"),
-}
-
 # ------------------------------------------------------------------------------
 # HELP COMMAND
 # ------------------------------------------------------------------------------
@@ -156,7 +149,7 @@ def show_help(COMMANDS, COMMAND_HELP, command="", adapter=None):
         general_commands = standard_commands
 
     # 2. Get device-specific command categories for alignment calculation
-    ds_categories = []
+    device_specific_categories = []
     if adapter and hasattr(adapter, "commands"):
         all_commands = adapter.commands
         command_groups = {}
@@ -177,7 +170,7 @@ def show_help(COMMANDS, COMMAND_HELP, command="", adapter=None):
             else:
                 category_name = "Other"
 
-            ds_categories.append(category_name)
+            device_specific_categories.append(category_name)
 
             if category_name not in command_groups:
                 command_groups[category_name] = []
@@ -185,7 +178,7 @@ def show_help(COMMANDS, COMMAND_HELP, command="", adapter=None):
 
     # Find longest category name across both high-level and device-specific
     # commands
-    all_categories = list(general_commands.keys()) + ds_categories
+    all_categories = list(general_commands.keys()) + device_specific_categories
     max_category_length = (
         max(len(name) for name in all_categories) if all_categories else 0
     )
@@ -193,9 +186,9 @@ def show_help(COMMANDS, COMMAND_HELP, command="", adapter=None):
     # Display high-level commands using the grid format with aligned colons
     print(
         """
-╔══════════════════════════╗
-║ Device Specific Commands ║
-╚══════════════════════════╝
+================================================================================
+||                              Universal Commands                            ||
+================================================================================
           """
     )
     cols_hl = 3  # Fewer columns for longer command names
@@ -223,9 +216,9 @@ def show_help(COMMANDS, COMMAND_HELP, command="", adapter=None):
     if adapter and hasattr(adapter, "commands"):
         print(
             """
-╔══════════════════════════╗
-║ Device Specific Commands ║
-╚══════════════════════════╝
+================================================================================
+||                          Device Specific Commands                          ||
+================================================================================
               """
         )
         # Get all commands from the adapter
@@ -396,7 +389,7 @@ def main_loop(adapter, ser, COMMANDS, COMMAND_HELP, machine_mode=False):
 # ------------------------------------------------------------------------------
 # MAIN ENTRY POINT
 # ------------------------------------------------------------------------------
-class TimeoutError(Exception):
+class ScannerTimeoutError(Exception):
     """Exception raised when an operation times out."""
 
     pass
@@ -434,7 +427,7 @@ def with_timeout(timeout_seconds, default_result=None):
 
             if thread.is_alive():
                 if default_result is None:
-                    raise TimeoutError(
+                    raise ScannerTimeoutError(
                         f"Operation timed out after {timeout_seconds} seconds"
                     )
                 return default_result
@@ -554,7 +547,7 @@ def main():
 
                 main_loop(adapter, ser, COMMANDS, COMMAND_HELP, machine_mode)
 
-            except TimeoutError:
+            except ScannerTimeoutError:
                 print(
                     "Timeout while initializing scanner adapter. Scanner"
                     " may be unresponsive."
