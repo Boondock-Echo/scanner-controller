@@ -38,7 +38,7 @@ TRUNKING_COMMANDS = {
                 (int, (0, 16)),  # fmap (0-16, 0-15:Preset, 16:Custom)
                 (
                     str,
-                    lambda x: all(c in "0123456789ABCDE" for c in x)
+                    lambda x: all(c in "0123456789ABCDEF" for c in x)
                     and len(x) == 8,
                 ),  # ctm_fmap
                 (str, None),  # rsv3

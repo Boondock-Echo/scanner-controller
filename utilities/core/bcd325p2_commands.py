@@ -70,7 +70,15 @@ for module_name, module_dict in {
         cmd.source_module = module_name
         # Make sure command name exists for lookup
         if not hasattr(cmd, 'name'):
-            cmd.name = next(k for k, v in module_dict.items() if v is cmd)
+            cmd.name = next(
+                (k for k, v in module_dict.items() if v is cmd), None
+            )
+            if cmd.name is None:
+                # Log an error or handle the missing key appropriately
+                raise ValueError(
+                    f"Command object {cmd} in module {module_name}"
+                    "is missing a name."
+                )
 
 
 def getHelp(command):

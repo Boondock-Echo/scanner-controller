@@ -373,27 +373,22 @@ def main():
         print(f"  {scannerPortIndex}. {port} — {model}")
 
     try:
-        if scannerPortIndex == 1:
-            selection = 1
+        if len(detected) == 1:
+            selection = 1  # Auto-select if only one scanner is found
         else:
-            selection = int(
-                input(
-                    "\nSelect a scanner to connect to (enter number or "
-                    "0 to exit): "
+            try:
+                selection = int(
+                    input(
+                        "\nSelect a scanner to connect to"
+                        "(enter number or 0 to exit): "
+                    )
                 )
-            )
-        if selection == 0:
-            selection = 1  # only one scanner found, auto-select
-        else:  # multiple scanners found, prompt user to select
-            selection = int(
-                input(
-                    "\nSelect a scanner to connect to "
-                    "(enter number or 0 to exit): "
-                )
-            )
-        if selection == 0:  # 0 to exit
-            print("Exiting.")
-            return
+                if selection == 0:  # Exit if user selects 0
+                    print("Exiting.")
+                    return
+            except ValueError:
+                print("Invalid input. Exiting.")
+                return
         if 1 <= selection <= len(detected):
             port, scanner_model = detected[selection - 1]
         else:
