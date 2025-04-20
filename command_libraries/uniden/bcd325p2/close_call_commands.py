@@ -9,7 +9,7 @@ from utilities.validators import (
 )
 
 CLOSE_CALL_COMMANDS = {
-    "BSP": scanner_command(
+    "CLOSE_CALL_BSP": scanner_command(
         name="BSP",
         requires_prg=True,
         set_format="BSP,{freq},{step},{span},{max_hold}",
