@@ -32,62 +32,36 @@ Example:
                 adapter.perform_some_action()
 """
 
-import importlib
 import logging
 
 
-def get_scanner_adapter(scanner_model, machine_mode=False):
-    """Create the appropriate scanner adapter for the given model.
-
-    Factory function to create the appropriate scanner adapter
-    based on the model name.
+def get_scanner_adapter(model, machine_mode=False):
+    """
+    Get the appropriate scanner adapter for the given model.
 
     Args:
-        scanner_model (str): The scanner model name
+        model (str): Scanner model string
         machine_mode (bool): Whether to use machine-friendly output
 
     Returns:
-        An instance of the appropriate scanner adapter
+        object: Scanner adapter instance
     """
-    # Define adapter mapping
-    adapter_mapping = {
-        "BC125AT": {
-            "module": "adapters.uniden.bc125at_adapter",
-            "class": "BC125ATAdapter",
-        },
-        "BCD325P2": {
-            "module": "adapters.uniden.bcd325p2_adapter",
-            "class": "BCD325P2Adapter",
-        },
-        "AOR-DV1": {
-            "module": "adapters.aor.aordv1_adapter",
-            "class": "AORDV1Adapter",
-        },
-        # Add new scanner models here
-    }
+    model = model.upper()
 
-    # Get adapter info
-    adapter_info = adapter_mapping.get(scanner_model)
-    if not adapter_info:
-        logging.error(f"No adapter defined for scanner model: {scanner_model}")
-        return None
-
-    # Dynamically import the module and create the adapter
     try:
-        module = importlib.import_module(adapter_info["module"])
-        adapter_class = getattr(module, adapter_info["class"])
-        return adapter_class(machine_mode=machine_mode)
-    except ImportError as e:
-        logging.error(
-            f"Failed to import adapter module {adapter_info['module']}: {e}"
-        )
-        return None
-    except AttributeError as e:
-        logging.error(
-            f"Failed to find adapter class {adapter_info['class']} "
-            f"in module {adapter_info['module']}: {e}"
-        )
-        return None
+        if "BC125AT" in model:
+            from adapters.uniden.bc125at_adapter import BC125ATAdapter
+
+            logging.info(f"Creating adapter for {model}")
+            return BC125ATAdapter()
+        elif "BCD325P2" in model:
+            from adapters.uniden.bcd325p2_adapter import BCD325P2Adapter
+
+            logging.info(f"Creating adapter for {model}")
+            return BCD325P2Adapter()
+        else:
+            logging.error(f"No adapter available for model: {model}")
+            return None
     except Exception as e:
-        logging.error(f"Error creating adapter for {scanner_model}: {e}")
+        logging.error(f"Error creating adapter for {model}: {str(e)}")
         return None

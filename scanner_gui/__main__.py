@@ -1,10 +1,12 @@
 """
-Entry point for the scanner GUI application.
+Scanner GUI Main Module.
 
-This is the entry point for the scanner GUI application.
+Entry point for running the scanner GUI directly.
 """
 
+# Import the main function directly instead of ScannerGUI
 from .main import main
 
 if __name__ == "__main__":
+    # Call main() directly which handles all GUI initialization
     main()

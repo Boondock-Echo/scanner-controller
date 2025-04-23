@@ -186,7 +186,7 @@ class ScannerGUI(QWidget):
 
     def connectScanner(self, port, model):
         """
-        Set up the connection to the scanner.
+        Scanner connection method.
 
         Connect to the scanner device on the specified port.
         """

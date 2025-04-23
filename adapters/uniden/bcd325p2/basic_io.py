@@ -1,0 +1,165 @@
+"""
+Basic I/O functions for the BCD325P2 scanner.
+
+Contains functions for reading and writing volume and squelch settings.
+"""
+
+import logging
+
+from adapters.uniden.common.core import ensure_str
+
+
+def read_volume(self, ser):
+    """
+    Read the current volume setting from the scanner.
+
+    Args:
+        ser: Serial connection to the scanner
+
+    Returns:
+        int: Volume level (0-15)
+    """
+    try:
+        response = self.send_command(ser, "VOL")
+        if not response:
+            raise ValueError("Failed to read volume. No response from scanner.")
+
+        response_str = ensure_str(response)
+        parts = response_str.split(",")
+        if len(parts) < 2 or parts[0] != "VOL":
+            raise ValueError(f"Invalid volume response: {response_str}")
+
+        volume = int(parts[1])
+        logging.debug(f"Read volume level: {volume}")
+        return volume
+    except Exception as e:
+        logging.error(f"Error in read_volume: {str(e)}")
+        raise ValueError(f"Error reading volume: {str(e)}")
+
+
+def write_volume(self, ser, level):
+    """
+    Set the volume level on the scanner.
+
+    Args:
+        ser: Serial connection to the scanner
+        level (int or float): Volume level (0-15 or normalized 0-1)
+
+    Returns:
+        bool: True if successful
+
+    Raises:
+        ValueError: If volume level is out of range
+    """
+    try:
+        # Try to convert as float first to handle normalized values
+        float_level = float(level)
+        if 0 <= float_level <= 1:
+            # Convert normalized value (0-1) to integer (0-15)
+            level = int(float_level * 15)
+        else:
+            # Try direct integer parsing if not in 0-1 range
+            level = int(level)
+            if not 0 <= level <= 15:
+                raise ValueError(
+                    f"Volume level must be between 0-15, got {level}"
+                )
+    except ValueError:
+        raise ValueError(f"Invalid volume level: {level}")
+
+    response = self.send_command(ser, f"VOL,{level}")
+    response_str = ensure_str(response)
+
+    if not response:
+        raise ValueError("Failed to set volume. No response from scanner.")
+
+    if "OK" not in response_str:
+        raise ValueError(
+            f"Failed to set volume. Unexpected response: {response_str}"
+        )
+
+    logging.debug(f"Set volume to {level}")
+    return True
+
+
+def read_squelch(self, ser):
+    """
+    Read the current squelch setting from the scanner.
+
+    Args:
+        ser: Serial connection to the scanner
+
+    Returns:
+        int: Squelch level (0-15)
+    """
+    try:
+        response = self.send_command(ser, "SQL")
+        logging.debug(
+            f"Raw squelch response: {response!r} (type: {type(response)})"
+        )
+
+        response_str = ensure_str(response)
+        logging.debug(f"Converted response: {response_str!r}")
+
+        parts = response_str.split(",")
+        if len(parts) < 2 or parts[0] != "SQL":
+            raise ValueError(f"Invalid squelch response format: {response_str}")
+
+        try:
+            squelch = int(parts[1])
+            logging.debug(f"Parsed squelch level: {squelch}")
+            return squelch
+        except (ValueError, IndexError):
+            raise ValueError(
+                f"Could not parse squelch level from: {response_str}"
+            )
+
+    except Exception as e:
+        logging.error(f"Error in read_squelch: {str(e)}")
+        raise ValueError(f"Error reading squelch: {str(e)}")
+
+
+def write_squelch(self, ser, level):
+    """
+    Set the squelch level on the scanner.
+
+    Args:
+        ser: Serial connection to the scanner
+        level (int or float): Squelch level (0-15 or normalized 0-1)
+
+    Returns:
+        bool: True if successful
+
+    Raises:
+        ValueError: If squelch level is out of range
+    """
+    try:
+        # Try to convert as float first to handle normalized values
+        float_level = float(level)
+        if 0 <= float_level <= 1:
+            # Convert normalized value (0-1) to integer (0-15)
+            level = int(float_level * 15)
+        else:
+            # Try direct integer parsing if not in 0-1 range
+            level = int(level)
+            if not 0 <= level <= 15:
+                raise ValueError(
+                    f"Squelch level must be between 0-15, got {level}"
+                )
+
+        response = self.send_command(ser, f"SQL,{level}")
+        response_str = ensure_str(response)
+
+        if not response:
+            raise ValueError("Failed to set squelch. No response from scanner.")
+
+        if "OK" not in response_str:
+            raise ValueError(
+                f"Failed to set squelch. Unexpected response: {response_str}"
+            )
+
+        logging.debug(f"Set squelch to {level}")
+        return True
+    except Exception as e:
+        logging.error(f"Error in write_squelch: {str(e)}")
+        raise ValueError(f"Error setting squelch: {str(e)}")

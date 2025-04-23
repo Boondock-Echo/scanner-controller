@@ -36,7 +36,7 @@ def find_scanner_port(baudrate=115200, timeout=0.5):
                     time.sleep(0.2)  # Allow time for the port to settle
                     ser.write("MDL\r\n".encode("utf-8"))
                     response = read_response(ser)
-                    if response == "MDL,BCD325P2":
+                    if response == "MDL,BC125AT" or response == "MDL,BCD325P2":
                         print(f"Scanner found on port {port.device}")
                         return port.device
             except Exception as e:

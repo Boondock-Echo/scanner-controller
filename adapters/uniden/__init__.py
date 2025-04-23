@@ -1,0 +1,1 @@
+"""Uniden scanner adapter modules."""
