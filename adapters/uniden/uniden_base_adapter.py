@@ -21,6 +21,7 @@ class UnidenScannerAdapter(BaseScannerAdapter):
         super().__init__()
         self.machine_mode = machine_mode
         self.commands = commands or {}
+        self.in_program_mode = False
 
     def ensure_bytes(self, data):
         """Convert to bytes if not already bytes."""
@@ -47,22 +48,26 @@ class UnidenScannerAdapter(BaseScannerAdapter):
     def send_command(self, ser, cmd):
         """Send a command to the scanner and get the response."""
         try:
-            from utilities.core.scanner_utils import send_command
+            from utilities.core.scanner_utils import (
+                send_command as utils_send_command,
+            )
 
-            # Ensure command is a string before passing to underlying function
+            # Ensure command is a string
             if isinstance(cmd, bytes):
-                cmd = cmd.decode("ascii", errors="replace")
+                cmd_str = cmd.decode("ascii", errors="replace")
+            else:
+                cmd_str = str(cmd)
 
-            # Get the response (typically bytes)
-            response = send_command(ser, cmd)
+            # Get the response using the utility function
+            response = utils_send_command(ser, cmd_str)
 
             # Log the command and response
             logging.debug(
-                f"Command: {cmd}, Response type: {type(response)}, "
+                f"Command: {cmd_str}, Response type: {type(response)}, "
                 f"Value: {response!r}"
             )
 
-            # Make sure we return bytes for consistency
+            # Return bytes for consistency
             return self.ensure_bytes(response)
         except Exception as e:
             logging.error(f"Error in send_command: {e}")
@@ -152,29 +157,31 @@ class UnidenScannerAdapter(BaseScannerAdapter):
 
     def enter_programming_mode(self, ser):
         """Enter programming mode for Uniden scanners."""
-        if self.in_program_mode:
+        if hasattr(self, "in_program_mode") and self.in_program_mode:
             return "Already in programming mode"
 
         try:
             response = self.send_command(ser, "PRG")
-            if "OK" in response:
+            response_str = self.ensure_str(response)
+            if "OK" in response_str:
                 self.in_program_mode = True
                 return "Entered programming mode"
-            return f"Failed to enter programming mode: {response}"
+            return f"Failed to enter programming mode: {response_str}"
         except Exception as e:
             return f"Error entering programming mode: {e}"
 
     def exit_programming_mode(self, ser):
         """Exit programming mode for Uniden scanners."""
-        if not self.in_program_mode:
+        if not hasattr(self, "in_program_mode") or not self.in_program_mode:
             return "Not in programming mode"
 
         try:
             response = self.send_command(ser, "EPG")
-            if "OK" in response:
+            response_str = self.ensure_str(response)
+            if "OK" in response_str:
                 self.in_program_mode = False
                 return "Exited programming mode"
-            return f"Failed to exit programming mode: {response}"
+            return f"Failed to exit programming mode: {response_str}"
         except Exception as e:
             return f"Error exiting programming mode: {e}"
 

@@ -2,7 +2,7 @@
 max-line-length = 80
 extend-ignore = E203,I
 # Make sure docstring checking is NOT in the ignored list
-select = E,F,W,C,D  # Explicitly include D for docstring checks
+select = E,F,W,C,D,B  # Added B for bugbear errors
 exclude =
     .venv/*,
     .venv/**,
@@ -17,3 +17,7 @@ exclude =
 per-file-ignores =
     __init__.py: F401,F403
     tests/*: D  # Optionally skip docstring checks in test files
+
+# Ensure these plugins are installed for consistent checks
+# You may need to install these if not already present:
+# pip install flake8-docstrings flake8-bugbear

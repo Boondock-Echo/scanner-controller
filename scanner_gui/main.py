@@ -1,58 +1,35 @@
 """
-This is the main entry point for the scanner GUI application.
+Main module for the scanner GUI application.
 
-It initializes the PyQt application and launches the ScannerGUI interface.
+This module provides the entry point for the scanner GUI application and
+re-exports the ScannerGUI class.
 """
 
-# Standard library imports
-import os
 import sys
 
 from PyQt6.QtWidgets import QApplication, QMessageBox
+from serial.tools import list_ports
 
 
 def main():
-    """Execute the Scanner GUI application.
+    """
+    Execute the Scanner GUI application.
 
-    Clears Python cache, initializes the GUI, checks for port accessibility,
+    Initializes the GUI, checks for port accessibility,
     and runs the main application loop.
     """
-    # Import here after cache clearing
-    try:
-        # Application imports
-        from scanner_gui.gui.scannerGui import ScannerGUI
-    except ImportError:
-        # If package import fails, try relative import (when run as script)
-        try:
-            from .gui.scannerGui import ScannerGUI
-        except ImportError:
-            # Last resort - direct import (when run directly)
-            sys.path.insert(
-                0, os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            )
-            # Application imports
-            from scanner_gui.gui.scannerGui import ScannerGUI
-
-    # Start the application
-    """
-    Run the scanner GUI application.
-
-    The main function initializes the PyQt application and launches the
-    ScannerGUI interface.
-    """
+    # Create QApplication BEFORE importing any widget classes
     app = QApplication(sys.argv)
 
-    # Show warning if COM ports are inaccessible
-    # Third-party imports
-    from serial.tools import list_ports
+    # Import ScannerGUI here, after QApplication is created
+    from scanner_gui.gui.scanner_gui import ScannerGUI
 
+    # Show warning if COM ports are inaccessible
     busy_ports = []
     for port in list_ports.comports():
         try:
-            # Third-party imports
             from serial import Serial
 
-            # Use context manager without assigning to an unused variable
             with Serial(port.device, timeout=0.1):
                 pass  # Port could be opened successfully
         except Exception as e:
@@ -76,7 +53,17 @@ def main():
     sys.exit(app.exec())
 
 
-# This allows the script to be run directly
+# This allows the module to be re-exported properly
+def get_scanner_gui():
+    """Return the ScannerGUI class after ensuring QApplication exists."""
+    if not QApplication.instance():
+        # Create a QApplication instance if one doesn't exist
+        QApplication.instance() or QApplication(sys.argv)
+
+    from scanner_gui.gui.scanner_gui import ScannerGUI
+
+    return ScannerGUI
+
 
 if __name__ == "__main__":
     main()

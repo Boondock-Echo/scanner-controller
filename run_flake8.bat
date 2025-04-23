@@ -1,3 +1,0 @@
-@echo off
-echo Running flake8 with explicit exclusions...
-flake8 . --exclude=.venv,.venv/*,.venv/**,venv,venv/*,.git,__pycache__,.pytest_cache,.github,build,dist
