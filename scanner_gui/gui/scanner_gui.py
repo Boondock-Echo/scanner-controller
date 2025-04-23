@@ -36,7 +36,13 @@ from .keypad import buildKeypad
 from .rotary_knob import buildRotaryKnob
 from .signal_meters import buildSignalMeters
 
+# Constants
 BAUDRATE = 115200
+REFRESH_INTERVAL = 10000  # 10 seconds
+DISPLAY_REFRESH = 250  # 250ms
+FONT_SIZE_MAIN = 16
+FONT_SIZE_LCD = 18
+DISPLAY_WIDTH = 16  # Character width for display
 
 
 class ScannerGUI(QWidget):
@@ -54,8 +60,8 @@ class ScannerGUI(QWidget):
             os.path.join(os.path.dirname(__file__), "style.qss")
         )
 
-        self.font_main = QFont("Courier", 16)
-        self.font_lcd = QFont("Courier", 18, QFont.Weight.Bold)
+        self.font_main = QFont("Courier", FONT_SIZE_MAIN)
+        self.font_lcd = QFont("Courier", FONT_SIZE_LCD, QFont.Weight.Bold)
 
         # Use our controller instead of direct serial connection
         self.controller = ScannerController(baudrate=BAUDRATE)
@@ -68,11 +74,11 @@ class ScannerGUI(QWidget):
 
         self.refresh_timer = QTimer()
         self.refresh_timer.timeout.connect(self.refreshScannerList)
-        self.refresh_timer.start(10000)
+        self.refresh_timer.start(REFRESH_INTERVAL)
 
         self.display_timer = QTimer()
         self.display_timer.timeout.connect(self.updateDisplay)
-        self.display_timer.start(250)
+        self.display_timer.start(DISPLAY_REFRESH)
 
         self.refreshScannerList(initial=True)
 
@@ -248,16 +254,12 @@ class ScannerGUI(QWidget):
             parsed = self.parseStsLine(raw)
 
             for i, line in enumerate(parsed["screen"]):
-                is_menu = "M E N U" in parsed["screen"][0]["text"].upper()
-                if is_menu and i >= 4 and not line["text"].strip().isalpha():
-                    self.displayLabels[i].setVisible(False)
-                    continue
-                if i == 0 and not line["text"].strip().isalpha():
+                if self._shouldHideLine(i, line, parsed):
                     self.displayLabels[i].setVisible(False)
                     continue
 
                 self.displayLabels[i].setVisible(True)
-                text = line["text"].ljust(16)
+                text = line["text"].ljust(DISPLAY_WIDTH)
                 label = self.displayLabels[i]
                 label.setText(text)
                 label.setProperty("highlight", line["highlight"])
@@ -268,6 +270,23 @@ class ScannerGUI(QWidget):
             for lbl in self.displayLabels:
                 lbl.setText("Freq: Error")
 
+        self._updateMeters()
+
+    def _shouldHideLine(self, index, line, parsed_data):
+        """Determine if a display line should be hidden."""
+        is_menu = "M E N U" in parsed_data["screen"][0]["text"].upper()
+        text_not_alpha = not line["text"].strip().isalpha()
+
+        # Hide empty lines in menu mode (index >= 4)
+        if is_menu and index >= 4 and text_not_alpha:
+            return True
+        # Hide empty title line
+        if index == 0 and text_not_alpha:
+            return True
+        return False
+
+    def _updateMeters(self):
+        """Update the RSSI and squelch meters."""
         try:
             rssi = self.controller.read_rssi()
             self.rssiBar.setValue(int(rssi * 100))

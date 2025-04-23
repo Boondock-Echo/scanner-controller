@@ -24,7 +24,9 @@ def send_key(self, ser, key_seq):
             responses.append(f"{char} → skipped (invalid key)")
             continue
         try:
-            response = self.send_command(ser, f"KEY,{char},P")
+            response = self.send_command(
+                ser, f"KEY,{char}"
+            )  # Remove the ,P parameter
             responses.append(f"{char} → {response}")
         except Exception as e:
             responses.append(f"{char} → ERROR: {e}")

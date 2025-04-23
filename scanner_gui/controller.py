@@ -105,6 +105,41 @@ class ScannerController:
         if self.ser and self.ser.is_open:
             self.ser.close()
 
+    def _call_adapter_method(
+        self, snake_case_name, camel_case_name, *args, default_return=None
+    ):
+        """
+        Call a method on the adapter with fallback between naming conventions.
+
+        Args:
+            snake_case_name (str): The snake_case name of the method
+            camel_case_name (str): The camelCase name of the method (legacy)
+            *args: Arguments to pass to the method
+            default_return: Value to return if the method cannot be called
+
+        Returns:
+            The result of the method call or default_return on error
+        """
+        if not self.adapter or not self.ser:
+            return default_return
+
+        try:
+            if hasattr(self.adapter, snake_case_name):
+                method = getattr(self.adapter, snake_case_name)
+                return method(self.ser, *args)
+            elif hasattr(self.adapter, camel_case_name):
+                method = getattr(self.adapter, camel_case_name)
+                return method(self.ser, *args)
+            else:
+                logger.error(
+                    f"No suitable method found: {snake_case_name} or "
+                    f"{camel_case_name}"
+                )
+                return default_return
+        except Exception as e:
+            logger.error(f"Error calling {snake_case_name}: {e}")
+            return default_return
+
     def send_key(self, key):
         """
         Send a key command to the scanner.
@@ -115,23 +150,9 @@ class ScannerController:
         Returns:
             str: Response from the scanner or empty string on error.
         """
-        if not self.adapter or not self.ser:
-            return ""
-
-        try:
-            # Fix: Use snake_case method name
-            if hasattr(self.adapter, 'send_key'):
-                return self.adapter.send_key(self.ser, key)
-            elif hasattr(
-                self.adapter, 'sendKey'
-            ):  # Fallback for legacy adapters
-                return self.adapter.sendKey(self.ser, key)
-            else:
-                logger.error("No suitable key sending method found in adapter")
-                return ""
-        except Exception as e:
-            logger.error(f"Error sending key {key}: {e}")
-            return ""
+        return self._call_adapter_method(
+            'send_key', 'sendKey', key, default_return=""
+        )
 
     def read_status(self):
         """
@@ -140,42 +161,23 @@ class ScannerController:
         Returns:
             str: Status response from the scanner or empty string on error.
         """
-        if not self.adapter or not self.ser:
-            return ""
+        status = self._call_adapter_method(
+            'read_status', 'readStatus', default_return=""
+        )
 
-        try:
-            # Get status using the appropriate method
-            if hasattr(self.adapter, 'read_status'):
-                status = self.adapter.read_status(self.ser)
-            elif hasattr(
-                self.adapter, 'readStatus'
-            ):  # Fallback for legacy adapters
-                status = self.adapter.readStatus(self.ser)
-            else:
-                logger.error(
-                    "No suitable status reading method found in adapter"
-                )
-                return ""
+        # Sanitize the response to ensure it only contains valid ASCII
+        if status:
+            # Replace non-ASCII characters with spaces
+            sanitized_status = ''.join(
+                c if ord(c) < 128 else ' ' for c in status
+            )
 
-            # Sanitize the response to ensure it only contains valid ASCII
-            if status:
-                # Replace non-ASCII characters with spaces
-                sanitized_status = ''.join(
-                    c if ord(c) < 128 else ' ' for c in status
-                )
+            # If the sanitization made significant changes, log a debug message
+            if sanitized_status != status:
+                logger.debug(f"Sanitized status response: {sanitized_status}")
 
-                # If the sanitization made significant changes, log a debug
-                # message
-                if sanitized_status != status:
-                    logger.debug(
-                        f"Sanitized status response: {sanitized_status}"
-                    )
-
-                return sanitized_status
-            return ""
-        except Exception as e:
-            logger.error(f"Error reading status: {e}")
-            return ""
+            return sanitized_status
+        return ""
 
     def read_rssi(self):
         """
@@ -184,23 +186,9 @@ class ScannerController:
         Returns:
             float: RSSI value between 0.0 and 1.0 or 0.0 on error.
         """
-        if not self.adapter or not self.ser:
-            return 0.0
-
-        try:
-            # Fix: Use snake_case method name
-            if hasattr(self.adapter, 'read_rssi'):
-                return self.adapter.read_rssi(self.ser)
-            elif hasattr(
-                self.adapter, 'readRSSI'
-            ):  # Fallback for legacy adapters
-                return self.adapter.readRSSI(self.ser)
-            else:
-                logger.error("No suitable RSSI reading method found in adapter")
-                return 0.0
-        except Exception as e:
-            logger.error(f"Error reading RSSI: {e}")
-            return 0.0
+        return self._call_adapter_method(
+            'read_rssi', 'readRSSI', default_return=0.0
+        )
 
     def set_volume(self, level):
         """
@@ -212,26 +200,10 @@ class ScannerController:
         Returns:
             bool: True if successful, False otherwise.
         """
-        if not self.adapter or not self.ser:
-            return False
-
-        try:
-            # Fix: Use snake_case method name
-            if hasattr(self.adapter, 'set_volume'):
-                self.adapter.set_volume(self.ser, level)
-            elif hasattr(
-                self.adapter, 'writeVolume'
-            ):  # Fallback for legacy adapters
-                self.adapter.writeVolume(self.ser, level)
-            else:
-                logger.error(
-                    "No suitable volume setting method found in adapter"
-                )
-                return False
-            return True
-        except Exception as e:
-            logger.error(f"Error setting volume: {e}")
-            return False
+        result = self._call_adapter_method(
+            'set_volume', 'writeVolume', level, default_return=False
+        )
+        return result is not False
 
     def set_squelch(self, level):
         """
@@ -243,23 +215,7 @@ class ScannerController:
         Returns:
             bool: True if successful, False otherwise.
         """
-        if not self.adapter or not self.ser:
-            return False
-
-        try:
-            # Fix: Use snake_case method name
-            if hasattr(self.adapter, 'set_squelch'):
-                self.adapter.set_squelch(self.ser, level)
-            elif hasattr(
-                self.adapter, 'writeSquelch'
-            ):  # Fallback for legacy adapters
-                self.adapter.writeSquelch(self.ser, level)
-            else:
-                logger.error(
-                    "No suitable squelch setting method found in adapter"
-                )
-                return False
-            return True
-        except Exception as e:
-            logger.error(f"Error setting squelch: {e}")
-            return False
+        result = self._call_adapter_method(
+            'set_squelch', 'writeSquelch', level, default_return=False
+        )
+        return result is not False

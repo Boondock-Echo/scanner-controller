@@ -3,8 +3,6 @@ Create a scanner GUI using PyQt6.
 
 This module provides a function to build the display group
 for the scanner GUI.
-It includes a function to update the frequency display.
-It also includes a function to build signal meters using PyQt6.
 """
 
 # displayGroup.py
@@ -33,9 +31,7 @@ def buildDisplayGroup(font_lcd, displayLabels: list) -> QGroupBox:
         lbl.setProperty("highlight", False)
         lbl.setProperty("underline", False)
         displayLabels.append(lbl)
-        displayGroupLayout.addWidget(
-            lbl, alignment=Qt.AlignmentFlag.AlignCenter
-        )
+        # Remove duplicate widget addition - each label was being added twice
         displayGroupLayout.addWidget(
             lbl, alignment=Qt.AlignmentFlag.AlignCenter
         )
@@ -43,15 +39,3 @@ def buildDisplayGroup(font_lcd, displayLabels: list) -> QGroupBox:
     displayGroup = QGroupBox("Display")
     displayGroup.setLayout(displayGroupLayout)
     return displayGroup
-
-
-def update_frequency_display(self, frequency):
-    """
-    Update the frequency display in the GUI.
-
-    Updates the frequency display in the GUI.
-    """
-    if frequency is None:
-        self.frequency_label.setText("Freq: Error")
-    else:
-        self.frequency_label.setText(f"Freq: {frequency:.3f} MHz")
