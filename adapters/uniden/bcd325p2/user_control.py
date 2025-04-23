@@ -24,7 +24,9 @@ def send_key(self, ser, key_seq):
             responses.append(f"{char} → skipped (invalid key)")
             continue
         try:
-            response = self.send_command(ser, f"KEY,{char}")
+            response = self.send_command(
+                ser, f"KEY,{char},P"
+            )  # Add ,P for "Press" mode
             responses.append(f"{char} → {response}")
         except Exception as e:
             responses.append(f"{char} → ERROR: {e}")

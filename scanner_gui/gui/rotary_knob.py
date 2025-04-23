@@ -46,33 +46,51 @@ def buildRotaryKnob(
             }
         """
 
+    # Create buttons using a helper function instead of duplicating code
     if rotateLeftCallback:
-        leftButton = QPushButton()
-        leftButton.setIcon(QIcon("scanner_gui/icons/arrow-left.svg"))
-        leftButton.setIconSize(QSize(20, 63))
-        leftButton.setFixedSize(20, 60)
-        leftButton.setStyleSheet(buttonStyle)
-        leftButton.clicked.connect(rotateLeftCallback)
-        mainLayout.addWidget(leftButton)
+        mainLayout.addWidget(
+            _create_knob_button(
+                "scanner_gui/icons/arrow-left.svg",
+                (20, 63),
+                (20, 60),
+                buttonStyle,
+                rotateLeftCallback,
+            )
+        )
 
     if knobPressedCallback:
-        knobButton = QPushButton()
-        knobButton.setIcon(QIcon("scanner_gui/icons/rotary-knob.svg"))
-        knobButton.setIconSize(QSize(58, 58))
-        knobButton.setFixedSize(60, 60)
-        knobButton.setStyleSheet(buttonStyle)
-        knobButton.clicked.connect(knobPressedCallback)
-        mainLayout.addWidget(knobButton)
+        mainLayout.addWidget(
+            _create_knob_button(
+                "scanner_gui/icons/rotary-knob.svg",
+                (58, 58),
+                (60, 60),
+                buttonStyle,
+                knobPressedCallback,
+            )
+        )
 
     if rotateRightCallback:
-        rightButton = QPushButton()
-        rightButton.setIcon(QIcon("scanner_gui/icons/arrow-right.svg"))
-        rightButton.setIconSize(QSize(20, 63))
-        rightButton.setFixedSize(20, 60)
-        rightButton.setStyleSheet(buttonStyle)
-        rightButton.clicked.connect(rotateRightCallback)
-        mainLayout.addWidget(rightButton)
+        mainLayout.addWidget(
+            _create_knob_button(
+                "scanner_gui/icons/arrow-right.svg",
+                (20, 63),
+                (20, 60),
+                buttonStyle,
+                rotateRightCallback,
+            )
+        )
 
     knobGroup = QGroupBox("Rotary Knob")
     knobGroup.setLayout(mainLayout)
     return knobGroup
+
+
+def _create_knob_button(icon_path, icon_size, button_size, style, callback):
+    """Create a knob button with the specified properties."""
+    button = QPushButton()
+    button.setIcon(QIcon(icon_path))
+    button.setIconSize(QSize(*icon_size))
+    button.setFixedSize(*button_size)
+    button.setStyleSheet(style)
+    button.clicked.connect(callback)
+    return button

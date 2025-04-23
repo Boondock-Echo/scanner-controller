@@ -97,4 +97,6 @@ def enter_quick_frequency_hold(self, ser, freq_mhz):
             False, f"❌ PWR returned unexpected: {response_str}"
         )
     except Exception as e:
-        return self.feedback(False, f"❌ [enter_quick_frequency_hold Error] {e}")
+        return self.feedback(
+            False, f"❌ QFH [enter_quick_frequency_hold Error] {e}"
+        )

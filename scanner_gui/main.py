@@ -11,6 +11,13 @@ from PyQt6.QtWidgets import QApplication, QMessageBox
 from serial.tools import list_ports
 
 
+def ensure_application():
+    """Ensure QApplication exists and return it."""
+    if not QApplication.instance():
+        return QApplication(sys.argv)
+    return QApplication.instance()
+
+
 def main():
     """
     Execute the Scanner GUI application.
@@ -19,7 +26,7 @@ def main():
     and runs the main application loop.
     """
     # Create QApplication BEFORE importing any widget classes
-    app = QApplication(sys.argv)
+    app = ensure_application()
 
     # Import ScannerGUI here, after QApplication is created
     from scanner_gui.gui.scanner_gui import ScannerGUI
@@ -56,9 +63,7 @@ def main():
 # This allows the module to be re-exported properly
 def get_scanner_gui():
     """Return the ScannerGUI class after ensuring QApplication exists."""
-    if not QApplication.instance():
-        # Create a QApplication instance if one doesn't exist
-        QApplication.instance() or QApplication(sys.argv)
+    ensure_application()
 
     from scanner_gui.gui.scanner_gui import ScannerGUI
 

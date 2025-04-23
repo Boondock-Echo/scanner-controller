@@ -187,8 +187,8 @@ def write_squelch(self, ser, level):
             )
 
         logging.debug(f"Set squelch to {level}")
+        logging.info(f"Successfully set squelch to {level}")
         return True
     except Exception as e:
         logging.error(f"Error in write_squelch: {str(e)}")
         return self.feedback(False, f"Error setting squelch: {str(e)}")
-        raise ValueError(f"Error setting squelch: {str(e)}")
