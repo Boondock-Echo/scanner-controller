@@ -38,7 +38,7 @@ scanner-controller/
 │   │   ├── keypad.py              # Numeric keypad
 │   │   ├── rotaryKnob.py          # Rotary knob simulation
 │   │   ├── signalMeters.py        # Signal meters (RSSI, SQL)
-│   │   ├── scannerGui.py          # Main GUI implementation
+│   │   ├── scanner_gui.py          # Main GUI implementation
 │   │   ├── style.qss              # Stylesheet for the GUI
 │   │   └── __init__.py
 │   ├── commandLibrary.py          # Scanner command interface
@@ -58,14 +58,12 @@ scanner-controller/
 
 1. Clone the repository:
 
-
    ```bash
    git clone https://github.com/yourusername/scanner-controller.git
    cd scanner-controller
    ```
 
 2. Install dependencies:
-
 
    ```bash
    pip install -r requirements.txt
@@ -76,7 +74,6 @@ scanner-controller/
 ## Usage
 
 1. Run the application:
-
 
    ```bash
    python -m scanner_gui.main
@@ -165,7 +162,6 @@ python utilities/build_dependency_graph.py
 ### Modular GUI Components
 
 The GUI is modularized into separate components for better maintainability:
-
 
 - **`audioControls.py`**: Handles volume and squelch sliders.
 - **`controlKeys.py`**: Implements vertical control buttons.

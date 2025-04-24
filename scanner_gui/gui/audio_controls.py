@@ -21,18 +21,20 @@ def buildAudioControls(volSlider, sqlSlider) -> QGroupBox:
         QGroupBox: A group box containing the sliders.
     """
     volLayout = QVBoxLayout()
-    volLabel = QLabel("Vol")
+    volLabel = QLabel("VOL")
     volLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-    volSlider.setRange(0, 100)
-    volSlider.setValue(50)
+
+    # Don't set ranges or values here - they're already set in scanner_gui.py
+    # and will be updated with actual scanner values after connection
     volLayout.addWidget(volLabel)
     volLayout.addWidget(volSlider)
 
     sqlLayout = QVBoxLayout()
     sqlLabel = QLabel("SQL")
     sqlLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-    sqlSlider.setRange(0, 100)
-    sqlSlider.setValue(30)
+
+    # Don't set ranges or values here - they're already set in scanner_gui.py
+    # and will be updated with actual scanner values after connection
     sqlLayout.addWidget(sqlLabel)
     sqlLayout.addWidget(sqlSlider)
 
@@ -42,5 +44,4 @@ def buildAudioControls(volSlider, sqlSlider) -> QGroupBox:
 
     audioGroup = QGroupBox("Audio")
     audioGroup.setLayout(slidersLayout)
-
     return audioGroup

@@ -101,9 +101,9 @@ def main_loop(adapter, ser, commands, command_help, machine_mode=False):
                             )
                         )
                         # fmt: on
-                        command_help[
-                            "switch"
-                        ] = "Switch to a different connected scanner"
+                        command_help["switch"] = (
+                            "Switch to a different connected scanner"
+                        )
                         initialize_readline(commands)
                         continue
 

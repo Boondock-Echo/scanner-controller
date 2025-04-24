@@ -74,23 +74,36 @@ def configure_logging(log_file=None, level=logging.INFO, max_size_mb=10):
     return logging.getLogger("")
 
 
-def get_logger(name=None):
+def get_logger(name, level=None):
     """
-    Get a logger with the specified name.
+    Get a logger configured with proper formatting.
 
-    This is a convenience wrapper around logging.getLogger() that returns
-    a logger with the specified name. If no name is provided, it returns
-    the root logger.
-
-    Parameters:
-        name (str, optional): The name of the logger. If None,
-        returns the root logger.
+    Args:
+        name (str): Logger name (usually __name__)
+        level (str, optional): Logging level
+                               (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+                               If None, default to DEBUG for development
 
     Returns:
-        logging.Logger: A logger instance with the specified name.
-
-    Examples:
-        >>> logger = get_logger("my_module")
-        >>> logger.info("Module initialized")
+        logging.Logger: Configured logger
     """
-    return logging.getLogger(name)
+    logger = logging.getLogger(name)
+
+    # Set default level to DEBUG if not specified
+    if level is None:
+        level = "DEBUG"  # Always debug by default for now
+
+    # Convert string level to logging level
+    numeric_level = getattr(logging, level.upper(), logging.DEBUG)
+    logger.setLevel(numeric_level)
+
+    # Ensure we have at least one handler
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+
+    return logger
