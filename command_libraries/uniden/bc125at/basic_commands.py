@@ -46,7 +46,6 @@ BASIC_COMMANDS = {
     "BSV": scanner_command(
         name="BSV",
         valid_range=(1, 14),  # charge time (1-14)
-        specification="Battery charge time (1-14)",
         requires_prg=True,
         help="""Get/Set Battery Info.
 

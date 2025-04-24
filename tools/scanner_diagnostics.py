@@ -7,16 +7,10 @@ commands and displaying available adapter methods.
 
 import argparse
 import logging
-import sys
 import time
-from pathlib import Path
 
 import serial
 from serial.tools import list_ports
-
-# Add parent directory to path so we can import our modules
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-
 
 from scanner_gui.controller import ScannerController
 from scanner_gui.scanner_utils import read_response, send_command, wait_for_data

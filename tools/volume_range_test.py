@@ -7,12 +7,7 @@ what your specific scanner model supports.
 
 import argparse
 import logging
-import sys
 import time
-from pathlib import Path
-
-# Add parent directory to path so we can import our modules
-sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 import serial
 
