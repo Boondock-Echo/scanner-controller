@@ -1,6 +1,6 @@
 [flake8]
 max-line-length = 80
-extend-ignore = E203,I
+extend-ignore = E203,I,E402  # Added E402 to ignore import order issues
 # Make sure docstring checking is NOT in the ignored list
 select = E,F,W,C,D,B  # Added B for bugbear errors
 exclude =

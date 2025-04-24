@@ -1,22 +1,21 @@
 {
   "CodeGPT.apiKey": "CodeGPT Plus",
   "editor.formatOnSave": true,
-  "editor.rulers": [80, 88],
+  "editor.rulers": [80],
   "python.formatting.provider": "black",
-  "python.sortImports.args": ["--profile", "black"],
   "isort.args": ["--profile", "black"],
   "[python]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "ms-python.python",
     "editor.codeActionsOnSave": {
-      "source.organizeImports": "explicit"
+      "source.organizeImports": true
     }
   },
   "python.linting.enabled": true,
   "python.linting.flake8Enabled": true,
   "python.linting.flake8Args": [
     "--max-line-length=80",
-    "--extend-ignore=E203",
+    "--extend-ignore=E203,E402",
     "--exclude=.venv,.venv/*,.venv/**,venv,venv/*,.git,__pycache__,.pytest_cache,.github,build,dist"
   ],
   "python.linting.ignorePatterns": [

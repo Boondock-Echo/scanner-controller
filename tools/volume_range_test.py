@@ -82,6 +82,12 @@ def test_volume_command(port, baudrate=115200):
 
 
 def main():
+    """
+    Parse arguments and run the volume test.
+
+    Set up the command-line interface for the script,
+    allowing users to specify the serial port and baud rate.
+    """
     parser = argparse.ArgumentParser(
         description="Test scanner volume range support"
     )

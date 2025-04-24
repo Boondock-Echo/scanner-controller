@@ -3130,4 +3130,3 @@ This character pattern is Large Font.
 Character pattern of 8 x 8 dot
 
 This character pattern is Small Font.
-
