@@ -1,41 +1,57 @@
 # signalMeters.py
 
 """
-Signal Meters Module.
+Signal meter widget module.
 
-This module provides a function to build signal meter widgets
-using PyQt6, including RSSI and squelch progress bars.
+This module provides functions to build signal meter widgets for displaying
+RSSI and squelch levels.
 """
 
-from PyQt6.QtWidgets import QGroupBox, QProgressBar, QVBoxLayout
+import logging
+
+from PyQt6.QtWidgets import QGroupBox, QHBoxLayout, QLabel, QVBoxLayout
 
 
-def buildSignalMeters(
-    rssiBar: QProgressBar, squelchBar: QProgressBar
-) -> QGroupBox:
+def buildSignalMeters(rssi_bar, squelch_bar):
     """
-    Build a signal meter group box containing RSSI and squelch progress bars.
+    Build signal meter group containing RSSI and squelch bars.
 
     Args:
-        rssiBar (QProgressBar): The progress bar for RSSI
-            (Received Signal Strength Indicator).
-        squelchBar (QProgressBar): The progress bar for squelch level.
+        rssi_bar (QProgressBar): Progress bar for RSSI display
+        squelch_bar (QProgressBar): Progress bar for squelch display
 
     Returns:
-        QGroupBox: A group box containing the signal meter widgets.
+        QGroupBox: Group box containing the signal meters
     """
-    rssiBar.setRange(0, 100)
-    rssiBar.setTextVisible(True)
-    rssiBar.setFormat("RSSI: %p%")
+    layout = QVBoxLayout()
+    layout.setContentsMargins(2, 2, 2, 2)
+    layout.setSpacing(2)
 
-    squelchBar.setRange(0, 100)
-    squelchBar.setTextVisible(True)
-    squelchBar.setFormat("SQL: %p%")
+    # Configure RSSI bar
+    rssi_bar.setObjectName("rssiBar")
+    rssi_bar.setMinimum(0)
+    rssi_bar.setMaximum(100)
+    rssi_layout = QHBoxLayout()
+    rssi_layout.setContentsMargins(0, 0, 0, 0)
+    rssi_layout.addWidget(QLabel("RSSI"))
+    rssi_layout.addWidget(rssi_bar)
+    layout.addLayout(rssi_layout)
 
-    signalGroupLayout = QVBoxLayout()
-    signalGroupLayout.addWidget(rssiBar)
-    signalGroupLayout.addWidget(squelchBar)
+    # Configure squelch bar
+    squelch_bar.setObjectName("squelchBar")
+    squelch_bar.setMinimum(0)
+    squelch_bar.setMaximum(100)
+    squelch_layout = QHBoxLayout()
+    squelch_layout.setContentsMargins(0, 0, 0, 0)
+    squelch_layout.addWidget(QLabel("SQL"))
+    squelch_layout.addWidget(squelch_bar)
+    layout.addLayout(squelch_layout)
 
-    signalGroup = QGroupBox("Signal Meters")
-    signalGroup.setLayout(signalGroupLayout)
-    return signalGroup
+    # Log for debugging
+    logging.debug(
+        f"Signal meters built with existing bars: {rssi_bar}, {squelch_bar}"
+    )
+
+    meters = QGroupBox("Signal")
+    meters.setLayout(layout)
+    return meters
