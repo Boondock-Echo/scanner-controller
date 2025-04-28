@@ -100,37 +100,55 @@ STATUS_COMMANDS = {
         - Simulates physical button presses
         """,
     ),
-    "QSH": scanner_command(
-        name="QSH",
-        requires_prg=False,
-        set_format="QSH,{frequency},{modulation},{attenuation}",
-        validator=validate_param_constraints(
-            [
-                (int, lambda x: 25000 <= x <= 512000),  # frequency in kHz
-                (str, {"AUTO", "AM", "FM", "NFM"}),  # modulation
-                (int, {0, 1}),  # attenuation (0=OFF, 1=ON)
-            ]
-        ),
-        help="""Quick Search Hold.
-
-        Format:
-        QSH,[FRQ],[MOD],[ATT] - Enter quick search hold mode at specified
-        frequency
-
-        Parameters:
-        FRQ : Frequency in kHz (25000-512000)
-        MOD : Modulation (AUTO, AM, FM, NFM)
-        ATT : Attenuation (0=OFF, 1=ON)
-
-        Examples:
-        QSH,155625,FM,0 - Hold on 155.625 MHz with FM modulation and attenuation
-        off
-
-        Notes:
-        - Puts the scanner in Quick Search Hold mode at the specified frequency
-        - Allows direct tuning to a specific frequency
-        """,
-    ),
+    # Placeholders for missing commands
+    # "ESN": scanner_command(
+    #     name="ESN",
+    #     requires_prg=False,
+    #     set_format="ESN",
+    #     validator=validate_param_constraints([]),
+    #     help="""Get Electronic Serial Number.
+    #
+    #     Format:
+    #     ESN - Get scanner electronic serial number
+    #     """,
+    # ),
+    #
+    # "STS": scanner_command(
+    #     name="STS",
+    #     requires_prg=False,
+    #     set_format="STS",
+    #     validator=validate_param_constraints([]),
+    #     help="""Get Current Status.
+    #
+    #     Format:
+    #     STS - Get current scanner status
+    #     """,
+    # ),
+    #
+    # "SUM": scanner_command(
+    #     name="SUM",
+    #     requires_prg=True,
+    #     set_format="SUM",
+    #     validator=validate_param_constraints([]),
+    #     help="""Get/Set Survey Mode.
+    #
+    #     Format:
+    #     SUM - Get survey mode status
+    #     SUM,[SETTING] - Set survey mode
+    #     """,
+    # ),
+    #
+    # "WIN": scanner_command(
+    #     name="WIN",
+    #     requires_prg=False,
+    #     set_format="WIN",
+    #     validator=validate_param_constraints([]),
+    #     help="""Get Window Position.
+    #
+    #     Format:
+    #     WIN - Get current window position
+    #     """,
+    # ),
 }
 
 # Set source module for each command

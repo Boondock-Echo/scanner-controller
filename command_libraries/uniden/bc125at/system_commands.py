@@ -38,82 +38,6 @@ SYSTEM_COMMANDS = {
         - This command is only acceptable in Programming Mode
         """,
     ),
-    "SCG": scanner_command(
-        name="SCG",
-        requires_prg=True,
-        set_format="SCG,{status_mask}",
-        validator=validate_param_constraints(
-            [
-                (
-                    str,
-                    lambda x: len(x) == 10 and all(c in "01" for c in x),
-                )  # 10-digit binary mask
-            ]
-        ),
-        help="""Get/Set Channel Storage Bank Status.
-
-        Format:
-        SCG - Get current bank status
-        SCG,[STATUS_MASK] - Set bank status
-
-        Parameters:
-        STATUS_MASK : 10-digit binary mask where each digit is 0 or 1
-                     0 = Valid (enabled), 1 = Invalid (disabled)
-                     The order matches scanner banks 1-9,0 (where 0 is bank 10)
-
-        Examples:
-        SCG,0000000000 - Enable all banks
-        SCG,1000000000 - Disable bank 1, enable all others
-        SCG,0000000001 - Disable bank 10, enable all others
-
-        Notes:
-        - Controls which channel storage banks are enabled/disabled
-        - Cannot set all banks to disabled ("1111111111")
-        - This command is only acceptable in Programming Mode
-        """,
-    ),
-    "SSG": scanner_command(
-        name="SSG",
-        requires_prg=True,
-        set_format="SSG,{status_mask}",
-        validator=validate_param_constraints(
-            [
-                (
-                    str,
-                    lambda x: len(x) == 10 and all(c in "01" for c in x),
-                )  # 10-digit binary mask
-            ]
-        ),
-        help="""Get/Set Service Search Group.
-
-        Format:
-        SSG - Get current service search status
-        SSG,[STATUS_MASK] - Set service search status
-
-        Parameters:
-        STATUS_MASK : 10-digit binary mask where each digit is 0 or 1
-                     0 = Valid (enabled), 1 = Invalid (disabled)
-                     Order of service search groups:
-                     |||||||||+-- Racing
-                     ||||||||+--- FRS/GMRS/MURS
-                     |||||||+---- CB Radio
-                     ||||||+----- Military Air
-                     |||||+------ Civil Air
-                     ||||+------- Railroad
-                     |||+-------- Marine
-                     ||+--------- Ham Radio
-                     |+---------- Fire/Emergency
-                     +----------- Police
-
-        Examples:
-        SSG,0000000000 - Enable all service search groups
-        SSG,0000000001 - Disable Racing search, enable all others
-
-        Notes:
-        - Cannot set all service search groups to invalid ("1111111111")
-        - This command is only acceptable in Programming Mode
-        """,
-    ),
     "COM": scanner_command(
         name="COM",
         requires_prg=True,
@@ -140,6 +64,70 @@ SYSTEM_COMMANDS = {
         - Use with caution as incorrect settings may affect scanner
             communication
         - This command is only acceptable in Programming Mode
+        """,
+    ),
+
+    # Placeholders for missing commands
+    # "GLG": scanner_command(
+    #     name="GLG",
+    #     requires_prg=True,
+    #     set_format="GLG,{group_mask}",
+    #     validator=validate_param_constraints([]),
+    #     help="""Get/Set Global Lockout Group.
+    #
+    #     Format:
+    #     GLG - Get current global lockout group
+    #     GLG,[GROUP_MASK] - Set global lockout group
+    #     """,
+    # ),
+
+    # "MNU": scanner_command(
+    #     name="MNU",
+    #     requires_prg=False,
+    #     set_format="MNU,{option}",
+    #     validator=validate_param_constraints([]),
+    #     help="""Access Menu.
+    #
+    #     Format:
+    #     MNU - Enter menu mode
+    #     MNU,[OPTION] - Select menu option
+    #     """,
+    # ),
+
+    # "TST": scanner_command(
+    #     name="TST",
+    #     requires_prg=True,
+    #     set_format="TST,{test_mode}",
+    #     validator=validate_param_constraints([]),
+    #     help="""Run Test Mode.
+    #
+    #     Format:
+    #     TST - Run self test
+    #     TST,[TEST_MODE] - Run specific test
+    #     """,
+    # ),
+
+    "SCG": scanner_command(
+        name="SCG",
+        requires_prg=True,
+        set_format="SCG,{status_mask}",
+        validator=validate_param_constraints([]),
+        help="""Get/Set Service Search Groups.
+            Format:
+        SCG - Get current service search group status
+        SCG,[STATUS_MASK] - Set service search group status
+        """,
+    ),
+
+    "SSG": scanner_command(
+        name="SSG",
+        requires_prg=True,
+        set_format="SSG,{status_mask}",
+        validator=validate_param_constraints([]),
+        help="""Get/Set Service Search Group Settings.
+            Format:
+        SSG - Get current service search group settings
+        SSG,[STATUS_MASK] - Set service search group settings
         """,
     ),
 }

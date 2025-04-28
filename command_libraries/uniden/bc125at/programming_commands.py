@@ -51,6 +51,94 @@ PROGRAMMING_COMMANDS = {
             command
         """,
     ),
+
+    # Placeholders for missing commands
+    # "FWM": scanner_command(
+    #     name="FWM",
+    #     requires_prg=True,
+    #     set_format="FWM,{address},{data}",
+    #     validator=validate_param_constraints([]),
+    #     help="""Firmware Memory Access.
+    #
+    #     Format:
+    #     FWM,[ADDRESS] - Get firmware memory at address
+    #     FWM,[ADDRESS],[DATA] - Set firmware memory at address
+    #     """,
+    # ),
+
+    # "MMM": scanner_command(
+    #     name="MMM",
+    #     requires_prg=True,
+    #     set_format="MMM,{option}",
+    #     validator=validate_param_constraints([]),
+    #     help="""Memory Mode Menu.
+    #
+    #     Format:
+    #     MMM - Get memory mode
+    #     MMM,[OPTION] - Set memory mode option
+    #     """,
+    # ),
+
+    # "MWR": scanner_command(
+    #     name="MWR",
+    #     requires_prg=True,
+    #     set_format="MWR,{address},{data}",
+    #     validator=validate_param_constraints([]),
+    #     help="""Memory Write.
+    #
+    #     Format:
+    #     MWR,[ADDRESS],[DATA] - Write data to memory address
+    #     """,
+    # ),
+
+    "MRD": scanner_command(
+        name="MRD",
+        requires_prg=True,
+        set_format="MRD,{address}",
+        validator=validate_param_constraints([]),
+        help="""Memory Read.
+            Format:
+        MRD,[ADDRESS] - Read data from memory address
+        """,
+    ),
+
+    # "JPM": scanner_command(
+    #     name="JPM",
+    #     requires_prg=False,
+    #     set_format="JPM,{menu_item}",
+    #     validator=validate_param_constraints([]),
+    #     help="""Jump to Menu.
+    #
+    #     Format:
+    #     JPM,[MENU_ITEM] - Jump to specific menu item
+    #     """,
+    # ),
+
+    # "PDI": scanner_command(
+    #     name="PDI",
+    #     requires_prg=True,
+    #     set_format="PDI,{setting}",
+    #     validator=validate_param_constraints([]),
+    #     help="""Programming Device Initialization.
+    #
+    #     Format:
+    #     PDI - Get programming device settings
+    #     PDI,[SETTING] - Initialize programming device
+    #     """,
+    # ),
+
+    # "EWP": scanner_command(
+    #     name="EWP",
+    #     requires_prg=True,
+    #     set_format="EWP,{setting}",
+    #     validator=validate_param_constraints([]),
+    #     help="""EEPROM Write Protect.
+    #
+    #     Format:
+    #     EWP - Get EEPROM write protect status
+    #     EWP,[SETTING] - Set EEPROM write protect
+    #     """,
+    # ),
 }
 
 # Set source module for each command
