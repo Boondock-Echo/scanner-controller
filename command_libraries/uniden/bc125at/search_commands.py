@@ -9,36 +9,7 @@ from utilities.core.shared_utils import scanner_command
 from utilities.validators import validate_param_constraints
 
 SEARCH_COMMANDS = {
-    "SCO": scanner_command(
-        name="SCO",
-        requires_prg=True,
-        set_format="SCO,{delay},{code_srch}",
-        validator=validate_param_constraints(
-            [
-                (int, {-10, -5, 0, 1, 2, 3, 4, 5}),  # delay time
-                (int, {0, 1}),  # CTCSS/DCS search (0=OFF, 1=CTCSS/DCS)
-            ]
-        ),
-        help="""Get/Set Search/Close Call Settings.
-
-        Format:
-        SCO - Get current Search/Close Call settings
-        SCO,[DLY],[CODE_SRCH] - Set Search/Close Call settings
-
-        Parameters:
-        DLY : Delay Time (-10, -5, 0, 1, 2, 3, 4, 5)
-              Negative values represent -10s and -5s
-              0 means no delay
-              1-5 represent delay in seconds
-        CODE_SRCH : CTCSS/DCS Search (0=OFF, 1=CTCSS/DCS)
-
-        Examples:
-        SCO,2,1 - Set 2 second delay, CTCSS/DCS search on
-        SCO,0,0 - Set no delay, CTCSS/DCS search off
-
-        Note: This command is only acceptable in Programming Mode.
-        """,
-    ),
+    # SCO command removed - already in close_call_commands.py
     "GLF": scanner_command(
         name="GLF",
         requires_prg=True,
@@ -120,48 +91,7 @@ SEARCH_COMMANDS = {
         - This command is only acceptable in Programming Mode
         """,
     ),
-    "SSG": scanner_command(
-        name="SSG",
-        requires_prg=True,
-        set_format="SSG,{status_mask}",
-        validator=validate_param_constraints(
-            [
-                (
-                    str,
-                    lambda x: len(x) == 10 and all(c in "01" for c in x),
-                )  # 10-digit binary mask
-            ]
-        ),
-        help="""Get/Set Service Search Group.
-
-        Format:
-        SSG - Get current service search status
-        SSG,[STATUS_MASK] - Set service search status
-
-        Parameters:
-        STATUS_MASK : 10-digit binary mask where each digit is 0 or 1
-                     0 = Valid (enabled), 1 = Invalid (disabled)
-                     Order of service search groups:
-                     |||||||||+-- Racing
-                     ||||||||+--- FRS/GMRS/MURS
-                     |||||||+---- CB Radio
-                     ||||||+----- Military Air
-                     |||||+------ Civil Air
-                     ||||+------- Railroad
-                     |||+-------- Marine
-                     ||+--------- Ham Radio
-                     |+---------- Fire/Emergency
-                     +----------- Police
-
-        Examples:
-        SSG,0000000000 - Enable all service search groups
-        SSG,0000000001 - Disable Racing search, enable all others
-
-        Notes:
-        - Cannot set all service search groups to invalid ("1111111111")
-        - This command is only acceptable in Programming Mode
-        """,
-    ),
+    # SSG command removed - already in system_commands.py
     "CSG": scanner_command(
         name="CSG",
         requires_prg=True,
@@ -226,30 +156,34 @@ SEARCH_COMMANDS = {
         - This command is only acceptable in Programming Mode
         """,
     ),
-    "WXS": scanner_command(
-        name="WXS",
-        requires_prg=True,
-        set_format="WXS,{alt_pri}",
-        validator=validate_param_constraints(
-            [(int, {0, 1})]  # weather alert priority (0=OFF, 1=ON)
-        ),
-        help="""Get/Set Weather Settings.
+    # WXS command removed - already in weather_commands.py
 
-        Format:
-        WXS - Get weather settings
-        WXS,[ALT_PRI] - Set weather alert priority
+    # Placeholders for missing commands
+    # "JNT": scanner_command(
+    #     name="JNT",
+    #     requires_prg=False,
+    #     set_format="JNT,{frequency}",
+    #     validator=validate_param_constraints([]),
+    #     help="""Jump to Next Transmission.
+    #
+    #     Format:
+    #     JNT - Jump to next transmission
+    #     JNT,[FREQUENCY] - Jump to frequency
+    #     """,
+    # ),
 
-        Parameters:
-        ALT_PRI : Weather Alert Priority (0=OFF, 1=ON)
-
-        Examples:
-        WXS,1 - Enable weather alert priority
-        WXS,0 - Disable weather alert priority
-
-        Notes:
-        - This command is only acceptable in Programming Mode
-        """,
-    ),
+    # "QSH": scanner_command(
+    #     name="QSH",
+    #     requires_prg=False,
+    #     set_format="QSH,{frequency}",
+    #     validator=validate_param_constraints([]),
+    #     help="""Quick Search.
+    #
+    #     Format:
+    #     QSH - Start quick search
+    #     QSH,[FREQUENCY] - Quick search at frequency
+    #     """,
+    # ),
 }
 
 # Set source module for each command

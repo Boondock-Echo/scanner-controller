@@ -15,6 +15,8 @@ from .bc125at.close_call_commands import CLOSE_CALL_COMMANDS
 from .bc125at.config_commands import CONFIG_COMMANDS
 from .bc125at.programming_commands import PROGRAMMING_COMMANDS
 from .bc125at.search_commands import SEARCH_COMMANDS
+from .bc125at.status_commands import STATUS_COMMANDS
+from .bc125at.system_commands import SYSTEM_COMMANDS
 from .bc125at.weather_commands import WEATHER_COMMANDS
 
 # Aggregate all commands into one dictionary
@@ -25,6 +27,8 @@ commands.update(CLOSE_CALL_COMMANDS)
 commands.update(CONFIG_COMMANDS)
 commands.update(PROGRAMMING_COMMANDS)
 commands.update(SEARCH_COMMANDS)
+commands.update(STATUS_COMMANDS)
+commands.update(SYSTEM_COMMANDS)
 commands.update(WEATHER_COMMANDS)
 
 

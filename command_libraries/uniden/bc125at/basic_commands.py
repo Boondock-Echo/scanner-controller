@@ -135,98 +135,44 @@ BASIC_COMMANDS = {
         - To convert: level = int(normalized_value * 15)
         """,
     ),
-    "POF": scanner_command(
-        name="POF",
-        set_format="POF",
-        validator=validate_param_constraints([]),  # no parameters
-        requires_prg=False,
-        help="""Power Off command.
-
-        Format:
-        POF - Turns off the scanner
-
-        After this command, the scanner doesn't accept any command.
-        """,
-    ),
-    "KEY": scanner_command(
-        name="KEY",
-        set_format="KEY,{value}",
-        validator=validate_param_constraints(
-            [
-                (
-                    str,
-                    {
-                        "0",
-                        "1",
-                        "2",
-                        "3",
-                        "4",
-                        "5",
-                        "6",
-                        "7",
-                        "8",
-                        "9",
-                        ".",
-                        "E",
-                        "H",
-                        "S",
-                        "L",
-                        "M",
-                        "F",
-                    },
-                )
-            ]
-        ),
-        requires_prg=False,
-        help="""Push KEY command.
-
-        Format:
-        KEY,[KEY] - Simulates pressing a key on the scanner
-
-        Valid key values:
-        0-9 : Numeric keys
-        .   : . (decimal point)
-        E   : E/yes/gps key
-        H   : Hold key
-        S   : Scan/srch key
-        L   : L/O key
-        M   : Menu key
-        F   : Func key
-
-        Examples:
-        KEY,5 - Press key 5
-        KEY,M - Press Menu key
-        KEY,F - Press Function key
-        """,
-    ),
-    "OMS": scanner_command(
-        name="OMS",
-        set_format="OMS,{line1},{line2},{line3},{line4}",
-        validator=validate_param_constraints(
-            [
-                (str, lambda w: len(w) <= 16),  # line1 (max 16 chars)
-                (str, lambda x: len(x) <= 16),  # line2 (max 16 chars)
-                (str, lambda y: len(y) <= 16),  # line3 (max 16 chars)
-                (str, lambda z: len(z) <= 16),  # line4 (max 16 chars)
-            ]
-        ),
+    "BPL": scanner_command(
+        name="BPL",
         requires_prg=True,
-        help="""Get/Set Opening Message.
+        set_format="BPL,{level}",
+        validator=validate_param_constraints([]),
+        help="""Get/Set Bandplan.
 
         Format:
-        OMS - Get current opening message
-        OMS,[L1_CHAR],[L2_CHAR],[L3_CHAR],[L4_CHAR] - Set opening message
+        BPL - Get current bandplan settings
+        BPL,[SETTING] - Set bandplan
 
         Parameters:
-        L1_CHAR : Line 1 text (max 16 characters)
-        L2_CHAR : Line 2 text (max 16 characters)
-        L3_CHAR : Line 3 text (max 16 characters)
-        L4_CHAR : Line 4 text (max 16 characters)
-
-        Note: If you set only spaces for a line, it will return to the default
-        message. This command is only acceptable in Programming Mode.
+        SETTING : Unknown at this time.
         """,
     ),
+    "BAV": scanner_command(
+        name="BAV",
+        requires_prg=False,
+        set_format="BAV",
+        validator=validate_param_constraints([]),
+        help="""Get Battery Voltage.
+
+        Format:
+        BAV - Get current battery voltage
+        """,
+),
+    "PWR": scanner_command(
+        name="PWR",
+        requires_prg=False,
+        set_format="PWR,{status}",
+        validator=validate_param_constraints([]),
+        help="""Get/Set Power Status.
+
+        Format:
+        PWR - Get current power status
+        PWR,[STATUS] - Set power status
+        """,
+     ),
 }
 
 # Set source module for each command
