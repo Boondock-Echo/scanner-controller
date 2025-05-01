@@ -1,6 +1,6 @@
 # Scanner Controller
 
-This project provides a cross-platform graphical user interface (GUI) for controlling various radio scanner models through a unified interface. Built with PyQt6, it enables users to interact with different scanner hardware using a consistent set of controls regardless of the manufacturer's native interface.
+This project provides a cross-platform command line interface (CLI) and graphical user interface (GUI) for controlling various radio scanner models through a unified interface. Built with PyQt6, the GUI allows users to interact with different scanner hardware using a consistent set of controls regardless of the manufacturer's native interface.
 
 ## What This Program Does
 
@@ -14,7 +14,7 @@ Scanner Controller bridges the gap between different scanner models by:
 
 The application dynamically detects connected scanner models and loads the appropriate command adapter, making it easy to switch between different scanner hardware.
 
-## Features
+## Current GUI Features
 
 - **Audio Controls**: Adjust volume and squelch levels using sliders.
 - **Display Group**: View scanner information on a simulated LCD display.
@@ -54,10 +54,11 @@ The application follows a modular architecture:
 2. **Scanner Adapters**: Model-specific implementations that convert generic commands to hardware-specific protocols
 3. **Command Library**: Translates UI actions into scanner-specific commands
 
-
 This separation allows new scanner models to be added without modifying the user interface.
 
 ## Project Structure
+
+The project was recently reorganized and checked only so far as to ensure basic functionality.  There are undoubtedly duplicate and deprecated files after the refactor.
 
 The project is organized as follows:
 
@@ -209,7 +210,7 @@ To add a new GUI component:
 5. Update `scanner_gui.py` to integrate the new componentpriate Qt class
 6. Implement the UI and functionality
 
-## Development Workflowslots to handle events
+## Development Workflow to handle events
 
 5. Update `scanner_gui.py` to integrate the new component
 
@@ -240,14 +241,7 @@ This project uses:
 
 The configurations ensure these tools work together without conflicts:
 
-- Flake8 for code linting with several plugins
-- Black formats code with a line length of 88 characters
 - Flake8 is configured to be compatible with Black's formatting decisions
-
-### Fixing Code Style Issuesline length of 88 characters
-
-- Flake8 is configured to be compatible with Black's formatting decisions
-  When pre-commit shows errors:
 
 ### Fixing Code Style Issues
 
