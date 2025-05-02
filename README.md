@@ -128,11 +128,14 @@ pip install -r requirements.txt
 3. Ensure the required scanner models are connected via serial ports.
 ## Usage
 
-3. Ensure the required scanner models are connected via serial ports.
 1. Run the application:
 
 ## Usage
-
+For CLI
+```bash
+python main.py
+```
+For GUI
 ```bash
 python -m scanner_gui.main
 ```
@@ -143,7 +146,7 @@ python -m scanner_gui.main
 - Use the sliders, buttons, and keypad to control the scanner.
 - View real-time updates on the display and signal meters.
 - Select the scanner port from the dropdown and click "Connect".
-## Extending the Systemuttons, and keypad to control the scanner.
+## Extending the System buttons, and keypad to control the scanner.
 - View real-time updates on the display and signal meters.
 ### Adding New Scanner Models
 ## Extending the System
