@@ -117,7 +117,7 @@ scanner-controller/
 ## Installation
 
 ```bash
-git clone https://github.com/yourusername/scanner-controller.git
+git clone https://github.com/Boondock-Echo/scanner-controller.git
 cd scanner-controller
 ```
 2. Install dependencies:
