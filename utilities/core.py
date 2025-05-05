@@ -34,6 +34,8 @@ def feedback(machine_mode, success, message):
     """Format feedback based on machine_mode setting."""
     if machine_mode:
         status = "OK" if success else "ERROR"
-        return f"{status}:{message}"
+        # Convert spaces and special characters for easier parsing
+        msg = str(message).replace(" ", "_").replace(":", "_")
+        return f"STATUS:{status}|MESSAGE:{msg}"
     else:
         return message

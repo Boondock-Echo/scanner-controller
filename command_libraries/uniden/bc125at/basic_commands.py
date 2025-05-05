@@ -160,7 +160,7 @@ BASIC_COMMANDS = {
         Format:
         BAV - Get current battery voltage
         """,
-),
+    ),
     "PWR": scanner_command(
         name="PWR",
         requires_prg=False,
@@ -172,7 +172,7 @@ BASIC_COMMANDS = {
         PWR - Get current power status
         PWR,[STATUS] - Set power status
         """,
-     ),
+    ),
 }
 
 # Set source module for each command

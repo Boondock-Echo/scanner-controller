@@ -18,10 +18,12 @@ def send_key(self, ser, key_seq):
     if not key_seq:
         return self.feedback(False, "No key(s) provided.")
 
+    success = True
     responses = []
     for char in key_seq:
         if char not in "0123456789<>^.EMFHSLP":
             responses.append(f"{char} → skipped (invalid key)")
+            success = False
             continue
         try:
             response = self.send_command(
@@ -30,4 +32,6 @@ def send_key(self, ser, key_seq):
             responses.append(f"{char} → {response}")
         except Exception as e:
             responses.append(f"{char} → ERROR: {e}")
-    return "\n".join(responses)
+            success = False
+
+    return self.feedback(success, "\n".join(responses))

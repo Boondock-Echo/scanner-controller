@@ -22,8 +22,7 @@ from utilities.timeout_utils import ScannerTimeoutError
 # LOGGING SETUP
 # ------------------------------------------------------------------------------
 
-# Configure logging
-logger = configure_logging(level=logging.DEBUG)
+# Configure logging - will be set up in main() based on command line args
 
 
 def main():
@@ -45,10 +44,20 @@ def main():
         action="store_true",
         help="Run in test mode to verify output formatting",
     )
+    parser.add_argument(
+        "--log-level",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        default="WARNING",
+        help="Set the logging level (default: WARNING)",
+    )
     args = parser.parse_args()
 
     machine_mode = args.machine
     test_mode = args.test
+
+    # Set up logging with user-specified level
+    log_level = getattr(logging, args.log_level)
+    logger = configure_logging(level=log_level)
 
     # Log the mode for verification
     if machine_mode:
@@ -68,8 +77,17 @@ def main():
 
         if not all([ser, adapter, commands, command_help]):
             # If connection was not successful
-            if not ser:
-                # No scanner connected
+            if machine_mode:
+                # In machine mode, provide structured output for programmatic
+                # handling
+                print("STATUS:ERROR|CODE:CONNECTION_FAILED")
+                logger.error("Failed to connect to scanner. Exiting.")
+                return
+            else:
+                print(
+                    "Failed to connect to scanner. Please check the connection "
+                    "and try again."
+                )
                 if (
                     input(
                         "\nWould you like to run connection diagnostics?"
@@ -86,14 +104,26 @@ def main():
         main_loop(adapter, ser, commands, command_help, machine_mode)
 
     except ScannerTimeoutError:
-        print(
-            "Timeout while initializing scanner adapter. Scanner"
-            " may be unresponsive."
-        )
-        logger.error("Timeout while initializing scanner adapter")
+        if machine_mode:
+            print(
+                "STATUS:ERROR|CODE:TIMEOUT|"
+                "MESSAGE:Scanner_initialization_timeout"
+            )
+            logger.error("Timeout while initializing scanner adapter")
+        else:
+            print(
+                "Timeout while initializing scanner adapter. Scanner"
+                " may be unresponsive."
+            )
+            logger.error("Timeout while initializing scanner adapter")
     except Exception as e:
         logger.error(f"Unexpected error in main: {e}", exc_info=True)
-        print(f"Error: {e}")
+        if machine_mode:
+            # Provide structured error output for machine parsing
+            error_msg = str(e).replace(" ", "_").replace(":", "_")
+            print(f"STATUS:ERROR|CODE:EXCEPTION|MESSAGE:{error_msg}")
+        else:
+            print(f"Error: {e}")
 
 
 # ------------------------------------------------------------------------------

@@ -22,19 +22,23 @@ def read_volume(self, ser):
     try:
         response = self.send_command(ser, "VOL")
         if not response:
-            raise ValueError("Failed to read volume. No response from scanner.")
+            return self.feedback(
+                False, "Failed to read volume. No response from scanner."
+            )
 
         response_str = ensure_str(response)
         parts = response_str.split(",")
         if len(parts) < 2 or parts[0] != "VOL":
-            raise ValueError(f"Invalid volume response: {response_str}")
+            return self.feedback(
+                False, f"Invalid volume response: {response_str}"
+            )
 
         volume = int(parts[1])
         logging.debug(f"Read volume level: {volume}")
-        return volume
+        return self.feedback(True, f"Volume: {volume}")
     except Exception as e:
         logging.error(f"Error in read_volume: {str(e)}")
-        raise ValueError(f"Error reading volume: {str(e)}")
+        return self.feedback(False, f"Error reading volume: {str(e)}")
 
 
 def write_volume(self, ser, level):
@@ -61,25 +65,32 @@ def write_volume(self, ser, level):
             # Try direct integer parsing if not in 0-1 range
             level = int(level)
             if not 0 <= level <= 15:
-                raise ValueError(
-                    f"Volume level must be between 0-15, got {level}"
+                return self.feedback(
+                    False, f"Volume level must be between 0-15, got {level}"
                 )
     except ValueError:
-        raise ValueError(f"Invalid volume level: {level}")
+        return self.feedback(False, f"Invalid volume level: {level}")
 
-    response = self.send_command(ser, f"VOL,{level}")
-    response_str = ensure_str(response)
+    try:
+        response = self.send_command(ser, f"VOL,{level}")
+        response_str = ensure_str(response)
 
-    if not response:
-        raise ValueError("Failed to set volume. No response from scanner.")
+        if not response:
+            return self.feedback(
+                False, "Failed to set volume. No response from scanner."
+            )
 
-    if "OK" not in response_str:
-        raise ValueError(
-            f"Failed to set volume. Unexpected response: {response_str}"
-        )
+        if "OK" not in response_str:
+            return self.feedback(
+                False,
+                f"Failed to set volume. Unexpected response: {response_str}",
+            )
 
-    logging.debug(f"Set volume to {level}")
-    return True
+        logging.debug(f"Set volume to {level}")
+        return self.feedback(True, f"Volume set to {level}")
+    except Exception as e:
+        logging.error(f"Error in write_volume: {str(e)}")
+        return self.feedback(False, f"Error setting volume: {str(e)}")
 
 
 def read_squelch(self, ser):
@@ -103,20 +114,22 @@ def read_squelch(self, ser):
 
         parts = response_str.split(",")
         if len(parts) < 2 or parts[0] != "SQL":
-            raise ValueError(f"Invalid squelch response format: {response_str}")
+            return self.feedback(
+                False, f"Invalid squelch response format: {response_str}"
+            )
 
         try:
             squelch = int(parts[1])
             logging.debug(f"Parsed squelch level: {squelch}")
-            return squelch
+            return self.feedback(True, f"Squelch: {squelch}")
         except (ValueError, IndexError):
-            raise ValueError(
-                f"Could not parse squelch level from: {response_str}"
+            return self.feedback(
+                False, f"Could not parse squelch level from: {response_str}"
             )
 
     except Exception as e:
         logging.error(f"Error in read_squelch: {str(e)}")
-        raise ValueError(f"Error reading squelch: {str(e)}")
+        return self.feedback(False, f"Error reading squelch: {str(e)}")
 
 
 def write_squelch(self, ser, level):
@@ -143,23 +156,26 @@ def write_squelch(self, ser, level):
             # Try direct integer parsing if not in 0-1 range
             level = int(level)
             if not 0 <= level <= 15:
-                raise ValueError(
-                    f"Squelch level must be between 0-15, got {level}"
+                return self.feedback(
+                    False, f"Squelch level must be between 0-15, got {level}"
                 )
 
         response = self.send_command(ser, f"SQL,{level}")
         response_str = ensure_str(response)
 
         if not response:
-            raise ValueError("Failed to set squelch. No response from scanner.")
+            return self.feedback(
+                False, "Failed to set squelch. No response from scanner."
+            )
 
         if "OK" not in response_str:
-            raise ValueError(
-                f"Failed to set squelch. Unexpected response: {response_str}"
+            return self.feedback(
+                False,
+                f"Failed to set squelch. Unexpected response: {response_str}",
             )
 
         logging.debug(f"Set squelch to {level}")
-        return True
+        return self.feedback(True, f"Squelch set to {level}")
     except Exception as e:
         logging.error(f"Error in write_squelch: {str(e)}")
-        raise ValueError(f"Error setting squelch: {str(e)}")
+        return self.feedback(False, f"Error setting squelch: {str(e)}")

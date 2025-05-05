@@ -37,11 +37,18 @@ def switch_scanner(current_ser, current_adapter, machine_mode=False):
     except Exception as e:
         logger.error(f"Error closing current connection: {e}")
 
-    print("\nDetecting available scanners...")
+    if machine_mode:
+        print("STATUS:INFO|ACTION:DETECTING_SCANNERS")
+    else:
+        print("\nDetecting available scanners...")
+
     detected = find_all_scanner_ports()
 
     if not detected:
-        print("No scanners found. Check connections and try again.")
+        if machine_mode:
+            print("STATUS:ERROR|CODE:NO_SCANNERS_FOUND")
+        else:
+            print("No scanners found. Check connections and try again.")
         # Reopen the previous connection if possible
         try:
             if not current_ser.is_open:
@@ -52,45 +59,57 @@ def switch_scanner(current_ser, current_adapter, machine_mode=False):
             return None
 
     # Display available scanners
-    print("\nAvailable scanners:")
-    for idx, (port, model) in enumerate(detected, 1):
-        print(f"  {idx}. {port} — {model}")
+    if machine_mode:
+        print(f"STATUS:INFO|SCANNERS_FOUND:{len(detected)}")
+        for idx, (port, model) in enumerate(detected, 1):
+            print(f"SCANNER:{idx}|PORT:{port}|MODEL:{model}")
+    else:
+        print("\nAvailable scanners:")
+        for idx, (port, model) in enumerate(detected, 1):
+            print(f"  {idx}. {port} — {model}")
 
     # Get user selection
-    try:
-        selection = input("\nSelect scanner (enter number or 0 to cancel): ")
-        if selection.strip() == "0" or not selection.strip():
-            print("Switch canceled, reconnecting to current scanner...")
-            # Reopen the previous connection
-            try:
-                if not current_ser.is_open:
-                    current_ser.open()
-                return None
-            except Exception as e:
-                logger.error(f"Error reopening previous connection: {e}")
-                return None
-
-        selection = int(selection)
-        if not (1 <= selection <= len(detected)):
-            print("Invalid selection, reconnecting to current scanner...")
-            # Reopen the previous connection
-            try:
-                if not current_ser.is_open:
-                    current_ser.open()
-                return None
-            except Exception as e:
-                logger.error(f"Error reopening previous connection: {e}")
-                return None
-    except ValueError:
-        print("Invalid input, reconnecting to current scanner...")
-        # Reopen the previous connection
+    if machine_mode:
+        # In machine mode, auto-select the first scanner
+        selection = 1
+        print(f"STATUS:INFO|AUTO_SELECTED:{selection}")
+    else:
         try:
-            if not current_ser.is_open:
-                current_ser.open()
-            return None
-        except Exception as e:
-            logger.error(f"Error reopening previous connection: {e}")
-            return None
+            selection = input(
+                "\nSelect scanner (enter number or 0 to cancel): "
+            )
+            if selection.strip() == "0" or not selection.strip():
+                print("Switch canceled, reconnecting to current scanner...")
+                # Reopen the previous connection
+                try:
+                    if not current_ser.is_open:
+                        current_ser.open()
+                    return None
+                except Exception as e:
+                    logger.error(f"Error reopening previous connection: {e}")
+                    return None
+
+            selection = int(selection)
+            if not (1 <= selection <= len(detected)):
+                print("Invalid selection, reconnecting to current scanner...")
+                # Reopen the previous connection
+                try:
+                    if not current_ser.is_open:
+                        current_ser.open()
+                    return None
+                except Exception as e:
+                    logger.error(f"Error reopening previous connection: {e}")
+                    return None
+        except ValueError:
+            print("Invalid input, reconnecting to current scanner...")
+            # Reopen the previous connection
+            try:
+                if not current_ser.is_open:
+                    current_ser.open()
+                return None
+            except Exception as e:
+                logger.error(f"Error reopening previous connection: {e}")
+                return None
 
     # Connect to selected scanner
     port, scanner_model = detected[selection - 1]
@@ -106,10 +125,13 @@ def switch_scanner(current_ser, current_adapter, machine_mode=False):
 
         new_adapter = initialize_adapter()
         if not new_adapter:
-            print(
-                f"No adapter implemented for {scanner_model}, "
-                "reconnecting to previous scanner..."
-            )
+            if machine_mode:
+                print(f"STATUS:ERROR|CODE:NO_ADAPTER|MODEL:{scanner_model}")
+            else:
+                print(
+                    f"No adapter implemented for {scanner_model}, "
+                    "reconnecting to previous scanner..."
+                )
             new_ser.close()
             # Reopen previous connection
             try:
@@ -125,12 +147,21 @@ def switch_scanner(current_ser, current_adapter, machine_mode=False):
             new_adapter, new_ser
         )
 
-        print(f"\nSuccessfully switched to {port} ({scanner_model})")
+        if machine_mode:
+            print(
+                f"STATUS:OK|ACTION:SWITCHED|PORT:{port}|MODEL:{scanner_model}"
+            )
+        else:
+            print(f"\nSuccessfully switched to {port} ({scanner_model})")
         return (new_ser, new_adapter, new_commands, new_command_help)
 
     except Exception as e:
         logger.error(f"Error connecting to new scanner: {e}")
-        print(f"Error connecting to new scanner: {e}")
+        if machine_mode:
+            error_msg = str(e).replace(" ", "_").replace(":", "_")
+            print(f"STATUS:ERROR|CODE:CONNECTION_FAILED|MESSAGE:{error_msg}")
+        else:
+            print(f"Error connecting to new scanner: {e}")
         # Try to reopen the previous connection
         try:
             if not current_ser.is_open:
@@ -167,28 +198,42 @@ def detect_and_connect_scanner(machine_mode=False):
         tuple: (ser, adapter, commands, command_help) or
         (None, None, None, None) if failed
     """
-    print("Searching for connected scanners...")
+    if machine_mode:
+        print("STATUS:INFO|ACTION:SCANNING_FOR_DEVICES")
+    else:
+        print("Searching for connected scanners...")
+
     detected = find_all_scanner_ports()
 
     if not detected:
-        print("\nNo scanners found. Troubleshooting steps:")
-        print("  1. Check that your scanner is powered on")
-        print("  2. Verify USB connections are secure")
-        print("  3. Try a different USB port or cable")
-        print("  4. Restart your scanner")
-        print(
-            "  5. Check device manager to confirm the scanner is recognized"
-            "by your computer"
-        )
+        if machine_mode:
+            print("STATUS:ERROR|CODE:NO_SCANNERS_FOUND")
+        else:
+            print("\nNo scanners found. Troubleshooting steps:")
+            print("  1. Check that your scanner is powered on")
+            print("  2. Verify USB connections are secure")
+            print("  3. Try a different USB port or cable")
+            print("  4. Restart your scanner")
+            print(
+                "  5. Check device manager to confirm the scanner is recognized"
+                "by your computer"
+            )
         return None, None, None, None
 
-    print("Scanners detected:")
-    for scannerPortIndex, (port, model) in enumerate(detected, 1):
-        print(f"  {scannerPortIndex}. {port} — {model}")
+    if machine_mode:
+        print(f"STATUS:INFO|SCANNERS_FOUND:{len(detected)}")
+        for idx, (port, model) in enumerate(detected, 1):
+            print(f"SCANNER:{idx}|PORT:{port}|MODEL:{model}")
+    else:
+        print("Scanners detected:")
+        for scannerPortIndex, (port, model) in enumerate(detected, 1):
+            print(f"  {scannerPortIndex}. {port} — {model}")
 
     try:
-        if len(detected) == 1:
-            selection = 1  # Auto-select if only one scanner is found
+        if len(detected) == 1 or machine_mode:
+            selection = 1  # Auto-select if only one scanner or in machine mode
+            if machine_mode:
+                print(f"STATUS:INFO|AUTO_SELECTED:{selection}")
         else:
             try:
                 selection = int(
@@ -207,7 +252,10 @@ def detect_and_connect_scanner(machine_mode=False):
         if 1 <= selection <= len(detected):
             port, scanner_model = detected[selection - 1]
         else:
-            print("Invalid selection.")
+            if machine_mode:
+                print("STATUS:ERROR|CODE:INVALID_SELECTION")
+            else:
+                print("Invalid selection.")
             return None, None, None, None
     except ValueError:
         print("Invalid input. Exiting.")
@@ -222,16 +270,28 @@ def detect_and_connect_scanner(machine_mode=False):
 
         adapter = initialize_adapter()
         if not adapter:
-            print(f"No adapter implemented for {scanner_model}.")
+            if machine_mode:
+                print(f"STATUS:ERROR|CODE:NO_ADAPTER|MODEL:{scanner_model}")
+            else:
+                print(f"No adapter implemented for {scanner_model}.")
             ser.close()
             return None, None, None, None
 
-        print(f"Connected to {port} ({scanner_model})")
+        if machine_mode:
+            print(
+                f"STATUS:OK|ACTION:CONNECTED|PORT:{port}|MODEL:{scanner_model}"
+            )
+        else:
+            print(f"Connected to {port} ({scanner_model})")
 
         commands, command_help = build_command_table(adapter, ser)
         return ser, adapter, commands, command_help
 
     except Exception as e:
         logger.error(f"Error communicating with scanner: {e}")
-        print(f"Error communicating with scanner: {e}")
+        if machine_mode:
+            error_msg = str(e).replace(" ", "_").replace(":", "_")
+            print(f"STATUS:ERROR|CODE:COMMUNICATION_FAILED|MESSAGE:{error_msg}")
+        else:
+            print(f"Error communicating with scanner: {e}")
         return None, None, None, None
