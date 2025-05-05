@@ -22,7 +22,7 @@ def read_channel_info(self, ser, index):
         response = self.send_command(ser, f"CIN,{index}")
         response_str = ensure_str(response)
         self.exit_programming_mode(ser)
-        return response_str
+        return self.feedback(True, f"Channel {index}: {response_str}")
     except Exception as e:
         return self.feedback(False, f"Error reading channel info: {e}")
 
@@ -101,6 +101,6 @@ def read_global_lockout(self, ser):
                 break
             results.append(response_str.strip())
         self.exit_programming_mode(ser)
-        return "\n".join(results)
+        return self.feedback(True, "\n".join(results))
     except Exception as e:
         return self.feedback(False, f"Error reading global lockout: {e}")

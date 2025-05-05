@@ -157,7 +157,6 @@ SEARCH_COMMANDS = {
         """,
     ),
     # WXS command removed - already in weather_commands.py
-
     # Placeholders for missing commands
     # "JNT": scanner_command(
     #     name="JNT",
@@ -171,7 +170,6 @@ SEARCH_COMMANDS = {
     #     JNT,[FREQUENCY] - Jump to frequency
     #     """,
     # ),
-
     # "QSH": scanner_command(
     #     name="QSH",
     #     requires_prg=False,

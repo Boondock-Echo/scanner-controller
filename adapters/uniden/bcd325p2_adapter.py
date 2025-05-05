@@ -146,9 +146,9 @@ class BCD325P2Adapter(UnidenScannerAdapter):
             cmd = self.commands.get(command.upper())
             if cmd and cmd.help:
                 logger.debug(f"Found help for command: {command}")
-                return cmd.help
+                return self.feedback(True, cmd.help)
             logger.debug(f"No help found for command: {command}")
-            return f"No help available for {command}"
+            return self.feedback(False, f"No help available for {command}")
         except Exception as e:
             logger.error(
                 f"Error retrieving help for {command}: {e}", exc_info=True

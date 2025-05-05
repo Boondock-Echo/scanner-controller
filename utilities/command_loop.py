@@ -26,7 +26,10 @@ def main_loop(adapter, ser, commands, command_help, machine_mode=False):
         machine_mode (bool): Whether to use machine-friendly output.
             Defaults to False.
     """
-    print("Type 'help' for a list of commands.\n")
+    if not machine_mode:
+        print("Type 'help' for a list of commands.\n")
+    else:
+        print("STATUS:INFO|MESSAGE:Scanner_ready")
 
     # Add switch scanner command
     # fmt: off
@@ -56,9 +59,14 @@ def main_loop(adapter, ser, commands, command_help, machine_mode=False):
 
     while True:
         try:
-            user_input = input("> ").strip()
+            if machine_mode:
+                print("PROMPT:READY")
+
+            user_input = input("> " if not machine_mode else "").strip()
 
             if user_input.lower() == "exit":
+                if machine_mode:
+                    print("STATUS:INFO|ACTION:EXIT")
                 break
 
             command, args = parse_command(user_input, commands)
@@ -101,9 +109,9 @@ def main_loop(adapter, ser, commands, command_help, machine_mode=False):
                             )
                         )
                         # fmt: on
-                        command_help["switch"] = (
-                            "Switch to a different connected scanner"
-                        )
+                        command_help[
+                            "switch"
+                        ] = "Switch to a different connected scanner"
                         initialize_readline(commands)
                         continue
 
@@ -118,25 +126,74 @@ def main_loop(adapter, ser, commands, command_help, machine_mode=False):
                             formatted_result = str(result)
 
                         if machine_mode:
-                            print(
-                                "OK"
-                                if not formatted_result.lower().startswith(
+                            # Check if result is already in machine-readable
+                            # format
+                            if formatted_result.startswith("STATUS:"):
+                                print(formatted_result)
+                            else:
+                                is_error = formatted_result.lower().startswith(
                                     "error"
                                 )
-                                else "ERROR"
-                            )
+                                status = "ERROR" if is_error else "OK"
+                                # Clean up the message for machine parsing
+                                msg = formatted_result.replace(
+                                    " ", "_"
+                                ).replace(":", "_")
+                                print(
+                                    f"STATUS:{status}|COMMAND:{command}|"
+                                    f"RESULT:{msg}"
+                                )
                         else:
-                            print(formatted_result)
+                            # For human-readable output, strip any machine
+                            # format prefixes
+                            if formatted_result.startswith("STATUS:"):
+                                parts = formatted_result.split("|")
+                                if len(parts) > 1:
+                                    # Extract the message/result part
+                                    for part in parts:
+                                        if part.startswith(
+                                            "MESSAGE:"
+                                        ) or part.startswith("RESULT:"):
+                                            value = part.split(":", 1)[
+                                                1
+                                            ].replace("_", " ")
+                                            print(value)
+                                            break
+                                    else:
+                                        print(formatted_result)
+                                else:
+                                    print(formatted_result)
+                            else:
+                                print(formatted_result)
 
                 except Exception as e:
                     logger.error(f"Command error: {str(e)}", exc_info=True)
-                    print(f"[Error] {e}")
+                    if machine_mode:
+                        error_msg = str(e).replace(" ", "_").replace(":", "_")
+                        print(
+                            f"STATUS:ERROR|COMMAND:{command}|"
+                            f"MESSAGE:{error_msg}"
+                        )
+                    else:
+                        print(f"[Error] {e}")
             else:
-                print("Unknown command. Type 'help' for options.")
+                if machine_mode:
+                    print(
+                        f"STATUS:ERROR|CODE:UNKNOWN_COMMAND|COMMAND:{command}"
+                    )
+                else:
+                    print("Unknown command. Type 'help' for options.")
         except KeyboardInterrupt:
-            print("\nUse 'exit' to quit the program.")
+            if machine_mode:
+                print("STATUS:INFO|CODE:INTERRUPTED")
+            else:
+                print("\nUse 'exit' to quit the program.")
         except Exception as e:
             logger.error(
                 f"Unexpected error in command loop: {e}", exc_info=True
             )
-            print(f"[Error] An unexpected error occurred: {e}")
+            if machine_mode:
+                error_msg = str(e).replace(" ", "_").replace(":", "_")
+                print(f"STATUS:ERROR|CODE:UNEXPECTED|MESSAGE:{error_msg}")
+            else:
+                print(f"[Error] An unexpected error occurred: {e}")

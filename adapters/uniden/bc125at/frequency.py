@@ -84,19 +84,15 @@ def enter_quick_frequency_hold(self, ser, freq_mhz):
             if abs(actual_freq - freq_mhz) < 0.005:
                 return self.feedback(
                     True,
-                    f"✅ Frequency {freq_str} MHz entered and confirmed via PWR "
+                    f"Frequency {freq_str} MHz entered and confirmed via PWR "
                     f"({actual_freq:.5f} MHz)",
                 )
             else:
                 return self.feedback(
                     False,
-                    f"⚠️ Entered {freq_str} MHz, but PWR returned "
+                    f"Entered {freq_str} MHz, but PWR returned "
                     f"{actual_freq:.5f} MHz",
                 )
-        return self.feedback(
-            False, f"❌ PWR returned unexpected: {response_str}"
-        )
+        return self.feedback(False, f"PWR returned unexpected: {response_str}")
     except Exception as e:
-        return self.feedback(
-            False, f"❌ QFH [enter_quick_frequency_hold Error] {e}"
-        )
+        return self.feedback(False, f"Quick Frequency Hold Error: {e}")

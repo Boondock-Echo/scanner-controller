@@ -42,7 +42,10 @@ class UnidenScannerAdapter(BaseScannerAdapter):
     def feedback(self, success, message):
         """Format feedback based on machine_mode setting."""
         if hasattr(self, "machine_mode") and self.machine_mode:
-            return "OK" if success else "ERROR"
+            status = "OK" if success else "ERROR"
+            # Clean up the message for machine parsing
+            msg = str(message).replace(" ", "_").replace(":", "_")
+            return f"STATUS:{status}|MESSAGE:{msg}"
         return message
 
     def send_command(self, ser, cmd):

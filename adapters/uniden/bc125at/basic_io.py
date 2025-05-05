@@ -40,11 +40,9 @@ def read_volume(self, ser):
 
         volume = int(parts[1])
         logging.debug(f"Read volume level: {volume}")
-        return volume
+        return self.feedback(True, f"Volume: {volume}")
     except Exception as e:
         logging.error(f"Error in read_volume: {str(e)}")
-        # Return a default error value rather than raising an exception
-        # to improve robustness
         return self.feedback(False, f"Error reading volume: {str(e)}")
 
 
@@ -95,7 +93,7 @@ def write_volume(self, ser, level):
             )
 
         logging.debug(f"Set volume to {level}")
-        return True
+        return self.feedback(True, f"Volume set to {level}")
     except Exception as e:
         logging.error(f"Error in write_volume: {str(e)}")
         return self.feedback(False, f"Error setting volume: {str(e)}")
@@ -136,7 +134,7 @@ def read_squelch(self, ser):
         try:
             squelch = int(parts[1])
             logging.debug(f"Parsed squelch level: {squelch}")
-            return squelch
+            return self.feedback(True, f"Squelch: {squelch}")
         except (ValueError, IndexError):
             return self.feedback(
                 False, f"Could not parse squelch level from: {response_str}"
@@ -188,7 +186,7 @@ def write_squelch(self, ser, level):
 
         logging.debug(f"Set squelch to {level}")
         logging.info(f"Successfully set squelch to {level}")
-        return True
+        return self.feedback(True, f"Squelch set to {level}")
     except Exception as e:
         logging.error(f"Error in write_squelch: {str(e)}")
         return self.feedback(False, f"Error setting squelch: {str(e)}")

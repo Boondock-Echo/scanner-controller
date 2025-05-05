@@ -51,7 +51,6 @@ PROGRAMMING_COMMANDS = {
             command
         """,
     ),
-
     # Placeholders for missing commands
     # "FWM": scanner_command(
     #     name="FWM",
@@ -65,7 +64,6 @@ PROGRAMMING_COMMANDS = {
     #     FWM,[ADDRESS],[DATA] - Set firmware memory at address
     #     """,
     # ),
-
     # "MMM": scanner_command(
     #     name="MMM",
     #     requires_prg=True,
@@ -78,7 +76,6 @@ PROGRAMMING_COMMANDS = {
     #     MMM,[OPTION] - Set memory mode option
     #     """,
     # ),
-
     # "MWR": scanner_command(
     #     name="MWR",
     #     requires_prg=True,
@@ -90,7 +87,6 @@ PROGRAMMING_COMMANDS = {
     #     MWR,[ADDRESS],[DATA] - Write data to memory address
     #     """,
     # ),
-
     "MRD": scanner_command(
         name="MRD",
         requires_prg=True,
@@ -101,7 +97,6 @@ PROGRAMMING_COMMANDS = {
         MRD,[ADDRESS] - Read data from memory address
         """,
     ),
-
     # "JPM": scanner_command(
     #     name="JPM",
     #     requires_prg=False,
@@ -113,7 +108,6 @@ PROGRAMMING_COMMANDS = {
     #     JPM,[MENU_ITEM] - Jump to specific menu item
     #     """,
     # ),
-
     # "PDI": scanner_command(
     #     name="PDI",
     #     requires_prg=True,
@@ -126,7 +120,6 @@ PROGRAMMING_COMMANDS = {
     #     PDI,[SETTING] - Initialize programming device
     #     """,
     # ),
-
     # "EWP": scanner_command(
     #     name="EWP",
     #     requires_prg=True,

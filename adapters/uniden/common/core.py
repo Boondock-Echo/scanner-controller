@@ -42,7 +42,10 @@ def ensure_str(data):
 def feedback(machine_mode, success, message):
     """Format feedback based on machine_mode setting."""
     if machine_mode:
-        result = "OK" if success else "ERROR"
+        status = "OK" if success else "ERROR"
+        # Clean up the message for machine parsing
+        msg = str(message).replace(" ", "_").replace(":", "_")
+        result = f"STATUS:{status}|MESSAGE:{msg}"
         logger.debug(f"Feedback in machine mode: {result}")
         return result
     logger.debug(f"Feedback in human mode: {message}")

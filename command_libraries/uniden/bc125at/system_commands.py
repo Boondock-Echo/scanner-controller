@@ -66,7 +66,6 @@ SYSTEM_COMMANDS = {
         - This command is only acceptable in Programming Mode
         """,
     ),
-
     # Placeholders for missing commands
     # "GLG": scanner_command(
     #     name="GLG",
@@ -80,7 +79,6 @@ SYSTEM_COMMANDS = {
     #     GLG,[GROUP_MASK] - Set global lockout group
     #     """,
     # ),
-
     # "MNU": scanner_command(
     #     name="MNU",
     #     requires_prg=False,
@@ -93,7 +91,6 @@ SYSTEM_COMMANDS = {
     #     MNU,[OPTION] - Select menu option
     #     """,
     # ),
-
     # "TST": scanner_command(
     #     name="TST",
     #     requires_prg=True,
@@ -106,7 +103,6 @@ SYSTEM_COMMANDS = {
     #     TST,[TEST_MODE] - Run specific test
     #     """,
     # ),
-
     "SCG": scanner_command(
         name="SCG",
         requires_prg=True,
@@ -118,7 +114,6 @@ SYSTEM_COMMANDS = {
         SCG,[STATUS_MASK] - Set service search group status
         """,
     ),
-
     "SSG": scanner_command(
         name="SSG",
         requires_prg=True,

@@ -18,7 +18,8 @@ def read_model(self, ser):
     """
     try:
         response = self.send_command(ser, "MDL")
-        return ensure_str(response)
+        response_str = ensure_str(response)
+        return self.feedback(True, response_str)
     except Exception as e:
         return self.feedback(False, f"Error reading model: {e}")
 
@@ -34,7 +35,8 @@ def read_sw_ver(self, ser):
     """
     try:
         response = self.send_command(ser, "VER")
-        return ensure_str(response)
+        response_str = ensure_str(response)
+        return self.feedback(True, response_str)
     except Exception as e:
         return self.feedback(False, f"Error reading firmware version: {e}")
 
@@ -54,7 +56,8 @@ def read_rssi(self, ser):
 
         parts = response_str.split(",")
         if len(parts) == 3:
-            return round(int(parts[1]) / 1023.0, 3)
+            rssi_value = round(int(parts[1]) / 1023.0, 3)
+            return self.feedback(True, f"RSSI: {rssi_value}")
         return self.feedback(False, f"Unexpected PWR response: {response_str}")
     except Exception as e:
         return self.feedback(False, f"Error reading RSSI: {e}")
@@ -75,7 +78,8 @@ def read_battery_voltage(self, ser):
 
         _, val = response_str.split(",")
         voltage = (3.2 * int(val) * 2) / 1023
-        return round(voltage, 3)
+        voltage_value = round(voltage, 3)
+        return self.feedback(True, f"Battery: {voltage_value}V")
     except Exception as e:
         return self.feedback(False, f"Error reading battery voltage: {e}")
 
@@ -91,7 +95,8 @@ def read_window_voltage(self, ser):
     """
     try:
         response = self.send_command(ser, "WIN")
-        return ensure_str(response)
+        response_str = ensure_str(response)
+        return self.feedback(True, response_str)
     except Exception as e:
         return self.feedback(False, f"Error reading window voltage: {e}")
 
@@ -107,7 +112,8 @@ def read_status(self, ser):
     """
     try:
         response = self.send_command(ser, "STS")
-        return ensure_str(response)
+        response_str = ensure_str(response)
+        return self.feedback(True, response_str)
     except Exception as e:
         return self.feedback(False, f"Error reading status: {e}")
 

@@ -14,15 +14,24 @@ def hex32(value):
     return f"{value:08X}"
 
 
-def update_progress(current, total):
+def update_progress(current, total, machine_mode=False):
     """Display a progress bar for long-running operations."""
     percent = int(100 * current / total)
-    bar = "#" * (percent // 2)
-    sys.stdout.write(f"\rProgress: [{bar:<50}] {percent}%")
-    sys.stdout.flush()
-    if current == total:
-        sys.stdout.write("\n")
+
+    if machine_mode:
+        # Only output progress updates at meaningful intervals to avoid flooding
+        if percent % 10 == 0 or percent == 100:
+            print(
+                f"STATUS:PROGRESS|PERCENT:{percent}|CURRENT:{current}|"
+                f"TOTAL:{total}"
+            )
+    else:
+        bar = "#" * (percent // 2)
+        sys.stdout.write(f"\rProgress: [{bar:<50}] {percent}%")
         sys.stdout.flush()
+        if current == total:
+            sys.stdout.write("\n")
+            sys.stdout.flush()
 
 
 def dump_memory_to_file(
@@ -71,7 +80,11 @@ def dump_memory_to_file(
                     return self.feedback(
                         False, f"Aborted early — {MAX_INVALID} invalids."
                     )
-                update_progress(i, total_steps)
+                update_progress(
+                    i,
+                    total_steps,
+                    hasattr(self, "machine_mode") and self.machine_mode,
+                )
         self.exit_programming_mode(ser)
         return self.feedback(
             True, f"{valid_count} MRD entries written to {filename}"
