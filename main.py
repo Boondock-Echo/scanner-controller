@@ -47,8 +47,8 @@ def main():
     parser.add_argument(
         "--log-level",
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-        default="WARNING",
-        help="Set the logging level (default: WARNING)",
+        default="CRITICAL",
+        help="Set the logging level (default: CRITICAL)",
     )
     args = parser.parse_args()
 
@@ -70,20 +70,21 @@ def main():
             print("MACHINE_MODE: DISABLED")
 
     try:
-        # Detect and connect to scanner
-        ser, adapter, commands, command_help = detect_and_connect_scanner(
-            machine_mode
-        )
+        if machine_mode:
+            # In machine mode, don't automatically detect scanner
+            # Just start command loop with no scanner connected
+            logger.info("Starting command loop without scanner in machine mode")
+            print("STATUS:INFO|MESSAGE:Ready_for_commands")
+            main_loop(None, None, {}, {}, machine_mode)
+        else:
+            # For normal mode, continue with automatic scanner detection
+            # Detect and connect to scanner
+            ser, adapter, commands, command_help = detect_and_connect_scanner(
+                machine_mode
+            )
 
-        if not all([ser, adapter, commands, command_help]):
-            # If connection was not successful
-            if machine_mode:
-                # In machine mode, provide structured output for programmatic
-                # handling
-                print("STATUS:ERROR|CODE:CONNECTION_FAILED")
-                logger.error("Failed to connect to scanner. Exiting.")
-                return
-            else:
+            if not all([ser, adapter, commands, command_help]):
+                # If connection was not successful
                 print(
                     "Failed to connect to scanner. Please check the connection "
                     "and try again."
@@ -100,8 +101,8 @@ def main():
                 logger.error("Failed to connect to scanner. Exiting.")
                 return
 
-        # Start interactive command loop
-        main_loop(adapter, ser, commands, command_help, machine_mode)
+            # Start interactive command loop
+            main_loop(adapter, ser, commands, command_help, machine_mode)
 
     except ScannerTimeoutError:
         if machine_mode:

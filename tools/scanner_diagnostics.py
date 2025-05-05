@@ -1,5 +1,5 @@
 """
-Scanner Diagnostics Tool
+Scanner Diagnostics Tool.
 
 This tool helps diagnose issues with scanner communication by testing various
 commands and displaying available adapter methods.
@@ -66,6 +66,13 @@ def list_adapter_methods(port, model):
 
 
 def main():
+    """
+    Parse arguments and run diagnostics.
+
+    This function handles command-line arguments for port selection,
+    model selection, and scanning for available ports. It also runs
+    diagnostics based on the provided parameters.
+    """
     parser = argparse.ArgumentParser(
         description="Scanner communication diagnostics tool"
     )

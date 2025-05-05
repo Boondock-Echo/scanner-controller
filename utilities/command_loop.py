@@ -9,7 +9,11 @@ import logging
 from utilities.command_parser import parse_command
 from utilities.help_utils import show_help
 from utilities.readlineSetup import initialize_readline
-from utilities.scanner_manager import handle_switch_command
+from utilities.scanner_manager import (
+    connect_to_scanner,
+    handle_switch_command,
+    scan_for_scanners,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -19,8 +23,9 @@ def main_loop(adapter, ser, commands, command_help, machine_mode=False):
     REPL-style loop that prompts the user for commands and executes them.
 
     Parameters:
-        adapter (object): Scanner adapter instance.
-        ser (serial.Serial): Serial connection to the scanner.
+        adapter (object): Scanner adapter instance, may be None in machine mode.
+        ser (serial.Serial): Serial connection to the scanner, may be None in
+            machine mode.
         commands (dict): Dictionary of available commands.
         command_help (dict): Dictionary of help texts for commands.
         machine_mode (bool): Whether to use machine-friendly output.
@@ -31,17 +36,47 @@ def main_loop(adapter, ser, commands, command_help, machine_mode=False):
     else:
         print("STATUS:INFO|MESSAGE:Scanner_ready")
 
-    # Add switch scanner command
-    # fmt: off
-    commands["switch"] = (
-        lambda _ser=ser, _adapter=adapter, _commands=commands,
-        _command_help=command_help, _machine_mode=machine_mode:
-        handle_switch_command(
-            _ser, _adapter, _commands, _command_help, _machine_mode
+    # Initialize with basic commands
+    if commands is None:
+        commands = {}
+    if command_help is None:
+        command_help = {}
+
+    # Add core commands that don't require a scanner connection
+    commands["exit"] = lambda: "Exiting program"
+    command_help["exit"] = "Exit the program"
+
+    # Add machine mode specific commands
+    if machine_mode:
+        # Add scan command for discovering scanners
+        commands["scan"] = scan_for_scanners
+        command_help["scan"] = "Scan for available scanners"
+
+        # Add connect command
+        commands["connect"] = lambda scanner_id: connect_to_scanner(
+            scanner_id, commands, command_help
         )
-    )
-    # fmt: on
-    command_help["switch"] = "Switch to a different connected scanner"
+        command_help["connect"] = "Connect to a specific scanner by ID"
+
+    # Only add scanner-specific commands if a scanner is connected
+    if ser and adapter:
+        # Add switch scanner command
+        # fmt: off
+        commands["switch"] = (
+            lambda scanner_id=None,
+            _ser=ser, _adapter=adapter, _commands=commands,
+            _command_help=command_help,
+            _machine_mode=machine_mode:
+            handle_switch_command(
+                _ser, _adapter, _commands, _command_help,
+                _machine_mode, scanner_id
+            )
+        )
+        # fmt: on
+        command_help["switch"] = (
+            "Switch to a different connected scanner. "
+            "Optional: specify a scanner ID (e.g., 'switch 2')"
+        )
 
     # Add help command
     # fmt: off
@@ -76,6 +111,42 @@ def main_loop(adapter, ser, commands, command_help, machine_mode=False):
                 try:
                     result = handler(args) if args else handler()
 
+                    # Special handling for connect command result
+                    if (
+                        command == "connect"
+                        and isinstance(result, tuple)
+                        and len(result) == 4
+                    ):
+                        # Update references with the new connection
+                        ser, adapter, new_commands, new_command_help = result
+
+                        # Update commands dictionary with new scanner commands
+                        commands.update(new_commands)
+                        command_help.update(new_command_help)
+
+                        # Re-add core commands
+                        # Add switch scanner command
+                        # fmt: off
+                        commands["switch"] = (
+                            lambda scanner_id=None,
+                            _ser=ser, _adapter=adapter, _commands=commands,
+                            _command_help=command_help,
+                            _machine_mode=machine_mode:
+                            handle_switch_command(
+                                _ser, _adapter, _commands, _command_help,
+                                _machine_mode, scanner_id
+                            )
+                        )
+                        # fmt: on
+                        command_help["switch"] = (
+                            "Switch to a different connected scanner. "
+                            "Optional: specify a scanner ID (e.g., 'switch 2')"
+                        )
+
+                        # Re-initialize readline with updated commands
+                        initialize_readline(commands)
+                        continue
+
                     # Special handling for switch command result
                     if (
                         command == "switch"
@@ -96,7 +167,7 @@ def main_loop(adapter, ser, commands, command_help, machine_mode=False):
                         # fmt: on
                         # fmt: off
                         commands["switch"] = (
-                            lambda _ser=ser,
+                            lambda scanner_id=None, _ser=ser,
                             _adapter=adapter,
                             _commands=commands,
                             _command_help=command_help,
@@ -106,12 +177,14 @@ def main_loop(adapter, ser, commands, command_help, machine_mode=False):
                                 _commands,
                                 _command_help,
                                 _machine_mode,
+                                scanner_id
                             )
                         )
                         # fmt: on
-                        command_help[
-                            "switch"
-                        ] = "Switch to a different connected scanner"
+                        command_help["switch"] = (
+                            "Switch to a different connected scanner. "
+                            "Optional: specify a scanner ID (e.g., 'switch 2')"
+                        )
                         initialize_readline(commands)
                         continue
 

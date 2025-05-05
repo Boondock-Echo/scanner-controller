@@ -1,5 +1,5 @@
 """
-scanner_gui
+Scanner GUI Module.
 
 This module defines the ScannerGUI class, which provides a graphical user
 interface for controlling and interacting with a scanner device.
