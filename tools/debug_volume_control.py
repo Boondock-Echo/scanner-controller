@@ -1,5 +1,5 @@
 """
-Debug utility for volume controls
+Debug utility for volume controls.
 
 This script tests volume and squelch settings and reports the responses
 to determine the valid range and response format for a connected scanner.
@@ -102,6 +102,13 @@ def test_squelch_range(port, model, steps=10):
 
 
 def main():
+    """
+    Parse arguments and run tests.
+
+    This function sets up the command-line interface for the script,
+    allowing the user to specify the serial port, model, number of steps,
+    and the type of test to perform.
+    """
     parser = argparse.ArgumentParser(
         description="Debug volume and squelch controls"
     )

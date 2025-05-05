@@ -82,6 +82,12 @@ def test_volume_command(port, baudrate=115200):
 
 
 def main():
+    """
+    Test volume commands with various ranges.
+
+    This function tries setting volume to different values to determine
+    what range your scanner supports.
+    """
     parser = argparse.ArgumentParser(
         description="Test scanner volume range support"
     )
