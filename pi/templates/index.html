@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boondock Tango Controller</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="mt-4 text-center">Boondock Tango Controller</h1>
+
+        <!-- Device Statistics -->
+        <div class="card">
+            <h2>Device Statistics</h2>
+            <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                <div>
+                    <label>IP Address</label>
+                    <p>{{ system_info.ip_address }}</p>
+                </div>
+                <div>
+                    <label>CPU Usage</label>
+                    <p>{{ system_info.cpu_usage }}%</p>
+                </div>
+                <div>
+                    <label>Memory Usage</label>
+                    <p>{{ system_info.memory_used }} / {{ system_info.memory_total }} MB</p>
+                </div>
+                <div>
+                    <label>Scanners Connected</label>
+                    <p>{% if usb_serial_devices %}{{ usb_serial_devices | join(', ') }}{% else %}None{% endif %}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Controls -->
+        <div class="card">
+            <h2>System Controls</h2>
+            <div class="grid sm:grid-cols-2 gap-4 mt-4">
+                <button onclick="systemAction('shutdown')">Shutdown</button>
+                <button onclick="systemAction('reboot')">Reboot</button>
+            </div>
+            <p id="systemStatus" class="mt-2 text-red-600"></p>
+        </div>
+
+        <!-- Settings -->
+        <div class="card">
+            <h2>Settings</h2>
+            <div class="grid sm:grid-cols-2 gap-4 mt-4">
+                <a href="/wifi" class="button">Update WiFi</a>
+                <a href="/scanner" class="button">Control Scanner</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function systemAction(action) {
+            const status = document.getElementById('systemStatus');
+            const button = event.target;
+            button.disabled = true;
+            status.textContent = `Performing ${action}...`;
+            try {
+                const response = await fetch(`/${action}`, { method: 'POST' });
+                const result = await response.json();
+                status.textContent = result.message;
+                status.classList.toggle('text-red-600', !response.ok);
+                status.classList.toggle('text-green-600', response.ok);
+            } catch (error) {
+                status.textContent = `Error performing ${action}`;
+                status.classList.add('text-red-600');
+            } finally {
+                button.disabled = false;
+            }
+        }
+    </script>
+</body>
+
+</html>

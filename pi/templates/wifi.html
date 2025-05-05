@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiFi Settings - Boondock Tango Controller</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="mt-4 text-center">WiFi Settings</h1>
+
+        <!-- WiFi Configuration -->
+        <div class="card">
+            <h2>WiFi Configuration</h2>
+            <form id="wifiForm" class="grid sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                <div>
+                    <label for="wifiMode">WiFi Selection Mode</label>
+                    <select id="wifiMode" name="wifiMode" onchange="toggleWifiMode()">
+                        <option value="scan">Select from Scanned Networks</option>
+                        <option value="manual">Manual Entry</option>
+                    </select>
+                </div>
+                <div id="scanSection">
+                    <label for="ssidScan">Available Networks</label>
+                    <select id="ssidScan" name="ssidScan" disabled>
+                        <option value="">Loading networks... <span class="animate-spin inline-block">↻</span></option>
+                    </select>
+                </div>
+                <div id="manualSection" class="hidden">
+                    <label for="ssidManual">WiFi SSID</label>
+                    <input type="text" id="ssidManual" name="ssidManual">
+                </div>
+                <div>
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password">
+                </div>
+                <div>
+                    <label for="staticIp">Static IP (optional)</label>
+                    <input type="text" id="staticIp" name="staticIp" placeholder="e.g., 192.168.1.100">
+                </div>
+                <div>
+                    <label for="subnetMask">Subnet Mask (optional)</label>
+                    <input type="text" id="subnetMask" name="subnetMask" placeholder="e.g., 255.255.255.0">
+                </div>
+                <div>
+                    <label for="gateway">Gateway (optional)</label>
+                    <input type="text" id="gateway" name="gateway" placeholder="e.g., 192.168.1.1">
+                </div>
+                <div>
+                    <label for="dns">DNS (optional)</label>
+                    <input type="text" id="dns" name="dns" placeholder="e.g., 8.8.8.8">
+                </div>
+                <div class="flex items-end">
+                    <button type="submit">Connect to WiFi</button>
+                </div>
+            </form>
+            <p id="wifiStatus" class="mt-2 text-red-600"></p>
+        </div>
+
+        <div class="mt-4">
+            <a href="/" class="button">Back to Home</a>
+        </div>
+
+        <script>
+            function toggleWifiMode() {
+                const mode = document.getElementById('wifiMode').value;
+                const scanSection = document.getElementById('scanSection');
+                const manualSection = document.getElementById('manualSection');
+                scanSection.classList.toggle('hidden', mode === 'manual');
+                manualSection.classList.toggle('hidden', mode === 'scan');
+            }
+
+            async function loadWifiNetworks() {
+                const ssidSelect = document.getElementById('ssidScan');
+                const wifiStatus = document.getElementById('wifiStatus');
+                ssidSelect.disabled = true;
+                ssidSelect.innerHTML = '<option value="">Loading networks... <span class="animate-spin inline-block">↻</span></option>';
+                try {
+                    const response = await fetch('/wifi/networks');
+                    const networks = await response.json();
+                    ssidSelect.innerHTML = '<option value="">Select a network</option>';
+                    networks.forEach(network => {
+                        const option = document.createElement('option');
+                        option.value = network.ssid;
+                        option.textContent = network.ssid;
+                        ssidSelect.appendChild(option);
+                    });
+                    ssidSelect.disabled = false;
+                    wifiStatus.textContent = networks.length ? '' : 'No networks found';
+                } catch (error) {
+                    ssidSelect.disabled = false;
+                    wifiStatus.textContent = 'Error loading WiFi networks';
+                }
+            }
+
+            document.getElementById('wifiForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const mode = document.getElementById('wifiMode').value;
+                const ssid = mode === 'scan' ? document.getElementById('ssidScan').value : document.getElementById('ssidManual').value;
+                const password = document.getElementById('password').value;
+                const staticIp = document.getElementById('staticIp').value;
+                const subnetMask = document.getElementById('subnetMask').value;
+                const gateway = document.getElementById('gateway').value;
+                const dns = document.getElementById('dns').value;
+                const status = document.getElementById('wifiStatus');
+                const submitButton = e.target.querySelector('button');
+
+                submitButton.disabled = true;
+                status.textContent = 'Configuring WiFi...';
+                try {
+                    const response = await fetch('/wifi', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ssid, password, staticIp, subnetMask, gateway, dns })
+                    });
+                    const result = await response.json();
+                    status.textContent = result.message;
+                    status.classList.toggle('text-red-600', !response.ok);
+                    status.classList.toggle('text-green-600', response.ok);
+                } catch (error) {
+                    status.textContent = 'Error configuring WiFi';
+                    status.classList.add('text-red-600');
+                } finally {
+                    submitButton.disabled = false;
+                }
+            });
+
+
+
+            window.onload = loadWifiNetworks;
+        </script>
+</body>
+
+</html>
