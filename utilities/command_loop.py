@@ -9,7 +9,11 @@ import logging
 from utilities.command_parser import parse_command
 from utilities.help_utils import show_help
 from utilities.readlineSetup import initialize_readline
-from utilities.scanner_manager import handle_switch_command
+from utilities.scanner_manager import (
+    handle_list_command,
+    handle_select_command,
+    handle_switch_command,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -34,14 +38,40 @@ def main_loop(adapter, ser, commands, command_help, machine_mode=False):
     # Add switch scanner command
     # fmt: off
     commands["switch"] = (
-        lambda _ser=ser, _adapter=adapter, _commands=commands,
+        lambda args="", _ser=ser, _adapter=adapter, _commands=commands,
         _command_help=command_help, _machine_mode=machine_mode:
         handle_switch_command(
-            _ser, _adapter, _commands, _command_help, _machine_mode
+            _ser, _adapter, _commands, _command_help, _machine_mode, args
         )
     )
     # fmt: on
-    command_help["switch"] = "Switch to a different connected scanner"
+    command_help["switch"] = (
+        "Switch to a different connected scanner. "
+        "In machine mode, can use 'switch N' to select scanner number N."
+    )
+
+    # Add list scanners command
+    # fmt: off
+    commands["list"] = (
+        lambda _machine_mode=machine_mode, _ser=ser, _adapter=adapter:
+        handle_list_command(_machine_mode, _ser, _adapter)
+    )
+    # fmt: on
+    command_help["list"] = "List all connected scanners"
+
+    # Add select scanner command
+    # fmt: off
+    commands["select"] = (
+        lambda index, _ser=ser, _adapter=adapter, _commands=commands,
+        _command_help=command_help, _machine_mode=machine_mode:
+        handle_select_command(
+            index, _ser, _adapter, _commands, _command_help, _machine_mode
+        )
+    )
+    # fmt: on
+    command_help["select"] = (
+        "Select a scanner by number " "(use 'list' to see available scanners)"
+    )
 
     # Add help command
     # fmt: off
@@ -76,14 +106,36 @@ def main_loop(adapter, ser, commands, command_help, machine_mode=False):
                 try:
                     result = handler(args) if args else handler()
 
-                    # Special handling for switch command result
+                    # Special handling for switch and select command results
                     if (
-                        command == "switch"
+                        (command == "switch" or command == "select")
                         and isinstance(result, tuple)
                         and len(result) == 4
                     ):
                         ser, adapter, commands, command_help = result
-                        # Re-inject help and switch commands after table rebuild
+
+                        # Store model in adapter if not already present
+                        if not hasattr(adapter, 'model') and hasattr(
+                            ser, 'port'
+                        ):
+                            # Try to extract from detected scanners
+                            try:
+                                from utilities.core.scanner_utils import (
+                                    find_all_scanner_ports,
+                                )
+
+                                detected = find_all_scanner_ports(
+                                    current_port=ser.port
+                                )
+                                for port, model in detected:
+                                    if port == ser.port:
+                                        adapter.model = model
+                                        break
+                            except Exception:
+                                pass
+
+                        # Re-inject help, switch, list, and select commands
+                        # after table rebuild
                         # fmt: off
                         commands["help"] = (
                             lambda arg="",
@@ -96,7 +148,8 @@ def main_loop(adapter, ser, commands, command_help, machine_mode=False):
                         # fmt: on
                         # fmt: off
                         commands["switch"] = (
-                            lambda _ser=ser,
+                            lambda args="",
+                            _ser=ser,
                             _adapter=adapter,
                             _commands=commands,
                             _command_help=command_help,
@@ -106,24 +159,57 @@ def main_loop(adapter, ser, commands, command_help, machine_mode=False):
                                 _commands,
                                 _command_help,
                                 _machine_mode,
+                                args
                             )
                         )
                         # fmt: on
-                        command_help[
-                            "switch"
-                        ] = "Switch to a different connected scanner"
+                        # fmt: off
+                        commands["list"] = (
+                            lambda _machine_mode=machine_mode, _ser=ser,
+                            _adapter=adapter:
+                            handle_list_command(_machine_mode, _ser, _adapter)
+                        )
+                        # fmt: on
+                        # fmt: off
+                        commands["select"] = (
+                            lambda index, _ser=ser, _adapter=adapter,
+                            _commands=commands,
+                            _command_help=command_help,
+                            _machine_mode=machine_mode:
+                            handle_select_command(
+                                index, _ser, _adapter, _commands,
+                                _command_help, _machine_mode
+                            )
+                        )
+                        # fmt: on
+                        command_help["switch"] = (
+                            "Switch to a different connected scanner. "
+                            "In machine mode, can use 'switch N' to select "
+                            "scanner number N."
+                        )
+                        command_help["list"] = "List all connected scanners"
+                        command_help["select"] = (
+                            "Select a scanner by number (use 'list' to see "
+                            "available scanners)"
+                        )
                         initialize_readline(commands)
-                        continue
+                        continue  # Skip further processing of the tuple result
 
+                    # Process the non-tuple results
                     if result is not None:
+                        # Handle different result types
                         if isinstance(result, bytes):
                             formatted_result = result.decode(
                                 "ascii", errors="replace"
                             ).strip()
-                        elif isinstance(result, (int, float)):
+                        elif isinstance(result, (int, float, str)):
                             formatted_result = str(result)
                         else:
-                            formatted_result = str(result)
+                            # For complex objects, just give a simple success
+                            # message rather than stringifying the entire object
+                            formatted_result = (
+                                f"Command {command} executed successfully"
+                            )
 
                         if machine_mode:
                             # Check if result is already in machine-readable

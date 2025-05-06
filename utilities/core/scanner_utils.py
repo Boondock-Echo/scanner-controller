@@ -118,7 +118,12 @@ def send_command(ser, command):
 
 
 def find_all_scanner_ports(
-    baudrate=115200, timeout=0.5, max_retries=2, skip_ports=None
+    baudrate=115200,
+    timeout=0.5,
+    max_retries=2,
+    skip_ports=None,
+    current_port=None,
+    current_model=None,
 ):
     """
     Scan all com ports and detect connected scanners.
@@ -129,6 +134,9 @@ def find_all_scanner_ports(
         max_retries (int): Number of times to retry scanning if no scanners are
         found.
         skip_ports (list): List of port names to skip.
+        current_port (str): Currently open port that should be included without
+            testing.
+        current_model (str): Model of the currently connected scanner.
 
     Returns:
         list: A list of tuples (port_name, model_code) for detected scanners.
@@ -138,6 +146,15 @@ def find_all_scanner_ports(
 
     detected = []
     retries = 0
+
+    # If we have a current port and model, add it to detected list without
+    # testing
+    if current_port and current_model:
+        detected.append((current_port, current_model))
+        logging.info(
+            f"Adding current port {current_port} ({current_model}) to detected "
+            "list"
+        )
 
     while retries < max_retries:
         ports = list_ports.comports()
@@ -152,6 +169,11 @@ def find_all_scanner_ports(
             port = port_info.device
             if port in skip_ports:
                 logging.info(f"Skipping port: {port} (in skip list)")
+                continue
+
+            # Skip testing the current port that's already open
+            if port == current_port:
+                logging.info(f"Skipping port: {port} (already open)")
                 continue
 
             logging.info(f"Trying port: {port} ({port_info.description})")

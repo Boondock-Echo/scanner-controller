@@ -75,15 +75,21 @@ def main():
             machine_mode
         )
 
-        if not all([ser, adapter, commands, command_help]):
+        if not any([ser, adapter, commands, command_help]):
             # If connection was not successful
             if machine_mode:
-                # In machine mode, provide structured output for programmatic
-                # handling
-                print("STATUS:ERROR|CODE:CONNECTION_FAILED")
-                logger.error("Failed to connect to scanner. Exiting.")
-                return
+                # In machine mode, we still proceed to the command loop
+                # without a connection
+                # Initialize empty command dictionaries
+                commands = {}
+                command_help = {}
+                # The user will need to use list and select commands to connect
+                logger.info(
+                    "No scanner connected initially in machine mode, "
+                    "continuing to command loop"
+                )
             else:
+                # In standard mode, we prompt for diagnostics and exit
                 print(
                     "Failed to connect to scanner. Please check the connection "
                     "and try again."
