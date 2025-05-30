@@ -136,7 +136,7 @@ def print_dependency_graph(graph, unresolved, base_dir):
         print(f"{relative_file}:")
         if dependencies:
             for dependency in sorted(dependencies):
-                print(f"--->{os.path.relpath(dependency, base_dir)}")
+                print(f"---> {os.path.relpath(dependency, base_dir)}")
         else:
             print("  (No dependencies)")
 

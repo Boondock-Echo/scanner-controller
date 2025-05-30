@@ -1,0 +1,359 @@
+. FORMAT OF THIS DOCUMENT.
+<COMMAND NAME> Summary explanation of the function of the command
+Controller . Radio Command format Radio . Controller Response format
+NOTE
+1. Any command is required to wait a response from the scanner, then, next command will be acceptable.
+2. All memory access commands are acceptable in only Program Mode. Use PRG command to enter Program Mode, and EPG command to exit.
+3. Error message isn't described in this document, but the scanner returns error message to the controller as follows.
+1) Command format error / Value error : ERR[¥r]
+2) The command is invalid at the time : NG[¥r]
+
+4. [¥r] means "to hit the Enter key" or "to send the Return code".
+5. In set command, only "," parameters are not changed.
+6. The set command is aborted if any format error is detected.
+
+Programming Command List
+No.  Category  Command  Function  Program Mode Only
+1.  Program Control Mode  PRG  Enter Program Mode
+2.  EPG  Exit Program Mode
+3.  System Information  MDL  Get Model Info
+4.  VER  Get Firmware Version
+5.  System Settings  BLT  Get/Set Backlight  O
+6.  BSV  Get/Set Battery Info  O
+7.  CLR  Clear All Memory  O
+8.  KBP  Get/Set Key Beep and setting  O
+9.  PRI  Get/Set Priority Mode  O
+10. Scan Settings  SCG  Get/Set Group Quick Lockout  O
+11.  DCH  Delete Channel  O
+12.  CIN  Get/Set Channel Info  O
+13. Search / Close Call Settings  SCO  Get/Set Search/Close Call Settings  O
+14.  GLF  Get Global Lockout Freq  O
+15.  ULF  Unlock Global L/O  O
+16.  LOF  Lock Out Frequency  O
+17.  CLC  Get/Set Close Call Settings  O
+18. Service Search Settings  SSG  Get/Set Service Search Settings  O
+19. Custom Search Settings  CSG  Get/Set Custom Search Group  O
+20.  CSP  Get/Set Custom Search Settings  O
+21. Weather Settings  WXS  Get/Set Weather Settings  O
+22. LCD Contrast Settings  CNT  Get/Set LCD Contrast Settings  O
+23. Volume Level Settings  VOL  Get/Set Volume Level Settings
+24. Squelch Level Settings  SQL  Get/Set Squelch Level Settings
+
+Controller . Radio . PRG[¥r]
+Radio . Controller . PRG,OK[¥r] . PRG,NG[¥r]
+This command is invalid when the scanner is in Menu Mode, during Direct Entry operation, during Quick Save operation.
+The scanner goes to Program Mode. The scanner displays "Remote Mode" on first line and "Keypad Lock" on second line in Program Mode.
+<COMMAND EPG> Exit Program Mode
+Controller . Radio . EPG[¥r]
+Radio . Controller . EPG,OK[¥r]
+The scanner exits from Program Mode. Then the scanner goes to Scan Hold Mode.
+<COMMAND MDL> Get Model Info
+Controller . Radio . MDL[¥r] Radio . Controller
+. MDL,BC125AT[¥r]
+Returns Model Information.
+<COMMAND VER> Get Firmware Version
+Controller . Radio . VER[¥r] Radio . Controller
+. VER,Version 1.00.00[¥r]
+Returns Firmware Version.
+<COMMAND BLT> Get/Set Backlight
+Controller . Radio
+. BLT[¥r]
+. BLT,[EVNT][¥r] Radio . Controller
+.  BLT, [EVNT],[¥r]
+.  BLT,OK[¥r]
+[EVENT]
+AO :ALWAYS ON  AF :ALWAYS OFF
+KY : KEYPRESS  SQ : SQUELCH
+KS : KEY+SQL
+
+Get/Set Backlight Setting. This command is only acceptable in Programming Mode.
+Controller . Radio
+. BSV [¥r]
+. BSV,[CHARGE_TIME][¥r]
+Radio . Controller
+.  BSV,[CHARGE_TIME] [¥r]
+.  BSV,OK[¥r]
+[CHARGE_TIME]  Battery Charge Time (1-16)
+
+<COMMAND CLR> Clear All Memory
+Controller . Radio . CLR[¥r] Radio . Controller . CLR,OK[¥r]
+All the memories are set for initial setting. This command is only acceptable in Programming Mode.
+Note : It takes dozens of seconds.
+<COMMAND KBP> Get/Set Key Beep and setting
+Controller . Radio
+. KBP[¥r]
+. KBP,[LEVEL],[LOCK][¥r] Radio . Controller
+. .  KBP,[LEVEL],[LOCK][¥r] KBP,OK[¥r]
+[LEVEL] [LOCK]  : Beep Level : Key Lock status  (0:Auto / 99:OFF) (0:OFF / 1:ON)
+Get/Set Key Beep Setting.
+
+This command is only acceptable in Programming Mode.
+<COMMAND PRI> Get/Set Priority Mode
+Controller . Radio . PRI[¥r] : Get Priority Mode Setting . PRI,[PRI_MODE][¥r]
+Radio . Controller
+. .  PRI,[PRI_MODE][¥r] PRI,OK[¥r]
+[PRI_MODE]  : Priority Setting  (0:OFF / 1:ON / 2:PLUS ON / 3:DND)
+Get/Set Priority Mode.
+
+This command is only acceptable in Programming Mode.
+Controller . Radio . SCG,[¥r] . SCG,##########[¥r]
+Radio . Controller . SCG,##########[¥r] . SCG,OK[¥r]
+########## (each # is 0 or 1) : 0 : valid / 1 : invalid
+The Order of Range is as same as LCD Icon (1 – 9,0). Get/Set current status of the channel starage bank select. This command is only acceptable in Programming Mode. *It can not set all channel strage banks to "1".
+<COMMAND DCH> Delete Channel
+Controller . Radio
+. DCH,[INDEX][¥r] Radio . Controller
+. DCH,OK[¥r]
+[INDEX] : Channel Index(1-500) ex) CH1 = 1
+This command deletes a Channel. This command is only acceptable in Programming Mode.
+<COMMAND CIN> Get/Set Channel Info
+Controller . Radio . CIN,[INDEX][¥r] . CIN,[INDEX],[NAME],[FRQ],[MOD],[CTCSS/DCS],[DLY],[LOUT],[PRI][¥r] Radio . Controller . CIN,[INDEX],[NAME],[FRQ],[MOD],[CTCSS/DCS],[DLY],[LOUT],[PRI][¥r] . CIN,OK[¥r]
+[INDEX] : Channel Index(1-500) [NAME] : Name (max.16char) [FRQ] : Channel Frequency ex) 290000 [MOD] : Modulation (AUTO/AM/FM/NFM) [CTCSS/DCS] : CTCSS/DCS Status (0-231 )
+*See CTCSS/DCS CODE LIST about the details of this code. [DLY] : Delay Time (-10,-5,0,1,2,3,4,5) [LOUT] : Lockout (0:Unlocked / 1:Lockout) [PRI] : Priority (0:OFF / 1:ON)
+Get/Set Channel Information. In set command, only "," parameters are not changed. The set command is aborted if any format error is detected. This command is only acceptable in Programming Mode.
+Controller . Radio . SCO[¥r] . SCO,[DLY],[CODE_SRCH][¥r] Radio . Controller . SCO,[DLY],[CODE_SRCH][¥r]
+.  SCO,OK[¥r]
+[DLY]  : Delay Time  (-10,-5,0,1,2,3,4,5)
+[CODE_SRCH]  : CTCSS/DCS Search  (0:OFF / 1: CTCSS/DCS)
+
+Get/Set Search/Close Call Settings. In set command, only "," parameters are not changed. The set command is aborted if any format error is detected. This command is only acceptable in Programming Mode.
+<COMMAND GLF> Get Global Lockout Freq
+Controller . Radio . GLF[¥r] . GLF,[***][¥r]
+Radio . Controller
+. .  GLF,[FRQ][¥r] GLF,-1[¥r] GLF,OK[¥r]
+[FRQ] [***]  : Lockout Frequency : Don't care  (250000-512000) (to retrieve 1'st L/O frequency)
+
+This command is used to get Global L/O frequency list. You should call this command again and again to get all-global L/O frequency until the scanner returns "-1". "-1" means that no more L/O frequency exists. This command is only acceptable in Programming Mode.
+<COMMAND ULF> Unlock Global L/O
+Controller . Radio . ULF,[FRQ][¥r] Radio . Controller . ULF,OK[¥r]
+[FRQ] : Lockout Frequency (250000-5120000)
+This command unlocks a L/O frequency. The frequency is deleted from L/O list. This command is only acceptable in Programming Mode.
+<COMMAND LOF > Lock Out Frequency
+Controller . Radio
+. LOF,[FRQ][¥r] Radio . Controller
+. LOF,OK[¥r]
+[FRQ] : Frequency (250000-5120000)
+This command locks out a frequency.
+The frequency is added to L/O list.
+This command is only acceptable in Programming Mode.
+Controller . Radio . CLC[¥r] . CLC,[CC_MODE],[ALTB],[ALTL],[CC_BAND],[LOUT][¥r] Radio . Controller . CLC,[CC_MODE],[ALTB],[ALTL],[CC_BAND],[LOUT][¥r] . CLC,OK[¥r]
+[CC_MODE] : Mode ( 0:OFF / 1:CC PRI / 2:CC DND) [ALTB] : Alert Beep (0:OFF / 1:ON) [ALTL] : Alert Light (0:OFF / 1:ON) [CC_BAND] : Close Call Band (5digit ##### )
+(each # is 0 or 1) ||||| 0 means OFF ||||| 1 means ON ||||+---UHF
+|||+----VHF HIGH2 ||+-----VHF HIGH1 |+------AIR BAND +-------VHF LOW1
+[LOUT] : Lockout for CC Hits with Scan (0:Unlocked / 1:Lockout)
+Get/Set Close Call Settings. In set command, only "," parameters are not changed. The set command is aborted if any format error is detected. This command is only acceptable in Programming Mode.
+<COMMAND SSG> Get/Set Service Search Group
+Controller . Radio
+. SSG[¥r]
+. SSG,##########[¥r] : Status of Each Search Range Radio . Controller
+. .  SSG,##########[¥r] SSG,OK[¥r]
+########## (each # is 0 or 1) |||||||||| |||||||||+-----Racing  :  0 : valid  / 1 : invalid
+
+||||||||+------FRS/GMRS/MURS |||||||+-------CB Radio ||||||+--------Military Air |||||+---------Civil Air ||||+----------Railroad |||+-----------Marine ||+------------Ham Radio |+-------------Fire/Emergency +--------------Police
+The Order of Range is as same as LCD Icon (1 – 9,0). Get/Set current status of the Service Search Bank. This command is only acceptable in Programming Mode. *It can not set all Service Search Bangs to "0".
+Controller . Radio . CSG[¥r] . CSG,##########[¥r] : Status of Each Search Range
+Radio . Controller . CSG,##########[¥r] . CSG,OK[¥r]
+########## (each # is 0 or 1) : 0 : valid / 1 : invalid
+The Order of Range is as same as LCD Icon (1 – 9,0). Get/Set current status of the custom search range. This command is only acceptable in Programming Mode. *It can not set all Custom Search Ranges to "0".
+<COMMAND CSP> Get/Set Custom Search Settings
+Controller . Radio . CSP,[SRCH_INDEX][¥r] . CSP,[SRCH_INDEX],[LIMIT_L],[LIMIT_H][¥r] Radio . Controller . CSP,[SRCH_INDEX],[LIMIT_L],[LIMIT_H],[¥r]
+.  CSP,OK[¥r]
+[SRCH_INDEX] [LIMIT_L] [LIMIT_H]  : Index : Lower Limit Frequency : Upper Limit Frequency  (1-10) (250000-5120000) (250000-5120000)
+
+Get/Set Custom Search Settings. In set command, only "," parameters are not changed. The set command is aborted if any format error is detected. This command is only acceptable in Programming Mode.
+<COMMAND WXS> Get/Set Weather Settings
+Controller . Radio
+. WXS[¥r]
+. WXS,[ALT_PRI][¥r] Radio . Controller
+.  WXS,[ALT_PRI][¥r]
+.  WXS,OK[¥r]
+[ALT_PRI]  : Weather Alert Priority  (0:OFF / 1:ON)
+
+Get/Set Weather Priority Settings. This command is only acceptable in Programming Mode.
+<COMMAND CNT> Get/Set LCD Contrast Settings
+Controller . Radio
+. CNT[¥r]
+. CNT,[CONTRAST][¥r] Radio . Controller
+.  CNT,[CONTRAST][¥r]
+.  CNT,OK[¥r]
+[CONTRAST]  : LCD Contrast  (1 -15)
+
+The default value is set when the set value is outside the range (1-15). Get/Set LCD Contrast Settings. This command is only acceptable in Programming Mode.
+Controller . Radio
+. VOL[¥r] . VOL,[LEVEL][¥r]
+Radio . Controller
+. VOL,[LEVEL][¥r] . VOL,OK[¥r]
+[LEVEL] : Volume Level ( 0 -15 )
+<COMMAND SQL> Get/Set Squelch Level Settings
+Controller . Radio
+. SQL[¥r] . SQL,[LEVEL][¥r]
+Radio . Controller
+. SQL,[LEVEL][¥r] . SQL,OK[¥r]
+[LEVEL] : Squelch Level (0:OPEN / 1-14 / 15:CLOSE)
+NONE / SEARCH
+MODE  CODE  MODE  CODE  MODE  CODE
+NONE / All  0  SEARCH  127  NO_TONE  240
+
+CTCSS
+MODE  CODE
+CTCSS 67.0Hz  64
+CTCSS 69.3Hz  65
+CTCSS 71.9Hz  66
+CTCSS 74.4Hz  67
+CTCSS 77.0Hz  68
+CTCSS 79.7Hz  69
+CTCSS 82.5Hz  70
+CTCSS 85.4Hz  71
+CTCSS 88.5Hz  72
+CTCSS 91.5Hz  73
+CTCSS 94.8Hz  74
+CTCSS 97.4Hz  75
+CTCSS 100.0Hz  76
+CTCSS 103.5Hz  77
+CTCSS 107.2Hz  78
+CTCSS 110.9Hz  79
+
+CTCSS 114.8Hz  80
+CTCSS 118.8Hz  81
+CTCSS 123.0Hz  82
+CTCSS 127.3Hz  83
+CTCSS 131.8Hz  84
+CTCSS 136.5Hz  85
+CTCSS 141.3Hz  86
+CTCSS 146.2Hz  87
+CTCSS 151.4Hz  88
+CTCSS 156.7Hz  89
+CTCSS 159.8Hz  90
+CTCSS 162.2Hz  91
+CTCSS 165.5Hz  92
+CTCSS 167.9Hz  93
+CTCSS 171.3Hz  94
+CTCSS 173.8Hz  95
+CTCSS 177.3Hz  96
+
+CTCSS 179.9Hz  97
+CTCSS 183.5Hz  98
+CTCSS 186.2Hz  99
+CTCSS 189.9Hz  100
+CTCSS 192.8Hz  101
+CTCSS 196.6Hz  102
+CTCSS 199.5Hz  103
+CTCSS 203.5Hz  104
+CTCSS 206.5Hz  105
+CTCSS 210.7Hz  106
+CTCSS 218.1Hz  107
+CTCSS 225.7Hz  108
+CTCSS 229.1Hz  109
+CTCSS 233.6Hz  110
+CTCSS 241.8Hz  111
+CTCSS 250.3Hz  112
+CTCSS 254.1Hz  113
+
+DCS
+MODE  CODE
+DCS 023  128
+DCS 025  129
+DCS 026  130
+DCS 031  131
+DCS 032  132
+DCS 036  133
+DCS 043  134
+DCS 047  135
+DCS 051  136
+DCS 053  137
+DCS 054  138
+DCS 065  139
+DCS 071  140
+DCS 072  141
+DCS 073  142
+DCS 074  143
+DCS 114  144
+DCS 115  145
+DCS 116  146
+DCS 122  147
+DCS 125  148
+DCS 131  149
+DCS 132  150
+DCS 134  151
+DCS 143  152
+DCS 145  153
+DCS 152  154
+DCS 155  155
+DCS 156  156
+DCS 162  157
+DCS 165  158
+DCS 172  159
+DCS 174  160
+DCS 205  161
+DCS 212  162
+
+DCS 223  163
+DCS 225  164
+DCS 226  165
+DCS 243  166
+DCS 244  167
+DCS 245  168
+DCS 246  169
+DCS 251  170
+DCS 252  171
+DCS 255  172
+DCS 261  173
+DCS 263  174
+DCS 265  175
+DCS 266  176
+DCS 271  177
+DCS 274  178
+DCS 306  179
+DCS 311  180
+DCS 315  181
+DCS 325  182
+DCS 331  183
+DCS 332  184
+DCS 343  185
+DCS 346  186
+DCS 351  187
+DCS 356  188
+DCS 364  189
+DCS 365  190
+DCS 371  191
+DCS 411  192
+DCS 412  193
+DCS 413  194
+DCS 423  195
+DCS 431  196
+DCS 432  197
+DCS 445  198
+
+DCS 446  199
+DCS 452  200
+DCS 454  201
+DCS 455  202
+DCS 462  203
+DCS 464  204
+DCS 465  205
+DCS 466  206
+DCS 503  207
+DCS 506  208
+DCS 516  209
+DCS 523  210
+DCS 526  211
+DCS 532  212
+DCS 546  213
+DCS 565  214
+DCS 606  215
+DCS 612  216
+DCS 624  217
+DCS 627  218
+DCS 631  219
+DCS 632  220
+DCS 654  221
+DCS 662  222
+DCS 664  223
+DCS 703  224
+DCS 712  225
+DCS 723  226
+DCS 731  227
+DCS 732  228
+DCS 734  229
+DCS 743  230
+DCS 754  231
