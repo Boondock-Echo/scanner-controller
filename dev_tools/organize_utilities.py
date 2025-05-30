@@ -96,7 +96,7 @@ file_categories = {
         "runFullQSHDiscovery.py",
         "run_full_qsh_discovery.py",
         "runQSHDiscovery.py",
-        "readlineSetup.py",
+        "readline_setup.py",
         "logUtils.py",
         "log_utils.py",
         "validators.py",

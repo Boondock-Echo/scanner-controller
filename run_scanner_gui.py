@@ -59,17 +59,28 @@ def monkey_patch_serial():
 
 def clear_pycache():
     """Clear Python cache to ensure fresh imports."""
-    root_dir = os.path.dirname(os.path.abspath(__file__))
-    for dirpath, dirnames, _ in os.walk(root_dir):
-        if "__pycache__" in dirnames:
-            cache_dir = os.path.join(dirpath, "__pycache__")
-            try:
-                shutil.rmtree(cache_dir)
-                logging.debug(f"Cleared cache directory: {cache_dir}")
-            except Exception as e:
-                logging.warning(
-                    f"Could not clear cache directory {cache_dir}: {e}"
-                )
+    try:
+        from utilities.tools.clear_pycache import (
+            clear_pycache as clear_pycache_util,
+        )
+
+        root_dir = os.path.dirname(os.path.abspath(__file__))
+        clear_pycache_util(root_dir)
+        logging.debug("Cleared Python cache directories")
+    except Exception as e:
+        logging.warning(f"Could not clear cache directories: {e}")
+        # Fall back to original implementation if import fails
+        root_dir = os.path.dirname(os.path.abspath(__file__))
+        for dirpath, dirnames, _ in os.walk(root_dir):
+            if "__pycache__" in dirnames:
+                cache_dir = os.path.join(dirpath, "__pycache__")
+                try:
+                    shutil.rmtree(cache_dir)
+                    logging.debug(f"Cleared cache directory: {cache_dir}")
+                except Exception as e:
+                    logging.warning(
+                        f"Could not clear cache directory {cache_dir}: {e}"
+                    )
 
 
 def main():
