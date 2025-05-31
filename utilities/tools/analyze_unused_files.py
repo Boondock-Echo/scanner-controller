@@ -10,6 +10,8 @@ import argparse
 import os
 import subprocess
 
+from dev_tools.common_utils import find_python_files, save_file_list
+
 
 def parse_arguments():
     """Parse command line arguments."""
@@ -25,22 +27,6 @@ def parse_arguments():
         help="Directory to analyze (default: project root)",
     )
     return parser.parse_args()
-
-
-def find_python_files(directory, excluded_dirs=None):
-    """Find Python files recursively.
-
-    Searches the directory tree while skipping excluded directories.
-    """
-    python_files = []
-    excluded_dirs = excluded_dirs or {"venv", "__pycache__", ".git"}
-    for root, dirs, files in os.walk(directory):
-        # Modify dirs in-place to skip excluded directories
-        dirs[:] = [d for d in dirs if d not in excluded_dirs]
-        for file in files:
-            if file.endswith(".py"):
-                python_files.append(os.path.join(root, file))
-    return python_files
 
 
 def analyze_file_with_vulture(filepath):
@@ -78,10 +64,11 @@ def find_unused_files(directory):
 
 def save_unused_files(unused_files, output_file="unused_files.txt"):
     """Save the list of unused files to a file."""
-    with open(output_file, "w", encoding="utf-8") as file:
-        for unused_file in sorted(unused_files):
-            file.write(f"{unused_file}\n")
-    print(f"\nUnused files saved to {output_file}")
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    project_dir = os.path.abspath(os.path.join(base_dir, "..", ".."))
+    save_file_list(
+        unused_files, project_dir, output_file, description="Unused files"
+    )
 
 
 if __name__ == "__main__":

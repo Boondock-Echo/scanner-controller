@@ -1,9 +1,0 @@
-{
-  "service": "local",
-  "models": {
-    "openai": "gpt-4",
-    "anthropic": "claude-2",
-    "local": "codellama:latest"
-  },
-  "local_url": "http://localhost:11434"
-}
