@@ -8,7 +8,7 @@ import logging
 
 from utilities.command_parser import parse_command
 from utilities.help_utils import show_help
-from utilities.readlineSetup import initialize_readline
+from utilities.readline_setup import initialize_readline
 from utilities.scanner_manager import (
     connect_to_scanner,
     handle_switch_command,
