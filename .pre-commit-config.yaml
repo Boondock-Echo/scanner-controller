@@ -7,6 +7,18 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
+      - id: debug-statements
+      - id: requirements-txt-fixer
+
+  - repo: https://github.com/psf/black
+    rev: 23.9.1
+    hooks:
+      - id: black
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
 
   - repo: https://github.com/PyCQA/flake8
     rev: 6.1.0
@@ -17,19 +29,6 @@ repos:
         types: [python]
         exclude: '(^|/)(\.venv|venv|\.git|__pycache__|\.pytest_cache|\.github)/'
         # More robust exclude pattern that will definitely catch .venv directory
-
-  - repo: https://github.com/psf/black
-    rev: 23.9.1
-    hooks:
-      - id: black
-        language_version: python3
-        args: ["--config=pyproject.toml"]
-
-  - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-        args: ["--settings-path=pyproject.toml"]
 
   - repo: local
     hooks:

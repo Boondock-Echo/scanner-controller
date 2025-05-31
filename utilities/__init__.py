@@ -1,9 +1,12 @@
 """
-Utilities Package.
+Utility modules for the scanner-controller package.
 
-This package provides various utility functions and classes for the scanner
-controller application. It centralizes common functionality used across
-different modules.
+This package provides various utilities for scanner control, including:
+- Serial communication tools
+- Command parsing
+- Scanner management
+- Configuration tools
+- Development utilities
 """
 
 # Core functionality - import in exact order specified by the error message
