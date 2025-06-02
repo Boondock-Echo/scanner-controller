@@ -1,13 +1,9 @@
 """
-Scanner Controller Core Package.
+Core utilities package.
 
-This package provides essential functionality for the scanner controller
-application, including low-level serial communication, device control commands,
-and core utilities that are fundamental to the operation of the scanner
-hardware.
-
-The package ensures proper path configuration and re-exports key functionality
-from other modules to provide a unified interface for core operations.
+This package contains fundamental utilities for command processing,
+scanner communication, and core functionality that is used across
+the entire application.
 """
 
 # Standard library imports for filesystem and path management

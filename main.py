@@ -10,13 +10,13 @@ through their respective adapters.
 import argparse
 import logging
 
-from utilities.command_loop import main_loop
+from utilities.command.loop import main_loop
 
 # Local application/relative imports
 from utilities.core.shared_utils import diagnose_connection_issues
+from utilities.io.timeout_utils import ScannerTimeoutError
 from utilities.log_utils import configure_logging
-from utilities.scanner_manager import detect_and_connect_scanner
-from utilities.timeout_utils import ScannerTimeoutError
+from utilities.scanner.manager import detect_and_connect_scanner
 
 # ------------------------------------------------------------------------------
 # LOGGING SETUP
