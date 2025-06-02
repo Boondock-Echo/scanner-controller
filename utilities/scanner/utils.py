@@ -10,8 +10,8 @@ import time
 import serial
 from serial.tools import list_ports
 
+from utilities.core.serial_utils import clear_serial_buffer
 from utilities.log_utils import get_logger
-from utilities.serial_utils import clear_serial_buffer
 
 # Get a logger for this module
 logger = get_logger(__name__)
