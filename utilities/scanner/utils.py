@@ -8,9 +8,9 @@ and detecting connected scanners.
 import time
 
 import serial
-from adapter_scanner.scanner_utils import clear_serial_buffer
 from serial.tools import list_ports
 
+from utilities.core.serial_utils import clear_serial_buffer
 from utilities.log_utils import get_logger
 
 # Get a logger for this module

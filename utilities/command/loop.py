@@ -6,10 +6,10 @@ This module contains the main interactive command loop functionality.
 
 import logging
 
-from utilities.command_parser import parse_command
-from utilities.help_utils import show_help
-from utilities.readline_setup import initialize_readline
-from utilities.scanner_manager import (
+from utilities.command.help_utils import show_help
+from utilities.command.parser import parse_command
+from utilities.io.readline_setup import initialize_readline
+from utilities.scanner.manager import (
     connect_to_scanner,
     handle_switch_command,
     scan_for_scanners,

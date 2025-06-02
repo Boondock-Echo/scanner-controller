@@ -38,16 +38,10 @@ The code is designed to work with most Uniden scanners and is abstracted to allo
 The application follows a modular architecture:
 
 ```
-┌───────────┐     ┌─────────┐     ┌──────────┐
-│ GUI / CLI │ <-- │ Scanner │ <-- │ Scanner  │
-│ Interface │ --> │ Adapter │ --> │ Hardware │
-└───────────┘     └─────────┘     └──────────┘
-                     ↑ |
-                     | ↓
-                  ┌─────────┐
-                  │ Command │
-                  │ Library │
-                  └─────────┘
+┌───────────┐     ┌─────────┐     ┌─────────┐     ┌──────────┐
+│ GUI / CLI │ <-- │ Scanner │ <-- │ Command │ <-- │ Scanner  │
+│ Interface │ --> │ Adapter │ --> │ Library │ --> │ Hardware │
+└───────────┘     └─────────┘     └─────────┘     └──────────┘
 ```
 
 1. **GUI/CLI Layer**: User interface components that capture user input
@@ -58,59 +52,108 @@ This separation allows new scanner models to be added without modifying the user
 
 ## Project Structure
 
-The project was recently reorganized and checked only so far as to ensure basic functionality.  There are undoubtedly duplicate and deprecated files after the refactor.
-
-The project is organized as follows:
-
-```Folder Tree
-
+```
 scanner-controller/
 │
 ├── scanner_gui/
-│ ├─┌ gui/
-│ │ ├─── audioControls.py # Audio controls (volume, squelch)
-│ │ ├─── controlKeys.py # Control keys (Hold, Scan, etc.)
-│ │ ├─── displayGroup.py # LCD display simulation
-│ │ ├─── keypad.py # Numeric keypad
-│ │ ├─── rotaryKnob.py # Rotary knob simulation
-│ │ ├─── signalMeters.py # Signal meters (RSSI, SQL)
-│ │ ├─── scanner_gui.py # Main GUI implementation
-│ │ ├─── style.qss # Stylesheet for the GUI
-│ │ └─── **init**.py
-│ ├─── commandLibrary.py # Scanner command interface
-│ ├─── scannerUtils.py # Utility functions for serial communication
-│ ├─── main.py # Entry point for the application
-│ └─── **init**.py
+│   ├── gui/
+│   │   ├── audio_controls.py       # Audio controls (volume, squelch)
+│   │   ├── control_keys.py         # Control keys (Hold, Scan, etc.)
+│   │   ├── display_group.py        # LCD display simulation
+│   │   ├── keypad.py               # Numeric keypad
+│   │   ├── rotary_knob.py          # Rotary knob simulation
+│   │   ├── scanner_gui.py          # Main GUI implementation
+│   │   ├── signal_meters.py        # Signal meters (RSSI, SQL)
+│   │   ├── style.qss               # Stylesheet for the GUI
+│   │   └── __init__.py
+│   ├── icons/
+│   │   ├── rotary-knob.svg
+│   │   ├── arrow-left.svg
+│   │   └── arrow-right.svg
+│   ├── controller.py
+│   ├── main.py                     # Entry point for the application
+│   ├── scanner_utils.py            # Utility functions for serial communication
+│   └── __init__.py
 │
-├── adapters/ # Scanner model-specific adapters
-│ ├─┌─ uniden/ # Uniden scanner adapters
-│ │ ├─── bc125at.py # BC125AT adapter implementation
-│ │ ├─── bcd325p2.py # BCD325P2 adapter implementation
-│ │ └─── sds_adapter.py # SDS100/SDS200 adapter implementation
-│ ├── aor/ # AOR scanner adapters
-│ │ └── dv1.py # AR-DV1 adapter implementation
-│ └── **init**.py
+├── adapters/                       # Scanner model-specific adapters
+│   ├── base_adapter.py
+│   ├── uniden/
+│   │   ├── bc125at_adapter.py      # BC125AT adapter implementation
+│   │   ├── bcd325p2_adapter.py     # BCD325P2 adapter implementation
+│   │   ├── uniden_base_adapter.py  # Base class for Uniden adapters
+│   │   ├── common/
+│   │   │   ├── core.py
+│   │   │   ├── programming.py
+│   │   │   └── __init__.py
+│   │   └── __init__.py
+│   └── __pycache__/
 │
-├── icons/ # SVG icons for the GUI
-│ ├── rotary-knob.svg
-│ ├── arrow-left.svg
-│ └── arrow-right.svg
+├── utilities/                      # Utility scripts for development
+│   ├── command_library.py
+│   ├── command_loop.py
+│   ├── command_parser.py
+│   ├── command_registry.py
+│   ├── core.py
+│   ├── help_topics.py
+│   ├── help_utils.py
+│   ├── log_utils.py
+│   ├── readline_setup.py
+│   ├── scanner_factory.py
+│   ├── scanner_manager.py
+│   ├── scanner_utils.py
+│   ├── scanner_utils_uniden.py
+│   ├── serial_utils.py
+│   ├── shared_utils.py
+│   ├── timeout_utils.py
+│   ├── validators.py
+│   ├── tools/
+│   │   ├── analyze_unused_files.py
+│   │   ├── analyze_unused_imports.py
+│   │   ├── build_dependency_graph.py
+│   │   ├── clear_pycache.py
+│   │   └── log_trim.py
+│   ├── research/
+│   │   ├── commands.txt
+│   │   ├── commands_progress.txt
+│   │   └── uniden_command_finder.py
+│   └── __init__.py
 │
-├─── utilities/ # Utility scripts for development
-│ ├─── analyze_unused_files.py # Find completely unused Python files
-│ ├─── analyze_unused_imports.py # Detect unused imports in Python files
-│ ├─── build_dependency_graph.py # Build module dependency graph
-│ └─── cleanup_legacy.py # Identify usages of legacy module imports
-├─┌─ scripts/ # Helper scriptsr adapters to new structure
-│ └─── clear_pycache.py # Script to clear **pycache** directories
+├── command_libraries/              # Command libraries for scanner models
+│   ├── base_command.py
+│   ├── uniden/
+│   │   ├── bc125at_commands.py
+│   │   ├── bcd325p2_commands.py
+│   │   ├── uniden_tone_lut.py
+│   │   └── __init__.py
+│   └── __init__.py
 │
-├─── requirements.txt # Project dependencies
-├─── requirements-dev.txt # Development dependenciese\_\_ directories
-├─── README.md # Project documentation
-├─── requirements.txt # Project dependencies
-├─── requirements-dev.txt           # Development dependencies
+├── tools/                          # Miscellaneous tools
+│   ├── debug_volume_control.py
+│   ├── scanner_diagnostics.py
+│   └── volume_range_test.py
+│
+├── tests/
+│   └── test_example.py
+│
+├── docs/
+│   ├── project_structure.md
+│   └── manuals/
+│       ├── AR-DV1_COMMAND_LIST.pdf
+│       ├── BC125AT_Protocol.pdf
+│       ├── BCD325P2_Remote_Protocol_ver_1_02.pdf
+│       └── SDS100om.pdf
+│
+├── main.py
+├── run_scanner_gui.py
+├── requirements.txt
+├── requirements-dev.txt
+├── README.md
+├── setup.cfg
+├── setup_instructions.md
+└── LICENSE
 ```
-## Installation                    # Project documentation
+
+## Installation # Project documentation
 
 1. Clone the repository:
 
@@ -120,48 +163,64 @@ scanner-controller/
 git clone https://github.com/Boondock-Echo/scanner-controller.git
 cd scanner-controller
 ```
+
 2. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
+
 3. Ensure the required scanner models are connected via serial ports.
+
 ## Usage
 
 1. Run the application:
 
 ## Usage
+
 For CLI
+
 ```bash
 python main.py
 ```
+
 For GUI
+
 ```bash
 python -m scanner_gui.main
 ```
 
-
 2. Use the GUI to interact with your scanner:
+
 - Select the scanner port from the dropdown and click "Connect".
 - Use the sliders, buttons, and keypad to control the scanner.
 - View real-time updates on the display and signal meters.
 - Select the scanner port from the dropdown and click "Connect".
+
 ## Extending the System buttons, and keypad to control the scanner.
+
 - View real-time updates on the display and signal meters.
+
 ### Adding New Scanner Models
+
 ## Extending the System
+
 To add support for a new scanner model:
+
 ### Adding New Scanner Models
+
 1. **Create a new adapter class** in the appropriate manufacturer folder under `adapters/`
 2. **Implement the required methods**::
+
 - `initialize()`: Set up the connection with the scanner
 - `process_command(command, *args)`: Process generic commandsr folder under `adapters/`
 - `read_response()`: Read and interpret scanner responses
 - `cleanup()`: Handle proper disconnectionth the scanner
 - `process_command(command, *args)`: Process generic commands
-Example adapter structure:ad and interpret scanner responses
+  Example adapter structure:ad and interpret scanner responses
 - `cleanup()`: Handle proper disconnection
-```python
+
+````python
 class NewScannerAdapter:e:
  def __init__(self, port):
      self.port = port
@@ -236,9 +295,11 @@ pip install -r requirements-dev.txt
 ```bash
 pre-commit install hooks:
 ```
+
 ### Code Style and Quality
 
 This project uses:
+
 - Black for code formatting
 - Flake8 for code linting with several plugins
 
@@ -253,16 +314,18 @@ The configurations ensure these tools work together without conflicts:
 
 To fix issues:formatter) will automatically fix formatting issues when possible 2. **Flake8** (linter) will report issues but won't fix them automatically
 
-```bash
+````bash
 # First, run Black to auto-format all files
 black .
 ```bash
 # Then run Flake8 to see remaining issueses
 ```bash
 flake8.
-`````
+````
+
 # Fix the remaining issues manually, then commit again
-```
+
+````
 
 ### Common Issues
 
@@ -280,7 +343,7 @@ flake8.
 
 ```bash
 python scripts/clear_pycache.pyctories:
-```
+````
 
 ```bash
 To analyze unused files or imports, or to build a dependency graph:
@@ -289,17 +352,19 @@ To analyze unused files or imports, or to build a dependency graph:
 ```bash
 python -m dev_tools.analyze_unused_file
 ```
+
 to build a dependency graph:
+
 ```bash
 python -m dev_tools.analyze_unused_imports
 python -m dev_tools.build_dependency_graph
 python dev_tools/analyze_unused_files.py
 python dev_tools/analyze_unused_imports.py
 ```
+
 To identify legacy code patterns or migrate adapter code:endency_graph.py
 
-
-```bash
+````bash
 python -m dev_tools.cleanup_legacy --report-file legacy_report.txt## Debugging Communication
 python -m dev_tools.migrate_legacy_adapters --dry-run
 ```To debug scanner communication issues:
@@ -312,11 +377,12 @@ To debug scanner communication issues:python
 ```python
 import logging
 logging.basicConfig(level=logging.DEBUG)
-```
+````
 
 2. Use the built-in serial monitoring:
-Check the log file (created in the app's directory) for communication traces.
-```bash3. 
+   Check the log file (created in the app's directory) for communication traces.
+
+```bash3.
 python -m scanner_gui.main --monitor-serial
 ```
 

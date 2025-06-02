@@ -90,7 +90,7 @@ class ScannerController:
         """
         try:
             # Use the scanner factory from utilities
-            from utilities.scanner_factory import get_scanner_adapter
+            from utilities.scanner.factory import get_scanner_adapter
 
             return get_scanner_adapter(self.model, self.ser)
         except ImportError:
@@ -131,7 +131,7 @@ class ScannerController:
             # Try multiple naming variations
             variations = [
                 snake_case_name,  # set_volume
-                camel_case_name,  # writeVolume
+                camel_case_name,  # write_volume
                 snake_case_name.replace('_', ''),  # setvolume
                 camel_case_name.lower(),  # writevolume
             ]
@@ -426,7 +426,7 @@ class ScannerController:
                 # Try various method names
                 for method_name in [
                     'set_volume',
-                    'writeVolume',
+                    'write_volume',
                     'volume',
                     'setVol',
                 ]:
@@ -513,7 +513,7 @@ class ScannerController:
                 # Try various method names
                 for method_name in [
                     'set_squelch',
-                    'writeSquelch',
+                    'write_squelch',
                     'squelch',
                     'setSql',
                 ]:
@@ -575,7 +575,7 @@ class ScannerController:
             if self.adapter:
                 for method_name in [
                     'get_volume',
-                    'readVolume',
+                    'read_volume',
                     'volume',
                     'getVol',
                 ]:
@@ -656,7 +656,7 @@ class ScannerController:
             if self.adapter:
                 for method_name in [
                     'get_squelch',
-                    'readSquelch',
+                    'read_squelch',
                     'squelch',
                     'getSql',
                 ]:

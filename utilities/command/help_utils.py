@@ -7,7 +7,7 @@ about available commands and features.
 
 import logging
 
-from utilities.help_topics import get_extended_help
+from utilities.command.help_topics import get_extended_help
 
 logger = logging.getLogger(__name__)
 

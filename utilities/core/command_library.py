@@ -10,27 +10,27 @@ Classes:
                      and parse commands.
 
 Functions:
-    getScannerInterface(model): Returns the appropriate adapter class for the
+    get_scanner_interface(model): Returns the appropriate adapter class for the
                                specified scanner model.
-    readVolume(ser, model): Reads the volume level for the specified scanner
+    read_volume(ser, model): Reads the volume level for the specified scanner
                            model.
-    writeVolume(ser, model, value): Sets the volume level for the specified
+    write_volume(ser, model, value): Sets the volume level for the specified
                                    scanner model.
-    readSquelch(ser, model): Reads the squelch level for the specified scanner
+    read_squelch(ser, model): Reads the squelch level for the specified scanner
                             model.
-    writeSquelch(ser, model, value): Sets the squelch level for the specified
+    write_squelch(ser, model, value): Sets the squelch level for the specified
                                     scanner model.
-    readFrequency(ser, model): Reads the current frequency for the specified
+    read_frequency(ser, model): Reads the current frequency for the specified
                               scanner model.
-    writeFrequency(ser, model, value): Sets the frequency for the specified
+    write_frequency(ser, model, value): Sets the frequency for the specified
                                       scanner model.
-    readRSSI(ser, model): Reads the RSSI (Received Signal Strength Indicator)
+    read_rssi(ser, model): Reads the RSSI (Received Signal Strength Indicator)
                          for the specified scanner model.
-    readSMeter(ser, model): Reads the S-meter value for the specified scanner
+    read_smeter(ser, model): Reads the S-meter value for the specified scanner
                            model.
-    readModel(ser, model): Reads the model information for the specified
+    read_model(ser, model): Reads the model information for the specified
                           scanner model.
-    readSWVer(ser, model): Reads the software version for the specified scanner
+    read_swver(ser, model): Reads the software version for the specified scanner
                           model.
 
 Usage:
@@ -180,7 +180,7 @@ Provides a unified interface to different scanner adapters.
 """
 
 
-def getScannerInterface(model):
+def get_scanner_interface(model):
     """Return the appropriate adapter class based on scanner model."""
     if model.upper() == "BC125AT":
         from adapters.uniden.bc125at_adapter import BC125ATAdapter
@@ -194,61 +194,61 @@ def getScannerInterface(model):
         raise ValueError(f"Unsupported scanner model: {model}")
 
 
-def readVolume(ser, model):
+def read_volume(ser, model):
     """Read the volume level for the specified scanner model."""
-    adapter = getScannerInterface(model)()
-    return adapter.readVolume(ser)
+    adapter = get_scanner_interface(model)()
+    return adapter.read_volume(ser)
 
 
-def writeVolume(ser, model, value):
+def write_volume(ser, model, value):
     """Set the volume level for the specified scanner model."""
-    adapter = getScannerInterface(model)()
-    return adapter.writeVolume(ser, value)
+    adapter = get_scanner_interface(model)()
+    return adapter.write_volume(ser, value)
 
 
-def readSquelch(ser, model):
+def read_squelch(ser, model):
     """Read the squelch level for the specified scanner model."""
-    adapter = getScannerInterface(model)()
-    return adapter.readSquelch(ser)
+    adapter = get_scanner_interface(model)()
+    return adapter.read_squelch(ser)
 
 
-def writeSquelch(ser, model, value):
+def write_squelch(ser, model, value):
     """Set the squelch level for the specified scanner model."""
-    adapter = getScannerInterface(model)()
-    return adapter.writeSquelch(ser, value)
+    adapter = get_scanner_interface(model)()
+    return adapter.write_squelch(ser, value)
 
 
-def readFrequency(ser, model):
+def read_frequency(ser, model):
     """Read the current frequency for the specified scanner model."""
-    adapter = getScannerInterface(model)()
-    return adapter.readFrequency(ser)
+    adapter = get_scanner_interface(model)()
+    return adapter.read_frequency(ser)
 
 
-def writeFrequency(ser, model, value):
+def write_frequency(ser, model, value):
     """Set the frequency for the specified scanner model."""
-    adapter = getScannerInterface(model)()
-    return adapter.writeFrequency(ser, value)
+    adapter = get_scanner_interface(model)()
+    return adapter.write_frequency(ser, value)
 
 
-def readRSSI(ser, model):
+def read_rssi(ser, model):
     """Read the RSSI for the specified scanner model."""
-    adapter = getScannerInterface(model)()
-    return adapter.readRSSI(ser)
+    adapter = get_scanner_interface(model)()
+    return adapter.read_rssi(ser)
 
 
-def readSMeter(ser, model):
+def read_smeter(ser, model):
     """Read the S-meter value for the specified scanner model."""
-    adapter = getScannerInterface(model)()
-    return adapter.readSMeter(ser)
+    adapter = get_scanner_interface(model)()
+    return adapter.read_smeter(ser)
 
 
-def readModel(ser, model):
+def read_model(ser, model):
     """Read the model information for the specified scanner model."""
-    adapter = getScannerInterface(model)()
-    return adapter.readModel(ser)
+    adapter = get_scanner_interface(model)()
+    return adapter.read_model(ser)
 
 
-def readSWVer(ser, model):
+def read_swver(ser, model):
     """Read the software version for the specified scanner model."""
-    adapter = getScannerInterface(model)()
-    return adapter.readSWVer(ser)
+    adapter = get_scanner_interface(model)()
+    return adapter.read_swver(ser)

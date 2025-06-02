@@ -22,23 +22,23 @@ def build_command_table(adapter, ser):
     # Primary commands use get/set
     COMMANDS = {
         # Volume
-        "get volume": lambda: adapter.readVolume(ser),
-        "set volume": lambda arg: adapter.writeVolume(ser, float(arg)),
+        "get volume": lambda: adapter.read_volume(ser),
+        "set volume": lambda arg: adapter.write_volume(ser, float(arg)),
         # Squelch
-        "get squelch": lambda: adapter.readSquelch(ser),
-        "set squelch": lambda arg: adapter.writeSquelch(ser, float(arg)),
+        "get squelch": lambda: adapter.read_squelch(ser),
+        "set squelch": lambda arg: adapter.write_squelch(ser, float(arg)),
         # Frequency
-        "get frequency": lambda: adapter.readFrequency(ser),
-        "set frequency": lambda arg: adapter.writeFrequency(ser, float(arg)),
+        "get frequency": lambda: adapter.read_frequency(ser),
+        "set frequency": lambda arg: adapter.write_frequency(ser, float(arg)),
         # Status
-        "get rssi": lambda: adapter.readRSSI(ser),
-        "get smeter": lambda: adapter.readSMeter(ser),
+        "get rssi": lambda: adapter.read_rssi(ser),
+        "get smeter": lambda: adapter.read_smeter(ser),
         "get battery": lambda: adapter.readBatteryVoltage(ser),
         "get window": lambda: adapter.readWindowVoltage(ser),
         "get status": lambda: adapter.readStatus(ser),
         # Device Info
-        "get model": lambda: adapter.readModel(ser),
-        "get version": lambda: adapter.readSWVer(ser),
+        "get model": lambda: adapter.read_model(ser),
+        "get version": lambda: adapter.read_swver(ser),
         # Key Simulation
         "send key": lambda arg: adapter.sendKey(ser, arg),
         # Raw Command
