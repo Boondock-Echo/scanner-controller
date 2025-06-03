@@ -35,10 +35,10 @@ def build_command_table(adapter, ser):
             logging.debug(f"Registering device command: {cmd_name}")
 
             # Create the command handler function
-            COMMANDS[cmd_lower] = (
-                lambda arg="", cmd=cmd_name: adapter.send_command(
-                    ser, f"{cmd}{' ' + arg if arg else ''}"
-                )
+            COMMANDS[
+                cmd_lower
+            ] = lambda arg="", cmd=cmd_name: adapter.send_command(
+                ser, f"{cmd}{' ' + arg if arg else ''}"
             )
 
             # Add help text if available
@@ -71,9 +71,9 @@ def build_command_table(adapter, ser):
     if hasattr(adapter, 'write_volume'):
         logging.debug("Registering 'set volume' command")
         COMMANDS["set volume"] = lambda arg: adapter.write_volume(ser, arg)
-        COMMAND_HELP["set volume"] = (
-            "Set the volume level. Usage: set volume <level>"
-        )
+        COMMAND_HELP[
+            "set volume"
+        ] = "Set the volume level. Usage: set volume <level>"
 
     # -- Squelch commands --
     if hasattr(adapter, 'read_squelch'):
@@ -84,9 +84,9 @@ def build_command_table(adapter, ser):
     if hasattr(adapter, 'write_squelch'):
         logging.debug("Registering 'set squelch' command")
         COMMANDS["set squelch"] = lambda arg: adapter.write_squelch(ser, arg)
-        COMMAND_HELP["set squelch"] = (
-            "Set the squelch level. Usage: set squelch <level>"
-        )
+        COMMAND_HELP[
+            "set squelch"
+        ] = "Set the squelch level. Usage: set squelch <level>"
 
     # -- Additional commands based on adapter capabilities --
     # Battery voltage
@@ -106,9 +106,9 @@ def build_command_table(adapter, ser):
         COMMANDS["set frequency"] = lambda arg: adapter.write_frequency(
             ser, arg
         )
-        COMMAND_HELP["set frequency"] = (
-            "Set the frequency. Usage: set frequency <freq_mhz>"
-        )
+        COMMAND_HELP[
+            "set frequency"
+        ] = "Set the frequency. Usage: set frequency <freq_mhz>"
 
     # Status
     if hasattr(adapter, 'read_status'):
@@ -122,12 +122,87 @@ def build_command_table(adapter, ser):
         COMMANDS["get signal"] = lambda: adapter.read_s_meter(ser)
         COMMAND_HELP["get signal"] = "Get the signal strength meter reading."
 
-    # Key simulation
+    # -- Controlling Scanner commands --
+    # Always register essential controlling scanner commands
+
+    # Send key
     if hasattr(adapter, 'send_key'):
         logging.debug("Registering 'send key' command")
         COMMANDS["send key"] = lambda arg: adapter.send_key(ser, arg)
+        COMMAND_HELP[
+            "send key"
+        ] = "Send key presses to the scanner. Usage: send key <sequence>"
+    else:
+        logging.debug("Registering placeholder 'send key' command")
+        COMMANDS["send key"] = lambda arg: (
+            "Command 'send key' not supported on this scanner model"
+        )
         COMMAND_HELP["send key"] = (
-            "Send key presses to the scanner. Usage: send key <sequence>"
+            "Send key presses to the scanner. Usage: send key <sequence> "
+            "(Not available for this scanner model)"
+        )
+
+    # Hold frequency
+    if hasattr(adapter, 'enter_quick_frequency_hold'):
+        logging.debug("Registering 'hold frequency' command")
+        COMMANDS[
+            "hold frequency"
+        ] = lambda arg: adapter.enter_quick_frequency_hold(ser, float(arg))
+        COMMAND_HELP[
+            "hold frequency"
+        ] = "Enter frequency hold mode. Usage: hold frequency <freq_mhz>"
+    else:
+        logging.debug("Registering placeholder 'hold frequency' command")
+        COMMANDS["hold frequency"] = lambda arg: (
+            "Command 'hold frequency' not supported on this scanner model"
+        )
+        COMMAND_HELP["hold frequency"] = (
+            "Enter frequency hold mode. Usage: hold frequency <freq_mhz> "
+            "(Not available for this scanner model)"
+        )
+
+    # Dump memory
+    if hasattr(adapter, 'dump_memory_to_file'):
+        logging.debug("Registering 'dump memory' command")
+        COMMANDS["dump memory"] = lambda: adapter.dump_memory_to_file(ser)
+        COMMAND_HELP["dump memory"] = "Dump scanner memory to a file."
+    else:
+        logging.debug("Registering placeholder 'dump memory' command")
+        COMMANDS[
+            "dump memory"
+        ] = lambda: "Command 'dump memory' not supported on this scanner model"
+        COMMAND_HELP["dump memory"] = (
+            "Dump scanner memory to a file. "
+            "(Not available for this scanner model)"
+        )
+
+    # Scan start/stop
+    if hasattr(adapter, 'start_scanning'):
+        logging.debug("Registering 'scan start' command")
+        COMMANDS["scan start"] = lambda: adapter.start_scanning(ser)
+        COMMAND_HELP["scan start"] = "Start scanner scanning process."
+    else:
+        logging.debug("Registering placeholder 'scan start' command")
+        COMMANDS["scan start"] = lambda: (
+            "Command 'scan start' not supported on this scanner model"
+        )
+        COMMAND_HELP["scan start"] = (
+            "Start scanner scanning process. "
+            "(Not available for this scanner model)"
+        )
+
+    if hasattr(adapter, 'stop_scanning'):
+        logging.debug("Registering 'scan stop' command")
+        COMMANDS["scan stop"] = lambda: adapter.stop_scanning(ser)
+        COMMAND_HELP["scan stop"] = "Stop scanner scanning process."
+    else:
+        logging.debug("Registering placeholder 'scan stop' command")
+        COMMANDS["scan stop"] = lambda: (
+            "Command 'scan stop' not supported on this scanner model"
+        )
+        COMMAND_HELP["scan stop"] = (
+            "Stop scanner scanning process. "
+            "(Not available for this scanner model)"
         )
 
     logging.info(

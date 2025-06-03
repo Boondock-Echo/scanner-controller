@@ -28,8 +28,8 @@ from utilities.core.serial_utils import (
     send_command,
     wait_for_data,
 )
+from utilities.io.readline_setup import initialize_readline
 from utilities.log_utils import configure_logging, get_logger
-from utilities.readline_setup import initialize_readline
 
 # Only export specific names (instead of using __all__ = ['*'])
 __all__ = [
