@@ -11,10 +11,22 @@ import serial
 from serial.tools import list_ports
 
 from utilities.log_utils import get_logger
-from utilities.scanner.utils import clear_serial_buffer
 
 # Get a logger for this module
 logger = get_logger(__name__)
+
+
+def clear_serial_buffer(ser):
+    """Clear any accumulated data in the serial buffers."""
+    try:
+        ser.reset_input_buffer()
+        ser.reset_output_buffer()
+        time.sleep(0.2)
+        while ser.in_waiting:
+            ser.read(ser.in_waiting)
+        logger.debug("Serial buffer cleared.")
+    except Exception as e:
+        logger.error(f"Error clearing serial buffer: {e}")
 
 
 def read_response(ser, timeout=1.0):
