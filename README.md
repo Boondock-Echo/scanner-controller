@@ -257,11 +257,6 @@ python -m scanner_gui.main
 - Select the scanner port from the dropdown and click "Connect".
 - Use the sliders, buttons, and keypad to control the scanner.
 - View real-time updates on the display and signal meters.
-- Select the scanner port from the dropdown and click "Connect".
-
-## Extending the System buttons, and keypad to control the scanner.
-
-- View real-time updates on the display and signal meters.
 
 ### Adding New Scanner Models
 
