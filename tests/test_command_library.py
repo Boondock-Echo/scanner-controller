@@ -16,3 +16,9 @@ def test_parse_response_error():
     cmd = scanner_command('TEST')
     with pytest.raises(Exception):
         cmd.parseResponse('ERR')
+
+
+def test_parse_response_err_substring():
+    cmd = scanner_command('TEST')
+    # Ensure substring 'ERR' within a valid response does not raise
+    assert cmd.parseResponse('CARRIER') == 'CARRIER'

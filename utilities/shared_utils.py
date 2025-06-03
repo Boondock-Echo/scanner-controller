@@ -98,7 +98,9 @@ class scanner_command:
             Exception: If the response contains an error.
         """
         response = response.strip()
-        if response == "ERR" or "ERR" in response:
+        # Some valid responses can include the substring "ERR" (e.g. "CARRIER").
+        # Consider it an error only when the response actually begins with "ERR".
+        if response.upper().startswith("ERR"):
             raise Exception(
                 f"{self.name}: Command returned an error: {response}"
             )
