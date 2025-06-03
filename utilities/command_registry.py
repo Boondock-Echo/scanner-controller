@@ -33,14 +33,14 @@ def build_command_table(adapter, ser):
         # Status
         "get rssi": lambda: adapter.read_rssi(ser),
         "get smeter": lambda: adapter.read_smeter(ser),
-        "get battery": lambda: adapter.readBatteryVoltage(ser),
-        "get window": lambda: adapter.readWindowVoltage(ser),
-        "get status": lambda: adapter.readStatus(ser),
+        "get battery": lambda: adapter.read_battery_voltage(ser),
+        "get window": lambda: adapter.read_window_voltage(ser),
+        "get status": lambda: adapter.read_status(ser),
         # Device Info
         "get model": lambda: adapter.read_model(ser),
         "get version": lambda: adapter.read_swver(ser),
         # Key Simulation
-        "send key": lambda arg: adapter.sendKey(ser, arg),
+        "send key": lambda arg: adapter.send_key(ser, arg),
         # Raw Command
         "send": lambda arg: adapter.send_command(ser, arg),
         # Frequency Hold
@@ -48,13 +48,13 @@ def build_command_table(adapter, ser):
             ser, float(arg)
         ),
         # Dump Memory to File
-        "dump memory": lambda: adapter.dumpMemoryToFile(ser),
+        "dump memory": lambda: adapter.dump_memory_to_file(ser),
         # Read Global Lockouts
-        "get lockout": lambda: adapter.readGlobalLockout(ser),
+        "get lockout": lambda: adapter.read_global_lockout(ser),
         # Channel I/O
-        "get channel": lambda arg: adapter.readChannelInfo(ser, int(arg)),
+        "get channel": lambda arg: adapter.read_channel_info(ser, int(arg)),
         "set channel": lambda arg: (
-            lambda args: adapter.writeChannelInfo(
+            lambda args: adapter.write_channel_info(
                 ser,
                 int(args[0]),  # index
                 args[1],  # name

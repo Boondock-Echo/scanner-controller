@@ -25,8 +25,8 @@ Contains the GUI application code:
 scanner_gui/
 ├── gui/             # GUI components
 ├── main.py          # Entry point
-├── commandLibrary.py # Command interface
-└── scannerUtils.py  # Utility functions
+├── command_library.py # Command interface
+└── scanner_utils.py  # Utility functions
 ```
 
 ### `/adapters`
