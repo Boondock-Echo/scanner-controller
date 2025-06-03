@@ -60,17 +60,17 @@ scanner-controller/
 │
 ├── scanner_gui/                  # Main application package
 │   ├── gui/                      # GUI components
-│   │   ├── audioControls.py      # Audio controls (volume, squelch)
-│   │   ├── controlKeys.py        # Control keys (Hold, Scan, etc.)
-│   │   ├── displayGroup.py       # LCD display simulation
+│   │   ├── audio_controls.py      # Audio controls (volume, squelch)
+│   │   ├── control_keys.py        # Control keys (Hold, Scan, etc.)
+│   │   ├── display_group.py       # LCD display simulation
 │   │   ├── keypad.py             # Numeric keypad
-│   │   ├── rotaryKnob.py         # Rotary knob simulation
-│   │   ├── signalMeters.py       # Signal meters (RSSI, SQL)
+│   │   ├── rotary_knob.py         # Rotary knob simulation
+│   │   ├── signal_meters.py       # Signal meters (RSSI, SQL)
 │   │   ├── scanner_gui.py        # Main GUI implementation
 │   │   ├── style.qss             # Stylesheet for the GUI
 │   │   └── __init__.py
-│   ├── commandLibrary.py         # Scanner command interface
-│   ├── scannerUtils.py           # Utility functions for serial communication
+│   ├── command_library.py         # Scanner command interface
+│   ├── scanner_utils.py           # Utility functions for serial communication
 │   ├── main.py                   # Entry point for the application
 │   └── __init__.py
 │
@@ -110,7 +110,9 @@ scanner-controller/
 ├── LICENSE                       # License information
 └── README.md                     # Project documentation
 ```
+
 =======
+
 ```
 scanner-controller/
 │
@@ -213,7 +215,8 @@ scanner-controller/
 ```
 
 ## Installation # Project documentation
->>>>>>> origin/main
+
+> > > > > > > origin/main
 
 This structure separates the core application logic from hardware-specific adapters and provides tools for development and testing. The modular design allows for easy extension with new scanner models and GUI components.
 
@@ -278,6 +281,7 @@ To add support for a new scanner model:
 - `cleanup()`: Handle proper disconnection
 
 <<<<<<< HEAD
+
 `````python
 =======
 ````python
@@ -451,11 +455,11 @@ python -m scanner_gui.main --monitor-serial
 
 | Issue | Possible Solution || GUI elements not responding | Restart the application; check Python and PyQt6 versions |
 | --------------------------- | ---------------------------------------------------------------------------------------- |ication errors | Verify cable connections; try a different USB port |
-| Scanner not detected | Make sure serial drivers are installed and the port is not in use by another application || Slow response time | Adjust the serial timeout settings in scannerUtils.py |
+| Scanner not detected | Make sure serial drivers are installed and the port is not in use by another application || Slow response time | Adjust the serial timeout settings in scanner_utils.py |
 | Commands not working | Check if your scanner firmware is up to date |
 | GUI elements not responding | Restart the application; check Python and PyQt6 versions |## Contributing
 | Serial communication errors | Verify cable connections; try a different USB port |
-| Slow response time | Adjust the serial timeout settings in scannerUtils.py |ps:
+| Slow response time | Adjust the serial timeout settings in scanner_utils.py |ps:
 
 ## Contributing1. Fork the repository.
 
