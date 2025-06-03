@@ -10,8 +10,8 @@ import serial
 
 from utilities.core.command_registry import build_command_table
 from utilities.core.scanner_utils import find_all_scanner_ports
-from utilities.scanner_factory import get_scanner_adapter
-from utilities.timeout_utils import with_timeout
+from utilities.io.timeout_utils import with_timeout
+from utilities.scanner.factory import get_scanner_adapter
 
 logger = logging.getLogger(__name__)
 

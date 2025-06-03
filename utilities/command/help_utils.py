@@ -7,7 +7,7 @@ about available commands and features.
 
 import logging
 
-from utilities.help_topics import get_extended_help
+from utilities.command.help_topics import get_extended_help
 
 logger = logging.getLogger(__name__)
 
@@ -87,6 +87,7 @@ def show_help(commands, command_help, command="", adapter=None):
         ],
         "Controlling Scanner": [
             "hold frequency",
+            "send",
             "send key",
             "dump memory",
             "scan start",
@@ -97,7 +98,7 @@ def show_help(commands, command_help, command="", adapter=None):
 
     # Check if any high-level commands exist in COMMANDS
     has_high_level_commands = any(
-        cmd.startswith(("get ", "set ", "hold ", "send ", "dump "))
+        cmd.startswith(("get ", "set ", "hold ", "send", "dump ", "scan "))
         for cmd in commands
     )
 
@@ -114,10 +115,24 @@ def show_help(commands, command_help, command="", adapter=None):
             "Controlling Scanner": [
                 cmd
                 for cmd in sorted(commands)
-                if cmd.startswith(("hold ", "send ", "dump "))
+                if (
+                    cmd.startswith("hold ")
+                    or cmd == "send"
+                    or cmd.startswith("send ")
+                    or cmd.startswith("dump ")
+                    or cmd.startswith("scan ")
+                )
             ],
             "Other": ["help", "switch", "exit"],
         }
+
+        # Ensure Controlling Scanner commands are always displayed if they exist
+        if not general_commands["Controlling Scanner"]:
+            general_commands["Controlling Scanner"] = [
+                cmd
+                for cmd in standard_commands["Controlling Scanner"]
+                if cmd in commands
+            ]
     else:
         general_commands = standard_commands
 
@@ -144,26 +159,27 @@ def show_help(commands, command_help, command="", adapter=None):
 --------------------------------------------------------------------------------
           """
     )
-    cols_hl = 3  # Fewer columns for longer command names
+    cols_hl = 3  # Use 3 columns max for long command names
 
     for category, cmds in general_commands.items():
         if cmds:
-            # Print category name with aligned colon - using the global max
-            # length
+            # Print category name with aligned colon
             print(f"{category:{max_category_length}}: ", end="")
 
             # Calculate indentation for wrapped lines
-            indent = max_category_length + 2  # category length + colon + space
+            indent = max_category_length + 2
 
             # Print commands in a grid with appropriate spacing
-            for i, cmd in enumerate(sorted(cmds)):
-                # High-level commands are longer, so give them more space
+            sorted_cmds = sorted(cmds)
+            for i, cmd in enumerate(sorted_cmds):
                 print(f"{cmd:<15}", end="  ")
 
-                # Add newline and indentation for wrapped lines
-                if (i + 1) % cols_hl == 0 and i < len(cmds) - 1:
-                    print("\n" + " " * indent, end="")
-            print()  # End line for category
+                # Add newline and indentation after every 3 commands
+                if (i + 1) % cols_hl == 0:
+                    print()
+                    print(" " * indent, end="")
+
+            print()  # Final newline for the category
 
     # 2. Device-specific commands from command libraries
     if command_groups:
