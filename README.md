@@ -38,16 +38,10 @@ The code is designed to work with most Uniden scanners and is abstracted to allo
 The application follows a modular architecture:
 
 ```
-┌───────────┐     ┌─────────┐     ┌──────────┐
-│ GUI / CLI │ <-- │ Scanner │ <-- │ Scanner  │
-│ Interface │ --> │ Adapter │ --> │ Hardware │
-└───────────┘     └─────────┘     └──────────┘
-                     ↑ |
-                     | ↓
-                  ┌─────────┐
-                  │ Command │
-                  │ Library │
-                  └─────────┘
+┌───────────┐     ┌─────────┐     ┌─────────┐     ┌──────────┐
+│ GUI / CLI │ <-- │ Scanner │ <-- │ Command │ <-- │ Scanner  │
+│ Interface │ --> │ Adapter │ --> │ Library │ --> │ Hardware │
+└───────────┘     └─────────┘     └─────────┘     └──────────┘
 ```
 
 1. **GUI/CLI Layer**: User interface components that capture user input
@@ -58,6 +52,7 @@ This separation allows new scanner models to be added without modifying the user
 
 ## Project Structure
 
+<<<<<<< HEAD
 The project follows a modular organization to separate concerns and support extensibility:
 
 ```
@@ -115,6 +110,110 @@ scanner-controller/
 ├── LICENSE                       # License information
 └── README.md                     # Project documentation
 ```
+=======
+```
+scanner-controller/
+│
+├── scanner_gui/
+│   ├── gui/
+│   │   ├── audio_controls.py       # Audio controls (volume, squelch)
+│   │   ├── control_keys.py         # Control keys (Hold, Scan, etc.)
+│   │   ├── display_group.py        # LCD display simulation
+│   │   ├── keypad.py               # Numeric keypad
+│   │   ├── rotary_knob.py          # Rotary knob simulation
+│   │   ├── scanner_gui.py          # Main GUI implementation
+│   │   ├── signal_meters.py        # Signal meters (RSSI, SQL)
+│   │   ├── style.qss               # Stylesheet for the GUI
+│   │   └── __init__.py
+│   ├── icons/
+│   │   ├── rotary-knob.svg
+│   │   ├── arrow-left.svg
+│   │   └── arrow-right.svg
+│   ├── controller.py
+│   ├── main.py                     # Entry point for the application
+│   ├── scanner_utils.py            # Utility functions for serial communication
+│   └── __init__.py
+│
+├── adapters/                       # Scanner model-specific adapters
+│   ├── base_adapter.py
+│   ├── uniden/
+│   │   ├── bc125at_adapter.py      # BC125AT adapter implementation
+│   │   ├── bcd325p2_adapter.py     # BCD325P2 adapter implementation
+│   │   ├── uniden_base_adapter.py  # Base class for Uniden adapters
+│   │   ├── common/
+│   │   │   ├── core.py
+│   │   │   ├── programming.py
+│   │   │   └── __init__.py
+│   │   └── __init__.py
+│   └── __pycache__/
+│
+├── utilities/                      # Utility scripts for development
+│   ├── command_library.py
+│   ├── command_loop.py
+│   ├── command_parser.py
+│   ├── command_registry.py
+│   ├── core.py
+│   ├── help_topics.py
+│   ├── help_utils.py
+│   ├── log_utils.py
+│   ├── readline_setup.py
+│   ├── scanner_factory.py
+│   ├── scanner_manager.py
+│   ├── scanner_utils.py
+│   ├── scanner_utils_uniden.py
+│   ├── serial_utils.py
+│   ├── shared_utils.py
+│   ├── timeout_utils.py
+│   ├── validators.py
+│   ├── tools/
+│   │   ├── analyze_unused_files.py
+│   │   ├── analyze_unused_imports.py
+│   │   ├── build_dependency_graph.py
+│   │   ├── clear_pycache.py
+│   │   └── log_trim.py
+│   ├── research/
+│   │   ├── commands.txt
+│   │   ├── commands_progress.txt
+│   │   └── uniden_command_finder.py
+│   └── __init__.py
+│
+├── command_libraries/              # Command libraries for scanner models
+│   ├── base_command.py
+│   ├── uniden/
+│   │   ├── bc125at_commands.py
+│   │   ├── bcd325p2_commands.py
+│   │   ├── uniden_tone_lut.py
+│   │   └── __init__.py
+│   └── __init__.py
+│
+├── tools/                          # Miscellaneous tools
+│   ├── debug_volume_control.py
+│   ├── scanner_diagnostics.py
+│   └── volume_range_test.py
+│
+├── tests/
+│   └── test_example.py
+│
+├── docs/
+│   ├── project_structure.md
+│   └── manuals/
+│       ├── AR-DV1_COMMAND_LIST.pdf
+│       ├── BC125AT_Protocol.pdf
+│       ├── BCD325P2_Remote_Protocol_ver_1_02.pdf
+│       └── SDS100om.pdf
+│
+├── main.py
+├── run_scanner_gui.py
+├── requirements.txt
+├── requirements-dev.txt
+├── README.md
+├── setup.cfg
+├── setup_instructions.md
+└── LICENSE
+```
+
+## Installation # Project documentation
+>>>>>>> origin/main
 
 This structure separates the core application logic from hardware-specific adapters and provides tools for development and testing. The modular design allows for easy extension with new scanner models and GUI components.
 
@@ -183,7 +282,11 @@ To add support for a new scanner model:
   Example adapter structure:ad and interpret scanner responses
 - `cleanup()`: Handle proper disconnection
 
+<<<<<<< HEAD
 `````python
+=======
+````python
+>>>>>>> origin/main
 class NewScannerAdapter:e:
  def __init__(self, port):
      self.port = port

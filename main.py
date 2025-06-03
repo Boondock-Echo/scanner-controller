@@ -10,7 +10,7 @@ through their respective adapters.
 import argparse
 import logging
 
-from utilities.command_loop import main_loop
+from utilities.command.loop import main_loop
 
 # Local application/relative imports
 from utilities.core.shared_utils import diagnose_connection_issues
