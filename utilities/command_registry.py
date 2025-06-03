@@ -33,9 +33,9 @@ def build_command_table(adapter, ser):
         # Status
         "get rssi": lambda: adapter.read_rssi(ser),
         "get smeter": lambda: adapter.read_smeter(ser),
-        "get battery": lambda: adapter.readBatteryVoltage(ser),
-        "get window": lambda: adapter.readWindowVoltage(ser),
-        "get status": lambda: adapter.readStatus(ser),
+        "get battery": lambda: adapter.read_battery_voltage(ser),
+        "get window": lambda: adapter.read_window_voltage(ser),
+        "get status": lambda: adapter.read_status(ser),
         # Device Info
         "get model": lambda: adapter.read_model(ser),
         "get version": lambda: adapter.read_swver(ser),
