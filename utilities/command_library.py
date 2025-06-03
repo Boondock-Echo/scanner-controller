@@ -119,7 +119,7 @@ class scanner_command:
         # may contain the substring "ERR" (e.g. "CARRIER"), so we check for
         # an actual error prefix instead of using ``in``.
         if response.upper().startswith("ERR"):
-            raise Exception(
+            raise CommandError(
                 f"{self.name}: Command returned an error: {response}"
             )
         return self.parser(response) if self.parser else response
