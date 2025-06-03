@@ -1,5 +1,2 @@
-"""
- package.
-
-This package provides -related functionality.
-"""
+"""Scanner Controller offers a CLI and PyQt6 GUI to manage various
+radio scanner models through a single interface."""
