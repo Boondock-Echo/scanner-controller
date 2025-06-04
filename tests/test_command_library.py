@@ -1,12 +1,15 @@
 """Tests for :class:`utilities.command_library.scanner_command`."""
 
-import pytest
 import os
 import sys
 
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+import pytest
+
+# Ensure the project root is on the Python path so `utilities` can be imported
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from utilities.command_library import scanner_command  # noqa: E402
+from utilities.errors import CommandError  # noqa: E402
 
 
 def test_parse_response_ok():
@@ -18,7 +21,7 @@ def test_parse_response_ok():
 def test_parse_response_error():
     """Raise an exception when the response begins with ``ERR``."""
     cmd = scanner_command("TEST")
-    with pytest.raises(NameError):
+    with pytest.raises(CommandError):  # Use the imported CommandError
         cmd.parse_response("ERR")
 
 
