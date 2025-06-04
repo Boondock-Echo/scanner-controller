@@ -35,14 +35,14 @@ repos:
     hooks:
       - id: pytest
         name: pytest
-        entry: .venv/Scripts/pytest.exe
+        entry: python -m pytest
         language: system
         pass_filenames: false
         types: [python]
 
       - id: isort
         name: isort
-        entry: .venv/Scripts/isort.exe
+        entry: python -m isort
         language: system
         types: [python]
         args: ["--profile", "black"]
