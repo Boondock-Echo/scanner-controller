@@ -2,7 +2,9 @@
 python -m venv test_dev_env
 
 # Activate the environment
-# On Windows:
+# On Unix/macOS:
+source test_dev_env/bin/activate
+# On Windows use:
 test_dev_env\Scripts\activate
 
 # Install both runtime and development dependencies
