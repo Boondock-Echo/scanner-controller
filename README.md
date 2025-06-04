@@ -52,173 +52,22 @@ This separation allows new scanner models to be added without modifying the user
 
 ## Project Structure
 
-<<<<<<< HEAD
-The project follows a modular organization to separate concerns and support extensibility:
+The repository is organized into modules so new scanner models and features can be added easily:
 
-```
+```text
 scanner-controller/
-│
-├── scanner_gui/                  # Main application package
-│   ├── gui/                      # GUI components
-│   │   ├── audio_controls.py      # Audio controls (volume, squelch)
-│   │   ├── control_keys.py        # Control keys (Hold, Scan, etc.)
-│   │   ├── display_group.py       # LCD display simulation
-│   │   ├── keypad.py             # Numeric keypad
-│   │   ├── rotary_knob.py         # Rotary knob simulation
-│   │   ├── signal_meters.py       # Signal meters (RSSI, SQL)
-│   │   ├── scanner_gui.py        # Main GUI implementation
-│   │   ├── style.qss             # Stylesheet for the GUI
-│   │   └── __init__.py
-│   ├── command_library.py         # Scanner command interface
-│   ├── scanner_utils.py           # Utility functions for serial communication
-│   ├── main.py                   # Entry point for the application
-│   └── __init__.py
-│
-├── adapters/                     # Scanner model-specific adapters
-│   ├── uniden/                   # Uniden scanner adapters
-│   │   ├── bc125at.py            # BC125AT adapter implementation
-│   │   ├── bcd325p2.py           # BCD325P2 adapter implementation
-│   │   └── sds_adapter.py        # SDS100/SDS200 adapter implementation
-│   ├── aor/                      # AOR scanner adapters
-│   │   └── dv1.py                # AR-DV1 adapter implementation
-│   └── __init__.py
-│
-├── icons/                        # SVG icons for the GUI
-│   ├── rotary-knob.svg           # Rotary knob icon
-│   ├── arrow-left.svg            # Left arrow navigation icon
-│   └── arrow-right.svg           # Right arrow navigation icon
-│
-├── dev_tools/                    # Utility scripts for development
-│   ├── analyze_unused_files.py   # Find unused Python files
-│   ├── analyze_unused_imports.py # Detect unused imports
-│   ├── build_dependency_graph.py # Build module dependency graph
-│   └── cleanup_legacy.py         # Identify legacy module imports
-│
-├── scripts/                      # Helper scripts
-│   └── clear_pycache.py          # Script to clear __pycache__ directories
-│
-├── tests/                        # Unit and integration tests
-│   ├── test_adapters/            # Tests for scanner adapters
-│   └── test_gui/                 # Tests for GUI components
-│
-├── docs/                         # Documentation
-│   └── api/                      # API documentation
-│
-├── requirements.txt              # Project dependencies
-├── requirements-dev.txt          # Development dependencies
-├── setup.py                      # Package installation script
-├── LICENSE                       # License information
-└── README.md                     # Project documentation
+├── adapters/            # Scanner model adapters
+├── command_libraries/   # Command definitions for each model
+├── scanner_gui/         # GUI application
+│   ├── gui/             # PyQt widgets
+│   └── icons/           # SVG resources
+├── utilities/           # Shared utilities and helper scripts
+├── tools/               # Miscellaneous scripts
+├── dev_tools/           # Development utilities
+├── tests/               # Unit tests
+├── docs/                # Additional documentation
+└── logs/                # Log files (git-ignored)
 ```
-
-=======
-
-```
-scanner-controller/
-│
-├── scanner_gui/
-│   ├── gui/
-│   │   ├── audio_controls.py       # Audio controls (volume, squelch)
-│   │   ├── control_keys.py         # Control keys (Hold, Scan, etc.)
-│   │   ├── display_group.py        # LCD display simulation
-│   │   ├── keypad.py               # Numeric keypad
-│   │   ├── rotary_knob.py          # Rotary knob simulation
-│   │   ├── scanner_gui.py          # Main GUI implementation
-│   │   ├── signal_meters.py        # Signal meters (RSSI, SQL)
-│   │   ├── style.qss               # Stylesheet for the GUI
-│   │   └── __init__.py
-│   ├── icons/
-│   │   ├── rotary-knob.svg
-│   │   ├── arrow-left.svg
-│   │   └── arrow-right.svg
-│   ├── controller.py
-│   ├── main.py                     # Entry point for the application
-│   ├── scanner_utils.py            # Utility functions for serial communication
-│   └── __init__.py
-│
-├── adapters/                       # Scanner model-specific adapters
-│   ├── base_adapter.py
-│   ├── uniden/
-│   │   ├── bc125at_adapter.py      # BC125AT adapter implementation
-│   │   ├── bcd325p2_adapter.py     # BCD325P2 adapter implementation
-│   │   ├── uniden_base_adapter.py  # Base class for Uniden adapters
-│   │   ├── common/
-│   │   │   ├── core.py
-│   │   │   ├── programming.py
-│   │   │   └── __init__.py
-│   │   └── __init__.py
-│   └── __pycache__/
-│
-├── utilities/                      # Utility scripts for development
-│   ├── command_library.py
-│   ├── command_loop.py
-│   ├── command_parser.py
-│   ├── command_registry.py
-│   ├── core.py
-│   ├── help_topics.py
-│   ├── help_utils.py
-│   ├── log_utils.py
-│   ├── readline_setup.py
-│   ├── scanner_factory.py
-│   ├── scanner_manager.py
-│   ├── scanner_utils.py
-│   ├── scanner_utils_uniden.py
-│   ├── serial_utils.py
-│   ├── shared_utils.py
-│   ├── timeout_utils.py
-│   ├── validators.py
-│   ├── tools/
-│   │   ├── analyze_unused_files.py
-│   │   ├── analyze_unused_imports.py
-│   │   ├── build_dependency_graph.py
-│   │   ├── clear_pycache.py
-│   │   └── log_trim.py
-│   ├── research/
-│   │   ├── commands.txt
-│   │   ├── commands_progress.txt
-│   │   └── uniden_command_finder.py
-│   └── __init__.py
-│
-├── command_libraries/              # Command libraries for scanner models
-│   ├── base_command.py
-│   ├── uniden/
-│   │   ├── bc125at_commands.py
-│   │   ├── bcd325p2_commands.py
-│   │   ├── uniden_tone_lut.py
-│   │   └── __init__.py
-│   └── __init__.py
-│
-├── tools/                          # Miscellaneous tools
-│   ├── debug_volume_control.py
-│   ├── scanner_diagnostics.py
-│   └── volume_range_test.py
-│
-├── tests/
-│   └── test_example.py
-│
-├── docs/
-│   ├── project_structure.md
-│   └── manuals/
-│       ├── AR-DV1_COMMAND_LIST.pdf
-│       ├── BC125AT_Protocol.pdf
-│       ├── BCD325P2_Remote_Protocol_ver_1_02.pdf
-│       └── SDS100om.pdf
-│
-├── main.py
-├── run_scanner_gui.py
-├── requirements.txt
-├── requirements-dev.txt
-├── README.md
-├── setup.cfg
-├── setup_instructions.md
-└── LICENSE
-```
-
-## Installation # Project documentation
-
-> > > > > > > origin/main
-
-This structure separates the core application logic from hardware-specific adapters and provides tools for development and testing. The modular design allows for easy extension with new scanner models and GUI components.
 
 ## Installation
 
@@ -239,234 +88,112 @@ pip install -r requirements.txt
 
 ## Usage
 
-1. Run the application:
-
-## Usage
-
-For CLI
+Run the CLI version:
 
 ```bash
 python main.py
 ```
 
-For GUI
+Or launch the GUI:
 
 ```bash
 python -m scanner_gui.main
 ```
 
-2. Use the GUI to interact with your scanner:
-
-- Select the scanner port from the dropdown and click "Connect".
-- Use the sliders, buttons, and keypad to control the scanner.
-- View real-time updates on the display and signal meters.
-
-### Adding New Scanner Models
+Use the interface to select a serial port and control the scanner.
 
 ## Extending the System
 
-To add support for a new scanner model:
+To support a new scanner model:
 
-### Adding New Scanner Models
+1. Create a new adapter class in the `adapters/` directory.
+2. Implement initialization, command processing, and cleanup logic.
+3. Register the adapter in the model detection code.
 
-1. **Create a new adapter class** in the appropriate manufacturer folder under `adapters/`
-2. **Implement the required methods**::
+Example adapter skeleton:
 
-- `initialize()`: Set up the connection with the scanner
-- `process_command(command, *args)`: Process generic commandsr folder under `adapters/`
-- `read_response()`: Read and interpret scanner responses
-- `cleanup()`: Handle proper disconnectionth the scanner
-- `process_command(command, *args)`: Process generic commands
-  Example adapter structure:ad and interpret scanner responses
-- `cleanup()`: Handle proper disconnection
+```python
+class NewScannerAdapter(BaseAdapter):
+    def __init__(self, port: str):
+        self.port = port
+        self.connection = None
 
-<<<<<<< HEAD
+    def initialize(self) -> None:
+        """Establish connection with the scanner."""
+        # Initialize serial connection
 
-`````python
-=======
-````python
->>>>>>> origin/main
-class NewScannerAdapter:e:
- def __init__(self, port):
-     self.port = port
-     self.connection = None
- def __init__(self, port):
- def initialize(self):
-     """Establish connection with the scanner"""
-     # Initialize serial connection
- def initialize(self):
- def process_command(self, command, *args):er"""
-     """Convert generic commands to scanner-specific commands"""
-     if command == "SET_VOLUME":
-         # Convert to scanner-specific volume command
-     elif command == "SET_SQUELCH": scanner-specific commands"""
-         # Convert to scanner-specific squelch command
-     # etc.Convert to scanner-specific volume command
-     elif command == "SET_SQUELCH":
- def read_response(self):nner-specific squelch command
-     """Read and interpret scanner responses"""
-     # Read from serial connection
-     # Interpret the response
-     """Read and interpret scanner responses"""
- def cleanup(self):rial connection
-     """Clean up resources"""
-     # Close the connection
-``` def cleanup(self):
-     """Clean up resources"""
-3. **Register the adapter** in the `commandLibrary.py` file:
-````python
-def detect_scanner_model(port):the `commandLibrary.py` file:
-    # Add your model detection logic
-    if some_condition:
-        return NewScannerAdapter(port)
-``` # Add your model detection logic
-    if some_condition:
-### Adding New GUI Componentster(port)
-`````
+    def process_command(self, command: str, *args) -> None:
+        """Convert generic commands to scanner-specific commands."""
+        if command == "SET_VOLUME":
+            ...  # send volume command
+        elif command == "SET_SQUELCH":
+            ...  # send squelch command
 
-To add a new GUI component:
+    def read_response(self) -> str:
+        """Read and interpret scanner responses."""
+        # Read from serial connection
 
-### Adding New GUI Components
-
-1. Create a new file in the `gui/` directory
-2. Define a class that extends `QWidget` or another appropriate Qt class
-3. Implement the UI and functionality
-4. Connect signals and slots to handle events
-5. Update `scanner_gui.py` to integrate the new componentpriate Qt class
-6. Implement the UI and functionality
-
-## Development Workflow to handle events
-
-5. Update `scanner_gui.py` to integrate the new component
-
-### Setting Up the Development Environment
+    def cleanup(self) -> None:
+        """Close the connection and clean up resources."""
+        # Close connection
+```
 
 ## Development Workflow
 
-1. Install development dependencies:
-
-### Setting Up the Development Environment
+Install development tools and pre-commit hooks:
 
 ```bash
 pip install -r requirements-dev.txt
-```
-
-```bash
-2. Install pre-commit hooks:ts-dev.txt
-```
-
-```bash
-pre-commit install hooks:
+pre-commit install
 ```
 
 ### Code Style and Quality
 
-This project uses:
+Formatting and linting are enforced with **Black** and **Flake8**. Run them before committing:
 
-- Black for code formatting
-- Flake8 for code linting with several plugins
-
-The configurations ensure these tools work together without conflicts:
-
-- Flake8 is configured to be compatible with Black's formatting decisions
-
-### Fixing Code Style Issues
-
-1. **Black** (formatter) will automatically fix formatting issues when possible
-2. **Flake8** (linter) will report issues but won't fix them automatically
-
-To fix issues:formatter) will automatically fix formatting issues when possible 2. **Flake8** (linter) will report issues but won't fix them automatically
-
-````bash
-# First, run Black to auto-format all files
+```bash
 black .
-```bash
-# Then run Flake8 to see remaining issueses
-```bash
-flake8.
-````
-
-# Fix the remaining issues manually, then commit again
-
-````
-
-### Common Issues
-
-- Missing docstrings (D1xx errors)
-- Import ordering (I1xx errors)
-- Unused imports or variables (F4xx errors)
-- Complexity issues (C9xx errors))
-- Import ordering (I1xx errors)
-
-### Maintenance Scripts Labels (F4xx errors)
-
-- Complexity issues (C9xx errors)
+flake8
+```
 
 ### Maintenance Scripts
 
-```bash
-python scripts/clear_pycache.pyctories:
-````
+Useful scripts are located in `tools/` and `dev_tools/`:
 
 ```bash
-To analyze unused files or imports, or to build a dependency graph:
+python tools/clear_pycache.py
+python -m dev_tools.analyze_unused_files
 ```
 
-```bash
-python -m dev_tools.analyze_unused_file
-```
+## Debugging Communication
 
-to build a dependency graph:
+Enable verbose logging to troubleshoot serial issues:
 
-```bash
-python -m dev_tools.analyze_unused_imports
-python -m dev_tools.build_dependency_graph
-python dev_tools/analyze_unused_files.py
-python dev_tools/analyze_unused_imports.py
-```
-
-To identify legacy code patterns or migrate adapter code:endency_graph.py
-
-````bash
-python -m dev_tools.cleanup_legacy --report-file legacy_report.txt## Debugging Communication
-python -m dev_tools.migrate_legacy_adapters --dry-run
-```To debug scanner communication issues:
-
-## Debugging Communication logging:
-
-To debug scanner communication issues:python
-   import logging
-1. Enable verbose logging:EBUG)
 ```python
 import logging
 logging.basicConfig(level=logging.DEBUG)
-````
+```
 
-2. Use the built-in serial monitoring:
-   Check the log file (created in the app's directory) for communication traces.
+You can also monitor serial traffic:
 
-```bash3.
+```bash
 python -m scanner_gui.main --monitor-serial
 ```
 
-3. Check the log file (created in the app's directory) for communication traces.
-
 ## Common Issues and Troubleshooting
 
-| Issue | Possible Solution || GUI elements not responding | Restart the application; check Python and PyQt6 versions |
-| --------------------------- | ---------------------------------------------------------------------------------------- |ication errors | Verify cable connections; try a different USB port |
-| Scanner not detected | Make sure serial drivers are installed and the port is not in use by another application || Slow response time | Adjust the serial timeout settings in scanner_utils.py |
-| Commands not working | Check if your scanner firmware is up to date |
-| GUI elements not responding | Restart the application; check Python and PyQt6 versions |## Contributing
-| Serial communication errors | Verify cable connections; try a different USB port |
-| Slow response time | Adjust the serial timeout settings in scanner_utils.py |ps:
 
-## Contributing1. Fork the repository.
+| Issue                     | Possible Solution |
+|---------------------------|--------------------|
+| Scanner not detected      | Verify cables and serial drivers |
+| Commands not working      | Check firmware and command syntax |
+| GUI elements not responding | Restart the application and ensure PyQt is updated |
+## Contributing
 
-a new branch for your feature or bugfix.
-Contributions are welcome! Please follow these steps:3. Submit a pull request with a detailed description of your changes.
+1. Fork the repository.
+2. Create a branch for your feature or bugfix.
+3. Submit a pull request with a detailed description of your changes.
 
-1. Fork the repository.## License
+## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.## License3. Submit a pull request with a detailed description of your changes.2. Create a new branch for your feature or bugfix.
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
