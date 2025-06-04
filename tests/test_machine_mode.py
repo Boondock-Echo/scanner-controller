@@ -1,7 +1,3 @@
-import os
-import sys
-import types
-
 """Tests ensuring the ``--machine`` mode continues to work as expected.
 
 This module verifies that running the application with the ``--machine``
@@ -13,8 +9,13 @@ imported in a test environment without requiring serial hardware or the real
 package to be installed.
 """
 
-# Ensure project root is on the path so ``main`` and ``utilities`` can be imported
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+import sys
+import types
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))  # noqa: E402
+
+# ``pytest`` adds the repository root to ``sys.path`` when run.
 
 # Provide a minimal stub of the ``serial`` package expected by ``main``.
 # Only the bits required for import are defined here.
@@ -30,8 +31,8 @@ sys.modules.setdefault("serial.tools", serial_tools_stub)
 sys.modules.setdefault("serial.tools.list_ports", list_ports_stub)
 sys.modules.setdefault("serial", serial_stub)
 
-import main
-from utilities.command.loop import main_loop as original_main_loop
+import main  # noqa: E402
+from utilities.command.loop import main_loop as original_main_loop  # noqa: E402
 
 
 def test_main_machine_mode_enabled(capsys, monkeypatch):
@@ -67,14 +68,16 @@ def test_main_loop_exit_machine_mode(capsys, monkeypatch):
     The output should contain the scanner-ready message followed by the exit
     notification in machine-readable form.
     """
-
     inputs = ["exit"]
 
     def fake_input(prompt=""):
         return inputs.pop(0)
 
     monkeypatch.setattr("builtins.input", fake_input)
-    monkeypatch.setattr("utilities.command.loop.initialize_readline", lambda c: None)
+    monkeypatch.setattr(
+        "utilities.command.loop.initialize_readline",
+        lambda c: None,
+    )
 
     original_main_loop(None, None, {}, {}, True)
 

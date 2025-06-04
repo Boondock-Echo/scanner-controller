@@ -2,14 +2,14 @@
 
 import os
 import sys
-import pytest
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from utilities.command.parser import parse_command
+from utilities.command.parser import parse_command  # noqa: E402
 
 
 def test_parse_command_aliases_and_multiword():
+    """Resolve aliases and multiword commands correctly."""
     commands = {
         "get freq": None,
         "set option": None,
@@ -30,6 +30,7 @@ def test_parse_command_aliases_and_multiword():
 
 
 def test_parse_command_unknown():
+    """Return the original verb when the command is not recognized."""
     commands = {}
     cmd, args = parse_command("foo bar baz", commands)
     assert cmd == "foo"
