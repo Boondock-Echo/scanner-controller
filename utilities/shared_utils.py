@@ -7,6 +7,8 @@ It includes serial buffer management and command handling.
 import logging
 import time
 
+from utilities.errors import CommandError
+
 
 class scanner_command:
     """

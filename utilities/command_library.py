@@ -7,6 +7,7 @@ commands for a scanner tool, with validation and logging capabilities.
 
 # Import centralized logging utilities
 from utilities.log_utils import get_logger
+from utilities.errors import CommandError
 
 # Get a logger for this module
 logger = get_logger(__name__)
