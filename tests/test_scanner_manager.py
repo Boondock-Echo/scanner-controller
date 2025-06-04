@@ -4,8 +4,6 @@ import os
 import sys
 import types
 
-import pytest
-
 # Ensure ``utilities`` is importable
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -41,17 +39,25 @@ def test_scan_for_scanners_multiple(monkeypatch):
 def test_connect_to_scanner_invalid_input(monkeypatch):
     """Return an error when the scanner ID is not a number."""
     assert manager.connect_to_scanner("abc") == (
-        "STATUS:ERROR|CODE:INVALID_SCANNER_ID|MESSAGE:Scanner_ID_must_be_a_number"
+        "STATUS:ERROR|CODE:INVALID_SCANNER_ID|MESSAGE:"
+        "Scanner_ID_must_be_a_number"
     )
 
 
 def test_connect_to_scanner_no_scanners(monkeypatch):
     """Return an error when no scanners are detected."""
     monkeypatch.setattr(manager, "find_all_scanner_ports", lambda: [])
-    assert manager.connect_to_scanner("1") == "STATUS:ERROR|CODE:NO_SCANNERS_FOUND"
+    assert (
+        manager.connect_to_scanner("1") == "STATUS:ERROR|CODE:NO_SCANNERS_FOUND"
+    )
 
 
 def test_connect_to_scanner_id_out_of_range(monkeypatch):
     """Return an error when the ID is outside the detected range."""
-    monkeypatch.setattr(manager, "find_all_scanner_ports", lambda: [("COM1", "X")])
-    assert manager.connect_to_scanner("2") == "STATUS:ERROR|CODE:INVALID_SCANNER_ID|MAX_ID:1"
+    monkeypatch.setattr(
+        manager, "find_all_scanner_ports", lambda: [("COM1", "X")]
+    )
+    assert (
+        manager.connect_to_scanner("2")
+        == "STATUS:ERROR|CODE:INVALID_SCANNER_ID|MAX_ID:1"
+    )
