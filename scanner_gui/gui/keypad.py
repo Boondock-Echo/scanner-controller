@@ -11,7 +11,7 @@ from typing import Callable
 from PyQt6.QtWidgets import QGridLayout, QGroupBox, QPushButton
 
 
-def buildKeypad(callback: Callable[[str], None]) -> QGroupBox:
+def build_keypad(callback: Callable[[str], None]) -> QGroupBox:
     """
     Build keypad GUI component.
 
@@ -31,6 +31,6 @@ def buildKeypad(callback: Callable[[str], None]) -> QGroupBox:
         btn.clicked.connect(lambda _, k=key: callback(k))
         grid.addWidget(btn, i // 3, i % 3)
 
-    gridGroup = QGroupBox("Keypad")
-    gridGroup.setLayout(grid)
-    return gridGroup
+    grid_group = QGroupBox("Keypad")
+    grid_group.setLayout(grid)
+    return grid_group

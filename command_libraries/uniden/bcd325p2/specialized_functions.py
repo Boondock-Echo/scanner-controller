@@ -5,11 +5,11 @@ These commands provide functionality for band scope, tone-out,
 band coverage settings, and broadcast screen configuration.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 SPECIALIZED_COMMANDS = {
-    "BSP": scanner_command(
+    "BSP": ScannerCommand(
         name="BSP",
         requires_prg=True,
         set_format="BSP,{freq},{step},{span},{max_hold}",
@@ -80,7 +80,7 @@ SPECIALIZED_COMMANDS = {
         MAX_HOLD : Max hold display (0:OFF, 1:ON)
         """,
     ),
-    "TON": scanner_command(
+    "TON": ScannerCommand(
         name="TON",
         requires_prg=True,
         set_format=(
@@ -137,7 +137,7 @@ SPECIALIZED_COMMANDS = {
         AGC_ANALOG : AGC Setting for Analog Audio (0:OFF, 1:ON)
         """,
     ),
-    "DBC": scanner_command(
+    "DBC": ScannerCommand(
         name="DBC",
         requires_prg=True,
         set_format="DBC,{band_no},{step},{mod}",
@@ -176,7 +176,7 @@ SPECIALIZED_COMMANDS = {
         MOD : Modulation (AM, FM, NFM, WFM, FMB)
         """,
     ),
-    "BBS": scanner_command(
+    "BBS": ScannerCommand(
         name="BBS",
         requires_prg=True,
         set_format="BBS,{index},{limit_l},{limit_h}",

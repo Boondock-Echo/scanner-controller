@@ -9,30 +9,30 @@ pressing the knob.
 from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QGroupBox, QHBoxLayout, QPushButton
-
-
-def buildRotaryKnob(
-    knobPressedCallback=None, rotateLeftCallback=None, rotateRightCallback=None
+def build_rotary_knob(
+    knob_pressed_callback=None,
+    rotate_left_callback=None,
+    rotate_right_callback=None,
 ) -> QGroupBox:
     """
     Build a rotary knob widget with optional callbacks for button actions.
 
     Args:
-        knobPressedCallback (callable, optional): Function to call when the knob
+        knob_pressed_callback (callable, optional): Function to call when the knob
         is pressed.
-        rotateLeftCallback (callable, optional): Function to call when the left
+        rotate_left_callback (callable, optional): Function to call when the left
         button is clicked.
-        rotateRightCallback (callable, optional): Function to call when the
+        rotate_right_callback (callable, optional): Function to call when the
         right button is clicked.
 
     Returns:
         QGroupBox: A group box containing the rotary knob widget.
     """
-    mainLayout = QHBoxLayout()
-    mainLayout.setSpacing(10)
-    mainLayout.setContentsMargins(5, 5, 5, 5)
+    main_layout = QHBoxLayout()
+    main_layout.setSpacing(10)
+    main_layout.setContentsMargins(5, 5, 5, 5)
 
-    buttonStyle = """
+    button_style = """
             QPushButton {
                 border: none;
                 background-color: transparent;
@@ -47,42 +47,42 @@ def buildRotaryKnob(
         """
 
     # Create buttons using a helper function instead of duplicating code
-    if rotateLeftCallback:
-        mainLayout.addWidget(
+    if rotate_left_callback:
+        main_layout.addWidget(
             _create_knob_button(
                 "scanner_gui/icons/arrow-left.svg",
                 (20, 63),
                 (20, 60),
-                buttonStyle,
-                rotateLeftCallback,
+                button_style,
+                rotate_left_callback,
             )
         )
 
-    if knobPressedCallback:
-        mainLayout.addWidget(
+    if knob_pressed_callback:
+        main_layout.addWidget(
             _create_knob_button(
                 "scanner_gui/icons/rotary-knob.svg",
                 (58, 58),
                 (60, 60),
-                buttonStyle,
-                knobPressedCallback,
+                button_style,
+                knob_pressed_callback,
             )
         )
 
-    if rotateRightCallback:
-        mainLayout.addWidget(
+    if rotate_right_callback:
+        main_layout.addWidget(
             _create_knob_button(
                 "scanner_gui/icons/arrow-right.svg",
                 (20, 63),
                 (20, 60),
-                buttonStyle,
-                rotateRightCallback,
+                button_style,
+                rotate_right_callback,
             )
         )
 
-    knobGroup = QGroupBox("Rotary Knob")
-    knobGroup.setLayout(mainLayout)
-    return knobGroup
+    knob_group = QGroupBox("Rotary Knob")
+    knob_group.setLayout(main_layout)
+    return knob_group
 
 
 def _create_knob_button(icon_path, icon_size, button_size, style, callback):

@@ -5,11 +5,11 @@ These commands allow you to program, manage, and control frequencies on the
 scanner.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 FREQUENCY_MANAGEMENT_COMMANDS = {
-    "BLT": scanner_command(
+    "BLT": ScannerCommand(
         name="BLT",
         requires_prg=True,
         set_format="BLT,{band_number}",
@@ -29,7 +29,7 @@ FREQUENCY_MANAGEMENT_COMMANDS = {
         Lower limit, upper limit, step, offset, and modulation for the band
         """,
     ),
-    "BSV": scanner_command(
+    "BSV": ScannerCommand(
         name="BSV",
         requires_prg=False,
         set_format="BSV,{sweep_operation}",
@@ -45,7 +45,7 @@ FREQUENCY_MANAGEMENT_COMMANDS = {
         SWEEP_OPERATION : Operation (0=Stop, 1=Start, 2=View)
         """,
     ),
-    "CNT": scanner_command(
+    "CNT": ScannerCommand(
         name="CNT",
         requires_prg=False,
         set_format="CNT,{frequency}",
@@ -60,7 +60,7 @@ FREQUENCY_MANAGEMENT_COMMANDS = {
         FREQUENCY : Center frequency in Hz
         """,
     ),
-    "OMS": scanner_command(
+    "OMS": ScannerCommand(
         name="OMS",
         requires_prg=True,
         set_format=(
@@ -95,7 +95,7 @@ FREQUENCY_MANAGEMENT_COMMANDS = {
         RSV : Reserved parameter
         """,
     ),
-    "GLF": scanner_command(
+    "GLF": ScannerCommand(
         name="GLF",
         requires_prg=True,
         set_format="GLF",
@@ -108,7 +108,7 @@ FREQUENCY_MANAGEMENT_COMMANDS = {
         List of frequencies that are locked out in the current search range
         """,
     ),
-    "ULF": scanner_command(
+    "ULF": ScannerCommand(
         name="ULF",
         requires_prg=True,
         set_format="ULF,{frequency}",
@@ -122,7 +122,7 @@ FREQUENCY_MANAGEMENT_COMMANDS = {
         FREQUENCY : Frequency in Hz to unlock
         """,
     ),
-    "LOF": scanner_command(
+    "LOF": ScannerCommand(
         name="LOF",
         requires_prg=True,
         set_format="LOF,{frequency}",
@@ -136,7 +136,7 @@ FREQUENCY_MANAGEMENT_COMMANDS = {
         FREQUENCY : Frequency in Hz to lock out
         """,
     ),
-    "GIE": scanner_command(
+    "GIE": ScannerCommand(
         name="GIE",
         requires_prg=True,
         set_format="GIE",
@@ -149,7 +149,7 @@ FREQUENCY_MANAGEMENT_COMMANDS = {
         List of IF exchange frequencies and settings
         """,
     ),
-    "CIE": scanner_command(
+    "CIE": ScannerCommand(
         name="CIE",
         requires_prg=True,
         set_format="CIE,{index},{frequency_from},{frequency_to}",
@@ -172,7 +172,7 @@ FREQUENCY_MANAGEMENT_COMMANDS = {
         FREQUENCY_TO : Replacement frequency in Hz
         """,
     ),
-    "RIE": scanner_command(
+    "RIE": ScannerCommand(
         name="RIE",
         requires_prg=True,
         set_format="RIE,{index}",

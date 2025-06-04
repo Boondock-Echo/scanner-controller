@@ -9,7 +9,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QGroupBox, QHBoxLayout, QLabel, QVBoxLayout
 
 
-def buildAudioControls(volSlider, sqlSlider) -> QGroupBox:
+def build_audio_controls(vol_slider, sql_slider) -> QGroupBox:
     """
     Build a QGroupBox containing volume and squelch sliders.
 
@@ -20,28 +20,28 @@ def buildAudioControls(volSlider, sqlSlider) -> QGroupBox:
     Returns:
         QGroupBox: A group box containing the sliders.
     """
-    volLayout = QVBoxLayout()
-    volLabel = QLabel("VOL")
-    volLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    vol_layout = QVBoxLayout()
+    vol_label = QLabel("VOL")
+    vol_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     # Don't set ranges or values here - they're already set in scanner_gui.py
     # and will be updated with actual scanner values after connection
-    volLayout.addWidget(volLabel)
-    volLayout.addWidget(volSlider)
+    vol_layout.addWidget(vol_label)
+    vol_layout.addWidget(vol_slider)
 
-    sqlLayout = QVBoxLayout()
-    sqlLabel = QLabel("SQL")
-    sqlLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    sql_layout = QVBoxLayout()
+    sql_label = QLabel("SQL")
+    sql_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     # Don't set ranges or values here - they're already set in scanner_gui.py
     # and will be updated with actual scanner values after connection
-    sqlLayout.addWidget(sqlLabel)
-    sqlLayout.addWidget(sqlSlider)
+    sql_layout.addWidget(sql_label)
+    sql_layout.addWidget(sql_slider)
 
-    slidersLayout = QHBoxLayout()
-    slidersLayout.addLayout(volLayout)
-    slidersLayout.addLayout(sqlLayout)
+    sliders_layout = QHBoxLayout()
+    sliders_layout.addLayout(vol_layout)
+    sliders_layout.addLayout(sql_layout)
 
-    audioGroup = QGroupBox("Audio")
-    audioGroup.setLayout(slidersLayout)
-    return audioGroup
+    audio_group = QGroupBox("Audio")
+    audio_group.setLayout(sliders_layout)
+    return audio_group

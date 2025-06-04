@@ -5,10 +5,10 @@ These commands retrieve status information from the scanner including
 reception status, RSSI levels, display information, and version details.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 
 STATUS_INFO_COMMANDS = {
-    "GID": scanner_command(
+    "GID": ScannerCommand(
         name="GID",
         requires_prg=False,
         set_format="GID",
@@ -31,7 +31,7 @@ STATUS_INFO_COMMANDS = {
         Returns empty values (,,,,) when TGID is not displayed.
         """,
     ),
-    "PWR": scanner_command(
+    "PWR": ScannerCommand(
         name="PWR",
         requires_prg=False,
         set_format="PWR",
@@ -48,7 +48,7 @@ STATUS_INFO_COMMANDS = {
         FRQ : Current Frequency
         """,
     ),
-    "STS": scanner_command(
+    "STS": ScannerCommand(
         name="STS",
         requires_prg=False,
         set_format="STS",
@@ -70,7 +70,7 @@ STATUS_INFO_COMMANDS = {
         on the scanner's screen along with status flags.
         """,
     ),
-    "GLG": scanner_command(
+    "GLG": ScannerCommand(
         name="GLG",
         requires_prg=False,
         set_format="GLG",
@@ -101,7 +101,7 @@ STATUS_INFO_COMMANDS = {
         Returns empty values when no reception is active.
         """,
     ),
-    "MDL": scanner_command(
+    "MDL": ScannerCommand(
         name="MDL",
         requires_prg=False,
         set_format="MDL",
@@ -114,7 +114,7 @@ STATUS_INFO_COMMANDS = {
         MDL,BCD325P2
         """,
     ),
-    "VER": scanner_command(
+    "VER": ScannerCommand(
         name="VER",
         requires_prg=False,
         set_format="VER",

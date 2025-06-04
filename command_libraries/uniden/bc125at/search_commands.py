@@ -5,12 +5,12 @@ These commands control the scanner's search features including service search,
 custom search, search settings, and frequency lockout functions.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 SEARCH_COMMANDS = {
     # SCO command removed - already in close_call_commands.py
-    "GLF": scanner_command(
+    "GLF": ScannerCommand(
         name="GLF",
         requires_prg=True,
         set_format="GLF,{ignored}",  # Parameter is ignored for retrieval
@@ -38,7 +38,7 @@ SEARCH_COMMANDS = {
         GLF,* - Get next locked out frequency (parameter is ignored)
         """,
     ),
-    "ULF": scanner_command(
+    "ULF": ScannerCommand(
         name="ULF",
         requires_prg=True,
         set_format="ULF,{frequency}",
@@ -64,7 +64,7 @@ SEARCH_COMMANDS = {
         - This command is only acceptable in Programming Mode
         """,
     ),
-    "LOF": scanner_command(
+    "LOF": ScannerCommand(
         name="LOF",
         requires_prg=True,
         set_format="LOF,{frequency}",
@@ -92,7 +92,7 @@ SEARCH_COMMANDS = {
         """,
     ),
     # SSG command removed - already in system_commands.py
-    "CSG": scanner_command(
+    "CSG": ScannerCommand(
         name="CSG",
         requires_prg=True,
         set_format="CSG,{status_mask}",
@@ -125,7 +125,7 @@ SEARCH_COMMANDS = {
         - This command is only acceptable in Programming Mode
         """,
     ),
-    "CSP": scanner_command(
+    "CSP": ScannerCommand(
         name="CSP",
         requires_prg=True,
         set_format="CSP,{index},{lower_limit},{upper_limit}",
@@ -158,7 +158,7 @@ SEARCH_COMMANDS = {
     ),
     # WXS command removed - already in weather_commands.py
     # Placeholders for missing commands
-    # "JNT": scanner_command(
+    # "JNT": ScannerCommand(
     #     name="JNT",
     #     requires_prg=False,
     #     set_format="JNT,{frequency}",
@@ -170,7 +170,7 @@ SEARCH_COMMANDS = {
     #     JNT,[FREQUENCY] - Jump to frequency
     #     """,
     # ),
-    # "QSH": scanner_command(
+    # "QSH": ScannerCommand(
     #     name="QSH",
     #     requires_prg=False,
     #     set_format="QSH,{frequency}",

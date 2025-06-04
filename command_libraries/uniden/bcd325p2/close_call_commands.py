@@ -6,14 +6,14 @@ signals, even if they are not programmed into the scanner. The commands in this
 section are related to the Close Call feature.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 from utilities.validators import (
     validate_binary_options,
     validate_param_constraints,
 )
 
 CLOSE_CALL_COMMANDS = {
-    "CLC": scanner_command(
+    "CLC": ScannerCommand(
         name="CLC",
         requires_prg=True,
         set_format="CLC,{cc_mode},{cc_override},{rsv},{altb},{altl},{altp},"
@@ -75,7 +75,7 @@ CLOSE_CALL_COMMANDS = {
         ALT_PATTERN : Alert Light Pattern (0:ON, 1:Slow, 2:Fast)
         """,
     ),
-    "JPM": scanner_command(
+    "JPM": ScannerCommand(
         name="JPM",
         requires_prg=False,  # JPM doesn't require program mode
         set_format="JPM,{jump_mode},{index}",
@@ -125,7 +125,7 @@ CLOSE_CALL_COMMANDS = {
         Note: Scanner returns NG if the mode switch cannot be done.
         """,
     ),
-    "JNT": scanner_command(
+    "JNT": ScannerCommand(
         name="JNT",
         requires_prg=False,  # JNT doesn't require program mode
         set_format="JNT,{sys_tag},{chan_tag}",

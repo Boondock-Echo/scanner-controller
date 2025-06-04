@@ -5,11 +5,11 @@ These commands allow you to create, modify, and manage talkgroup IDs in trunked
  radio systems.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 TALKGROUP_COMMANDS = {
-    "AGT": scanner_command(
+    "AGT": ScannerCommand(
         name="AGT",
         requires_prg=True,
         set_format="AGT,{system_index}",
@@ -26,7 +26,7 @@ TALKGROUP_COMMANDS = {
         The index of the created TGID group, or -1 if creation failed
         """,
     ),
-    "ACT": scanner_command(
+    "ACT": ScannerCommand(
         name="ACT",
         requires_prg=True,
         set_format="ACT,{group_index}",
@@ -43,7 +43,7 @@ TALKGROUP_COMMANDS = {
         The index of the created TGID, or -1 if creation failed
         """,
     ),
-    "TIN": scanner_command(
+    "TIN": ScannerCommand(
         name="TIN",
         requires_prg=True,
         set_format=(
@@ -106,7 +106,7 @@ TALKGROUP_COMMANDS = {
         Detailed TGID information when used in get mode
         """,
     ),
-    "GLI": scanner_command(
+    "GLI": ScannerCommand(
         name="GLI",
         requires_prg=True,
         set_format="GLI,{system_index}",
@@ -127,7 +127,7 @@ TALKGROUP_COMMANDS = {
         returns -1
         """,
     ),
-    "SLI": scanner_command(
+    "SLI": ScannerCommand(
         name="SLI",
         requires_prg=True,
         set_format="SLI,{system_index}",
@@ -149,7 +149,7 @@ TALKGROUP_COMMANDS = {
         it returns -1
         """,
     ),
-    "ULI": scanner_command(
+    "ULI": ScannerCommand(
         name="ULI",
         requires_prg=True,
         set_format="ULI,{system_index},{tgid}",
@@ -169,7 +169,7 @@ TALKGROUP_COMMANDS = {
         The TGID is removed from the system's lockout list
         """,
     ),
-    "LOI": scanner_command(
+    "LOI": ScannerCommand(
         name="LOI",
         requires_prg=True,
         set_format="LOI,{system_index},{tgid}",

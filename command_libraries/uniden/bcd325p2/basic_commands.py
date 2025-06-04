@@ -5,11 +5,11 @@ Basic commands include settings for backlight, battery save, contrast,
 key beep, volume, squelch, power off, key press, and opening message.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 BASIC_COMMANDS = {
-    "BLT": scanner_command(
+    "BLT": ScannerCommand(
         name="BLT",
         requires_prg=True,
         set_format="BLT,{event},{rsv},{dimmer}",
@@ -32,7 +32,7 @@ BASIC_COMMANDS = {
         DIMMER : Backlight dimmer level (1:Low, 2:Middle, 3:High)
         """,
     ),
-    "BSV": scanner_command(
+    "BSV": ScannerCommand(
         name="BSV",
         requires_prg=True,
         set_format="BSV,{bat_save},{charge_time}",
@@ -53,7 +53,7 @@ BASIC_COMMANDS = {
         CHARGE_TIME : Battery charge time (1-16)
         """,
     ),
-    "CNT": scanner_command(
+    "CNT": ScannerCommand(
         name="CNT",
         set_format="CNT,{mode}",
         validator=validate_param_constraints([(int, (1, 16))]),  # level (1-16)
@@ -69,7 +69,7 @@ BASIC_COMMANDS = {
         MODE : Contrast mode (1-16  [1:Low, 16:High])
         """,
     ),
-    "KBP": scanner_command(
+    "KBP": ScannerCommand(
         name="KBP",
         set_format="KBP,{level},{lock},{safe}",
         validator=validate_param_constraints(
@@ -85,7 +85,7 @@ BASIC_COMMANDS = {
         requires_prg=True,
         help="Sets key beep (0:Auto, 99:Off) and key lock (0:Off, 1:On).",
     ),
-    "VOL": scanner_command(
+    "VOL": ScannerCommand(
         name="VOL",
         set_format="VOL,{level}",
         validator=validate_param_constraints([(int, (0, 15))]),  # level (0-15)
@@ -103,7 +103,7 @@ BASIC_COMMANDS = {
         - To convert: level = int(normalized_value * 15)
         """,
     ),
-    "SQL": scanner_command(
+    "SQL": ScannerCommand(
         name="SQL",
         set_format="SQL,{level}",
         validator=validate_param_constraints([(int, (0, 15))]),  # level (0-15)
@@ -121,7 +121,7 @@ BASIC_COMMANDS = {
         - To convert: level = int(normalized_value * 15)
         """,
     ),
-    "POF": scanner_command(
+    "POF": ScannerCommand(
         name="POF",
         set_format="POF",
         validator=validate_param_constraints([]),  # no parameters
@@ -130,7 +130,7 @@ BASIC_COMMANDS = {
         Power Off command.
         """,
     ),
-    "KEY": scanner_command(
+    "KEY": ScannerCommand(
         name="KEY",
         set_format="KEY,{key}",
         validator=validate_param_constraints(
@@ -168,7 +168,7 @@ BASIC_COMMANDS = {
 
         """,
     ),
-    "OMS": scanner_command(
+    "OMS": ScannerCommand(
         name="OMS",
         set_format="OMS,{line1},{line2},{line3},{line4}",
         validator=validate_param_constraints(

@@ -251,7 +251,7 @@ def validate_enum(name, allowed_values):
         allowed_values (Iterable[str]): A set or list of valid string values
 
     Returns:
-        function: A validator function to pass into scanner_command
+        function: A validator function to pass into ScannerCommand
     """
     allowed_upper = {v.upper() for v in allowed_values}
 

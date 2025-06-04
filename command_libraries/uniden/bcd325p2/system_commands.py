@@ -4,11 +4,11 @@ System Configuration commands for the BCD325P2.
 These commands allow you to create, modify, delete, and manage scanner systems.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 SYSTEM_CONFIGURATION_COMMANDS = {
-    "CSY": scanner_command(
+    "CSY": ScannerCommand(
         name="CSY",
         requires_prg=True,
         set_format="CSY,{sys_type},{protect}",
@@ -54,7 +54,7 @@ SYSTEM_CONFIGURATION_COMMANDS = {
         insufficient resources
         """,
     ),
-    "DSY": scanner_command(
+    "DSY": ScannerCommand(
         name="DSY",
         requires_prg=True,
         set_format="DSY,{sys_index}",
@@ -68,7 +68,7 @@ SYSTEM_CONFIGURATION_COMMANDS = {
         SYS_INDEX : System Index to delete
         """,
     ),
-    "SIN": scanner_command(
+    "SIN": ScannerCommand(
         name="SIN",
         requires_prg=True,
         set_format=(
@@ -123,7 +123,7 @@ SYSTEM_CONFIGURATION_COMMANDS = {
         Detailed system information including type, settings and related indices
         """,
     ),
-    "SIH": scanner_command(
+    "SIH": ScannerCommand(
         name="SIH",
         requires_prg=True,
         set_format="SIH",
@@ -136,7 +136,7 @@ SYSTEM_CONFIGURATION_COMMANDS = {
         The first index in the system list
         """,
     ),
-    "SIT": scanner_command(
+    "SIT": ScannerCommand(
         name="SIT",
         requires_prg=True,
         set_format="SIT",
@@ -149,7 +149,7 @@ SYSTEM_CONFIGURATION_COMMANDS = {
         The last index in the system list
         """,
     ),
-    "SCT": scanner_command(
+    "SCT": ScannerCommand(
         name="SCT",
         requires_prg=True,
         set_format="SCT",
@@ -162,7 +162,7 @@ SYSTEM_CONFIGURATION_COMMANDS = {
         The number of systems stored in the scanner (0-500)
         """,
     ),
-    "QSL": scanner_command(
+    "QSL": ScannerCommand(
         name="QSL",
         requires_prg=True,
         set_format=(
