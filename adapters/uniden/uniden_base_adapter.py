@@ -81,7 +81,7 @@ class UnidenScannerAdapter(BaseScannerAdapter):
         try:
             # Check if we have SQL in command registry
             if "SQL" in self.commands:
-                cmd = self.commands["SQL"].buildCommand()
+                cmd = self.commands["SQL"].build_command()
             else:
                 # Direct string command if not in registry
                 cmd = "SQL"
@@ -105,7 +105,7 @@ class UnidenScannerAdapter(BaseScannerAdapter):
 
             # Use command registry if available
             if "SQL" in self.commands:
-                cmd = self.commands["SQL"].buildCommand(level)
+                cmd = self.commands["SQL"].build_command(level)
             else:
                 # Direct command otherwise
                 cmd = f"SQL,{level}"
@@ -122,7 +122,7 @@ class UnidenScannerAdapter(BaseScannerAdapter):
         try:
             # Check if we have VOL in command registry
             if "VOL" in self.commands:
-                cmd = self.commands["VOL"].buildCommand()
+                cmd = self.commands["VOL"].build_command()
             else:
                 # Direct string command if not in registry
                 cmd = "VOL"
@@ -146,7 +146,7 @@ class UnidenScannerAdapter(BaseScannerAdapter):
 
             # Use command registry if available
             if "VOL" in self.commands:
-                cmd = self.commands["VOL"].buildCommand(level)
+                cmd = self.commands["VOL"].build_command(level)
             else:
                 # Direct command otherwise
                 cmd = f"VOL,{level}"
@@ -191,13 +191,13 @@ class UnidenScannerAdapter(BaseScannerAdapter):
     def read_model(self, ser):
         """Read the scanner model for Uniden scanners."""
         try:
-            return self.send_command(ser, self.commands["MDL"].buildCommand())
+            return self.send_command(ser, self.commands["MDL"].build_command())
         except Exception as e:
             return self.feedback(False, f"Error reading model: {e}")
 
     def read_sw_ver(self, ser):
         """Read the scanner firmware version for Uniden scanners."""
         try:
-            return self.send_command(ser, self.commands["VER"].buildCommand())
+            return self.send_command(ser, self.commands["VER"].build_command())
         except Exception as e:
             return self.feedback(False, f"Error reading firmware version: {e}")

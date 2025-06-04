@@ -108,17 +108,11 @@ class ScannerController:
     def _call_adapter_method(
         self, snake_case_name, camel_case_name, *args, default_return=None
     ):
-        """
-        Call a method on the adapter with fallback between naming conventions.
+        """DEPRECATED helper for legacy CamelCase adapter methods.
 
-        Args:
-            snake_case_name (str): The snake_case name of the method
-            camel_case_name (str): The camelCase name of the method (legacy)
-            *args: Arguments to pass to the method
-            default_return: Value to return if the method cannot be called
-
-        Returns:
-            The result of the method call or default_return on error
+        Modern adapters should implement snake_case methods exclusively and
+        callers should invoke them directly. This helper remains for backward
+        compatibility but will be removed in a future release.
         """
         if not self.adapter or not self.ser:
             return default_return
@@ -259,9 +253,13 @@ class ScannerController:
         Returns:
             str: Response from the scanner or empty string on error.
         """
-        return self._call_adapter_method(
-            'send_key', 'sendKey', key, default_return=""
-        )
+        if not self.adapter:
+            return ""
+        try:
+            return self.adapter.send_key(self.ser, key)
+        except Exception as e:
+            logger.error(f"Error calling send_key: {e}")
+            return ""
 
     def read_status(self):
         """
@@ -270,9 +268,14 @@ class ScannerController:
         Returns:
             str: Status response from the scanner or empty string on error.
         """
-        status = self._call_adapter_method(
-            'read_status', 'readStatus', default_return=""
-        )
+        if not self.adapter:
+            return ""
+
+        try:
+            status = self.adapter.read_status(self.ser)
+        except Exception as e:
+            logger.error(f"Error calling read_status: {e}")
+            return ""
 
         # Sanitize the response to ensure it only contains valid ASCII
         if status:
@@ -301,10 +304,7 @@ class ScannerController:
         try:
             # Use PWR command to get current signal level
             # Response format: PWR,RSSI,FREQUENCY
-            # Example: PWR,383,01624500
-            response = self._call_adapter_method(
-                'send_command', 'sendCommand', "PWR", default_return=None
-            )
+            response = self.adapter.send_command(self.ser, "PWR")
 
             # Handle the response based on its type
             if response is not None:

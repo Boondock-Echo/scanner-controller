@@ -43,7 +43,7 @@ class BaseCommand:
         self.requires_prg = requires_prg
         self.help = help
 
-    def buildCommand(self, value=None):
+    def build_command(self, value=None):
         """Build a command string to send to the scanner."""
         if value is None:
             return f"{self.query_format}\r"
@@ -60,7 +60,7 @@ class BaseCommand:
 
         return f"{self.set_format.format(value=value)}\r"
 
-    def parseResponse(self, response):
+    def parse_response(self, response):
         """Parse the response from the scanner."""
         response = response.strip()
         if response == "ERR" or "ERR" in response:
