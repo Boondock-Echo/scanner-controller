@@ -54,7 +54,7 @@ class scanner_command:
         self.requires_prg = requires_prg
         self.help = help  # optional help text
 
-    def buildCommand(self, value=None):
+    def build_command(self, value=None):
         """
         Build a command string for the scanner.
 
@@ -83,7 +83,7 @@ class scanner_command:
             )
         return f"{self.set_format.format(value=value)}\r"
 
-    def parseResponse(self, response):
+    def parse_response(self, response):
         """
         Parse the response from the scanner.
 

@@ -32,7 +32,7 @@ commands.update(SYSTEM_COMMANDS)
 commands.update(WEATHER_COMMANDS)
 
 
-def getHelp(command):
+def get_help(command):
     """
     Return the help string for the specified command (case-insensitive).
 
@@ -42,6 +42,6 @@ def getHelp(command):
     return cmd.help if cmd else None
 
 
-def listCommands():
+def list_commands():
     """Return a sorted list of all available command names."""
     return sorted(commands.keys())

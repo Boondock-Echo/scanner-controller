@@ -111,7 +111,7 @@ class scanner_command:
         self.requires_prg = requires_prg
         self.help = help  # optional help text
 
-    def buildCommand(self, value=None):
+    def build_command(self, value=None):
         r"""
         Build a formatted command string to send to the scanner.
 
@@ -132,10 +132,10 @@ class scanner_command:
 
         Examples:
             # Query the current volume
-            cmd.buildCommand()    # Returns: "VOL\r"
+            cmd.build_command()    # Returns: "VOL\r"
 
             # Set volume to 5
-            cmd.buildCommand(5)   # Returns: "VOL,5\r"
+            cmd.build_command(5)   # Returns: "VOL,5\r"
         """
         if value is None:
             return f"{self.query_format}\r"
@@ -150,7 +150,7 @@ class scanner_command:
             )
         return f"{self.set_format.format(value=value)}\r"
 
-    def parseResponse(self, response):
+    def parse_response(self, response):
         """
         Parse and validate the response received from the scanner.
 
