@@ -8,11 +8,11 @@ NOAA weather frequencies (162.400 - 162.550 MHz) and alert you when
 warnings are broadcast.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 WEATHER_COMMANDS = {
-    "WXS": scanner_command(
+    "WXS": ScannerCommand(
         name="WXS",
         requires_prg=True,
         set_format="WXS,{alt_pri}",

@@ -6,11 +6,11 @@ to strong nearby radio transmissions. These commands enable configuration of the
 Close Call settings including bands, alerts, and modes.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 CLOSE_CALL_COMMANDS = {
-    "CLC": scanner_command(
+    "CLC": ScannerCommand(
         name="CLC",
         requires_prg=True,
         set_format="CLC,{mode},{alert_beep},{alert_light},{cc_band},{lockout}",
@@ -62,7 +62,7 @@ CLOSE_CALL_COMMANDS = {
         - This command is only acceptable in Programming Mode
         """,
     ),
-    "SCO": scanner_command(
+    "SCO": ScannerCommand(
         name="SCO",
         requires_prg=True,
         set_format="SCO,{delay},{code_search}",

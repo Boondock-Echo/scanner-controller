@@ -5,11 +5,11 @@ These commands allow management of location-based alerts and GPS display
 options.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 GPS_LOCATION_COMMANDS = {
-    "GDO": scanner_command(
+    "GDO": ScannerCommand(
         name="GDO",
         requires_prg=True,
         set_format=(
@@ -41,7 +41,7 @@ GPS_LOCATION_COMMANDS = {
         POS_FORMAT : Position format (DMS/DEG)
         """,
     ),
-    "LIH": scanner_command(
+    "LIH": ScannerCommand(
         name="LIH",
         requires_prg=True,  # This command requires program mode
         set_format="LIH,{las_type}",
@@ -62,7 +62,7 @@ GPS_LOCATION_COMMANDS = {
         The first index of stored location alert system list
         """,
     ),
-    "LIT": scanner_command(
+    "LIT": ScannerCommand(
         name="LIT",
         requires_prg=True,
         set_format="LIT,{las_type}",
@@ -81,7 +81,7 @@ GPS_LOCATION_COMMANDS = {
         Returns: The last index of stored location alert system list
         """,
     ),
-    "CLA": scanner_command(
+    "CLA": ScannerCommand(
         name="CLA",
         requires_prg=True,
         set_format="CLA,{las_type}",
@@ -101,7 +101,7 @@ GPS_LOCATION_COMMANDS = {
         Location Alert System Index or -1 if failed
         """,
     ),
-    "DLA": scanner_command(
+    "DLA": ScannerCommand(
         name="DLA",
         requires_prg=True,
         set_format="DLA,{index}",
@@ -115,7 +115,7 @@ GPS_LOCATION_COMMANDS = {
         INDEX : Location Alert System Index
         """,
     ),
-    "LIN": scanner_command(
+    "LIN": ScannerCommand(
         name="LIN",
         requires_prg=True,
         set_format=(

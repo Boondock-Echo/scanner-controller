@@ -11,7 +11,7 @@ import os
 import sys
 
 # Define which symbols to export when using "from utilities.core import *"
-__all__ = ["clear_serial_buffer", "scanner_command"]
+__all__ = ["clear_serial_buffer", "ScannerCommand"]
 
 # Path Configuration
 # ------------------
@@ -38,8 +38,8 @@ if not os.path.exists(core_dir):
 try:
     # Import essential scanner functions for re-export
     # - clear_serial_buffer: Clears any pending data in the serial connection
-    # - scanner_command: Sends formatted commands to the scanner hardware
-    from utilities.core.shared_utils import clear_serial_buffer, scanner_command
+    # - ScannerCommand: Sends formatted commands to the scanner hardware
+    from utilities.core.shared_utils import clear_serial_buffer, ScannerCommand
 except ImportError:
     # This exception handling is for development/refactoring scenarios
     # where the file structure may be in transition
@@ -48,4 +48,4 @@ except ImportError:
     print("Warning: Could not import from utilities.core.shared_utils")
     print("If you've already moved files, update this import path")
     print(f"Python path: {sys.path}")
-    print("Affected functionality: clear_serial_buffer, scanner_command")
+    print("Affected functionality: clear_serial_buffer, ScannerCommand")

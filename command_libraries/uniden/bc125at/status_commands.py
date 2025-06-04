@@ -5,11 +5,11 @@ These commands retrieve status information from the scanner including model
 information, firmware version, and other system details.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 STATUS_COMMANDS = {
-    "MDL": scanner_command(
+    "MDL": ScannerCommand(
         name="MDL",
         requires_prg=False,
         set_format="MDL",
@@ -27,7 +27,7 @@ STATUS_COMMANDS = {
         - Can be used to verify communication and identify the scanner model
         """,
     ),
-    "VER": scanner_command(
+    "VER": ScannerCommand(
         name="VER",
         requires_prg=False,
         set_format="VER",
@@ -45,7 +45,7 @@ STATUS_COMMANDS = {
         - Useful for verifying compatibility with software and features
         """,
     ),
-    "KEY": scanner_command(
+    "KEY": ScannerCommand(
         name="KEY",
         set_format="KEY,{value}",
         validator=validate_param_constraints(
@@ -101,7 +101,7 @@ STATUS_COMMANDS = {
         """,
     ),
     # Placeholders for missing commands
-    # "ESN": scanner_command(
+    # "ESN": ScannerCommand(
     #     name="ESN",
     #     requires_prg=False,
     #     set_format="ESN",
@@ -113,7 +113,7 @@ STATUS_COMMANDS = {
     #     """,
     # ),
     #
-    # "STS": scanner_command(
+    # "STS": ScannerCommand(
     #     name="STS",
     #     requires_prg=False,
     #     set_format="STS",
@@ -125,7 +125,7 @@ STATUS_COMMANDS = {
     #     """,
     # ),
     #
-    # "SUM": scanner_command(
+    # "SUM": ScannerCommand(
     #     name="SUM",
     #     requires_prg=True,
     #     set_format="SUM",
@@ -138,7 +138,7 @@ STATUS_COMMANDS = {
     #     """,
     # ),
     #
-    # "WIN": scanner_command(
+    # "WIN": ScannerCommand(
     #     name="WIN",
     #     requires_prg=False,
     #     set_format="WIN",

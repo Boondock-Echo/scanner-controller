@@ -5,10 +5,10 @@ These commands control entering and exiting programming mode, which is required
 for most configuration commands.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 
 PROGRAMMING_CONTROL_COMMANDS = {
-    "PRG": scanner_command(
+    "PRG": ScannerCommand(
         name="PRG",
         requires_prg=False,
         set_format="PRG",
@@ -25,7 +25,7 @@ PROGRAMMING_CONTROL_COMMANDS = {
         Most configuration commands require the scanner to be in Program Mode.
         """,
     ),
-    "EPG": scanner_command(
+    "EPG": ScannerCommand(
         name="EPG",
         requires_prg=True,
         set_format="EPG",

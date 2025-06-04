@@ -5,11 +5,11 @@ These commands handle entering and exiting the scanner's programming mode,
 which is required for most configuration operations.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 PROGRAMMING_COMMANDS = {
-    "PRG": scanner_command(
+    "PRG": ScannerCommand(
         name="PRG",
         requires_prg=False,
         set_format="PRG",
@@ -32,7 +32,7 @@ PROGRAMMING_COMMANDS = {
         - Many commands require the scanner to be in programming mode
         """,
     ),
-    "EPG": scanner_command(
+    "EPG": ScannerCommand(
         name="EPG",
         requires_prg=True,
         set_format="EPG",
@@ -52,7 +52,7 @@ PROGRAMMING_COMMANDS = {
         """,
     ),
     # Placeholders for missing commands
-    # "FWM": scanner_command(
+    # "FWM": ScannerCommand(
     #     name="FWM",
     #     requires_prg=True,
     #     set_format="FWM,{address},{data}",
@@ -64,7 +64,7 @@ PROGRAMMING_COMMANDS = {
     #     FWM,[ADDRESS],[DATA] - Set firmware memory at address
     #     """,
     # ),
-    # "MMM": scanner_command(
+    # "MMM": ScannerCommand(
     #     name="MMM",
     #     requires_prg=True,
     #     set_format="MMM,{option}",
@@ -76,7 +76,7 @@ PROGRAMMING_COMMANDS = {
     #     MMM,[OPTION] - Set memory mode option
     #     """,
     # ),
-    # "MWR": scanner_command(
+    # "MWR": ScannerCommand(
     #     name="MWR",
     #     requires_prg=True,
     #     set_format="MWR,{address},{data}",
@@ -87,7 +87,7 @@ PROGRAMMING_COMMANDS = {
     #     MWR,[ADDRESS],[DATA] - Write data to memory address
     #     """,
     # ),
-    "MRD": scanner_command(
+    "MRD": ScannerCommand(
         name="MRD",
         requires_prg=True,
         set_format="MRD,{address}",
@@ -97,7 +97,7 @@ PROGRAMMING_COMMANDS = {
         MRD,[ADDRESS] - Read data from memory address
         """,
     ),
-    # "JPM": scanner_command(
+    # "JPM": ScannerCommand(
     #     name="JPM",
     #     requires_prg=False,
     #     set_format="JPM,{menu_item}",
@@ -108,7 +108,7 @@ PROGRAMMING_COMMANDS = {
     #     JPM,[MENU_ITEM] - Jump to specific menu item
     #     """,
     # ),
-    # "PDI": scanner_command(
+    # "PDI": ScannerCommand(
     #     name="PDI",
     #     requires_prg=True,
     #     set_format="PDI,{setting}",
@@ -120,7 +120,7 @@ PROGRAMMING_COMMANDS = {
     #     PDI,[SETTING] - Initialize programming device
     #     """,
     # ),
-    # "EWP": scanner_command(
+    # "EWP": ScannerCommand(
     #     name="EWP",
     #     requires_prg=True,
     #     set_format="EWP,{setting}",

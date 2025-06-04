@@ -142,7 +142,7 @@ with open(os.path.join(utilities_dir, "__init__.py"), "w") as f:
     # that the application depends on
     f.write("# Critical imports that the application depends on\n")
     f.write(
-        "from utilities.core.shared_utils import scanner_command, "
+        "from utilities.core.shared_utils import ScannerCommand, "
         "clear_serial_buffer\n"
     )
     if any(name == "log_trim.py" for _, name in files_to_move["core"]):

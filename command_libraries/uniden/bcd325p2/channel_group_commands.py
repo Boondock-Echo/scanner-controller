@@ -4,11 +4,11 @@ Channel and Group Management commands for the BCD325P2.
 These commands allow you to create, modify, and delete channels and groups.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 CHANNEL_GROUP_COMMANDS = {
-    "AGC": scanner_command(
+    "AGC": ScannerCommand(
         name="AGC",
         requires_prg=True,
         set_format="AGC,{group_index},{name},{quick_key},{lout}",
@@ -36,7 +36,7 @@ CHANNEL_GROUP_COMMANDS = {
         LOUT : Lockout (0=Unlocked, 1=Lockout)
         """,
     ),
-    "DGR": scanner_command(
+    "DGR": ScannerCommand(
         name="DGR",
         requires_prg=True,
         set_format="DGR,{system_index},{group_index}",
@@ -53,7 +53,7 @@ CHANNEL_GROUP_COMMANDS = {
         GROUP_INDEX : Index of the group to delete
         """,
     ),
-    "GIN": scanner_command(
+    "GIN": ScannerCommand(
         name="GIN",
         requires_prg=True,
         set_format="GIN,{system_index},{group_index}",
@@ -73,7 +73,7 @@ CHANNEL_GROUP_COMMANDS = {
         Group information including name, quick key, and lockout status
         """,
     ),
-    "ACC": scanner_command(
+    "ACC": ScannerCommand(
         name="ACC",
         requires_prg=True,
         set_format=(
@@ -133,7 +133,7 @@ CHANNEL_GROUP_COMMANDS = {
         ALT_PATTERN : Alert light pattern (0=ON, 1=Slow, 2=Fast)
         """,
     ),
-    "DCH": scanner_command(
+    "DCH": ScannerCommand(
         name="DCH",
         requires_prg=True,
         set_format="DCH,{system_index},{group_index},{channel_index}",
@@ -155,7 +155,7 @@ CHANNEL_GROUP_COMMANDS = {
         CHANNEL_INDEX : Index of the channel to delete
         """,
     ),
-    "CIN": scanner_command(
+    "CIN": ScannerCommand(
         name="CIN",
         requires_prg=True,
         set_format="CIN,{system_index},{group_index},{channel_index}",
@@ -182,7 +182,7 @@ CHANNEL_GROUP_COMMANDS = {
              settings
         """,
     ),
-    "QGL": scanner_command(
+    "QGL": ScannerCommand(
         name="QGL",
         requires_prg=False,
         set_format="QGL,{quick_key},{lockout}",

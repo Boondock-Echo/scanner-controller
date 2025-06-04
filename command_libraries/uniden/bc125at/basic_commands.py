@@ -7,7 +7,7 @@ These commands provide the fundamental interface for controlling the scanner's
 basic functions and appearance settings.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 from utilities.validators import validate_enum, validate_param_constraints
 
 # Define validators for specific commands
@@ -22,7 +22,7 @@ validate_kbp = validate_param_constraints(
 )
 
 BASIC_COMMANDS = {
-    "BLT": scanner_command(
+    "BLT": ScannerCommand(
         name="BLT",
         validator=validate_enum("BLT", ["AO", "AF", "KY", "KS", "SQ"]),
         requires_prg=True,
@@ -43,7 +43,7 @@ BASIC_COMMANDS = {
         Note: This command is only acceptable in Programming Mode.
         """,
     ),
-    "BSV": scanner_command(
+    "BSV": ScannerCommand(
         name="BSV",
         valid_range=(1, 14),  # charge time (1-14)
         requires_prg=True,
@@ -60,7 +60,7 @@ BASIC_COMMANDS = {
         Note: This command is only acceptable in Programming Mode.
         """,
     ),
-    "CNT": scanner_command(
+    "CNT": ScannerCommand(
         name="CNT",
         set_format="CNT,{mode}",
         validator=validate_param_constraints([(int, (1, 15))]),  # level (1-15)
@@ -77,7 +77,7 @@ BASIC_COMMANDS = {
         Note: This command is only acceptable in Programming Mode.
         """,
     ),
-    "KBP": scanner_command(
+    "KBP": ScannerCommand(
         name="KBP",
         set_format="KBP,{level},{lock}",
         validator=validate_kbp,
@@ -95,7 +95,7 @@ BASIC_COMMANDS = {
         Note: This command is only acceptable in Programming Mode.
         """,
     ),
-    "VOL": scanner_command(
+    "VOL": ScannerCommand(
         name="VOL",
         set_format="VOL,{level}",
         validator=validate_param_constraints([(int, (0, 15))]),  # level (0-15)
@@ -115,7 +115,7 @@ BASIC_COMMANDS = {
         - To convert: level = int(normalized_value * 15)
         """,
     ),
-    "SQL": scanner_command(
+    "SQL": ScannerCommand(
         name="SQL",
         set_format="SQL,{level}",
         validator=validate_param_constraints([(int, (0, 15))]),  # level (0-15)
@@ -135,7 +135,7 @@ BASIC_COMMANDS = {
         - To convert: level = int(normalized_value * 15)
         """,
     ),
-    "BPL": scanner_command(
+    "BPL": ScannerCommand(
         name="BPL",
         requires_prg=True,
         set_format="BPL,{level}",
@@ -150,7 +150,7 @@ BASIC_COMMANDS = {
         SETTING : Unknown at this time.
         """,
     ),
-    "BAV": scanner_command(
+    "BAV": ScannerCommand(
         name="BAV",
         requires_prg=False,
         set_format="BAV",
@@ -161,7 +161,7 @@ BASIC_COMMANDS = {
         BAV - Get current battery voltage
         """,
     ),
-    "PWR": scanner_command(
+    "PWR": ScannerCommand(
         name="PWR",
         requires_prg=False,
         set_format="PWR,{status}",

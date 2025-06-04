@@ -12,7 +12,7 @@ import logging
 from PyQt6.QtWidgets import QGroupBox, QHBoxLayout, QLabel, QVBoxLayout
 
 
-def buildSignalMeters(rssi_bar, squelch_bar):
+def build_signal_meters(rssi_bar, squelch_bar):
     """
     Build signal meter group containing RSSI and squelch bars.
 

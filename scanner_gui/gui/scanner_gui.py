@@ -31,12 +31,12 @@ from scanner_gui.controller import ScannerController
 from scanner_gui.scanner_utils import find_all_scanner_ports
 
 # Import GUI components
-from .audio_controls import buildAudioControls
-from .control_keys import buildControlKeys
-from .display_group import buildDisplayGroup
-from .keypad import buildKeypad
-from .rotary_knob import buildRotaryKnob
-from .signal_meters import buildSignalMeters
+from .audio_controls import build_audio_controls
+from .control_keys import build_control_keys
+from .display_group import build_display_group
+from .keypad import build_keypad
+from .rotary_knob import build_rotary_knob
+from .signal_meters import build_signal_meters
 
 # Constants
 BAUDRATE = 115200
@@ -58,7 +58,7 @@ class ScannerGUI(QWidget):
         """Initialize the ScannerGUI instance."""
         super().__init__()
         self.setWindowTitle("Scanner Faceplate GUI")
-        self.loadStyleSheet(
+        self.load_stylesheet(
             os.path.join(os.path.dirname(__file__), "style.qss")
         )
 
@@ -68,23 +68,23 @@ class ScannerGUI(QWidget):
         # Use our controller instead of direct serial connection
         self.controller = ScannerController(baudrate=BAUDRATE)
         self.scanner_ports = []
-        self.childWindows = []
-        self.displayLabels = []
+        self.child_windows = []
+        self.display_labels = []
         self.connected_port = None
 
-        self.initUI()
+        self.init_ui()
 
         self.refresh_timer = QTimer()
-        self.refresh_timer.timeout.connect(self.refreshScannerList)
+        self.refresh_timer.timeout.connect(self.refresh_scanner_list)
         self.refresh_timer.start(REFRESH_INTERVAL)
 
         self.display_timer = QTimer()
-        self.display_timer.timeout.connect(self.updateDisplay)
+        self.display_timer.timeout.connect(self.update_display)
         self.display_timer.start(DISPLAY_REFRESH)
 
-        self.refreshScannerList(initial=True)
+        self.refresh_scanner_list(initial=True)
 
-    def loadStyleSheet(self, path: str):
+    def load_stylesheet(self, path: str):
         """
         Load and apply a stylesheet to the GUI.
 
@@ -100,7 +100,7 @@ class ScannerGUI(QWidget):
         except Exception as e:
             print(f"Warning: Could not load stylesheet: {e}")
 
-    def initUI(self):
+    def init_ui(self):
         """
         Initialize the user interface components of the ScannerGUI.
 
@@ -118,44 +118,44 @@ class ScannerGUI(QWidget):
         )
 
         # Create outer layout with minimal margins
-        outerLayout = QHBoxLayout()
-        outerLayout.setContentsMargins(5, 5, 5, 5)
-        outerLayout.setSpacing(5)
+        outer_layout = QHBoxLayout()
+        outer_layout.setContentsMargins(5, 5, 5, 5)
+        outer_layout.setSpacing(5)
 
         # Left Panel: Knob above sliders
-        self.volSlider = QSlider(Qt.Orientation.Vertical)
+        self.vol_slider = QSlider(Qt.Orientation.Vertical)
         # Set proper range for volume slider
-        self.volSlider.setMinimum(0)
-        self.volSlider.setMaximum(100)
-        self.volSlider.setValue(50)  # Default to 50%
-        self.volSlider.valueChanged.connect(
-            self.onVolumeChanged
+        self.vol_slider.setMinimum(0)
+        self.vol_slider.setMaximum(100)
+        self.vol_slider.setValue(50)  # Default to 50%
+        self.vol_slider.valueChanged.connect(
+            self.on_volume_changed
         )  # Add real-time updates
-        self.volSlider.sliderReleased.connect(self.setVolume)
+        self.vol_slider.sliderReleased.connect(self.set_volume)
 
-        self.sqlSlider = QSlider(Qt.Orientation.Vertical)
+        self.sql_slider = QSlider(Qt.Orientation.Vertical)
         # Set proper range for squelch slider
-        self.sqlSlider.setMinimum(0)
-        self.sqlSlider.setMaximum(100)
-        self.sqlSlider.setValue(20)  # Default to 20%
-        self.sqlSlider.valueChanged.connect(
-            self.onSquelchChanged
+        self.sql_slider.setMinimum(0)
+        self.sql_slider.setMaximum(100)
+        self.sql_slider.setValue(20)  # Default to 20%
+        self.sql_slider.valueChanged.connect(
+            self.on_squelch_changed
         )  # Add real-time updates
-        self.sqlSlider.sliderReleased.connect(self.setSquelch)
+        self.sql_slider.sliderReleased.connect(self.set_squelch)
 
-        leftPanel = QVBoxLayout()
-        leftPanel.setContentsMargins(2, 2, 2, 2)
-        leftPanel.setSpacing(10)  # Reduced from 20
-        leftPanel.addWidget(
-            buildRotaryKnob(
-                knobPressedCallback=lambda: self.sendKey("^"),
-                rotateLeftCallback=lambda: self.sendKey("<"),
-                rotateRightCallback=lambda: self.sendKey(">"),
+        left_panel = QVBoxLayout()
+        left_panel.setContentsMargins(2, 2, 2, 2)
+        left_panel.setSpacing(10)  # Reduced from 20
+        left_panel.addWidget(
+            build_rotary_knob(
+                knob_pressed_callback=lambda: self.send_key("^"),
+                rotate_left_callback=lambda: self.send_key("<"),
+                rotate_right_callback=lambda: self.send_key(">"),
             )
         )
-        leftPanel.addWidget(buildAudioControls(self.volSlider, self.sqlSlider))
-        leftPanel.setAlignment(Qt.AlignmentFlag.AlignTop)
-        outerLayout.addLayout(leftPanel)
+        left_panel.addWidget(build_audio_controls(self.vol_slider, self.sql_slider))
+        left_panel.setAlignment(Qt.AlignmentFlag.AlignTop)
+        outer_layout.addLayout(left_panel)
 
         # Right Panel: Everything else
         layout = QVBoxLayout()
@@ -163,64 +163,64 @@ class ScannerGUI(QWidget):
         layout.setSpacing(5)  # Reduced spacing
 
         # Port selector
-        portLayout = QVBoxLayout()
-        portLayout.setContentsMargins(2, 2, 2, 2)
-        portLayout.setSpacing(2)
+        port_layout = QVBoxLayout()
+        port_layout.setContentsMargins(2, 2, 2, 2)
+        port_layout.setSpacing(2)
 
-        self.connectButton = QPushButton("Connect")
-        self.connectButton.clicked.connect(self.manualConnect)
-        portLayout.addWidget(self.connectButton)
+        self.connect_button = QPushButton("Connect")
+        self.connect_button.clicked.connect(self.manual_connect)
+        port_layout.addWidget(self.connect_button)
 
-        self.portSelector = QComboBox()
-        self.portSelector.setMaximumHeight(25)  # Restrict height
-        portLayout.addWidget(self.portSelector)
+        self.port_selector = QComboBox()
+        self.port_selector.setMaximumHeight(25)  # Restrict height
+        port_layout.addWidget(self.port_selector)
 
-        portGroup = QGroupBox("Scanner Port")
-        portGroup.setLayout(portLayout)
-        layout.addWidget(portGroup)
+        port_group = QGroupBox("Scanner Port")
+        port_group.setLayout(port_layout)
+        layout.addWidget(port_group)
 
-        self.modelLabel = QLabel("Model: ---")
-        self.modelLabel.setFont(self.font_main)
-        self.modelLabel.setMaximumHeight(20)  # Restrict height
+        self.model_label = QLabel("Model: ---")
+        self.model_label.setFont(self.font_main)
+        self.model_label.setMaximumHeight(20)  # Restrict height
         layout.addWidget(
-            self.modelLabel, alignment=Qt.AlignmentFlag.AlignCenter
+            self.model_label, alignment=Qt.AlignmentFlag.AlignCenter
         )
 
         # Display
-        self.displayLabels = []
-        layout.addWidget(buildDisplayGroup(self.font_lcd, self.displayLabels))
+        self.display_labels = []
+        layout.addWidget(build_display_group(self.font_lcd, self.display_labels))
 
         # Signal Meters
-        self.rssiBar = QProgressBar()
-        self.rssiBar.setMaximumHeight(15)  # Restrict height
-        self.squelchBar = QProgressBar()
-        self.squelchBar.setMaximumHeight(15)  # Restrict height
+        self.rssi_bar = QProgressBar()
+        self.rssi_bar.setMaximumHeight(15)  # Restrict height
+        self.squelch_bar = QProgressBar()
+        self.squelch_bar.setMaximumHeight(15)  # Restrict height
 
         # Store the signal meter group for access to the squelch bar
-        self.signalMetersGroup = buildSignalMeters(
-            self.rssiBar, self.squelchBar
+        self.signal_meters_group = build_signal_meters(
+            self.rssi_bar, self.squelch_bar
         )
-        layout.addWidget(self.signalMetersGroup)
+        layout.addWidget(self.signal_meters_group)
 
         # Debug logging to verify the squelch bar is properly set
-        logging.debug(f"Squelch bar initialized: {self.squelchBar}")
+        logging.debug(f"Squelch bar initialized: {self.squelch_bar}")
 
         # Keypad + Vertical Buttons
-        keypadRow = QHBoxLayout()
-        keypadRow.setContentsMargins(0, 0, 0, 0)
-        keypadRow.setSpacing(5)
-        keypadRow.addWidget(buildControlKeys(self.sendKey))  # On the left
-        keypadRow.addWidget(buildKeypad(self.sendKey))  # On the right
-        layout.addLayout(keypadRow)
+        keypad_row = QHBoxLayout()
+        keypad_row.setContentsMargins(0, 0, 0, 0)
+        keypad_row.setSpacing(5)
+        keypad_row.addWidget(build_control_keys(self.send_key))  # On the left
+        keypad_row.addWidget(build_keypad(self.send_key))  # On the right
+        layout.addLayout(keypad_row)
 
-        outerLayout.addLayout(layout)
-        self.setLayout(outerLayout)
+        outer_layout.addLayout(layout)
+        self.setLayout(outer_layout)
 
         # Set a smaller fixed size for the window
         self.adjustSize()
         self.setMinimumSize(int(self.width() * 0.8), int(self.height() * 0.85))
 
-    def refreshScannerList(self, initial=False):
+    def refresh_scanner_list(self, initial=False):
         """
         Refresh the list of available scanner ports.
 
@@ -236,13 +236,13 @@ class ScannerGUI(QWidget):
         ports = find_all_scanner_ports()  # Updated function call
         if ports != self.scanner_ports:
             self.scanner_ports = ports
-            self.portSelector.clear()
+            self.port_selector.clear()
             for port, model in ports:
-                self.portSelector.addItem(f"{model} ({port})", (port, model))
+                self.port_selector.addItem(f"{model} ({port})", (port, model))
             if initial and len(ports) == 1:
-                self.connectScanner(*ports[0])
+                self.connect_scanner(*ports[0])
 
-    def connectScanner(self, port, model):
+    def connect_scanner(self, port, model):
         """
         Scanner connection method.
 
@@ -258,11 +258,11 @@ class ScannerGUI(QWidget):
             # Connect to the new port using our controller
             if self.controller.connect(port=port, model=model):
                 self.connected_port = port
-                self.modelLabel.setText(f"Model: {model}")
+                self.model_label.setText(f"Model: {model}")
                 logging.info(f"Successfully connected to {model} on {port}")
 
                 # Read current volume and squelch levels from scanner
-                self.readAndApplyScannerLevels()
+                self.read_and_apply_scanner_levels()
             else:
                 raise Exception("Failed to connect to scanner")
 
@@ -273,7 +273,7 @@ class ScannerGUI(QWidget):
                 f"Could not connect to {model} on {port}:\n{e}",
             )
 
-    def readAndApplyScannerLevels(self):
+    def read_and_apply_scanner_levels(self):
         """
         Read current volume and squelch level from scanner and apply to GUI.
 
@@ -290,25 +290,25 @@ class ScannerGUI(QWidget):
             current_vol = self.controller.read_volume()
             vol_percent = int(current_vol * 100)
             logging.info(f"Scanner volume level: {vol_percent}%")
-            self.volSlider.setValue(vol_percent)
+            self.vol_slider.setValue(vol_percent)
 
             # Read and apply squelch
             current_sql = self.controller.read_squelch()
             sql_percent = int(current_sql * 100)
             logging.info(f"Scanner squelch level: {sql_percent}%")
-            self.sqlSlider.setValue(sql_percent)
+            self.sql_slider.setValue(sql_percent)
 
-            self.squelchBar.setValue(sql_percent)
+            self.squelch_bar.setValue(sql_percent)
 
             # Feedback to user
-            self.modelLabel.setText(
+            self.model_label.setText(
                 f"Model: {self.controller.model} (Vol: {vol_percent}%, "
                 f"SQL: {sql_percent}%)"
             )
             # Reset label after a few seconds
             QTimer.singleShot(
                 5000,
-                lambda: self.modelLabel.setText(
+                lambda: self.model_label.setText(
                     f"Model: {self.controller.model}"
                 ),
             )
@@ -316,15 +316,15 @@ class ScannerGUI(QWidget):
         except Exception as e:
             logging.error(f"Error reading scanner levels: {e}")
 
-    def manualConnect(self):
+    def manual_connect(self):
         """Manually connect to the selected scanner port."""
-        index = self.portSelector.currentIndex()
-        data = self.portSelector.itemData(index)
+        index = self.port_selector.currentIndex()
+        data = self.port_selector.itemData(index)
         if data:
             port, model = data
-            self.connectScanner(port, model)
+            self.connect_scanner(port, model)
 
-    def onPortSelected(self, index):
+    def on_port_selected(self, index):
         """
         Handle the event when a port is selected from the dropdown.
 
@@ -334,43 +334,42 @@ class ScannerGUI(QWidget):
         Args:
             index (int): The index of the selected item in the port selector.
         """
-        data = self.portSelector.itemData(index)
+        data = self.port_selector.itemData(index)
         if data:
             port, model = data
             new_window = ScannerGUI()
-            new_window.connectScanner(port, model)
+            new_window.connect_scanner(port, model)
             new_window.show()
-            self.childWindows.append(new_window)
+            self.child_windows.append(new_window)
 
-    def updateDisplay(self):
+    def update_display(self):
         """Update the scanner display and signal meters."""
         if not self.controller.adapter:
             return
 
         try:
             raw = self.controller.read_status()
-            parsed = self.parseStsLine(raw)
+            parsed = self.parse_sts_line(raw)
 
             for i, line in enumerate(parsed["screen"]):
-                if self._shouldHideLine(i, line, parsed):
-                    self.displayLabels[i].setVisible(False)
+                if self._should_hide_line(i, line, parsed):
+                    self.display_labels[i].setVisible(False)
                     continue
-
-                self.displayLabels[i].setVisible(True)
+                self.display_labels[i].setVisible(True)
                 text = line["text"].ljust(DISPLAY_WIDTH)
-                label = self.displayLabels[i]
+                label = self.display_labels[i]
                 label.setText(text)
                 label.setProperty("highlight", line["highlight"])
                 label.setProperty("underline", line["underline"])
                 label.style().unpolish(label)
                 label.style().polish(label)
         except Exception:
-            for lbl in self.displayLabels:
+            for lbl in self.display_labels:
                 lbl.setText("Freq: Error")
 
-        self._updateMeters()
+        self._update_meters()
 
-    def _shouldHideLine(self, index, line, parsed_data):
+    def _should_hide_line(self, index, line, parsed_data):
         """Determine if a display line should be hidden."""
         is_menu = "M E N U" in parsed_data["screen"][0]["text"].upper()
         # Never hide the line containing the menu text
@@ -388,43 +387,43 @@ class ScannerGUI(QWidget):
             return True
         return False
 
-    def _updateMeters(self):
+    def _update_meters(self):
         """Update the RSSI and squelch meters."""
         try:
             rssi = self.controller.read_rssi()
-            if hasattr(self, 'rssiBar'):
-                self.rssiBar.setValue(int(rssi * 100))
+            if hasattr(self, 'rssi_bar'):
+                self.rssi_bar.setValue(int(rssi * 100))
         except Exception as e:
             logging.error(f"Error updating RSSI meter: {e}")
-            if hasattr(self, 'rssiBar'):
-                self.rssiBar.setValue(0)
+            if hasattr(self, 'rssi_bar'):
+                self.rssi_bar.setValue(0)
 
         try:
             # Get the current slider value for squelch display
-            value = self.sqlSlider.value()
-            if hasattr(self, 'squelchBar'):
-                self.squelchBar.setValue(value)
+            value = self.sql_slider.value()
+            if hasattr(self, 'squelch_bar'):
+                self.squelch_bar.setValue(value)
         except Exception as e:
             logging.error(f"Error updating squelch meter: {e}")
-            if hasattr(self, 'squelchBar'):
-                self.squelchBar.setValue(0)
+            if hasattr(self, 'squelch_bar'):
+                self.squelch_bar.setValue(0)
 
-    def onVolumeChanged(self):
+    def on_volume_changed(self):
         """Update the UI when volume slider changes value."""
         # This updates the UI without sending commands to scanner
         # Good for immediate feedback while dragging
-        value = self.volSlider.value()
+        value = self.vol_slider.value()
         # Could update a volume display here if we had one
         logging.debug(f"Volume slider changed to {value}%")
 
-    def onSquelchChanged(self):
+    def on_squelch_changed(self):
         """Update the UI when squelch slider changes value."""
         # Update the squelch bar in real-time while slider moves
-        value = self.sqlSlider.value()
+        value = self.sql_slider.value()
 
         # Check if squelchBar exists and log for debugging
-        if hasattr(self, 'squelchBar'):
-            self.squelchBar.setValue(value)
+        if hasattr(self, 'squelch_bar'):
+            self.squelch_bar.setValue(value)
             logging.debug(f"Squelch slider changed to {value}%")
         else:
             logging.error("squelchBar not found - wasn't properly initialized")
@@ -432,61 +431,61 @@ class ScannerGUI(QWidget):
             # new bars
             try:
                 # Find the squelch bar in the signal meters group
-                for child in self.signalMetersGroup.findChildren(QProgressBar):
+                for child in self.signal_meters_group.findChildren(QProgressBar):
                     if child.objectName() == "squelchBar":
                         child.setValue(value)
                         # Save reference for future use
-                        self.squelchBar = child
+                        self.squelch_bar = child
                         logging.info("Recovered squelchBar reference")
                         break
             except Exception as e:
                 logging.error(f"Cannot recover squelchBar: {e}")
 
-    def setVolume(self):
+    def set_volume(self):
         """Set the volume level on the scanner."""
         if not self.controller.adapter:
             logging.warning("Cannot set volume: No scanner connected")
             return
 
-        value = self.volSlider.value() / 100.0
+        value = self.vol_slider.value() / 100.0
         logging.info(
-            f"Setting volume to {value:.2f} ({self.volSlider.value()}%)"
+            f"Setting volume to {value:.2f} ({self.vol_slider.value()}%)"
         )
         success = self.controller.set_volume(value)
         if not success:
             logging.error(f"Failed to set volume to {value:.2f}")
-            self.modelLabel.setText(f"{self.modelLabel.text()} - Vol Error")
+            self.model_label.setText(f"{self.model_label.text()} - Vol Error")
             # Reset label after a few seconds
             QTimer.singleShot(
                 3000,
-                lambda: self.modelLabel.setText(
+                lambda: self.model_label.setText(
                     f"Model: {self.controller.model}"
                 ),
             )
 
-    def setSquelch(self):
+    def set_squelch(self):
         """Set the squelch level on the scanner."""
         if not self.controller.adapter:
             logging.warning("Cannot set squelch: No scanner connected")
             return
 
-        value = self.sqlSlider.value() / 100.0
+        value = self.sql_slider.value() / 100.0
         logging.info(
-            f"Setting squelch to {value:.2f} ({self.sqlSlider.value()}%)"
+            f"Setting squelch to {value:.2f} ({self.sql_slider.value()}%)"
         )
         success = self.controller.set_squelch(value)
         if not success:
             logging.error(f"Failed to set squelch to {value:.2f}")
-            self.modelLabel.setText(f"{self.modelLabel.text()} - SQL Error")
+            self.model_label.setText(f"{self.model_label.text()} - SQL Error")
             # Reset label after a few seconds
             QTimer.singleShot(
                 3000,
-                lambda: self.modelLabel.setText(
+                lambda: self.model_label.setText(
                     f"Model: {self.controller.model}"
                 ),
             )
 
-    def knobScrolled(self, event):
+    def knob_scrolled(self, event):
         """
         Handle the knob scroll event.
 
@@ -499,11 +498,11 @@ class ScannerGUI(QWidget):
         """
         angle = event.angleDelta().y()
         if angle > 0:
-            self.sendKey("<")
+            self.send_key("<")
         elif angle < 0:
-            self.sendKey(">")
+            self.send_key(">")
 
-    def knobPressed(self, event):
+    def knob_pressed(self, event):
         """
         Handle the knob press event.
 
@@ -513,13 +512,13 @@ class ScannerGUI(QWidget):
         Args:
             event: The press event triggering the knob action.
         """
-        self.sendKey("^")
+        self.send_key("^")
 
-    def sendKey(self, key):
+    def send_key(self, key):
         """Send a key command to the scanner."""
         self.controller.send_key(key)
 
-    def parseStsLine(self, sts_line: str) -> dict:
+    def parse_sts_line(self, sts_line: str) -> dict:
         """
         Parse an STS line from the scanner.
 

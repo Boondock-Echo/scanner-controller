@@ -4,11 +4,11 @@ Scanner configuration commands for the BCD325P2.
 These commands allow you to configure various scanner settings and options.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 SCANNER_CONFIGURATION_COMMANDS = {
-    "SCN": scanner_command(
+    "SCN": ScannerCommand(
         name="SCN",
         requires_prg=True,
         set_format=(
@@ -42,7 +42,7 @@ SCANNER_CONFIGURATION_COMMANDS = {
         DISP_UID : Display Unit ID (0:OFF, 1:ON)
         """,
     ),
-    "COM": scanner_command(
+    "COM": ScannerCommand(
         name="COM",
         requires_prg=True,
         set_format="COM,{baud_rate},{flow_control}",
@@ -66,7 +66,7 @@ SCANNER_CONFIGURATION_COMMANDS = {
               cycling the scanner.
         """,
     ),
-    "CLR": scanner_command(
+    "CLR": ScannerCommand(
         name="CLR",
         requires_prg=True,
         set_format="CLR,{clear_type}",
@@ -100,7 +100,7 @@ SCANNER_CONFIGURATION_COMMANDS = {
                 Scanner will restart after executing this command.
         """,
     ),
-    "PRI": scanner_command(
+    "PRI": ScannerCommand(
         name="PRI",
         requires_prg=False,
         set_format="PRI,{pri_mode}",
@@ -118,7 +118,7 @@ SCANNER_CONFIGURATION_COMMANDS = {
                  2 = Priority DND (Do Not Disturb)
         """,
     ),
-    "AGV": scanner_command(
+    "AGV": ScannerCommand(
         name="AGV",
         requires_prg=True,
         set_format="AGV,{analog_agc},{digital_agc}",
@@ -139,7 +139,7 @@ SCANNER_CONFIGURATION_COMMANDS = {
         DIGITAL_AGC : Digital Audio AGC (0=OFF, 1=ON)
         """,
     ),
-    "P25": scanner_command(
+    "P25": ScannerCommand(
         name="P25",
         requires_prg=True,
         set_format="P25,{threshold},{digital_agc},{ignore_errors}",

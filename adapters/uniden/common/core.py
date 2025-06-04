@@ -86,7 +86,7 @@ def log_command_execution(func):
     return wrapper
 
 
-def document_scanner_command(command, description, examples=None, returns=None):
+def document_ScannerCommand(command, description, examples=None, returns=None):
     """
     Decorate scanner command functions with documentation.
 
@@ -97,7 +97,7 @@ def document_scanner_command(command, description, examples=None, returns=None):
         returns: Describe what the command returns.
 
     Usage:
-        @document_scanner_command('PRG', 'Enter programming mode',
+        @document_ScannerCommand('PRG', 'Enter programming mode',
                                  examples=['PRG'],
                                  returns='OK if successful')
         def enter_programming_mode(self, ser):

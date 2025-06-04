@@ -27,7 +27,7 @@ def ensure_root_in_path():
 ensure_root_in_path()
 
 
-class scanner_command:
+class ScannerCommand:
     """
     Defines a command that can be sent to a scanner.
 
@@ -47,7 +47,7 @@ class scanner_command:
         help=None,
     ):
         """
-        Initialize a scanner command with its properties and behavior.
+        Initialize a ScannerCommand with its properties and behavior.
 
         Parameters:
             name (str): Command name, will be converted to uppercase

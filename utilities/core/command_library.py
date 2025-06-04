@@ -6,7 +6,7 @@ well as reading and writing various scanner parameters such as volume, squelch,
 frequency, RSSI, and more.
 
 Classes:
-    scanner_command: Represents a scanner command with functionality to build
+    ScannerCommand: Represents a scanner command with functionality to build
                      and parse commands.
 
 Functions:
@@ -62,7 +62,7 @@ from utilities.log_utils import get_logger
 logger = get_logger(__name__)
 
 
-class scanner_command:
+class ScannerCommand:
     """Scanner command handler for serial communications with scanner devices.
 
     This class encapsulates the behavior of commands sent to scanner devices,
@@ -90,7 +90,7 @@ class scanner_command:
         requires_prg=False,
         help=None,
     ):
-        """Initialize a scanner command with validation and parsing options.
+        """Initialize a ScannerCommand with validation and parsing options.
 
         Args:
             name: Command name (will be converted to uppercase)

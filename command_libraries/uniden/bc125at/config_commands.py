@@ -7,11 +7,11 @@ These commands provide core functionality for managing the BC125AT scanner's
 operation.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 CONFIG_COMMANDS = {
-    "CLR": scanner_command(
+    "CLR": ScannerCommand(
         name="CLR",
         requires_prg=True,
         set_format="CLR",
@@ -32,7 +32,7 @@ CONFIG_COMMANDS = {
         - This command is only acceptable in Programming Mode
         """,
     ),
-    "POF": scanner_command(
+    "POF": ScannerCommand(
         name="POF",
         requires_prg=False,
         set_format="POF",

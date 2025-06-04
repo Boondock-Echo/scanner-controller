@@ -5,11 +5,11 @@ These commands allow you to configure and manage trunked radio systems and
 sites.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 TRUNKING_COMMANDS = {
-    "TRN": scanner_command(
+    "TRN": ScannerCommand(
         name="TRN",
         requires_prg=True,
         set_format=(
@@ -85,7 +85,7 @@ TRUNKING_COMMANDS = {
         PRI_ID_SCAN : Priority ID Scan (0:OFF, 1:ON)
         """,
     ),
-    "AST": scanner_command(
+    "AST": ScannerCommand(
         name="AST",
         requires_prg=True,
         set_format="AST,{sys_index},{rsv}",
@@ -105,7 +105,7 @@ TRUNKING_COMMANDS = {
         The index of the created site, or -1 if creation failed
         """,
     ),
-    "SIF": scanner_command(
+    "SIF": ScannerCommand(
         name="SIF",
         requires_prg=True,
         set_format=(
@@ -165,7 +165,7 @@ TRUNKING_COMMANDS = {
         P25WAITING : Digital Waiting time (0,100,200,...,900,1000 ms)
         """,
     ),
-    "TFQ": scanner_command(
+    "TFQ": ScannerCommand(
         name="TFQ",
         requires_prg=True,
         set_format=(
@@ -211,7 +211,7 @@ TRUNKING_COMMANDS = {
         NUMBER_TAG and VOL_OFFSET are only used for SCAT systems.
         """,
     ),
-    "MCP": scanner_command(
+    "MCP": ScannerCommand(
         name="MCP",
         requires_prg=True,
         set_format=(
@@ -497,7 +497,7 @@ TRUNKING_COMMANDS = {
         using the SIF command.
         """,
     ),
-    "ABP": scanner_command(
+    "ABP": ScannerCommand(
         name="ABP",
         requires_prg=True,
         set_format=(

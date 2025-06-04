@@ -1,7 +1,7 @@
 """
 This module is part of the scanner tool library.
 
-This module provides the `scanner_command` class for building and parsing
+This module provides the `ScannerCommand` class for building and parsing
 commands for a scanner tool, with validation and logging capabilities.
 """
 
@@ -16,7 +16,7 @@ from utilities.log_utils import get_logger
 logger = get_logger(__name__)
 
 
-class scanner_command:
+class ScannerCommand:
     """
     A class representing a command for the scanner tool.
 
@@ -50,7 +50,7 @@ class scanner_command:
         help=None,
     ):
         """
-        Initialize a scanner_command instance.
+        Initialize a ScannerCommand instance.
 
         Args:
             name (str): The name of the command.

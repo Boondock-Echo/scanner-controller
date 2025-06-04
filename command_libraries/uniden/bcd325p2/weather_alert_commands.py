@@ -4,11 +4,11 @@ Weather Alert related commands for the BCD325P2.
 These commands configure NOAA weather scanning and SAME alert group settings.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 WEATHER_ALERT_COMMANDS = {
-    "WXS": scanner_command(
+    "WXS": ScannerCommand(
         name="WXS",
         requires_prg=True,
         set_format="WXS,{dly},{att},{alt_pri},{rsv},{agc_analog},{rsv}",
@@ -37,7 +37,7 @@ WEATHER_ALERT_COMMANDS = {
         RSV : Reserved parameter
         """,
     ),
-    "SGP": scanner_command(
+    "SGP": ScannerCommand(
         name="SGP",
         requires_prg=True,
         set_format=(

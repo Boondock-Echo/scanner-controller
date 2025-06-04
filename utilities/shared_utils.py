@@ -10,7 +10,7 @@ import time
 from utilities.errors import CommandError
 
 
-class scanner_command:
+class ScannerCommand:
     """
     Represent a scanner command with validation, formatting, and parsing.
 
@@ -31,7 +31,7 @@ class scanner_command:
         help=None,
     ):
         """
-        Initialize a scanner_command instance.
+        Initialize a ScannerCommand instance.
 
         Args:
             name (str): The name of the command.

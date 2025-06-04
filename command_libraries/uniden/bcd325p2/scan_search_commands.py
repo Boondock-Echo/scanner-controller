@@ -5,14 +5,14 @@ These commands control search operations, custom search settings, and related
 functionality.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 from utilities.validators import (
     validate_binary_options,
     validate_param_constraints,
 )
 
 SCAN_SEARCH_COMMANDS = {
-    "QSH": scanner_command(
+    "QSH": ScannerCommand(
         name="QSH",
         requires_prg=False,
         set_format=(
@@ -63,7 +63,7 @@ SCAN_SEARCH_COMMANDS = {
         during Direct Entry operation, or during Quick Save operation.
         """,
     ),
-    "QSC": scanner_command(
+    "QSC": ScannerCommand(
         name="QSC",
         requires_prg=False,
         set_format=(
@@ -116,7 +116,7 @@ SCAN_SEARCH_COMMANDS = {
         Entry operation, or during Quick Save operation.
         """,
     ),
-    "CSC": scanner_command(
+    "CSC": ScannerCommand(
         name="CSC",
         requires_prg=False,
         set_format="CSC,{mode}",
@@ -137,7 +137,7 @@ SCAN_SEARCH_COMMANDS = {
         Entry operation, or during Quick Save operation.
         """,
     ),
-    "SCO": scanner_command(
+    "SCO": ScannerCommand(
         name="SCO",
         requires_prg=True,
         set_format=(
@@ -190,7 +190,7 @@ SCAN_SEARCH_COMMANDS = {
         P25WAITING : Digital Waiting time (0,100,200,...,900,1000 ms)
         """,
     ),
-    "SHK": scanner_command(
+    "SHK": ScannerCommand(
         name="SHK",
         requires_prg=True,
         set_format=(
@@ -231,7 +231,7 @@ SCAN_SEARCH_COMMANDS = {
         Military : Military Air range          B_SCOPE : Band Scope
         """,
     ),
-    "SSP": scanner_command(
+    "SSP": ScannerCommand(
         name="SSP",
         requires_prg=True,
         set_format=(
@@ -285,7 +285,7 @@ SCAN_SEARCH_COMMANDS = {
         P25WAITING : Digital Waiting time (0,100,200,...,900,1000 ms)
         """,
     ),
-    "CSP": scanner_command(
+    "CSP": ScannerCommand(
         name="CSP",
         requires_prg=True,
         set_format=(
@@ -365,7 +365,7 @@ SCAN_SEARCH_COMMANDS = {
         P25WAITING : Digital Waiting time (0,100,200,...,900,1000 ms)
         """,
     ),
-    "CSG": scanner_command(
+    "CSG": ScannerCommand(
         name="CSG",
         requires_prg=True,
         set_format="CSG,{status}",
@@ -389,7 +389,7 @@ SCAN_SEARCH_COMMANDS = {
         - It's not possible to set all Custom Search Ranges to "0"
         """,
     ),
-    "CBP": scanner_command(
+    "CBP": ScannerCommand(
         name="CBP",
         requires_prg=True,
         set_format=(

@@ -5,11 +5,11 @@ These commands control system-wide settings such as priority scanning modes,
 channel group settings, and other global functions.
 """
 
-from utilities.core.shared_utils import scanner_command
+from utilities.core.shared_utils import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 SYSTEM_COMMANDS = {
-    "PRI": scanner_command(
+    "PRI": ScannerCommand(
         name="PRI",
         requires_prg=True,
         set_format="PRI,{pri_mode}",
@@ -38,7 +38,7 @@ SYSTEM_COMMANDS = {
         - This command is only acceptable in Programming Mode
         """,
     ),
-    "COM": scanner_command(
+    "COM": ScannerCommand(
         name="COM",
         requires_prg=True,
         set_format="COM,{baud_rate}",
@@ -67,7 +67,7 @@ SYSTEM_COMMANDS = {
         """,
     ),
     # Placeholders for missing commands
-    # "GLG": scanner_command(
+    # "GLG": ScannerCommand(
     #     name="GLG",
     #     requires_prg=True,
     #     set_format="GLG,{group_mask}",
@@ -79,7 +79,7 @@ SYSTEM_COMMANDS = {
     #     GLG,[GROUP_MASK] - Set global lockout group
     #     """,
     # ),
-    # "MNU": scanner_command(
+    # "MNU": ScannerCommand(
     #     name="MNU",
     #     requires_prg=False,
     #     set_format="MNU,{option}",
@@ -91,7 +91,7 @@ SYSTEM_COMMANDS = {
     #     MNU,[OPTION] - Select menu option
     #     """,
     # ),
-    # "TST": scanner_command(
+    # "TST": ScannerCommand(
     #     name="TST",
     #     requires_prg=True,
     #     set_format="TST,{test_mode}",
@@ -103,7 +103,7 @@ SYSTEM_COMMANDS = {
     #     TST,[TEST_MODE] - Run specific test
     #     """,
     # ),
-    "SCG": scanner_command(
+    "SCG": ScannerCommand(
         name="SCG",
         requires_prg=True,
         set_format="SCG,{status_mask}",
@@ -114,7 +114,7 @@ SYSTEM_COMMANDS = {
         SCG,[STATUS_MASK] - Set service search group status
         """,
     ),
-    "SSG": scanner_command(
+    "SSG": ScannerCommand(
         name="SSG",
         requires_prg=True,
         set_format="SSG,{status_mask}",
