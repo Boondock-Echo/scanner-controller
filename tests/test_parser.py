@@ -10,11 +10,7 @@ from utilities.command.parser import parse_command  # noqa: E402
 
 def test_parse_command_aliases_and_multiword():
     """Resolve aliases and multiword commands correctly."""
-    commands = {
-        "get freq": None,
-        "set option": None,
-        "scan start": None,
-    }
+    commands = {"get freq": None, "set option": None, "scan start": None}
 
     cmd, args = parse_command("read freq", commands)
     assert cmd == "get freq"

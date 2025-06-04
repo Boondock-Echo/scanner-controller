@@ -9,9 +9,9 @@ imported in a test environment without requiring serial hardware or the real
 package to be installed.
 """
 
+import os
 import sys
 import types
-import os
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))  # noqa: E402
 
@@ -75,8 +75,7 @@ def test_main_loop_exit_machine_mode(capsys, monkeypatch):
 
     monkeypatch.setattr("builtins.input", fake_input)
     monkeypatch.setattr(
-        "utilities.command.loop.initialize_readline",
-        lambda c: None,
+        "utilities.command.loop.initialize_readline", lambda c: None
     )
 
     original_main_loop(None, None, {}, {}, True)

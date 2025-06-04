@@ -5,9 +5,12 @@ This module provides the `scanner_command` class for building and parsing
 commands for a scanner tool, with validation and logging capabilities.
 """
 
+from utilities.errors import (
+    CommandError,  # Import CommandError from the correct module
+)
+
 # Import centralized logging utilities
 from utilities.log_utils import get_logger
-from utilities.errors import CommandError
 
 # Get a logger for this module
 logger = get_logger(__name__)
@@ -113,14 +116,11 @@ class scanner_command:
             defined.
 
         Raises:
-            Exception: If the response contains an error.
+            CommandError: If the response contains an error.
         """
         response = response.strip()
-        # Treat only explicit error responses as errors. Some valid responses
-        # may contain the substring "ERR" (e.g. "CARRIER"), so we check for
-        # an actual error prefix instead of using ``in``.
         if response.upper().startswith("ERR"):
             raise CommandError(
-                f"{self.name}: Command returned an error: {response}"
+                f"{self.name}: Command returned an error: " f"{response}"
             )
-        return self.parser(response) if self.parser else response
+        return response
