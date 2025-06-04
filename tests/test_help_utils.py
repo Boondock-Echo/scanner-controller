@@ -2,9 +2,9 @@
 
 import os
 import sys
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import types
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))  # noqa: E402
 
 serial_stub = types.ModuleType("serial")
 serial_stub.Serial = lambda *a, **k: None
@@ -18,16 +18,23 @@ sys.modules.setdefault("serial.tools.list_ports", list_ports_stub)
 sys.modules.setdefault("serial", serial_stub)
 
 
-from utilities.command.help_utils import process_adapter_commands
+# ``utilities`` is importable when ``pytest`` is run from the repository root.
+from utilities.command.help_utils import process_adapter_commands  # noqa: E402
 
 
 class DummyCmd:
+    """Simple command object used for grouping tests."""
+
     def __init__(self, module=None):
+        """Store the originating module name, if provided."""
         self.source_module = module
 
 
 class DummyAdapter:
+    """Adapter with a basic command mapping for tests."""
+
     def __init__(self):
+        """Initialize with a couple of dummy commands."""
         self.commands = {
             "foo": DummyCmd("foo_commands"),
             "bar": DummyCmd(),
@@ -36,6 +43,7 @@ class DummyAdapter:
 
 
 def test_process_adapter_commands_basic():
+    """Verify command categorization based on module presence."""
     general = {"Get Commands": ["get volume"]}
     categories, groups = process_adapter_commands(DummyAdapter(), general)
 

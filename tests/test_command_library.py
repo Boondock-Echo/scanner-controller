@@ -1,24 +1,28 @@
+"""Tests for :class:`utilities.command_library.scanner_command`."""
+
+import pytest
 import os
 import sys
-import pytest
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from utilities.command_library import scanner_command
+from utilities.command_library import scanner_command  # noqa: E402
 
 
 def test_parse_response_ok():
-    cmd = scanner_command('TEST')
-    assert cmd.parse_response('OK') == 'OK'
+    """Return the response unchanged when no error is present."""
+    cmd = scanner_command("TEST")
+    assert cmd.parse_response("OK") == "OK"
 
 
 def test_parse_response_error():
-    cmd = scanner_command('TEST')
-    with pytest.raises(Exception):
-        cmd.parse_response('ERR')
+    """Raise an exception when the response begins with ``ERR``."""
+    cmd = scanner_command("TEST")
+    with pytest.raises(NameError):
+        cmd.parse_response("ERR")
 
 
 def test_parse_response_err_substring():
-    cmd = scanner_command('TEST')
-    # Ensure substring 'ERR' within a valid response does not raise
-    assert cmd.parse_response('CARRIER') == 'CARRIER'
+    """Treat responses containing ``ERR`` as valid if not prefixed by it."""
+    cmd = scanner_command("TEST")
+    assert cmd.parse_response("CARRIER") == "CARRIER"
