@@ -78,13 +78,24 @@ git clone https://github.com/Boondock-Echo/scanner-controller.git
 cd scanner-controller
 ```
 
-2. Install dependencies:
+2. (Recommended) Create and activate a virtual environment:
+
+```bash
+# On Unix/macOS
+python -m venv .venv
+source .venv/bin/activate
+# On Windows
+python -m venv .venv
+.\.venv\Scripts\activate
+```
+
+3. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Ensure the required scanner models are connected via serial ports.
+4. Ensure the required scanner models are connected via serial ports.
 
 ## Usage
 
