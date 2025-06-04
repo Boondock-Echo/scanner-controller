@@ -45,3 +45,17 @@ def test_with_timeout_default_value():
         return "late"
 
     assert slow() == "default"
+
+
+def test_with_timeout_propagates_exception():
+    """Exceptions raised inside the wrapped function are re-raised."""
+
+    class CustomError(Exception):
+        pass
+
+    @with_timeout(1)
+    def bad():
+        raise CustomError("boom")
+
+    with pytest.raises(CustomError):
+        bad()
