@@ -106,7 +106,6 @@ scanner-controller/
 │
 ├── requirements.txt              # Project dependencies
 ├── requirements-dev.txt          # Development dependencies
-├── setup.py                      # Package installation script
 ├── LICENSE                       # License information
 └── README.md                     # Project documentation
 ```
@@ -214,12 +213,6 @@ scanner-controller/
 └── LICENSE
 ```
 
-## Installation # Project documentation
-
-> > > > > > > origin/main
-
-This structure separates the core application logic from hardware-specific adapters and provides tools for development and testing. The modular design allows for easy extension with new scanner models and GUI components.
-
 ## Installation
 
 1. Clone the repository:
@@ -229,10 +222,14 @@ git clone https://github.com/Boondock-Echo/scanner-controller.git
 cd scanner-controller
 ```
 
-2. Install dependencies:
+2. Install the project using the provided `pyproject.toml`:
 
 ```bash
-pip install -r requirements.txt
+# install locally with pip
+pip install .
+
+# or install in an isolated environment
+pipx install .
 ```
 
 3. Ensure the required scanner models are connected via serial ports.
