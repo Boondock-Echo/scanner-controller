@@ -253,6 +253,7 @@ serialport.ini
 config_local.py
 scanner_config.json
 memorydump.txt
+tree.txt.bak
 
 # Pre-commit hooks
 .pre-commit-config.yaml
