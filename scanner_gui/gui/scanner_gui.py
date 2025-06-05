@@ -10,6 +10,8 @@ import os
 import time
 
 from PyQt6.QtCore import Qt, QTimer
+
+from .background_worker import BackgroundWorker
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import (
     QComboBox,
@@ -78,9 +80,10 @@ class ScannerGUI(QWidget):
         self.refresh_timer.timeout.connect(self.refresh_scanner_list)
         self.refresh_timer.start(REFRESH_INTERVAL)
 
-        self.display_timer = QTimer()
-        self.display_timer.timeout.connect(self.update_display)
-        self.display_timer.start(DISPLAY_REFRESH)
+        self.worker = BackgroundWorker(self.controller, DISPLAY_REFRESH)
+        self.worker.status_received.connect(self.on_status_received)
+        self.worker.rssi_received.connect(self.on_rssi_received)
+        self.worker.start()
 
         self.refresh_scanner_list(initial=True)
 
@@ -342,13 +345,12 @@ class ScannerGUI(QWidget):
             new_window.show()
             self.child_windows.append(new_window)
 
-    def update_display(self):
-        """Update the scanner display and signal meters."""
-        if not self.controller.adapter:
+    def on_status_received(self, raw: str):
+        """Update the scanner display with data from the worker."""
+        if not raw:
             return
 
         try:
-            raw = self.controller.read_status()
             parsed = self.parse_sts_line(raw)
 
             for i, line in enumerate(parsed["screen"]):
@@ -388,25 +390,25 @@ class ScannerGUI(QWidget):
         return False
 
     def _update_meters(self):
-        """Update the RSSI and squelch meters."""
+        """Update the squelch meter."""
         try:
-            rssi = self.controller.read_rssi()
-            if hasattr(self, 'rssi_bar'):
-                self.rssi_bar.setValue(int(rssi * 100))
-        except Exception as e:
-            logging.error(f"Error updating RSSI meter: {e}")
-            if hasattr(self, 'rssi_bar'):
-                self.rssi_bar.setValue(0)
-
-        try:
-            # Get the current slider value for squelch display
             value = self.sql_slider.value()
-            if hasattr(self, 'squelch_bar'):
+            if hasattr(self, "squelch_bar"):
                 self.squelch_bar.setValue(value)
-        except Exception as e:
+        except Exception as e:  # pragma: no cover - log only
             logging.error(f"Error updating squelch meter: {e}")
-            if hasattr(self, 'squelch_bar'):
+            if hasattr(self, "squelch_bar"):
                 self.squelch_bar.setValue(0)
+
+    def on_rssi_received(self, rssi: float) -> None:
+        """Update the RSSI meter from the worker signal."""
+        try:
+            if hasattr(self, "rssi_bar"):
+                self.rssi_bar.setValue(int(rssi * 100))
+        except Exception as e:  # pragma: no cover - log only
+            logging.error(f"Error updating RSSI meter: {e}")
+            if hasattr(self, "rssi_bar"):
+                self.rssi_bar.setValue(0)
 
     def on_volume_changed(self):
         """Update the UI when volume slider changes value."""
@@ -564,3 +566,10 @@ class ScannerGUI(QWidget):
             "backlight": backlight,
             "volume": volume,
         }
+
+    def closeEvent(self, event):
+        """Stop worker thread on window close."""
+        if hasattr(self, "worker"):
+            self.worker.stop()
+            self.worker.wait()
+        super().closeEvent(event)
