@@ -20,16 +20,16 @@ from adapters.uniden.bcd325p2.channel import (
     read_global_lockout,
     write_channel_info,
 )
-from adapters.uniden.bcd325p2.frequency import (
-    enter_quick_frequency_hold,
-    read_frequency,
-    write_frequency,
-)
 from adapters.uniden.bcd325p2.close_call import (
     get_close_call,
     jump_mode,
     jump_to_number_tag,
     set_close_call,
+)
+from adapters.uniden.bcd325p2.frequency import (
+    enter_quick_frequency_hold,
+    read_frequency,
+    write_frequency,
 )
 from adapters.uniden.bcd325p2.status_info import (
     read_battery_voltage,
@@ -44,12 +44,6 @@ from adapters.uniden.bcd325p2.user_control import (
     start_scanning,
     stop_scanning,
 )
-from adapters.uniden.bcd325p2.close_call import (
-    get_close_call,
-    set_close_call,
-    jump_mode,
-    jump_to_number_tag,
-)
 
 # Import common functions
 from adapters.uniden.common.core import (
@@ -61,6 +55,7 @@ from adapters.uniden.common.core import (
 from adapters.uniden.common.programming import (
     enter_programming_mode,
     exit_programming_mode,
+    requires_programming_mode,
 )
 
 # First-party imports
@@ -139,6 +134,43 @@ class BCD325P2Adapter(UnidenScannerAdapter):
     read_frequency = read_frequency
     write_frequency = write_frequency
     enter_quick_frequency_hold = enter_quick_frequency_hold
+
+    @requires_programming_mode
+    def configure_band_scope(self, ser, freq, step, span, max_hold):
+        """Configure band scope system settings.
+
+        Parameters
+        ----------
+        ser : serial.Serial
+            Serial connection to the scanner.
+        freq : int or str
+            Center frequency value accepted by the ``BSP`` command.
+        step : int
+            Step size for the sweep (e.g. ``500`` for 5 kHz).
+        span : str
+            Sweep span string such as ``"1M"`` or ``"20M"``.
+        max_hold : int
+            Whether to display max hold (``0`` or ``1``).
+
+        Returns
+        -------
+        str
+            Scanner feedback after sending the command.
+        """
+        try:
+            cmd_obj = self.commands.get("BSP")
+            if cmd_obj:
+                cmd = cmd_obj.set_format.format(
+                    freq=freq, step=step, span=span, max_hold=max_hold
+                )
+            else:
+                cmd = f"BSP,{freq},{step},{span},{max_hold}"
+
+            response = self.send_command(ser, cmd)
+            response_str = ensure_str(response)
+            return self.feedback(True, response_str)
+        except Exception as e:
+            return self.feedback(False, f"Error configuring band scope: {e}")
 
     # Channel methods
     read_channel_info = read_channel_info
