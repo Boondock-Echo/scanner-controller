@@ -33,7 +33,11 @@ from adapters.uniden.bcd325p2.status_info import (
     read_sw_ver,
     read_window_voltage,
 )
-from adapters.uniden.bcd325p2.user_control import send_key
+from adapters.uniden.bcd325p2.user_control import (
+    send_key,
+    start_scanning,
+    stop_scanning,
+)
 
 # Import common functions
 from adapters.uniden.common.core import (
@@ -131,6 +135,8 @@ class BCD325P2Adapter(UnidenScannerAdapter):
 
     # User control methods
     send_key = send_key
+    start_scanning = start_scanning
+    stop_scanning = stop_scanning
 
     def get_help(self, command):
         """Get help for a specific BCD325P2 command.
