@@ -23,6 +23,7 @@ The application dynamically detects connected scanner models and loads the appro
 - **Keypad**: Input numeric values and commands using a keypad.
 - **Rotary Knob**: Simulate a rotary knob for navigation and selection.
 - **Port Detection**: Automatically detect and connect to supported scanner models via serial ports.
+- **Scanning Control**: Start or stop scanning directly from the interface and access Close Call operations.
 - **Close Call Controls**: Manage Close Call settings and jump commands through adapter helpers.
 
 ## Supported Scanner Models
@@ -194,12 +195,12 @@ python -m scanner_gui.main --monitor-serial
 
 ## Common Issues and Troubleshooting
 
-
-| Issue                     | Possible Solution |
-|---------------------------|--------------------|
-| Scanner not detected      | Verify cables and serial drivers |
-| Commands not working      | Check firmware and command syntax |
+| Issue                       | Possible Solution                                  |
+| --------------------------- | -------------------------------------------------- |
+| Scanner not detected        | Verify cables and serial drivers                   |
+| Commands not working        | Check firmware and command syntax                  |
 | GUI elements not responding | Restart the application and ensure PyQt is updated |
+
 ## Contributing
 
 1. Fork the repository.

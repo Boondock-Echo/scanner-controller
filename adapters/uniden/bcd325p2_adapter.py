@@ -44,6 +44,12 @@ from adapters.uniden.bcd325p2.user_control import (
     start_scanning,
     stop_scanning,
 )
+from adapters.uniden.bcd325p2.close_call import (
+    get_close_call,
+    set_close_call,
+    jump_mode,
+    jump_to_number_tag,
+)
 
 # Import common functions
 from adapters.uniden.common.core import (
@@ -149,6 +155,12 @@ class BCD325P2Adapter(UnidenScannerAdapter):
     send_key = send_key
     start_scanning = start_scanning
     stop_scanning = stop_scanning
+
+    # Close Call methods
+    get_close_call = get_close_call
+    set_close_call = set_close_call
+    jump_mode = jump_mode
+    jump_to_number_tag = jump_to_number_tag
 
     def get_help(self, command):
         """Get help for a specific BCD325P2 command.
