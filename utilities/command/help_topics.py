@@ -79,6 +79,17 @@ Examples:
 
 Note: This can take several minutes to complete.
 """,
+    "closecall": """
+Close Call Commands:
+-------------------
+The adapter exposes helper methods to control the Close Call feature.
+
+Methods:
+  get_close_call       - return raw CLC settings
+  set_close_call       - send new CLC parameters
+  jump_mode            - jump to a search or Close Call mode
+  jump_to_number_tag   - jump to a system/channel number tag
+""",
 }
 
 

@@ -25,6 +25,12 @@ from adapters.uniden.bcd325p2.frequency import (
     read_frequency,
     write_frequency,
 )
+from adapters.uniden.bcd325p2.close_call import (
+    get_close_call,
+    jump_mode,
+    jump_to_number_tag,
+    set_close_call,
+)
 from adapters.uniden.bcd325p2.status_info import (
     read_battery_voltage,
     read_model,
@@ -132,6 +138,12 @@ class BCD325P2Adapter(UnidenScannerAdapter):
     read_channel_info = read_channel_info
     write_channel_info = write_channel_info
     read_global_lockout = read_global_lockout
+
+    # Close Call methods
+    get_close_call = get_close_call
+    set_close_call = set_close_call
+    jump_mode = jump_mode
+    jump_to_number_tag = jump_to_number_tag
 
     # User control methods
     send_key = send_key
