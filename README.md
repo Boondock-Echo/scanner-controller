@@ -32,6 +32,9 @@ The following scanner models are supported through the `commandLibrary`:
 
 - **BC125AT**: Uniden handheld scanner
 - **BCD325P2**: Uniden handheld digital scanner
+- **Generic Uniden**: Fallback adapter for other Uniden models. Unknown Uniden
+  scanners automatically use this fallback with basic volume and squelch
+  control.
 
 The code is designed to work with most Uniden scanners and is abstracted to allow easy porting to other manufacturers.
 
