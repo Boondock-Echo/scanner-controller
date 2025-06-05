@@ -53,13 +53,22 @@ def get_scanner_adapter(model, machine_mode=False):
             from adapters.uniden.bc125at_adapter import BC125ATAdapter
 
             logging.info(f"Creating adapter for {model}")
-            return BC125ATAdapter()
+            return BC125ATAdapter(machine_mode=machine_mode)
         elif "BCD325P2" in model:
             from adapters.uniden.bcd325p2_adapter import BCD325P2Adapter
 
             logging.info(f"Creating adapter for {model}")
-            return BCD325P2Adapter()
+            return BCD325P2Adapter(machine_mode=machine_mode)
         else:
+            prefixes = ("BC", "BCD", "UBC", "SDS")
+            if any(model.startswith(prefix) for prefix in prefixes):
+                from adapters.uniden.generic_adapter import GenericUnidenAdapter
+
+                logging.info(
+                    f"Creating generic Uniden adapter for unrecognized model: {model}"
+                )
+                return GenericUnidenAdapter(machine_mode=machine_mode)
+
             logging.error(f"No adapter available for model: {model}")
             return None
     except Exception as e:

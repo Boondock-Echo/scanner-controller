@@ -24,7 +24,7 @@ def create_adapter(model_name, machine_mode=False):
     Returns:
         An adapter instance for the specified scanner model
     """
-    model_name = model_name.lower()
+    model_key = model_name.lower()
 
     # Map model names to adapter modules
     adapter_map = {
@@ -40,18 +40,27 @@ def create_adapter(model_name, machine_mode=False):
     }
 
     try:
-        if model_name not in adapter_map:
-            raise ValueError(f"No adapter implemented for {model_name.upper()}")
+        if model_key in adapter_map:
+            module_path = adapter_map[model_key]
+            class_name = class_map[model_key]
 
-        module_path = adapter_map[model_name]
-        class_name = class_map[model_name]
+            logger.debug(f"Loading adapter module: {module_path}")
+            module = importlib.import_module(module_path)
+            adapter_class = getattr(module, class_name)
 
-        logger.debug(f"Loading adapter module: {module_path}")
-        module = importlib.import_module(module_path)
-        adapter_class = getattr(module, class_name)
+            logger.info(f"Creating adapter for {model_name.upper()}")
+            return adapter_class(machine_mode=machine_mode)
 
-        logger.info(f"Creating adapter for {model_name.upper()}")
-        return adapter_class(machine_mode=machine_mode)
+        prefixes = ("bc", "bcd", "ubc", "sds")
+        if any(model_key.startswith(prefix) for prefix in prefixes):
+            from adapters.uniden.generic_adapter import GenericUnidenAdapter
+
+            logger.info(
+                f"Creating generic Uniden adapter for unrecognized model: {model_name.upper()}"
+            )
+            return GenericUnidenAdapter(machine_mode=machine_mode)
+
+        raise ValueError(f"No adapter implemented for {model_name.upper()}")
     except Exception as e:
         logger.error(
             f"Error creating adapter for {model_name.upper()}: {str(e)}"
