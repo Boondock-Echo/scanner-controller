@@ -167,33 +167,21 @@ def build_command_table(adapter, ser):
 
         def band_scope(arg=""):
             parts = arg.split()
-            if len(parts) == 1:
-                preset = parts[0].lower()
-                try:
-                    from utilities.core.band_scope_presets import (
-                        BAND_SCOPE_PRESETS,
-                    )
-
-                    if preset in BAND_SCOPE_PRESETS:
-                        params = BAND_SCOPE_PRESETS[preset]
-                        return adapter.configure_band_scope(ser, *params)
-                except Exception as e:
-                    logging.error(f"Error using band scope preset: {e}")
-                return f"Unknown preset '{preset}'"
-            elif len(parts) == 4:
-                freq, step, span, max_hold = parts
-                return adapter.configure_band_scope(
-                    ser, freq, step, span, max_hold
-                )
-            return (
-                "Usage: band scope <freq> <step> <span> <max_hold> "
-                "or band scope <preset>"
-            )
+            return adapter.configure_band_scope(ser, *parts)
 
         COMMANDS["band scope"] = band_scope
+
+        try:
+            from config.band_scope_presets import BAND_SCOPE_PRESETS
+
+            presets = ", ".join(sorted(BAND_SCOPE_PRESETS))
+            preset_help = f" Available presets: {presets}"
+        except ImportError:
+            preset_help = ""
+
         COMMAND_HELP["band scope"] = (
-            "Configure band scope settings. Usage: band scope <freq> <step> "
-            "<span> <max_hold> or band scope <preset>"
+            "Configure band scope settings. Usage: band scope <preset> or "
+            "band scope <freq> <step> <span> <max_hold>." + preset_help
         )
     else:
         logging.debug("Registering placeholder 'band scope' command")

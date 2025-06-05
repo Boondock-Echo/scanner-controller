@@ -136,27 +136,46 @@ class BCD325P2Adapter(UnidenScannerAdapter):
     enter_quick_frequency_hold = enter_quick_frequency_hold
 
     @requires_programming_mode
-    def configure_band_scope(self, ser, freq, step, span, max_hold):
-        """Configure band scope system settings.
+    def configure_band_scope(self, ser, *args):
+        """Configure band scope system settings or apply a preset.
 
         Parameters
         ----------
         ser : serial.Serial
             Serial connection to the scanner.
-        freq : int or str
-            Center frequency value accepted by the ``BSP`` command.
-        step : int
-            Step size for the sweep (e.g. ``500`` for 5 kHz).
-        span : str
-            Sweep span string such as ``"1M"`` or ``"20M"``.
-        max_hold : int
-            Whether to display max hold (``0`` or ``1``).
+        *args : tuple
+            Either a single preset name or ``freq step span max_hold`` values.
 
         Returns
         -------
         str
-            Scanner feedback after sending the command.
+            Scanner feedback after sending the command or an error message.
         """
+        if not args:
+            return self.feedback(
+                False,
+                "Expected a preset name or <freq> <step> <span> <max_hold>",
+            )
+
+        if len(args) == 1:
+            preset = str(args[0]).lower()
+            try:
+                from config.band_scope_presets import BAND_SCOPE_PRESETS
+
+                if preset not in BAND_SCOPE_PRESETS:
+                    return self.feedback(False, f"Unknown preset '{preset}'")
+
+                freq, step, span, max_hold = BAND_SCOPE_PRESETS[preset]
+            except Exception as e:
+                return self.feedback(False, f"Error loading presets: {e}")
+        elif len(args) == 4:
+            freq, step, span, max_hold = args
+        else:
+            return self.feedback(
+                False,
+                "Expected a preset name or <freq> <step> <span> <max_hold>",
+            )
+
         try:
             cmd_obj = self.commands.get("BSP")
             if cmd_obj:
