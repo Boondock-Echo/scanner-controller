@@ -35,10 +35,10 @@ def build_command_table(adapter, ser):
             logging.debug(f"Registering device command: {cmd_name}")
 
             # Create the command handler function
-            COMMANDS[
-                cmd_lower
-            ] = lambda arg="", cmd=cmd_name: adapter.send_command(
-                ser, f"{cmd}{' ' + arg if arg else ''}"
+            COMMANDS[cmd_lower] = (
+                lambda arg="", cmd=cmd_name: adapter.send_command(
+                    ser, f"{cmd}{' ' + arg if arg else ''}"
+                )
             )
 
             # Add help text if available
@@ -71,9 +71,9 @@ def build_command_table(adapter, ser):
     if hasattr(adapter, 'write_volume'):
         logging.debug("Registering 'set volume' command")
         COMMANDS["set volume"] = lambda arg: adapter.write_volume(ser, arg)
-        COMMAND_HELP[
-            "set volume"
-        ] = "Set the volume level. Usage: set volume <level>"
+        COMMAND_HELP["set volume"] = (
+            "Set the volume level. Usage: set volume <level>"
+        )
 
     # -- Squelch commands --
     if hasattr(adapter, 'read_squelch'):
@@ -84,9 +84,9 @@ def build_command_table(adapter, ser):
     if hasattr(adapter, 'write_squelch'):
         logging.debug("Registering 'set squelch' command")
         COMMANDS["set squelch"] = lambda arg: adapter.write_squelch(ser, arg)
-        COMMAND_HELP[
-            "set squelch"
-        ] = "Set the squelch level. Usage: set squelch <level>"
+        COMMAND_HELP["set squelch"] = (
+            "Set the squelch level. Usage: set squelch <level>"
+        )
 
     # -- Additional commands based on adapter capabilities --
     # Battery voltage
@@ -106,9 +106,9 @@ def build_command_table(adapter, ser):
         COMMANDS["set frequency"] = lambda arg: adapter.write_frequency(
             ser, arg
         )
-        COMMAND_HELP[
-            "set frequency"
-        ] = "Set the frequency. Usage: set frequency <freq_mhz>"
+        COMMAND_HELP["set frequency"] = (
+            "Set the frequency. Usage: set frequency <freq_mhz>"
+        )
 
     # Status
     if hasattr(adapter, 'read_status'):
@@ -129,9 +129,9 @@ def build_command_table(adapter, ser):
     if hasattr(adapter, 'send_key'):
         logging.debug("Registering 'send key' command")
         COMMANDS["send key"] = lambda arg: adapter.send_key(ser, arg)
-        COMMAND_HELP[
-            "send key"
-        ] = "Send key presses to the scanner. Usage: send key <sequence>"
+        COMMAND_HELP["send key"] = (
+            "Send key presses to the scanner. Usage: send key <sequence>"
+        )
     else:
         logging.debug("Registering placeholder 'send key' command")
         COMMANDS["send key"] = lambda arg: (
@@ -145,12 +145,12 @@ def build_command_table(adapter, ser):
     # Hold frequency
     if hasattr(adapter, 'enter_quick_frequency_hold'):
         logging.debug("Registering 'hold frequency' command")
-        COMMANDS[
-            "hold frequency"
-        ] = lambda arg: adapter.enter_quick_frequency_hold(ser, float(arg))
-        COMMAND_HELP[
-            "hold frequency"
-        ] = "Enter frequency hold mode. Usage: hold frequency <freq_mhz>"
+        COMMANDS["hold frequency"] = (
+            lambda arg: adapter.enter_quick_frequency_hold(ser, float(arg))
+        )
+        COMMAND_HELP["hold frequency"] = (
+            "Enter frequency hold mode. Usage: hold frequency <freq_mhz>"
+        )
     else:
         logging.debug("Registering placeholder 'hold frequency' command")
         COMMANDS["hold frequency"] = lambda arg: (
@@ -161,6 +161,50 @@ def build_command_table(adapter, ser):
             "(Not available for this scanner model)"
         )
 
+    # Band scope configuration
+    if hasattr(adapter, 'configure_band_scope'):
+        logging.debug("Registering 'band scope' command")
+
+        def band_scope(arg=""):
+            parts = arg.split()
+            if len(parts) == 1:
+                preset = parts[0].lower()
+                try:
+                    from utilities.core.band_scope_presets import (
+                        BAND_SCOPE_PRESETS,
+                    )
+
+                    if preset in BAND_SCOPE_PRESETS:
+                        params = BAND_SCOPE_PRESETS[preset]
+                        return adapter.configure_band_scope(ser, *params)
+                except Exception as e:
+                    logging.error(f"Error using band scope preset: {e}")
+                return f"Unknown preset '{preset}'"
+            elif len(parts) == 4:
+                freq, step, span, max_hold = parts
+                return adapter.configure_band_scope(
+                    ser, freq, step, span, max_hold
+                )
+            return (
+                "Usage: band scope <freq> <step> <span> <max_hold> "
+                "or band scope <preset>"
+            )
+
+        COMMANDS["band scope"] = band_scope
+        COMMAND_HELP["band scope"] = (
+            "Configure band scope settings. Usage: band scope <freq> <step> "
+            "<span> <max_hold> or band scope <preset>"
+        )
+    else:
+        logging.debug("Registering placeholder 'band scope' command")
+        COMMANDS["band scope"] = lambda arg: (
+            "Command 'band scope' not supported on this scanner model"
+        )
+        COMMAND_HELP["band scope"] = (
+            "Configure band scope settings. "
+            "(Not available for this scanner model)"
+        )
+
     # Dump memory
     if hasattr(adapter, 'dump_memory_to_file'):
         logging.debug("Registering 'dump memory' command")
@@ -168,9 +212,9 @@ def build_command_table(adapter, ser):
         COMMAND_HELP["dump memory"] = "Dump scanner memory to a file."
     else:
         logging.debug("Registering placeholder 'dump memory' command")
-        COMMANDS[
-            "dump memory"
-        ] = lambda: "Command 'dump memory' not supported on this scanner model"
+        COMMANDS["dump memory"] = (
+            lambda: "Command 'dump memory' not supported on this scanner model"
+        )
         COMMAND_HELP["dump memory"] = (
             "Dump scanner memory to a file. "
             "(Not available for this scanner model)"
