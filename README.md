@@ -23,6 +23,7 @@ The application dynamically detects connected scanner models and loads the appro
 - **Keypad**: Input numeric values and commands using a keypad.
 - **Rotary Knob**: Simulate a rotary knob for navigation and selection.
 - **Port Detection**: Automatically detect and connect to supported scanner models via serial ports.
+- **Scanning Control**: Start or stop scanning directly from the interface and access Close Call operations.
 
 ## Supported Scanner Models
 
