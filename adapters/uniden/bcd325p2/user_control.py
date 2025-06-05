@@ -35,3 +35,13 @@ def send_key(self, ser, key_seq):
             success = False
 
     return self.feedback(success, "\n".join(responses))
+
+
+def start_scanning(self, ser):
+    """Resume scanning mode."""
+    return self.send_key(ser, "S")
+
+
+def stop_scanning(self, ser):
+    """Hold on current channel/frequency."""
+    return self.send_key(ser, "H")
