@@ -176,7 +176,7 @@ def build_command_table(adapter, ser):
 
             presets = ", ".join(sorted(BAND_SCOPE_PRESETS))
             preset_help = f" Available presets: {presets}"
-        except Exception:
+        except ImportError:
             preset_help = ""
 
         COMMAND_HELP["band scope"] = (
