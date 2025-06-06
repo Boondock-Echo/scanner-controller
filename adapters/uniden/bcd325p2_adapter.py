@@ -179,6 +179,8 @@ class BCD325P2Adapter(UnidenScannerAdapter):
         try:
             cmd_obj = self.commands.get("BSP")
             if cmd_obj:
+                if cmd_obj.validator:
+                    cmd_obj.validator([freq, step, span, max_hold])
                 cmd = cmd_obj.set_format.format(
                     freq=freq, step=step, span=span, max_hold=max_hold
                 )

@@ -138,3 +138,28 @@ def validate_binary_options(options_count):
         return value
 
     return validator
+
+
+def validate_frequency_8_digit(value):
+    """Validate an 8-digit center frequency value.
+
+    Parameters
+    ----------
+    value : str or int
+        Frequency value consisting of eight digits.
+
+    Returns
+    -------
+    str
+        The validated frequency string.
+
+    Raises
+    ------
+    ValueError
+        If the value is not an 8-digit integer.
+    """
+
+    value_str = str(value).strip()
+    if not value_str.isdigit() or len(value_str) != 8:
+        raise ValueError("Frequency must be an 8-digit value (e.g., 00125000)")
+    return value_str
