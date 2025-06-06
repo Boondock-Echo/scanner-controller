@@ -209,11 +209,6 @@ class BCD325P2Adapter(UnidenScannerAdapter):
     start_scanning = start_scanning
     stop_scanning = stop_scanning
 
-    # Close Call methods
-    get_close_call = get_close_call
-    set_close_call = set_close_call
-    jump_mode = jump_mode
-    jump_to_number_tag = jump_to_number_tag
 
     def get_help(self, command):
         """Get help for a specific BCD325P2 command.
