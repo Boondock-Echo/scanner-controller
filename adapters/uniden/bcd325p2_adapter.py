@@ -274,7 +274,6 @@ class BCD325P2Adapter(UnidenScannerAdapter):
     jump_to_number_tag = jump_to_number_tag
 
     # Custom search methods
-    stream_custom_search = stream_custom_search
 
     # User control methods
     send_key = send_key
