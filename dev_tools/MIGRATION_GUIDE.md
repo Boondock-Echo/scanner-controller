@@ -32,6 +32,8 @@ python cleanup_legacy.py
 
 - Added missing `machineMode` attribute to `BCD325P2Adapter` class to fix "read frequency" command
 - Added redirects for any remaining code in `scanner_adapters` folder to the `adapters` folder
+- Removed unused modules `utilities/scanner/utils.py` and
+  `utilities/scanner_utils_uniden.py` to reduce redundancy
 
 ## Removing Legacy Redirects
 
