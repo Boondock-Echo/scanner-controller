@@ -117,7 +117,7 @@ class ScannerCommand:
         return self.parser(response) if self.parser else response
 
 
-def clear_serial_buffer(ser, delay=0.2):
+def clear_serial_buffer(ser, delay=0.0):
     """Clear accumulated data in the serial buffer before sending commands.
 
     Parameters
@@ -125,7 +125,7 @@ def clear_serial_buffer(ser, delay=0.2):
     ser : serial.Serial
         Open serial connection to the scanner.
     delay : float, optional
-        Time to wait before flushing the buffer. Defaults to ``0.2`` seconds.
+        Time to wait before flushing the buffer. Defaults to ``0`` seconds.
     """
     try:
         if delay:
@@ -137,7 +137,7 @@ def clear_serial_buffer(ser, delay=0.2):
         logging.error(f"Error clearing serial buffer: {e}")
 
 
-def send_command(ser, cmd, delay=0.2):
+def send_command(ser, cmd, delay=0.0):
     """Clear the buffer and send a command (with CR termination) to the device.
 
     Parameters
@@ -147,7 +147,7 @@ def send_command(ser, cmd, delay=0.2):
     cmd : str
         Command string to send.
     delay : float, optional
-        Delay passed to :func:`clear_serial_buffer`. Defaults to ``0.2`` seconds.
+        Delay passed to :func:`clear_serial_buffer`. Defaults to ``0`` seconds.
 
     Returns
     -------
