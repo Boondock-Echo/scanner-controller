@@ -17,17 +17,17 @@ def test_band_scope_command_registered(monkeypatch):
     monkeypatch.setattr(
         adapter,
         "stream_custom_search",
-        lambda ser, c=1024: [(0, 100.0, 0)] * int(c),
+        lambda ser, c=1024: [(0, 100.0 + i % 5, 0) for i in range(int(c))],
     )
 
     commands, help_text = build_command_table(adapter, None)
 
     assert "band scope" in commands
     assert "band scope" in help_text
-    output = commands["band scope"]("5")
+    output = commands["band scope"]("10 5")
     lines = output.splitlines()
     assert len(lines) == 2
-    assert len(lines[0]) == 5
+    assert all(len(line) == 5 for line in lines)
 
 
 def test_band_scope_collects(monkeypatch):
