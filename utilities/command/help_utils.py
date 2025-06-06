@@ -94,6 +94,7 @@ def show_help(commands, command_help, command="", adapter=None):
             "scan stop",
             "band scope",
             "band sweep",
+            "custom search",
         ],
         "Other": ["help", "switch", "exit"],
     }
@@ -110,6 +111,7 @@ def show_help(commands, command_help, command="", adapter=None):
                 "scan ",
                 "band scope ",
                 "band sweep ",
+                "custom search ",
             )
         )
         for cmd in commands
@@ -136,6 +138,7 @@ def show_help(commands, command_help, command="", adapter=None):
                     or cmd.startswith("scan ")
                     or cmd.startswith("band scope")
                     or cmd.startswith("band sweep")
+                    or cmd.startswith("custom search")
                 )
             ],
             "Other": ["help", "switch", "exit"],

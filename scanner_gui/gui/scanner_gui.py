@@ -156,7 +156,9 @@ class ScannerGUI(QWidget):
                 rotate_right_callback=lambda: self.send_key(">"),
             )
         )
-        left_panel.addWidget(build_audio_controls(self.vol_slider, self.sql_slider))
+        left_panel.addWidget(
+            build_audio_controls(self.vol_slider, self.sql_slider)
+        )
         left_panel.setAlignment(Qt.AlignmentFlag.AlignTop)
         outer_layout.addLayout(left_panel)
 
@@ -191,7 +193,9 @@ class ScannerGUI(QWidget):
 
         # Display
         self.display_labels = []
-        layout.addWidget(build_display_group(self.font_lcd, self.display_labels))
+        layout.addWidget(
+            build_display_group(self.font_lcd, self.display_labels)
+        )
 
         # Signal Meters
         self.rssi_bar = QProgressBar()
@@ -433,7 +437,9 @@ class ScannerGUI(QWidget):
             # new bars
             try:
                 # Find the squelch bar in the signal meters group
-                for child in self.signal_meters_group.findChildren(QProgressBar):
+                for child in self.signal_meters_group.findChildren(
+                    QProgressBar
+                ):
                     if child.objectName() == "squelchBar":
                         child.setValue(value)
                         # Save reference for future use

@@ -203,7 +203,8 @@ def build_command_table(adapter, ser):
 
         COMMANDS["band sweep"] = band_sweep
         COMMAND_HELP["band sweep"] = (
-            "Sweep a range of frequencies. Usage: band sweep <center> <span> <step>"
+            "Sweep a range of frequencies. Usage: band sweep "
+            "<center> <span> <step>"
         )
     else:
         logging.debug("Registering placeholder 'band sweep' command")
@@ -211,7 +212,30 @@ def build_command_table(adapter, ser):
             "Command 'band sweep' not supported on this scanner model"
         )
         COMMAND_HELP["band sweep"] = (
-            "Sweep a range of frequencies. (Not available for this scanner model)"
+            "Sweep a range of frequencies. (Not available for this "
+            "scanner model)"
+        )
+
+    # Custom search stream
+    if hasattr(adapter, 'stream_custom_search'):
+        logging.debug("Registering 'custom search' command")
+
+        def custom_search(arg=""):
+            count = int(arg) if arg else 1024
+            return adapter.stream_custom_search(ser, count)
+
+        COMMANDS["custom search"] = custom_search
+        COMMAND_HELP["custom search"] = (
+            "Stream custom search results. Usage: custom search [record_count]"
+        )
+    else:
+        logging.debug("Registering placeholder 'custom search' command")
+        COMMANDS["custom search"] = lambda arg="": (
+            "Command 'custom search' not supported on this scanner model"
+        )
+        COMMAND_HELP["custom search"] = (
+            "Stream custom search results. (Not available for this scanner "
+            "model)"
         )
 
     # Dump memory

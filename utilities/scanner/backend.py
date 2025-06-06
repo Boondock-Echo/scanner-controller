@@ -57,7 +57,9 @@ def send_command(ser, command):
     return read_response(ser)
 
 
-def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2, skip_ports=None):
+def find_all_scanner_ports(
+    baudrate=115200, timeout=0.5, max_retries=2, skip_ports=None
+):
     """Scan available serial ports for connected scanners."""
     if skip_ports is None:
         skip_ports = []
@@ -67,7 +69,9 @@ def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2, skip_por
         ports = list_ports.comports()
         logging.info(f"Available ports: {len(ports)}")
         for port_info in ports:
-            logging.info(f"Available port: {port_info.device} - {port_info.description}")
+            logging.info(
+                f"Available port: {port_info.device} - {port_info.description}"
+            )
         for port_info in ports:
             port = port_info.device
             if port in skip_ports:
@@ -75,7 +79,9 @@ def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2, skip_por
                 continue
             logging.info(f"Trying port: {port} ({port_info.description})")
             try:
-                with serial.Serial(port, baudrate, timeout=timeout, write_timeout=0.5) as ser:
+                with serial.Serial(
+                    port, baudrate, timeout=timeout, write_timeout=0.5
+                ) as ser:
                     time.sleep(0.1)
                     logging.info(f"Sending MDL to {port}")
                     ser.write(b"MDL\r")

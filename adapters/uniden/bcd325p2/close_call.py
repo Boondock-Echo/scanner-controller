@@ -25,4 +25,3 @@ def jump_mode(self, ser, jump_mode, index=""):
 def jump_to_number_tag(self, ser, sys_tag="", chan_tag=""):
     """Jump to a system/channel number tag using the JNT command."""
     return self.send_command(ser, f"JNT,{sys_tag},{chan_tag}")
-
