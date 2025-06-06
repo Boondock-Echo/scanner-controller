@@ -12,6 +12,7 @@ sys.modules.setdefault("serial", serial_stub)
 import importlib
 from adapters.uniden.bcd325p2_adapter import BCD325P2Adapter  # noqa: E402
 from utilities.core.command_registry import build_command_table  # noqa: E402
+from utilities.graph_utils import render_band_scope_waterfall
 
 
 def test_presets_load():
@@ -63,3 +64,18 @@ def test_custom_search_parses_units(monkeypatch):
     monkeypatch.setattr(adapter, "read_rssi", lambda ser: 0)
     result = adapter.sweep_band_scope(None, "144M", "2M", "500k")
     assert result[0][0] == 143.0
+
+
+def test_render_band_scope_waterfall_wrap():
+    pairs = [
+        (100.0, 0.0),
+        (101.0, 0.5),
+        (102.0, 1.0),
+        (100.0, 1.0),
+        (101.0, 0.5),
+        (102.0, 0.0),
+    ]
+    output = render_band_scope_waterfall(pairs, width=3)
+    lines = output.splitlines()
+    assert len(lines) == 2
+    assert all(len(line) == 3 for line in lines)

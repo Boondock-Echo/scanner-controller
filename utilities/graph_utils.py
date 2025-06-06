@@ -35,3 +35,63 @@ def render_rssi_graph(pairs):
     return "".join(top) + "\n" + "".join(bottom)
 
 
+def render_band_scope_waterfall(pairs, width=64):
+    """Render band scope results as a waterfall-style graph.
+
+    Parameters
+    ----------
+    pairs : list of tuple
+        ``(frequency, rssi)`` tuples with RSSI normalized between ``0`` and ``1``.
+    width : int, optional
+        Number of frequency bins to divide the data into. Defaults to ``64``.
+
+    Returns
+    -------
+    str
+        Multiple lines of characters where each line represents one sweep.
+    """
+
+    if not pairs or width <= 0:
+        return ""
+
+    freqs = [f for f, _ in pairs]
+    f_min = min(freqs)
+    f_max = max(freqs)
+    if f_max == f_min:
+        f_max += 1e-6
+    bin_size = (f_max - f_min) / float(width)
+
+    rows = []
+    bins = [[0.0, 0] for _ in range(width)]
+    prev_freq = None
+
+    for freq, rssi in pairs:
+        if prev_freq is not None and freq < prev_freq:
+            rows.append(bins)
+            bins = [[0.0, 0] for _ in range(width)]
+        prev_freq = freq
+        idx = int((freq - f_min) / bin_size)
+        if idx >= width:
+            idx = width - 1
+        if rssi is not None:
+            bins[idx][0] += rssi
+            bins[idx][1] += 1
+
+    rows.append(bins)
+
+    lines = []
+    max_level = len(BLOCKS) - 1
+    for row in rows:
+        chars = []
+        for total, count in row:
+            if count == 0:
+                level = 0
+            else:
+                avg = total / count
+                level = max(0, min(max_level, int(round(avg * max_level))))
+            chars.append(BLOCKS[level])
+        lines.append("".join(chars))
+
+    return "\n".join(lines)
+
+

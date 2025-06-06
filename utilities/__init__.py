@@ -30,7 +30,7 @@ from utilities.core.serial_utils import (
 )
 from utilities.io.readline_setup import initialize_readline
 from utilities.log_utils import configure_logging, get_logger
-from utilities.graph_utils import render_rssi_graph
+from utilities.graph_utils import render_rssi_graph, render_band_scope_waterfall
 
 # Only export specific names (instead of using __all__ = ['*'])
 __all__ = [
@@ -55,4 +55,5 @@ __all__ = [
     "send_command",
     "wait_for_data",
     "render_rssi_graph",
+    "render_band_scope_waterfall",
 ]
