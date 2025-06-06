@@ -33,7 +33,5 @@ def test_close_call_helpers_raw(monkeypatch):
     assert adapter.set_close_call(None, "0,1,2") == "CMD:CLC,0,1,2"
     assert adapter.jump_mode(None, "SCN_MODE", "5") == "CMD:JPM,SCN_MODE,5"
     assert adapter.jump_mode(None, "CC_MODE") == "CMD:JPM,CC_MODE,"
-    assert (
-        adapter.jump_to_number_tag(None, "1", "2") == "CMD:JNT,1,2"
-    )
+    assert adapter.jump_to_number_tag(None, "1", "2") == "CMD:JNT,1,2"
     assert adapter.jump_to_number_tag(None) == "CMD:JNT,,"

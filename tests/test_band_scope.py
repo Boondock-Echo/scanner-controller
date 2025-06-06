@@ -15,7 +15,9 @@ from utilities.core.command_registry import build_command_table  # noqa: E402
 
 
 def test_presets_load():
-    presets = importlib.import_module("config.band_scope_presets").BAND_SCOPE_PRESETS
+    presets = importlib.import_module(
+        "config.band_scope_presets"
+    ).BAND_SCOPE_PRESETS
     assert "air" in presets
     assert "race" in presets
     assert isinstance(presets["air"], tuple)

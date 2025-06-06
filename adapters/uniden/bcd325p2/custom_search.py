@@ -1,7 +1,12 @@
 """Custom search streaming functions for BCD325P2."""
 
 import logging
-from utilities.core.serial_utils import send_command, wait_for_data, read_response
+
+from utilities.core.serial_utils import (
+    read_response,
+    send_command,
+    wait_for_data,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -49,4 +54,3 @@ def stream_custom_search(self, ser, record_count=1024):
     except Exception as e:
         logger.error(f"Error during custom search stream: {e}")
     return results
-

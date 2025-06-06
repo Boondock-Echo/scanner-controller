@@ -9,6 +9,8 @@ pressing the knob.
 from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QGroupBox, QHBoxLayout, QPushButton
+
+
 def build_rotary_knob(
     knob_pressed_callback=None,
     rotate_left_callback=None,

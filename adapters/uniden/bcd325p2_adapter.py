@@ -281,7 +281,6 @@ class BCD325P2Adapter(UnidenScannerAdapter):
     start_scanning = start_scanning
     stop_scanning = stop_scanning
 
-
     def get_help(self, command):
         """Get help for a specific BCD325P2 command.
 

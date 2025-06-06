@@ -12,7 +12,9 @@ class BackgroundWorker(QThread):
     status_received = pyqtSignal(str)
     rssi_received = pyqtSignal(float)
 
-    def __init__(self, controller, interval: int = 250, parent: Optional[object] = None):
+    def __init__(
+        self, controller, interval: int = 250, parent: Optional[object] = None
+    ):
         super().__init__(parent)
         self._controller = controller
         self._interval = interval
