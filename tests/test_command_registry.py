@@ -31,3 +31,14 @@ def test_scan_start_stop_registered(monkeypatch):
     # Ensure commands use adapter methods
     assert commands["scan start"]() == "KEY:S"
     assert commands["scan stop"]() == "KEY:H"
+
+
+def test_bsp_and_bsv_commands_present(monkeypatch):
+    """Battery save (BSV) and Band Scope (BSP) commands exist after build."""
+    adapter = BCD325P2Adapter()
+    monkeypatch.setattr(adapter, "send_command", lambda ser, cmd: cmd)
+
+    commands, _ = build_command_table(adapter, None)
+
+    assert "bsv" in commands
+    assert "bsp" in commands
