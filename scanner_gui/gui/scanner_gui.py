@@ -29,7 +29,7 @@ from PyQt6.QtWidgets import (
 # Import our controller instead of direct scanner interface
 from scanner_gui.controller import ScannerController
 
-# Updated import from scanner_utils instead of scannerUtils
+# Updated import to use utilities.scanner.backend instead of scanner_utils
 from utilities.scanner.backend import find_all_scanner_ports
 
 # Import GUI components
