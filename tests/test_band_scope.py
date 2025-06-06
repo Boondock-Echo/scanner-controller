@@ -24,26 +24,26 @@ def test_presets_load():
     assert len(presets["air"]) == 4
 
 
-def test_band_scope_air_command(monkeypatch):
+def test_band_sweep_air_command(monkeypatch):
     adapter = BCD325P2Adapter()
     adapter.in_program_mode = True
     monkeypatch.setattr(adapter, "send_command", lambda ser, cmd: cmd)
 
     commands, _ = build_command_table(adapter, None)
-    result = commands["band scope"]("air")
+    result = commands["band sweep"]("air")
     assert result == "BSP,00125000,833,20M,0"
 
 
 def test_band_sweep_registered(monkeypatch):
     adapter = BCD325P2Adapter()
-    monkeypatch.setattr(adapter, "sweep_band_scope", lambda ser, c, s, st: [])
+    monkeypatch.setattr(adapter, "configure_band_scope", lambda ser, *a: "")
     commands, help_text = build_command_table(adapter, None)
 
     assert "band sweep" in commands
     assert "band sweep" in help_text
 
 
-def test_band_sweep_returns_pairs(monkeypatch):
+def test_custom_search_returns_pairs(monkeypatch):
     adapter = BCD325P2Adapter()
 
     def sweep_stub(ser, c, s, st):
@@ -52,11 +52,11 @@ def test_band_sweep_returns_pairs(monkeypatch):
     monkeypatch.setattr(adapter, "sweep_band_scope", sweep_stub)
     commands, _ = build_command_table(adapter, None)
 
-    result = commands["band sweep"]("100 2 1")
+    result = commands["custom search"]("100 2 1")
     assert result == [(100.0, 0.5), (101.0, 0.6)]
 
 
-def test_band_sweep_parses_units(monkeypatch):
+def test_custom_search_parses_units(monkeypatch):
     adapter = BCD325P2Adapter()
 
     monkeypatch.setattr(adapter, "write_frequency", lambda ser, f: None)

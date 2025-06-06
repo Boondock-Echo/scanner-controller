@@ -29,8 +29,8 @@ def stream_custom_search(self, ser, record_count=1024):
     """
     results = []
     try:
-        # Start streaming
-        send_command(ser, "CSC,ON")
+        # Start streaming without the usual buffer flush delay
+        send_command(ser, "CSC,ON", delay=0)
         while len(results) < record_count:
             if not wait_for_data(ser, max_wait=0.5):
                 break
@@ -49,7 +49,7 @@ def stream_custom_search(self, ser, record_count=1024):
                 except ValueError:
                     logger.debug(f"Malformed line: {line}")
         # Stop streaming and read final OK
-        send_command(ser, "CSC,OFF")
+        send_command(ser, "CSC,OFF", delay=0)
         read_response(ser, timeout=1.0)
     except Exception as e:
         logger.error(f"Error during custom search stream: {e}")
