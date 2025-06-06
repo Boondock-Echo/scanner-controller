@@ -135,6 +135,18 @@ class BCD325P2Adapter(UnidenScannerAdapter):
     write_frequency = write_frequency
     enter_quick_frequency_hold = enter_quick_frequency_hold
 
+    def read_rssi(self, ser):
+        """Return the normalized RSSI using the ``PWR`` command."""
+        try:
+            response = self.send_command(ser, "PWR")
+            response_str = ensure_str(response)
+            parts = response_str.split(",")
+            if len(parts) >= 2:
+                return int(parts[1]) / 1023.0
+        except Exception as e:
+            logger.error(f"Error reading RSSI: {e}")
+        return None
+
     @requires_programming_mode
     def configure_band_scope(self, ser, *args):
         """Configure band scope system settings or apply a preset.
@@ -192,6 +204,33 @@ class BCD325P2Adapter(UnidenScannerAdapter):
             return self.feedback(True, response_str)
         except Exception as e:
             return self.feedback(False, f"Error configuring band scope: {e}")
+
+    def sweep_band_scope(self, ser, center_freq, span, step):
+        """Sweep across a frequency range and collect RSSI readings."""
+        try:
+            center = float(center_freq)
+            if isinstance(span, str) and span.upper().endswith("M"):
+                span_mhz = float(span[:-1])
+            else:
+                span_mhz = float(span)
+            step_khz = float(step)
+            step_mhz = step_khz / 1000.0
+
+            start = center - span_mhz / 2.0
+            end = center + span_mhz / 2.0
+
+            results = []
+            freq = start
+            while freq <= end:
+                self.write_frequency(ser, freq)
+                rssi = self.read_rssi(ser)
+                results.append((round(freq, 6), rssi))
+                freq += step_mhz
+
+            return results
+        except Exception as e:
+            logger.error(f"Error sweeping band scope: {e}")
+            return []
 
     # Channel methods
     read_channel_info = read_channel_info

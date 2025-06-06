@@ -30,3 +30,25 @@ def test_band_scope_air_command(monkeypatch):
     commands, _ = build_command_table(adapter, None)
     result = commands["band scope"]("air")
     assert result == "BSP,00125000,833,20M,0"
+
+
+def test_band_sweep_registered(monkeypatch):
+    adapter = BCD325P2Adapter()
+    monkeypatch.setattr(adapter, "sweep_band_scope", lambda ser, c, s, st: [])
+    commands, help_text = build_command_table(adapter, None)
+
+    assert "band sweep" in commands
+    assert "band sweep" in help_text
+
+
+def test_band_sweep_returns_pairs(monkeypatch):
+    adapter = BCD325P2Adapter()
+
+    def sweep_stub(ser, c, s, st):
+        return [(100.0, 0.5), (101.0, 0.6)]
+
+    monkeypatch.setattr(adapter, "sweep_band_scope", sweep_stub)
+    commands, _ = build_command_table(adapter, None)
+
+    result = commands["band sweep"]("100 2 1")
+    assert result == [(100.0, 0.5), (101.0, 0.6)]
