@@ -138,6 +138,15 @@ band sweep <center> <span> <step>
 The command returns pairs of `(frequency, rssi)` values. These readings can be
 fed into a future GUI waterfall display for visual analysis of signal activity.
 
+### Custom Search Streaming
+
+Custom search status can be streamed using the `CSC` command. When activated the
+scanner outputs lines of the form `CSC,<RSSI>,<FRQ>,<SQL>` for each hit.
+The controller now gathers a configurable number of these records before
+stopping the stream. By default, **1024** records are collected. After the limit
+is reached the command `CSC,OFF` is issued and the final `CSC,OK` response is
+read.
+
 ## Extending the System
 
 To support a new scanner model:
