@@ -118,6 +118,22 @@ python -m scanner_gui.main
 
 Use the interface to select a serial port and control the scanner.
 
+### Band Sweep Command
+
+The CLI also provides a `band sweep` command to scan a range of frequencies and
+collect RSSI readings:
+
+```bash
+band sweep <center_MHz> <span_MHz> <step_kHz>
+```
+
+* `<center_MHz>` – center frequency of the sweep in megahertz
+* `<span_MHz>` – total bandwidth to cover (e.g. `20M` for 20 MHz)
+* `<step_kHz>` – frequency step between samples in kilohertz
+
+The command returns pairs of `(frequency, rssi)` values. These readings can be
+fed into a future GUI waterfall display for visual analysis of signal activity.
+
 ## Extending the System
 
 To support a new scanner model:
