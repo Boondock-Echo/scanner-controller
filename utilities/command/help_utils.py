@@ -92,13 +92,24 @@ def show_help(commands, command_help, command="", adapter=None):
             "dump memory",
             "scan start",
             "scan stop",
+            "band scope",
         ],
         "Other": ["help", "switch", "exit"],
     }
 
     # Check if any high-level commands exist in COMMANDS
     has_high_level_commands = any(
-        cmd.startswith(("get ", "set ", "hold ", "send", "dump ", "scan "))
+        cmd.startswith(
+            (
+                "get ",
+                "set ",
+                "hold ",
+                "send",
+                "dump ",
+                "scan ",
+                "band scope",
+            )
+        )
         for cmd in commands
     )
 
@@ -121,6 +132,7 @@ def show_help(commands, command_help, command="", adapter=None):
                     or cmd.startswith("send ")
                     or cmd.startswith("dump ")
                     or cmd.startswith("scan ")
+                    or cmd.startswith("band scope")
                 )
             ],
             "Other": ["help", "switch", "exit"],
