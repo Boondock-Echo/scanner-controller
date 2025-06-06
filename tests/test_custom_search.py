@@ -34,11 +34,11 @@ def test_band_scope_collects(monkeypatch):
     adapter = BCD325P2Adapter()
     data_lines = ["CSC,10,162.0,1", "CSC,11,163.0,0", "CSC,OK"]
 
-    monkeypatch.setattr(adapter, "send_command", lambda ser, cmd, delay=0.2: "")
+    monkeypatch.setattr(adapter, "send_command", lambda ser, cmd, delay=0: "")
 
     from adapters.uniden.bcd325p2 import custom_search as cs
 
-    monkeypatch.setattr(cs, "send_command", lambda ser, cmd, delay=0.2: "")
+    monkeypatch.setattr(cs, "send_command", lambda ser, cmd, delay=0: "")
     monkeypatch.setattr(
         cs, "wait_for_data", lambda ser, max_wait=0.5: bool(data_lines)
     )

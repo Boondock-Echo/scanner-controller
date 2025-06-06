@@ -5,7 +5,7 @@ import serial
 from serial.tools import list_ports
 
 
-def clear_serial_buffer(ser, delay=0.2):
+def clear_serial_buffer(ser, delay=0.0):
     """Clear accumulated data in the serial buffer.
 
     Parameters
@@ -13,7 +13,7 @@ def clear_serial_buffer(ser, delay=0.2):
     ser : serial.Serial
         Open serial connection to the scanner.
     delay : float, optional
-        Time to wait before flushing the buffer. Defaults to ``0.2`` seconds.
+        Time to wait before flushing the buffer. Defaults to ``0`` seconds.
     """
     try:
         if delay:
@@ -54,7 +54,7 @@ def read_response(ser, timeout=1.0):
     return response_str
 
 
-def send_command(ser, command, delay=0.2):
+def send_command(ser, command, delay=0.0):
     """Send a command to the scanner and return the response.
 
     Parameters
@@ -65,7 +65,7 @@ def send_command(ser, command, delay=0.2):
         Command string to send.
     delay : float, optional
         Delay passed to :func:`clear_serial_buffer` before sending the command.
-        Defaults to ``0.2`` seconds.
+        Defaults to ``0`` seconds.
     """
     clear_serial_buffer(ser, delay)
     if isinstance(command, str):
