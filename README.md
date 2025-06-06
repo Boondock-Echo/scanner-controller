@@ -124,12 +124,16 @@ The CLI also provides a `band sweep` command to scan a range of frequencies and
 collect RSSI readings:
 
 ```bash
-band sweep <center_MHz> <span_MHz> <step_kHz>
+band sweep <center> <span> <step>
 ```
 
-* `<center_MHz>` – center frequency of the sweep in megahertz
-* `<span_MHz>` – total bandwidth to cover (e.g. `20M` for 20 MHz)
-* `<step_kHz>` – frequency step between samples in kilohertz
+* `<center>` – center frequency of the sweep. Values may include a unit
+  suffix (e.g. `144M`, `144000k`). Without a suffix, MHz is assumed.
+* `<span>` – bandwidth to cover. Supports the same unit notation as
+  `<center>`.
+* `<step>` – step size between samples. Accepts either kHz or MHz
+  notation (e.g. `500k` or `0.5M`). If no unit is specified, the value is
+  interpreted as kilohertz.
 
 The command returns pairs of `(frequency, rssi)` values. These readings can be
 fed into a future GUI waterfall display for visual analysis of signal activity.
