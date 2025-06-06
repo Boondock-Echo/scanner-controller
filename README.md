@@ -118,13 +118,13 @@ python -m scanner_gui.main
 
 Use the interface to select a serial port and control the scanner.
 
-### Band Sweep Command
+### Custom Search Command
 
-The CLI also provides a `band sweep` command to scan a range of frequencies and
+The CLI provides a `custom search` command to sweep a range of frequencies and
 collect RSSI readings:
 
 ```bash
-band sweep <center> <span> <step>
+custom search <center> <span> <step>
 ```
 
 * `<center>` – center frequency of the sweep. Values may include a unit
@@ -138,9 +138,9 @@ band sweep <center> <span> <step>
 The command returns pairs of `(frequency, rssi)` values. These readings can be
 fed into a future GUI waterfall display for visual analysis of signal activity.
 
-### Custom Search Streaming
+### Band Scope Streaming
 
-Custom search status can be streamed using the `CSC` command. When activated the
+Band scope status can be streamed using the `CSC` command. When activated the
 scanner outputs lines of the form `CSC,<RSSI>,<FRQ>,<SQL>` for each hit.
 The controller now gathers a configurable number of these records before
 stopping the stream. By default, **1024** records are collected. After the limit

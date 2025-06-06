@@ -161,15 +161,36 @@ def build_command_table(adapter, ser):
             "(Not available for this scanner model)"
         )
 
-    # Band scope configuration
-    if hasattr(adapter, 'configure_band_scope'):
+    # Band scope (CSC streaming)
+    if hasattr(adapter, 'stream_custom_search'):
         logging.debug("Registering 'band scope' command")
 
         def band_scope(arg=""):
+            count = int(arg) if arg else 1024
+            return adapter.stream_custom_search(ser, count)
+
+        COMMANDS["band scope"] = band_scope
+        COMMAND_HELP["band scope"] = (
+            "Stream band scope data. Usage: band scope [record_count]"
+        )
+    else:
+        logging.debug("Registering placeholder 'band scope' command")
+        COMMANDS["band scope"] = lambda arg="": (
+            "Command 'band scope' not supported on this scanner model"
+        )
+        COMMAND_HELP["band scope"] = (
+            "Stream band scope data. (Not available for this scanner model)"
+        )
+
+    # Band sweep presets
+    if hasattr(adapter, 'configure_band_scope'):
+        logging.debug("Registering 'band sweep' command")
+
+        def band_sweep(arg=""):
             parts = arg.split()
             return adapter.configure_band_scope(ser, *parts)
 
-        COMMANDS["band scope"] = band_scope
+        COMMANDS["band sweep"] = band_sweep
 
         try:
             from config.band_scope_presets import BAND_SCOPE_PRESETS
@@ -179,32 +200,9 @@ def build_command_table(adapter, ser):
         except ImportError:
             preset_help = ""
 
-        COMMAND_HELP["band scope"] = (
-            "Configure band scope settings. Usage: band scope <preset> or "
-            "band scope <freq> <step> <span> <max_hold>." + preset_help
-        )
-    else:
-        logging.debug("Registering placeholder 'band scope' command")
-        COMMANDS["band scope"] = lambda arg: (
-            "Command 'band scope' not supported on this scanner model"
-        )
-        COMMAND_HELP["band scope"] = (
-            "Configure band scope settings. "
-            "(Not available for this scanner model)"
-        )
-
-    # Band sweep
-    if hasattr(adapter, 'sweep_band_scope'):
-        logging.debug("Registering 'band sweep' command")
-
-        def band_sweep(arg=""):
-            parts = arg.split()
-            return adapter.sweep_band_scope(ser, *parts)
-
-        COMMANDS["band sweep"] = band_sweep
         COMMAND_HELP["band sweep"] = (
-            "Sweep a range of frequencies. Usage: band sweep "
-            "<center> <span> <step>"
+            "Sweep using a preset. Usage: band sweep <preset> or "
+            "band sweep <freq> <step> <span> <max_hold>." + preset_help
         )
     else:
         logging.debug("Registering placeholder 'band sweep' command")
@@ -212,30 +210,30 @@ def build_command_table(adapter, ser):
             "Command 'band sweep' not supported on this scanner model"
         )
         COMMAND_HELP["band sweep"] = (
-            "Sweep a range of frequencies. (Not available for this "
-            "scanner model)"
+            "Sweep using a preset. (Not available for this scanner model)"
         )
 
-    # Custom search stream
-    if hasattr(adapter, 'stream_custom_search'):
+    # Custom search (frequency sweep)
+    if hasattr(adapter, 'sweep_band_scope'):
         logging.debug("Registering 'custom search' command")
 
         def custom_search(arg=""):
-            count = int(arg) if arg else 1024
-            return adapter.stream_custom_search(ser, count)
+            parts = arg.split()
+            return adapter.sweep_band_scope(ser, *parts)
 
         COMMANDS["custom search"] = custom_search
         COMMAND_HELP["custom search"] = (
-            "Stream custom search results. Usage: custom search [record_count]"
+            "Perform a custom frequency sweep. Usage: custom search "
+            "<center> <span> <step>"
         )
     else:
         logging.debug("Registering placeholder 'custom search' command")
-        COMMANDS["custom search"] = lambda arg="": (
+        COMMANDS["custom search"] = lambda arg: (
             "Command 'custom search' not supported on this scanner model"
         )
         COMMAND_HELP["custom search"] = (
-            "Stream custom search results. (Not available for this scanner "
-            "model)"
+            "Perform a custom frequency sweep. (Not available for this "
+            "scanner model)"
         )
 
     # Dump memory

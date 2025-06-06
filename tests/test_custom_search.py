@@ -12,7 +12,7 @@ from adapters.uniden.bcd325p2_adapter import BCD325P2Adapter  # noqa: E402
 from utilities.core.command_registry import build_command_table  # noqa: E402
 
 
-def test_custom_search_command_registered(monkeypatch):
+def test_band_scope_command_registered(monkeypatch):
     adapter = BCD325P2Adapter()
     monkeypatch.setattr(
         adapter, "stream_custom_search", lambda ser, c=1024: [()]
@@ -20,20 +20,20 @@ def test_custom_search_command_registered(monkeypatch):
 
     commands, help_text = build_command_table(adapter, None)
 
-    assert "custom search" in commands
-    assert "custom search" in help_text
-    assert commands["custom search"]("5") == [()]
+    assert "band scope" in commands
+    assert "band scope" in help_text
+    assert commands["band scope"]("5") == [()]
 
 
-def test_stream_custom_search_collects(monkeypatch):
+def test_band_scope_collects(monkeypatch):
     adapter = BCD325P2Adapter()
     data_lines = ["CSC,10,162.0,1", "CSC,11,163.0,0", "CSC,OK"]
 
-    monkeypatch.setattr(adapter, "send_command", lambda ser, cmd: "")
+    monkeypatch.setattr(adapter, "send_command", lambda ser, cmd, delay=0.2: "")
 
     from adapters.uniden.bcd325p2 import custom_search as cs
 
-    monkeypatch.setattr(cs, "send_command", lambda ser, cmd: "")
+    monkeypatch.setattr(cs, "send_command", lambda ser, cmd, delay=0.2: "")
     monkeypatch.setattr(
         cs, "wait_for_data", lambda ser, max_wait=0.5: bool(data_lines)
     )

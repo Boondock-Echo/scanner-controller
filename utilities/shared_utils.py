@@ -110,15 +110,19 @@ class ScannerCommand:
         return self.parser(response) if self.parser else response
 
 
-def clear_serial_buffer(ser):
-    """
-    Clear accumulated data in the serial buffer before sending commands.
+def clear_serial_buffer(ser, delay=0.2):
+    """Clear accumulated data in the serial buffer before sending commands.
 
-    This function clears the serial input and output buffers before sending
-    commands.
+    Parameters
+    ----------
+    ser : serial.Serial
+        Serial connection to clear.
+    delay : float, optional
+        Time to wait before flushing the buffer. Defaults to ``0.2`` seconds.
     """
     try:
-        time.sleep(0.2)
+        if delay:
+            time.sleep(delay)
         while ser.in_waiting:
             ser.read(ser.in_waiting)
         logging.debug("Serial buffer cleared.")
