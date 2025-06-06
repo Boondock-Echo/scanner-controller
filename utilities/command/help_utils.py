@@ -107,7 +107,7 @@ def show_help(commands, command_help, command="", adapter=None):
                 "send",
                 "dump ",
                 "scan ",
-                "band scope",
+                "band scope ",
             )
         )
         for cmd in commands
