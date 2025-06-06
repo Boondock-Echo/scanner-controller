@@ -29,22 +29,6 @@ FREQUENCY_MANAGEMENT_COMMANDS = {
         Lower limit, upper limit, step, offset, and modulation for the band
         """,
     ),
-    "BSP": ScannerCommand(
-        name="BSP",
-        requires_prg=False,
-        set_format="BSP,{sweep_operation}",
-        validator=validate_param_constraints(
-            [(int, {0, 1, 2})]  # sweep_operation (0=Stop, 1=Start, 2=View)
-        ),
-        help="""Band Scope Sweep Control.
-
-        Format:
-        BSP,[SWEEP_OPERATION] - Control band scope sweep
-
-        Parameters:
-        SWEEP_OPERATION : Operation (0=Stop, 1=Start, 2=View)
-        """,
-    ),
     "CNT": ScannerCommand(
         name="CNT",
         requires_prg=False,

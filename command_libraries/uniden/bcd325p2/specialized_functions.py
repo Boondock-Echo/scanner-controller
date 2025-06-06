@@ -6,7 +6,10 @@ band coverage settings, and broadcast screen configuration.
 """
 
 from utilities.core.shared_utils import ScannerCommand
-from utilities.validators import validate_param_constraints
+from utilities.validators import (
+    validate_param_constraints,
+    validate_frequency_8_digit,
+)
 
 SPECIALIZED_COMMANDS = {
     "BSP": ScannerCommand(
@@ -15,7 +18,7 @@ SPECIALIZED_COMMANDS = {
         set_format="BSP,{freq},{step},{span},{max_hold}",
         validator=validate_param_constraints(
             [
-                (int, None),  # frequency
+                (str, validate_frequency_8_digit),  # frequency
                 (
                     int,
                     {
