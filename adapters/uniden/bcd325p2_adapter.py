@@ -205,15 +205,44 @@ class BCD325P2Adapter(UnidenScannerAdapter):
         except Exception as e:
             return self.feedback(False, f"Error configuring band scope: {e}")
 
+    def _to_mhz(self, value):
+        """Convert a value with optional unit suffix to MHz."""
+        value_str = str(value).strip().lower()
+        for suffix in ("mhz", "m"):
+            if value_str.endswith(suffix):
+                return float(value_str[: -len(suffix)])
+        for suffix in ("khz", "k"):
+            if value_str.endswith(suffix):
+                return float(value_str[: -len(suffix)]) / 1000.0
+        return float(value_str)
+
+    def _to_khz(self, value):
+        """Convert a value with optional unit suffix to kHz."""
+        value_str = str(value).strip().lower()
+        for suffix in ("khz", "k"):
+            if value_str.endswith(suffix):
+                return float(value_str[: -len(suffix)])
+        for suffix in ("mhz", "m"):
+            if value_str.endswith(suffix):
+                return float(value_str[: -len(suffix)]) * 1000.0
+        return float(value_str)
+
     def sweep_band_scope(self, ser, center_freq, span, step):
-        """Sweep across a frequency range and collect RSSI readings."""
+        """Sweep across a frequency range and collect RSSI readings.
+
+        Parameters
+        ----------
+        center_freq : str or float
+            Center frequency (e.g. ``146``, ``146M`` or ``146000k``).
+        span : str or float
+            Span width of the sweep (e.g. ``2M`` or ``2000k``).
+        step : str or float
+            Step size between samples (e.g. ``0.5M`` or ``500k``).
+        """
         try:
-            center = float(center_freq)
-            if isinstance(span, str) and span.upper().endswith("M"):
-                span_mhz = float(span[:-1])
-            else:
-                span_mhz = float(span)
-            step_khz = float(step)
+            center = self._to_mhz(center_freq)
+            span_mhz = self._to_mhz(span)
+            step_khz = self._to_khz(step)
             step_mhz = step_khz / 1000.0
 
             start = center - span_mhz / 2.0

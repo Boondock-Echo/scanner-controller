@@ -52,3 +52,12 @@ def test_band_sweep_returns_pairs(monkeypatch):
 
     result = commands["band sweep"]("100 2 1")
     assert result == [(100.0, 0.5), (101.0, 0.6)]
+
+
+def test_band_sweep_parses_units(monkeypatch):
+    adapter = BCD325P2Adapter()
+
+    monkeypatch.setattr(adapter, "write_frequency", lambda ser, f: None)
+    monkeypatch.setattr(adapter, "read_rssi", lambda ser: 0)
+    result = adapter.sweep_band_scope(None, "144M", "2M", "500k")
+    assert result[0][0] == 143.0
