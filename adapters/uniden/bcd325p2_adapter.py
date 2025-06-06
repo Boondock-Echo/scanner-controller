@@ -221,7 +221,7 @@ class BCD325P2Adapter(UnidenScannerAdapter):
 
             results = []
             freq = start
-            while freq <= end:
+            while freq <= end + 1e-6:
                 self.write_frequency(ser, freq)
                 rssi = self.read_rssi(ser)
                 results.append((round(freq, 6), rssi))
