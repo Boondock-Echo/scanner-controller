@@ -173,7 +173,10 @@ def build_command_table(adapter, ser):
         def band_scope(arg=""):
             parts = arg.split()
             count = int(parts[0]) if parts else 1024
-            width = int(parts[1]) if len(parts) > 1 else 64
+            if len(parts) > 1:
+                width = int(parts[1])
+            else:
+                width = getattr(adapter, "band_scope_width", 64) or 64
             results = adapter.stream_custom_search(ser, count)
             pairs = [
                 (freq, rssi / 1023.0 if rssi is not None else None)
