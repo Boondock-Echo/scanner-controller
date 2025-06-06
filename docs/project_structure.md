@@ -25,8 +25,7 @@ Contains the GUI application code:
 scanner_gui/
 ├── gui/             # GUI components
 ├── main.py          # Entry point
-├── command_library.py # Command interface
-└── scanner_utils.py  # Utility functions
+└── command_library.py # Command interface
 ```
 
 ### `/adapters`
@@ -63,6 +62,8 @@ Contains utility modules used across the project:
 ```
 utilities/
 ├── core/           # Core utilities used by multiple components
+├── scanner/        # Scanner backend utilities
+│   └── backend.py  # Serial communication helpers
 ├── tools/          # Utility scripts
 ├── commands/       # Command processing utilities
 └── research/       # Experimental/research code
