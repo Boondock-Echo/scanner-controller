@@ -31,6 +31,9 @@ sys.modules.setdefault("serial.tools", serial_tools_stub)
 sys.modules.setdefault("serial.tools.list_ports", list_ports_stub)
 sys.modules.setdefault("serial", serial_stub)
 
+# Ensure backend utilities can be imported without real serial
+import utilities.scanner.backend as backend  # noqa: E402
+
 import main  # noqa: E402
 from utilities.command.loop import main_loop as original_main_loop  # noqa: E402
 

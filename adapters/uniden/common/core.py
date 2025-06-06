@@ -194,7 +194,7 @@ def send_command(self, ser, cmd):
     """Send a command to the scanner and get the response."""
     try:
         # Import the utility function instead of calling it directly
-        from utilities.core.scanner_utils import (
+        from utilities.scanner.backend import (
             send_command as utils_send_command,
         )
 

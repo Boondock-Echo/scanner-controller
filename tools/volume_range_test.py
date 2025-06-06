@@ -11,7 +11,7 @@ import time
 
 import serial
 
-from scanner_gui.scanner_utils import read_response, send_command
+from utilities.scanner.backend import read_response, send_command
 
 logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s'

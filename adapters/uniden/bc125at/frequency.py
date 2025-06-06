@@ -7,7 +7,7 @@ Contains functions for reading and setting frequencies.
 import time
 
 from adapters.uniden.common.core import ensure_str
-from utilities.core.scanner_utils import send_command
+from utilities.scanner.backend import send_command
 
 
 def read_frequency(self, ser):

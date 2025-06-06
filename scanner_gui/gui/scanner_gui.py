@@ -30,7 +30,7 @@ from PyQt6.QtWidgets import (
 from scanner_gui.controller import ScannerController
 
 # Updated import from scanner_utils instead of scannerUtils
-from scanner_gui.scanner_utils import find_all_scanner_ports
+from utilities.scanner.backend import find_all_scanner_ports
 
 # Import GUI components
 from .audio_controls import build_audio_controls

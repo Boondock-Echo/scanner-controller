@@ -17,7 +17,7 @@ import serial  # noqa: E402
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 
-from scanner_gui.scanner_utils import read_response, send_command  # noqa: E402
+from utilities.scanner.backend import read_response, send_command  # noqa: E402
 
 # Set up logging
 logging.basicConfig(
