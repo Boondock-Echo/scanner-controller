@@ -214,6 +214,22 @@ def build_command_table(adapter, ser):
             "Sweep a range of frequencies. (Not available for this scanner model)"
         )
 
+    # Custom search streaming
+    if hasattr(adapter, 'run_custom_search'):
+        logging.debug("Registering 'custom search' command")
+
+        def custom_search(arg=""):
+            try:
+                count = int(arg) if arg else 50
+            except ValueError:
+                count = 50
+            return adapter.run_custom_search(ser, max_results=count)
+
+        COMMANDS["custom search"] = custom_search
+        COMMAND_HELP["custom search"] = (
+            "Run a custom search using CSC. Usage: custom search [max_results]"
+        )
+    
     # Dump memory
     if hasattr(adapter, 'dump_memory_to_file'):
         logging.debug("Registering 'dump memory' command")

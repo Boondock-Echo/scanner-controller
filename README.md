@@ -138,6 +138,19 @@ band sweep <center> <span> <step>
 The command returns pairs of `(frequency, rssi)` values. These readings can be
 fed into a future GUI waterfall display for visual analysis of signal activity.
 
+### Custom Search Stream
+
+For Uniden models that support the `CSC` command (e.g. BCD325P2), the CLI
+exposes a `custom search` command which streams search results directly from the
+scanner:
+
+```bash
+custom search [max_results]
+```
+
+`max_results` controls how many `CSC` lines are collected before the command
+stops.  If omitted, the default is 50 samples.
+
 ## Extending the System
 
 To support a new scanner model:

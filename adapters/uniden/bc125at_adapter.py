@@ -138,6 +138,62 @@ class BC125ATAdapter(UnidenScannerAdapter):
     # Advanced methods
     dump_memory_to_file = dump_memory_to_file
 
+    def _to_mhz(self, value):
+        """Convert a value with optional unit suffix to MHz."""
+        value_str = str(value).strip().lower()
+        for suffix in ("mhz", "m"):
+            if value_str.endswith(suffix):
+                return float(value_str[: -len(suffix)])
+        for suffix in ("khz", "k"):
+            if value_str.endswith(suffix):
+                return float(value_str[: -len(suffix)]) / 1000.0
+        return float(value_str)
+
+    def _to_khz(self, value):
+        """Convert a value with optional unit suffix to kHz."""
+        value_str = str(value).strip().lower()
+        for suffix in ("khz", "k"):
+            if value_str.endswith(suffix):
+                return float(value_str[: -len(suffix)])
+        for suffix in ("mhz", "m"):
+            if value_str.endswith(suffix):
+                return float(value_str[: -len(suffix)]) * 1000.0
+        return float(value_str)
+
+    def sweep_band_scope(self, ser, center_freq, span, step):
+        """Sweep across a frequency range and collect RSSI readings.
+
+        Parameters
+        ----------
+        center_freq : str or float
+            Center frequency of the sweep.
+        span : str or float
+            Total span width.
+        step : str or float
+            Step size between samples.
+        """
+        try:
+            center = self._to_mhz(center_freq)
+            span_mhz = self._to_mhz(span)
+            step_khz = self._to_khz(step)
+            step_mhz = step_khz / 1000.0
+
+            start = center - span_mhz / 2.0
+            end = center + span_mhz / 2.0
+
+            results = []
+            freq = start
+            while freq <= end + 1e-6:
+                self.write_frequency(ser, freq)
+                rssi = self.read_rssi(ser)
+                results.append((round(freq, 6), rssi))
+                freq += step_mhz
+
+            return results
+        except Exception as e:
+            logger.error(f"Error sweeping band scope: {e}")
+            return []
+
     # User control methods
     send_key = send_key
 

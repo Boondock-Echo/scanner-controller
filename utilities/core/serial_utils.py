@@ -16,15 +16,19 @@ import logging
 import time
 
 
-def clear_serial_buffer(ser):
-    """
-    Clear any accumulated data in the serial buffer before sending commands.
+def clear_serial_buffer(ser, delay=0.2):
+    """Clear any accumulated data in the serial buffer before sending commands.
 
-    Args:
-        ser: An open serial connection object
+    Parameters
+    ----------
+    ser : serial.Serial
+        Open serial connection to flush.
+    delay : float, optional
+        Seconds to pause before clearing.  Default ``0.2``.
     """
     try:
-        time.sleep(0.2)
+        if delay:
+            time.sleep(delay)
         while ser.in_waiting:
             ser.read(ser.in_waiting)
         logging.debug("Serial buffer cleared.")
@@ -68,18 +72,19 @@ def read_response(ser, timeout=1.0):
         return ""
 
 
-def send_command(ser, cmd):
-    """
-    Clear the buffer and send a command (with CR termination) to the device.
+def send_command(ser, cmd, delay=0.2):
+    """Send a command to the device and return the response.
 
-    Args:
-        ser: An open serial connection object
-        cmd: Command string to send
-
-    Returns:
-        Response from the device as a string
+    Parameters
+    ----------
+    ser : serial.Serial
+        Open connection to the device.
+    cmd : str
+        Command string to send.
+    delay : float, optional
+        Delay for :func:`clear_serial_buffer`.  Default ``0.2`` seconds.
     """
-    clear_serial_buffer(ser)
+    clear_serial_buffer(ser, delay=delay)
     full_cmd = cmd.strip() + "\r"
     try:
         ser.write(full_cmd.encode("utf-8"))

@@ -261,6 +261,50 @@ class BCD325P2Adapter(UnidenScannerAdapter):
             logger.error(f"Error sweeping band scope: {e}")
             return []
 
+    def run_custom_search(self, ser, max_results=50):
+        """Perform a custom search using the ``CSC`` command.
+
+        Parameters
+        ----------
+        ser : serial.Serial
+            Serial connection to the scanner.
+        max_results : int, optional
+            Maximum number of results to collect before stopping.
+
+        Returns
+        -------
+        list of tuple
+            Tuples of ``(frequency_mhz, rssi, squelch)`` values.
+        """
+        from utilities.scanner.backend import read_response
+        results = []
+        try:
+            # Start streaming results
+            ser.write(b"CSC,ON\r")
+
+            while True:
+                line = read_response(ser, timeout=1.0)
+                if not line:
+                    continue
+                if line.startswith("CSC,OK"):
+                    break
+                if line.startswith("CSC,"):
+                    parts = line.split(",")
+                    if len(parts) >= 4:
+                        rssi = int(parts[1]) / 1023.0
+                        freq_mhz = int(parts[2]) / 100000.0
+                        sql = int(parts[3])
+                        results.append((freq_mhz, rssi, sql))
+                        if max_results and len(results) >= max_results:
+                            break
+
+            # Stop streaming and read final OK
+            ser.write(b"CSC,OFF\r")
+            read_response(ser, timeout=1.0)
+        except Exception as e:
+            logger.error(f"Error running custom search: {e}")
+        return results
+
     # Channel methods
     read_channel_info = read_channel_info
     write_channel_info = write_channel_info

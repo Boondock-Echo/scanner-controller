@@ -190,8 +190,18 @@ def format_response(response, pretty=False):
         return f"RESPONSE: {response_str}"
 
 
-def send_command(self, ser, cmd):
-    """Send a command to the scanner and get the response."""
+def send_command(self, ser, cmd, delay=0.2):
+    """Send a command to the scanner and get the response.
+
+    Parameters
+    ----------
+    ser : serial.Serial
+        Connection to the scanner.
+    cmd : str or bytes
+        Command to send.
+    delay : float, optional
+        Delay passed to the lower level ``send_command`` utility.
+    """
     try:
         # Import the utility function instead of calling it directly
         from utilities.scanner.backend import (
@@ -205,7 +215,7 @@ def send_command(self, ser, cmd):
             cmd_str = str(cmd)
 
         # Use the utility function to send the command
-        response = utils_send_command(ser, cmd_str)
+        response = utils_send_command(ser, cmd_str, delay=delay)
 
         # Log the command and response
         logging.debug(

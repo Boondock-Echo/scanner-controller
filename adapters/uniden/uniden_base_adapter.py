@@ -48,8 +48,19 @@ class UnidenScannerAdapter(BaseScannerAdapter):
             return f"STATUS:{status}|MESSAGE:{msg}"
         return message
 
-    def send_command(self, ser, cmd):
-        """Send a command to the scanner and get the response."""
+    def send_command(self, ser, cmd, delay=0.2):
+        """Send a command to the scanner and get the response.
+
+        Parameters
+        ----------
+        ser : serial.Serial
+            Serial connection to the scanner.
+        cmd : str or bytes
+            Command to transmit.
+        delay : float, optional
+            Delay for the serial buffer clear before sending.  Defaults to
+            ``0.2`` seconds.
+        """
         try:
             from utilities.scanner.backend import (
                 send_command as utils_send_command,
@@ -62,7 +73,7 @@ class UnidenScannerAdapter(BaseScannerAdapter):
                 cmd_str = str(cmd)
 
             # Get the response using the utility function
-            response = utils_send_command(ser, cmd_str)
+            response = utils_send_command(ser, cmd_str, delay=delay)
 
             # Log the command and response
             logging.debug(
