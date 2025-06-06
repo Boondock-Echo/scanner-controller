@@ -6,6 +6,8 @@ This module builds the command table from scanner adapter capabilities.
 
 import logging
 
+from utilities.graph_utils import render_rssi_graph
+
 
 def build_command_table(adapter, ser):
     """
@@ -167,7 +169,12 @@ def build_command_table(adapter, ser):
 
         def band_scope(arg=""):
             count = int(arg) if arg else 1024
-            return adapter.stream_custom_search(ser, count)
+            results = adapter.stream_custom_search(ser, count)
+            pairs = [
+                (freq, rssi / 1023.0 if rssi is not None else None)
+                for rssi, freq, _ in results
+            ]
+            return render_rssi_graph(pairs)
 
         COMMANDS["band scope"] = band_scope
         COMMAND_HELP["band scope"] = (
