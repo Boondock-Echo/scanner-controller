@@ -174,4 +174,4 @@ FREQUENCY_MANAGEMENT_COMMANDS = {
 
 # Set source module for each command
 for cmd in FREQUENCY_MANAGEMENT_COMMANDS.values():
-    cmd.source_module = "FREQUENCY_MANAGEMENT_COMMANDS"
+    setattr(cmd, "source_module", "FREQUENCY_MANAGEMENT_COMMANDS")
