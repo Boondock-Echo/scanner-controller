@@ -15,14 +15,19 @@ from utilities.core.command_registry import build_command_table  # noqa: E402
 def test_band_scope_command_registered(monkeypatch):
     adapter = BCD325P2Adapter()
     monkeypatch.setattr(
-        adapter, "stream_custom_search", lambda ser, c=1024: [()]
+        adapter,
+        "stream_custom_search",
+        lambda ser, c=1024: [(0, 100.0, 0)] * int(c),
     )
 
     commands, help_text = build_command_table(adapter, None)
 
     assert "band scope" in commands
     assert "band scope" in help_text
-    assert commands["band scope"]("5") == [()]
+    output = commands["band scope"]("5")
+    lines = output.splitlines()
+    assert len(lines) == 2
+    assert len(lines[0]) == 5
 
 
 def test_band_scope_collects(monkeypatch):

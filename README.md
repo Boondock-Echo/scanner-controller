@@ -146,6 +146,8 @@ The controller now gathers a configurable number of these records before
 stopping the stream. By default, **1024** records are collected. After the limit
 is reached the command `CSC,OFF` is issued and the final `CSC,OK` response is
 read.
+When called through the CLI's `band scope` command these readings are displayed
+as a simple two-line graph to give quick visual feedback.
 
 ## Extending the System
 
