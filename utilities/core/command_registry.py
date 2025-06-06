@@ -193,6 +193,27 @@ def build_command_table(adapter, ser):
             "(Not available for this scanner model)"
         )
 
+    # Band sweep
+    if hasattr(adapter, 'sweep_band_scope'):
+        logging.debug("Registering 'band sweep' command")
+
+        def band_sweep(arg=""):
+            parts = arg.split()
+            return adapter.sweep_band_scope(ser, *parts)
+
+        COMMANDS["band sweep"] = band_sweep
+        COMMAND_HELP["band sweep"] = (
+            "Sweep a range of frequencies. Usage: band sweep <center> <span> <step>"
+        )
+    else:
+        logging.debug("Registering placeholder 'band sweep' command")
+        COMMANDS["band sweep"] = lambda arg: (
+            "Command 'band sweep' not supported on this scanner model"
+        )
+        COMMAND_HELP["band sweep"] = (
+            "Sweep a range of frequencies. (Not available for this scanner model)"
+        )
+
     # Dump memory
     if hasattr(adapter, 'dump_memory_to_file'):
         logging.debug("Registering 'dump memory' command")
