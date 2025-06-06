@@ -79,3 +79,23 @@ def test_render_band_scope_waterfall_wrap():
     lines = output.splitlines()
     assert len(lines) == 2
     assert all(len(line) == 3 for line in lines)
+
+
+def test_band_scope_auto_width(monkeypatch):
+    adapter = BCD325P2Adapter()
+
+    monkeypatch.setattr(adapter, "write_frequency", lambda ser, f: None)
+    monkeypatch.setattr(adapter, "read_rssi", lambda ser: 0)
+    adapter.sweep_band_scope(None, "146M", "2M", "0.5M")
+    assert adapter.band_scope_width == 5
+
+    monkeypatch.setattr(
+        adapter,
+        "stream_custom_search",
+        lambda ser, c=5: [(0, 145.0 + 0.5 * i, 0) for i in range(c)],
+    )
+
+    commands, _ = build_command_table(adapter, None)
+    output = commands["band scope"]("5")
+    lines = output.splitlines()
+    assert all(len(line) == 5 for line in lines)
