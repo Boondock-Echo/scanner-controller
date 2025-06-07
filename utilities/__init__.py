@@ -32,6 +32,11 @@ from utilities.io.readline_setup import initialize_readline
 from utilities.log_utils import configure_logging, get_logger
 from utilities.graph_utils import render_rssi_graph, render_band_scope_waterfall
 
+try:
+    from utilities.scanner.close_call_logger import record_close_calls
+except Exception:  # pragma: no cover - optional import for tests
+    record_close_calls = None
+
 # Only export specific names (instead of using __all__ = ['*'])
 __all__ = [
     "configure_logging",
@@ -56,4 +61,5 @@ __all__ = [
     "wait_for_data",
     "render_rssi_graph",
     "render_band_scope_waterfall",
+    "record_close_calls",
 ]

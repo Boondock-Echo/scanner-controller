@@ -266,6 +266,30 @@ def build_command_table(adapter, ser):
             "(Not available for this scanner model)"
         )
 
+    # Close Call logging
+    try:
+        from utilities.scanner.close_call_logger import record_close_calls
+
+        def _log_close_calls(arg="", lockout=False):
+            band = arg.strip() or "air"
+            return record_close_calls(adapter, ser, band, lockout=lockout)
+
+        COMMANDS["log close calls"] = lambda arg="": _log_close_calls(arg)
+        COMMAND_HELP[
+            "log close calls"
+        ] = "Log Close Call hits. Usage: log close calls <band>"
+
+        COMMANDS["log close calls lockout"] = lambda arg="": _log_close_calls(
+            arg, True
+        )
+        COMMAND_HELP[
+            "log close calls lockout"
+        ] = (
+            "Log Close Call hits and lock them out. Usage: log close calls lockout <band>"
+        )
+    except Exception:
+        logging.debug("Close Call logging utilities unavailable")
+
     # Scan start/stop
     if hasattr(adapter, 'start_scanning'):
         logging.debug("Registering 'scan start' command")
