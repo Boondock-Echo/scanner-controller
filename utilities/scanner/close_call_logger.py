@@ -21,7 +21,9 @@ def _parse_float(value: object) -> Optional[float]:
         return None
 
 
-def record_close_calls(adapter, ser, band, *, db_path="close_calls.db", lockout=False):
+def record_close_calls(
+    adapter, ser, band, *, db_path="close_calls.db", lockout=False
+):
     """Monitor Close Call hits within a chosen band and log each hit."""
     band_key = str(band).lower()
     if band_key not in CLOSE_CALL_BANDS:
@@ -38,6 +40,7 @@ def record_close_calls(adapter, ser, band, *, db_path="close_calls.db", lockout=
     )
     conn.commit()
 
+    record_count = 0
     try:
         while True:
             try:
