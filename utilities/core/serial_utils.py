@@ -29,42 +29,21 @@ def clear_serial_buffer(ser, delay=0.0):
     try:
         if delay:
             time.sleep(delay)
-        while ser.in_waiting:
-            ser.read(ser.in_waiting)
+        if hasattr(ser, "reset_input_buffer"):
+            ser.reset_input_buffer()
+        else:
+            while ser.in_waiting:
+                ser.read(ser.in_waiting)
         logging.debug("Serial buffer cleared.")
     except Exception as e:
         logging.error(f"Error clearing serial buffer: {e}")
 
 
 def read_response(ser, timeout=1.0):
-    r"""
-    Read bytes from the serial port until a \r or \n are encountered.
-
-    Args:
-        ser: An open serial connection object
-        timeout: Maximum time to wait for response in seconds
-
-    Returns:
-        The decoded response as a string, or empty string on error
-    """
-    response_bytes = bytearray()
-    start_time = time.time()
-
+    """Read a response from the serial port with a timeout."""
     try:
-        while (time.time() - start_time) < timeout:
-            if ser.in_waiting > 0:
-                byte = ser.read(1)
-                if not byte:
-                    break  # timeout reached
-                if byte in b"\r\n":
-                    break
-                response_bytes.extend(byte)
-            else:
-                # Short sleep to avoid CPU spin
-                time.sleep(0.01)
-
-        # Decode the response
-        response = response_bytes.decode("utf-8", errors="ignore").strip()
+        ser.timeout = timeout
+        response = ser.read_until(b"\r").decode("utf-8").strip()
         logging.debug(f"Received response: {response}")
         return response
     except Exception as e:
