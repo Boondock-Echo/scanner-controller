@@ -41,6 +41,7 @@ def clear_serial_buffer(ser, delay=0.0):
 
 def read_response(ser, timeout=1.0):
     """Read a response from the serial port with a timeout."""
+    original_timeout = ser.timeout  # Capture the original timeout
     try:
         ser.timeout = timeout
         response = ser.read_until(b"\r").decode("utf-8").strip()
