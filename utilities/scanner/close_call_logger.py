@@ -54,11 +54,19 @@ def record_close_calls(adapter, ser, band, *, db_path="close_calls.db", lockout=
                     "INSERT INTO close_calls VALUES (?, ?, ?, ?)",
                     (ts, freq, tone, rssi),
                 )
-                conn.commit()
+                record_count += 1
+
+                # Commit after every 10 records
+                if record_count >= 10:
+                    conn.commit()
+                    record_count = 0
 
                 if lockout and freq is not None:
                     adapter.send_command(ser, f"LOF,{freq}")
             except KeyboardInterrupt:
                 break
+        # Commit any remaining records
+        if record_count > 0:
+            conn.commit()
     finally:
         conn.close()
