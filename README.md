@@ -149,6 +149,15 @@ read.
 When called through the CLI's `band scope` command these readings are displayed
 as a simple two-line graph to give quick visual feedback.
 
+### Close Call Logging
+
+The utility function `record_close_calls` allows continuous logging of Close Call
+hits to an SQLite database. Use the CLI commands `log close calls` or
+`log close calls lockout` and provide a band name such as `air` or `frs`. Each
+hit is saved with timestamp, frequency, tone (if available) and RSSI level. When
+the `lockout` variant is used the frequency is also added to the scanner's
+temporary lockout list via the `LOF` command.
+
 ## Extending the System
 
 To support a new scanner model:
