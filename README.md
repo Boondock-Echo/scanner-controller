@@ -158,6 +158,45 @@ hit is saved with timestamp, frequency, tone (if available) and RSSI level. When
 the `lockout` variant is used the frequency is also added to the scanner's
 temporary lockout list via the `LOF` command.
 
+### Using Multiple Scanners
+
+The controller can maintain more than one active connection. The CLI now
+supports a small set of connection management commands:
+
+- `list` – show all open connections with the active one marked by `*`.
+- `connect <id>` – scan for devices and connect to the scanner with the given
+  ID.
+- `use <id>` – make the specified connection active for subsequent commands.
+- `close <id>` – disconnect and remove a connection from the list.
+
+The older `switch` command is still accepted for scripts that relied on it, but
+it closes the current connection before opening a new one. Using the new
+commands keeps other scanners online and allows quick switching between them.
+
+In the GUI, selecting a port while already connected spawns an additional window
+so multiple scanners can be controlled side by side.
+
+Below is a short example showing band-scope streaming from two scanners:
+
+```text
+$ python main.py
+> connect 1
+Connected to /dev/ttyUSB0 [ID 1]
+> connect 2
+Connected to /dev/ttyUSB1 [ID 2]
+> list
+[1]* /dev/ttyUSB0
+[2]  /dev/ttyUSB1
+> use 1
+Using connection 1
+> band scope 20
+(graph for scanner 1)
+> use 2
+Using connection 2
+> band scope 20
+(graph for scanner 2)
+```
+
 ## Extending the System
 
 To support a new scanner model:
