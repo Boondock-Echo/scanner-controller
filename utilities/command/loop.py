@@ -151,9 +151,9 @@ def main_loop(adapter, ser, commands, command_help, machine_mode=False):
                     if (
                         command == "switch"
                         and isinstance(result, tuple)
-                        and len(result) == 4
+                        and len(result) == 5
                     ):
-                        ser, adapter, commands, command_help = result
+                        _, ser, adapter, commands, command_help = result
                         # Re-inject help and switch commands after table rebuild
                         # fmt: off
                         commands["help"] = (

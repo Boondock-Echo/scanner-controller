@@ -79,7 +79,7 @@ def main():
         else:
             # For normal mode, continue with automatic scanner detection
             # Detect and connect to scanner
-            ser, adapter, commands, command_help = detect_and_connect_scanner(
+            conn_id, ser, adapter, commands, command_help = detect_and_connect_scanner(
                 machine_mode
             )
 
