@@ -111,7 +111,10 @@ def switch_scanner(
     try:
         # Close the current active connection before opening a new one
         if active_conn_id is not None:
-            connection_manager.close_connection(active_conn_id)
+            try:
+                connection_manager.close_connection(active_conn_id)
+            except Exception as exc:
+                logger.error(f"Error closing active connection {active_conn_id}: {exc}")
         if current_ser and current_ser.is_open:
             try:
                 current_ser.close()
