@@ -116,17 +116,24 @@ def main_loop(connection_manager, adapter=None, ser=None, commands=None, command
             return f"STATUS:OK|ACTION:CLOSED|ID:{cid}"
         return f"Closed connection {cid}"
 
+    def switch_cmd(scanner_id):
+        if connection_manager.active_id is not None:
+            connection_manager.close_connection(connection_manager.active_id)
+        return connect_cmd(scanner_id)
+
     global_commands.update({
         "list": lambda: list_connections(),
         "connect": lambda arg: connect_cmd(arg),
         "use": lambda arg: use_cmd(arg),
         "close": lambda arg: close_cmd(arg),
+        "switch": lambda arg: switch_cmd(arg),
     })
     global_help.update({
         "list": "List open connections",
         "connect": "Connect to scanner ID from 'scan'",
         "use": "Select active connection",
         "close": "Close a connection",
+        "switch": "Close current connection before opening another",
     })
 
     refresh_active()
