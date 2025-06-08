@@ -10,8 +10,6 @@ import os
 import time
 
 from PyQt6.QtCore import Qt, QTimer
-
-from .background_worker import BackgroundWorker
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import (
     QComboBox,
@@ -27,13 +25,14 @@ from PyQt6.QtWidgets import (
 )
 
 # Import our controller instead of direct scanner interface
-from scanner_gui.controller import ScannerController
+from scanner_gui.controller import ScannerController, controller_registry
 
 # Updated import to use utilities.scanner.backend instead of scanner_utils
 from utilities.scanner.backend import find_all_scanner_ports
 
 # Import GUI components
 from .audio_controls import build_audio_controls
+from .background_worker import BackgroundWorker
 from .control_keys import build_control_keys
 from .display_group import build_display_group
 from .keypad import build_keypad
@@ -67,8 +66,10 @@ class ScannerGUI(QWidget):
         self.font_main = QFont("Courier", FONT_SIZE_MAIN)
         self.font_lcd = QFont("Courier", FONT_SIZE_LCD, QFont.Weight.Bold)
 
-        # Use our controller instead of direct serial connection
-        self.controller = ScannerController(baudrate=BAUDRATE)
+        # Controller and worker are created on demand
+        self.controller = None
+        self.controller_id = None
+        self.worker = None
         self.scanner_ports = []
         self.child_windows = []
         self.display_labels = []
@@ -79,11 +80,6 @@ class ScannerGUI(QWidget):
         self.refresh_timer = QTimer()
         self.refresh_timer.timeout.connect(self.refresh_scanner_list)
         self.refresh_timer.start(REFRESH_INTERVAL)
-
-        self.worker = BackgroundWorker(self.controller, DISPLAY_REFRESH)
-        self.worker.status_received.connect(self.on_status_received)
-        self.worker.rssi_received.connect(self.on_rssi_received)
-        self.worker.start()
 
         self.refresh_scanner_list(initial=True)
 
@@ -176,6 +172,10 @@ class ScannerGUI(QWidget):
         self.connect_button.clicked.connect(self.manual_connect)
         port_layout.addWidget(self.connect_button)
 
+        self.disconnect_button = QPushButton("Disconnect")
+        self.disconnect_button.clicked.connect(self.disconnect_scanner)
+        port_layout.addWidget(self.disconnect_button)
+
         self.port_selector = QComboBox()
         self.port_selector.setMaximumHeight(25)  # Restrict height
         port_layout.addWidget(self.port_selector)
@@ -250,28 +250,32 @@ class ScannerGUI(QWidget):
                 self.connect_scanner(*ports[0])
 
     def connect_scanner(self, port, model):
-        """
-        Scanner connection method.
-
-        Connect to the scanner device on the specified port.
-        """
+        """Connect to a scanner or spawn a new window if already connected."""
         try:
-            if self.connected_port:
-                self.controller.disconnect()
+            # If this window already manages a connection, open a new one
+            if self.controller_id is not None:
+                new_window = ScannerGUI()
+                new_window.connect_scanner(port, model)
+                new_window.show()
+                self.child_windows.append(new_window)
+                return
 
-            # Give the OS time to release the port
-            time.sleep(0.5)
+            # Create controller via registry
+            self.controller_id, self.controller = (
+                controller_registry.open_controller(port, model, BAUDRATE)
+            )
+            self.connected_port = port
+            self.model_label.setText(f"Model: {model}")
 
-            # Connect to the new port using our controller
-            if self.controller.connect(port=port, model=model):
-                self.connected_port = port
-                self.model_label.setText(f"Model: {model}")
-                logging.info(f"Successfully connected to {model} on {port}")
+            # Start worker for this controller
+            self.worker = BackgroundWorker(self.controller, DISPLAY_REFRESH)
+            self.worker.status_received.connect(self.on_status_received)
+            self.worker.rssi_received.connect(self.on_rssi_received)
+            self.worker.start()
 
-                # Read current volume and squelch levels from scanner
-                self.read_and_apply_scanner_levels()
-            else:
-                raise Exception("Failed to connect to scanner")
+            logging.info(f"Successfully connected to {model} on {port}")
+
+            self.read_and_apply_scanner_levels()
 
         except Exception as e:
             QMessageBox.critical(
@@ -330,6 +334,21 @@ class ScannerGUI(QWidget):
         if data:
             port, model = data
             self.connect_scanner(port, model)
+
+    def disconnect_scanner(self):
+        """Disconnect from the current scanner."""
+        if self.worker:
+            self.worker.stop()
+            self.worker.wait()
+            self.worker = None
+
+        if self.controller_id is not None:
+            controller_registry.close_controller(self.controller_id)
+            self.controller_id = None
+            self.controller = None
+
+        self.model_label.setText("Model: ---")
+        self.connected_port = None
 
     def on_port_selected(self, index):
         """
@@ -575,7 +594,5 @@ class ScannerGUI(QWidget):
 
     def closeEvent(self, event):
         """Stop worker thread on window close."""
-        if hasattr(self, "worker"):
-            self.worker.stop()
-            self.worker.wait()
+        self.disconnect_scanner()
         super().closeEvent(event)
