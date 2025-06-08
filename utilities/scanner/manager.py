@@ -300,19 +300,29 @@ def scan_for_scanners():
 
 
 def connect_to_scanner(
-    scanner_id, existing_commands=None, existing_command_help=None
+    scanner_id,
+    machine_mode=True,
+    existing_commands=None,
+    existing_command_help=None,
 ):
     """
     Connect to a specific scanner by its ID (from scan_for_scanners).
 
-    Parameters:
-        scanner_id (str): Scanner ID from the scan results
-        existing_commands (dict): Existing commands dictionary to update
-        existing_command_help (dict): Existing command help dictionary to update
+    Parameters
+    ----------
+    scanner_id : str
+        Scanner ID from the scan results.
+    machine_mode : bool, optional
+        Whether to initialize the adapter in machine mode. Defaults to ``True``.
+    existing_commands : dict, optional
+        Existing commands dictionary to update.
+    existing_command_help : dict, optional
+        Existing command help dictionary to update.
 
     Returns:
-        tuple: (ser, adapter, commands, command_help) if successful,
-               or an error message string if failed
+        tuple
+            ``(ser, adapter, commands, command_help)`` if successful,
+            or an error message string if failed.
     """
     try:
         scanner_id = int(scanner_id)
@@ -335,31 +345,18 @@ def connect_to_scanner(
     port, scanner_model = detected[scanner_id - 1]
 
     try:
-        # Connect to the scanner
-        ser = serial.Serial(port, 115200, timeout=1.0, write_timeout=1.0)
+        conn_id = connection_manager.open_connection(
+            port,
+            scanner_model,
+            machine_mode,
+        )
+        ser, adapter, commands, command_help = connection_manager.get(conn_id)
 
-        @with_timeout(30)
-        def initialize_adapter():
-            return get_scanner_adapter(
-                scanner_model, True
-            )  # Always use machine mode formatting
-
-        adapter = initialize_adapter()
-        if not adapter:
-            if ser.is_open:
-                ser.close()
-            return f"STATUS:ERROR|CODE:NO_ADAPTER|MODEL:{scanner_model}"
-
-        # Build command table
-        commands, command_help = build_command_table(adapter, ser)
-        commands = {name: partial(func, ser, adapter) for name, func in commands.items()}
-
-        # If we need to merge with existing commands
         if existing_commands is not None and existing_command_help is not None:
-            # We'll return these commands to be merged by the caller
+            # Placeholder for merging logic if needed
             pass
 
-        return (ser, adapter, commands, command_help)
+        return ser, adapter, commands, command_help
 
     except Exception as e:
         logger.error(f"Error communicating with scanner: {e}")

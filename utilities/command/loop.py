@@ -9,88 +9,133 @@ import logging
 from utilities.command.help_utils import show_help
 from utilities.command.parser import parse_command
 from utilities.io.readline_setup import initialize_readline
-from utilities.scanner.manager import (
-    connect_to_scanner,
-    handle_switch_command,
-    scan_for_scanners,
-)
+from utilities.scanner.manager import connect_to_scanner
 
 logger = logging.getLogger(__name__)
 
 
-def main_loop(adapter, ser, commands, command_help, machine_mode=False):
-    """
-    REPL-style loop that prompts the user for commands and executes them.
+def main_loop(connection_manager, adapter=None, ser=None, commands=None, command_help=None, machine_mode=False):
+    """Interactive REPL for executing scanner commands.
 
-    Parameters:
-        adapter (object): Scanner adapter instance, may be None in machine mode.
-        ser (serial.Serial): Serial connection to the scanner, may be None in
-            machine mode.
-        commands (dict): Dictionary of available commands.
-        command_help (dict): Dictionary of help texts for commands.
-        machine_mode (bool): Whether to use machine-friendly output.
-            Defaults to False.
+    Parameters
+    ----------
+    connection_manager : ConnectionManager
+        Manager instance tracking all open connections.
+    adapter : object, optional
+        Scanner adapter instance for an initial connection.
+    ser : serial.Serial, optional
+        Serial connection for an initial scanner.
+    commands : dict, optional
+        Dictionary of available commands for the active connection.
+    command_help : dict, optional
+        Help text for commands.
+    machine_mode : bool, optional
+        Whether to use machine-friendly output. Default ``False``.
     """
     if not machine_mode:
         print("Type 'help' for a list of commands.\n")
     else:
         print("STATUS:INFO|MESSAGE:Scanner_ready")
 
-    # Initialize with basic commands
+    global_commands = {}
+    global_help = {}
+
+    def refresh_active():
+        nonlocal commands, command_help, adapter, ser
+        commands = dict(global_commands)
+        command_help = dict(global_help)
+        conn = connection_manager.get()
+        if conn:
+            ser, adapter, conn_cmds, conn_help = conn
+            commands.update(conn_cmds)
+            command_help.update(conn_help)
+        initialize_readline(commands)
+
     if commands is None:
         commands = {}
     if command_help is None:
         command_help = {}
 
-    # Add core commands that don't require a scanner connection
-    commands["exit"] = lambda: "Exiting program"
-    command_help["exit"] = "Exit the program"
+    global_commands.update(commands)
+    global_help.update(command_help)
 
-    # Add machine mode specific commands
-    if machine_mode:
-        # Add scan command for discovering scanners
-        commands["scan"] = scan_for_scanners
-        command_help["scan"] = "Scan for available scanners"
+    global_commands["exit"] = lambda: "Exiting program"
+    global_help["exit"] = "Exit the program"
 
-        # Add connect command
-        commands["connect"] = lambda scanner_id: connect_to_scanner(
-            scanner_id, commands, command_help
-        )
-        command_help["connect"] = "Connect to a specific scanner by ID"
+    def list_connections():
+        conns = connection_manager.list_all()
+        if not conns:
+            return "No connections"
+        if machine_mode:
+            result = f"STATUS:OK|CONNECTIONS:{len(conns)}"
+            for cid, (s, _, _, _) in conns:
+                active = 1 if cid == connection_manager.active_id else 0
+                port = getattr(s, "port", "unknown")
+                result += f"|CONNECTION:{cid}|PORT:{port}|ACTIVE:{active}"
+            return result
+        lines = []
+        for cid, (s, _, _, _) in conns:
+            mark = "*" if cid == connection_manager.active_id else " "
+            port = getattr(s, "port", "unknown")
+            lines.append(f"[{cid}]{mark} {port}")
+        return "\n".join(lines)
 
-    # Only add scanner-specific commands if a scanner is connected
-    if ser and adapter:
-        # Add switch scanner command
-        # fmt: off
-        commands["switch"] = (
-            lambda scanner_id=None,
-            _ser=ser, _adapter=adapter, _commands=commands,
-            _command_help=command_help,
-            _machine_mode=machine_mode:
-            handle_switch_command(
-                _ser, _adapter, _commands, _command_help,
-                _machine_mode, scanner_id
-            )
-        )
-        # fmt: on
-        command_help["switch"] = (
-            "Switch to a different connected scanner. "
-            "Optional: specify a scanner ID (e.g., 'switch 2')"
-        )
+    def connect_cmd(scanner_id):
+        result = connect_to_scanner(scanner_id)
+        if isinstance(result, tuple):
+            refresh_active()
+            conn_id = connection_manager.active_id
+            ser_, _, _, _ = connection_manager.get()
+            if machine_mode:
+                return f"STATUS:OK|ACTION:CONNECTED|ID:{conn_id}|PORT:{ser_.port}"
+            return f"Connected to {ser_.port} [ID {conn_id}]"
+        return result
 
-    # Add help command
-    # fmt: off
-    commands["help"] = (
-        lambda arg="", _commands=commands, _command_help=command_help,
-        _adapter=adapter:
-        show_help(
-            _commands, _command_help, arg, _adapter
-        )
+    def use_cmd(cid):
+        try:
+            cid = int(cid)
+        except ValueError:
+            return "Invalid connection ID"
+        try:
+            connection_manager.active_id = cid
+        except KeyError:
+            return f"Connection {cid} not found"
+        refresh_active()
+        if machine_mode:
+            return f"STATUS:OK|ACTION:ACTIVE|ID:{cid}"
+        return f"Using connection {cid}"
+
+    def close_cmd(cid):
+        try:
+            cid = int(cid)
+        except ValueError:
+            return "Invalid connection ID"
+        connection_manager.close_connection(cid)
+        refresh_active()
+        if machine_mode:
+            return f"STATUS:OK|ACTION:CLOSED|ID:{cid}"
+        return f"Closed connection {cid}"
+
+    global_commands.update({
+        "list": lambda: list_connections(),
+        "connect": lambda arg: connect_cmd(arg),
+        "use": lambda arg: use_cmd(arg),
+        "close": lambda arg: close_cmd(arg),
+    })
+    global_help.update({
+        "list": "List open connections",
+        "connect": "Connect to scanner ID from 'scan'",
+        "use": "Select active connection",
+        "close": "Close a connection",
+    })
+
+    refresh_active()
+
+    global_commands["help"] = (
+        lambda arg="": show_help(commands, command_help, arg, adapter)
     )
-    # fmt: on
-
-    # Initialize readline for command history and tab completion
-    initialize_readline(commands)
+    global_help["help"] = "Show this help message"
+    refresh_active()
 
     while True:
         try:
@@ -104,136 +149,39 @@ def main_loop(adapter, ser, commands, command_help, machine_mode=False):
                     print("STATUS:INFO|ACTION:EXIT")
                 break
 
-            command, args = parse_command(user_input, commands)
+            command, args = parse_command(user_input, commands, connection_manager)
             handler = commands.get(command)
 
             if handler:
                 try:
                     result = handler(args) if args else handler()
 
-                    # Special handling for connect command result
-                    if (
-                        command == "connect"
-                        and isinstance(result, tuple)
-                        and len(result) == 4
-                    ):
-                        # Update references with the new connection
-                        ser, adapter, new_commands, new_command_help = result
-
-                        # Update commands dictionary with new scanner commands
-                        commands.update(new_commands)
-                        command_help.update(new_command_help)
-
-                        # Re-add core commands
-                        # Add switch scanner command
-                        # fmt: off
-                        commands["switch"] = (
-                            lambda scanner_id=None,
-                            _ser=ser, _adapter=adapter, _commands=commands,
-                            _command_help=command_help,
-                            _machine_mode=machine_mode:
-                            handle_switch_command(
-                                _ser, _adapter, _commands, _command_help,
-                                _machine_mode, scanner_id
-                            )
-                        )
-                        # fmt: on
-                        command_help["switch"] = (
-                            "Switch to a different connected scanner. "
-                            "Optional: specify a scanner ID (e.g., 'switch 2')"
-                        )
-
-                        # Re-initialize readline with updated commands
-                        initialize_readline(commands)
-                        continue
-
-                    # Special handling for switch command result
-                    if (
-                        command == "switch"
-                        and isinstance(result, tuple)
-                        and len(result) == 5
-                    ):
-                        _, ser, adapter, commands, command_help = result
-                        # Re-inject help and switch commands after table rebuild
-                        # fmt: off
-                        commands["help"] = (
-                            lambda arg="",
-                            _commands=commands,
-                            _command_help=command_help,
-                            _adapter=adapter: show_help(
-                                _commands, _command_help, arg, _adapter
-                            )
-                        )
-                        # fmt: on
-                        # fmt: off
-                        commands["switch"] = (
-                            lambda scanner_id=None, _ser=ser,
-                            _adapter=adapter,
-                            _commands=commands,
-                            _command_help=command_help,
-                            _machine_mode=machine_mode: handle_switch_command(
-                                _ser,
-                                _adapter,
-                                _commands,
-                                _command_help,
-                                _machine_mode,
-                                scanner_id
-                            )
-                        )
-                        # fmt: on
-                        command_help["switch"] = (
-                            "Switch to a different connected scanner. "
-                            "Optional: specify a scanner ID (e.g., 'switch 2')"
-                        )
-                        initialize_readline(commands)
-                        continue
-
                     if result is not None:
                         if isinstance(result, bytes):
-                            formatted_result = result.decode(
-                                "ascii", errors="replace"
-                            ).strip()
+                            formatted_result = result.decode("ascii", errors="replace").strip()
                         elif isinstance(result, (int, float)):
                             formatted_result = str(result)
                         else:
                             formatted_result = str(result)
 
                         if machine_mode:
-                            # Check if result is already in machine-readable
-                            # format
                             if formatted_result.startswith("STATUS:"):
                                 print(formatted_result)
                             else:
-                                is_error = formatted_result.lower().startswith(
-                                    "error"
-                                )
+                                is_error = formatted_result.lower().startswith("error")
                                 status = "ERROR" if is_error else "OK"
-                                # Clean up the message for machine parsing
-                                msg = formatted_result.replace(
-                                    " ", "_"
-                                ).replace(":", "_")
+                                msg = formatted_result.replace(" ", "_").replace(":", "_")
                                 print(
-                                    f"STATUS:{status}|COMMAND:{command}|"
-                                    f"RESULT:{msg}"
+                                    f"STATUS:{status}|COMMAND:{command}|RESULT:{msg}"
                                 )
                         else:
-                            # For human-readable output, strip any machine
-                            # format prefixes
                             if formatted_result.startswith("STATUS:"):
                                 parts = formatted_result.split("|")
-                                if len(parts) > 1:
-                                    # Extract the message/result part
-                                    for part in parts:
-                                        if part.startswith(
-                                            "MESSAGE:"
-                                        ) or part.startswith("RESULT:"):
-                                            value = part.split(":", 1)[
-                                                1
-                                            ].replace("_", " ")
-                                            print(value)
-                                            break
-                                    else:
-                                        print(formatted_result)
+                                for part in parts:
+                                    if part.startswith("MESSAGE:") or part.startswith("RESULT:"):
+                                        value = part.split(":", 1)[1].replace("_", " ")
+                                        print(value)
+                                        break
                                 else:
                                     print(formatted_result)
                             else:
@@ -243,17 +191,12 @@ def main_loop(adapter, ser, commands, command_help, machine_mode=False):
                     logger.error(f"Command error: {str(e)}", exc_info=True)
                     if machine_mode:
                         error_msg = str(e).replace(" ", "_").replace(":", "_")
-                        print(
-                            f"STATUS:ERROR|COMMAND:{command}|"
-                            f"MESSAGE:{error_msg}"
-                        )
+                        print(f"STATUS:ERROR|COMMAND:{command}|MESSAGE:{error_msg}")
                     else:
                         print(f"[Error] {e}")
             else:
                 if machine_mode:
-                    print(
-                        f"STATUS:ERROR|CODE:UNKNOWN_COMMAND|COMMAND:{command}"
-                    )
+                    print(f"STATUS:ERROR|CODE:UNKNOWN_COMMAND|COMMAND:{command}")
                 else:
                     print("Unknown command. Type 'help' for options.")
         except KeyboardInterrupt:
@@ -262,9 +205,7 @@ def main_loop(adapter, ser, commands, command_help, machine_mode=False):
             else:
                 print("\nUse 'exit' to quit the program.")
         except Exception as e:
-            logger.error(
-                f"Unexpected error in command loop: {e}", exc_info=True
-            )
+            logger.error(f"Unexpected error in command loop: {e}", exc_info=True)
             if machine_mode:
                 error_msg = str(e).replace(" ", "_").replace(":", "_")
                 print(f"STATUS:ERROR|CODE:UNEXPECTED|MESSAGE:{error_msg}")

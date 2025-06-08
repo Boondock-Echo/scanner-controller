@@ -9,13 +9,16 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def parse_command(input_str, commands):
+def parse_command(input_str, commands, connection_manager=None):
     """
     Parse user input into a command and its arguments.
 
     Parameters:
         input_str (str): User input string.
         commands (dict): Dictionary of available commands.
+        connection_manager (ConnectionManager, optional):
+            Manager providing the active connection's command set. Defaults
+            to ``None``.
 
     Returns:
         tuple: Parsed command and arguments.
@@ -35,12 +38,22 @@ def parse_command(input_str, commands):
 
     for i in range(min(3, len(parts)), 0, -1):
         candidate = " ".join(parts[:i]).lower()
+        # Check global commands first
         if candidate in commands:
             logger.debug(
                 f"Matched command: '{candidate}' with "
                 f"args: '{' '.join(parts[i:])}'"
             )
             return candidate, " ".join(parts[i:])
+        # If not found, check commands for the active connection
+        if connection_manager:
+            conn = connection_manager.get()
+            if conn and candidate in conn[2]:
+                logger.debug(
+                    f"Matched connection command: '{candidate}' with "
+                    f"args: '{' '.join(parts[i:])}'"
+                )
+                return candidate, " ".join(parts[i:])
 
     logger.debug(
         f"No matching command found for '{parts[0]}', treating as unknown "
