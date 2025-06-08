@@ -9,6 +9,8 @@ import logging
 
 from utilities.command.help_topics import get_extended_help
 
+OTHER_COMMANDS = ["help", "list", "connect", "use", "close", "switch", "exit"]
+
 logger = logging.getLogger(__name__)
 
 
@@ -142,9 +144,7 @@ def show_help(commands, command_help, command="", adapter=None):
                 )
             ],
             "Other": [
-                cmd
-                for cmd in standard_commands["Other"]
-                if cmd in commands
+                cmd for cmd in standard_commands["Other"] if cmd in commands
             ],
         }
 
