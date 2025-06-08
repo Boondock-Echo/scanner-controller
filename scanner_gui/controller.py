@@ -617,3 +617,59 @@ class ScannerController:
         except Exception as e:
             logger.error(f"Error reading squelch: {e}")
             return 0.2  # Default 20%
+
+
+class ControllerRegistry:
+    """Registry for managing multiple :class:`ScannerController` instances."""
+
+    def __init__(self):
+        self._controllers = {}
+        self._next_id = 1
+        self._active_id = None
+
+    @property
+    def active_id(self):
+        return self._active_id
+
+    @active_id.setter
+    def active_id(self, controller_id):
+        if controller_id is not None and controller_id not in self._controllers:
+            raise KeyError(f"Controller ID {controller_id} not found")
+        self._active_id = controller_id
+
+    def open_controller(self, port, model, baudrate=115200):
+        """Create and connect a new controller.
+
+        Returns the assigned controller ID and the controller instance."""
+        controller = ScannerController(baudrate=baudrate)
+        if not controller.connect(port=port, model=model):
+            raise RuntimeError(f"Failed to connect to {model} on {port}")
+        controller_id = self._next_id
+        self._next_id += 1
+        self._controllers[controller_id] = controller
+        self._active_id = controller_id
+        return controller_id, controller
+
+    def close_controller(self, controller_id):
+        """Disconnect and remove a controller."""
+        controller = self._controllers.pop(controller_id, None)
+        if controller:
+            try:
+                controller.disconnect()
+            finally:
+                if self._active_id == controller_id:
+                    self._active_id = next(iter(self._controllers), None)
+
+    def get(self, controller_id=None):
+        """Retrieve a controller by ID."""
+        if controller_id is None:
+            controller_id = self._active_id
+        return self._controllers.get(controller_id)
+
+    def list_all(self):
+        """Return all registered controllers."""
+        return list(self._controllers.items())
+
+
+# Global registry instance for convenience
+controller_registry = ControllerRegistry()
