@@ -12,8 +12,12 @@ from utilities.core.command_registry import build_command_table
 from utilities.scanner.backend import find_all_scanner_ports
 from utilities.io.timeout_utils import with_timeout
 from utilities.scanner.factory import get_scanner_adapter
+from utilities.scanner.connection_manager import ConnectionManager
 
 logger = logging.getLogger(__name__)
+
+# Global connection manager instance
+connection_manager = ConnectionManager()
 
 
 def switch_scanner(
@@ -30,16 +34,9 @@ def switch_scanner(
             bypassing scan selection.
 
     Returns:
-        tuple: (new_ser, new_adapter, new_commands, new_command_help) or None if
-        canceled/error
+        tuple: (conn_id, new_ser, new_adapter, new_commands, new_command_help)
+        or None if canceled/error
     """
-    # Clean up current connection
-    try:
-        if current_ser and current_ser.is_open:
-            logger.info("Closing current scanner connection")
-            current_ser.close()
-    except Exception as e:
-        logger.error(f"Error closing current connection: {e}")
 
     if machine_mode:
         print("STATUS:INFO|ACTION:DETECTING_SCANNERS")
@@ -53,14 +50,7 @@ def switch_scanner(
             print("STATUS:ERROR|CODE:NO_SCANNERS_FOUND")
         else:
             print("No scanners found. Check connections and try again.")
-        # Reopen the previous connection if possible
-        try:
-            if not current_ser.is_open:
-                current_ser.open()
-            return None
-        except Exception as e:
-            logger.error(f"Error reopening previous connection: {e}")
-            return None
+        return None
 
     # Display available scanners
     if machine_mode:
@@ -75,7 +65,6 @@ def switch_scanner(
     # Get user selection or use direct scanner ID
     try:
         if direct_scanner_id is not None:
-            # Use the directly provided scanner ID
             selection = int(direct_scanner_id)
             if not (1 <= selection <= len(detected)):
                 if machine_mode:
@@ -88,122 +77,57 @@ def switch_scanner(
                         f"Invalid scanner ID: {selection}. Must be between 1 "
                         f"and {len(detected)}."
                     )
-                # Reopen previous connection
-                try:
-                    if not current_ser.is_open:
-                        current_ser.open()
-                    return None
-                except Exception as e:
-                    logger.error(f"Error reopening previous connection: {e}")
-                    return None
+                return None
         elif machine_mode:
-            # In machine mode without direct ID, auto-select the first scanner
             selection = 1
             print(f"STATUS:INFO|AUTO_SELECTED:{selection}")
         else:
-            # Interactive selection for normal mode
+            selection = input("\nSelect scanner (enter number or 0 to cancel): ")
+            if selection.strip() == "0" or not selection.strip():
+                print("Switch canceled, reconnecting to current scanner...")
+                return None
             try:
-                selection = input(
-                    "\nSelect scanner (enter number or 0 to cancel): "
-                )
-                if selection.strip() == "0" or not selection.strip():
-                    print("Switch canceled, reconnecting to current scanner...")
-                    # Reopen the previous connection
-                    try:
-                        if not current_ser.is_open:
-                            current_ser.open()
-                        return None
-                    except Exception as e:
-                        logger.error(
-                            f"Error reopening previous connection: {e}"
-                        )
-                        return None
-
                 selection = int(selection)
-                if not (1 <= selection <= len(detected)):
-                    print(
-                        "Invalid selection, reconnecting to current scanner..."
-                    )
-                    # Reopen the previous connection
-                    try:
-                        if not current_ser.is_open:
-                            current_ser.open()
-                        return None
-                    except Exception as e:
-                        logger.error(
-                            f"Error reopening previous connection: {e}"
-                        )
-                        return None
             except ValueError:
                 print("Invalid input, reconnecting to current scanner...")
-                # Reopen the previous connection
-                try:
-                    if not current_ser.is_open:
-                        current_ser.open()
-                    return None
-                except Exception as e:
-                    logger.error(f"Error reopening previous connection: {e}")
-                    return None
+                return None
+            if not (1 <= selection <= len(detected)):
+                print("Invalid selection, reconnecting to current scanner...")
+                return None
     except Exception as e:
         if machine_mode:
             error_msg = str(e).replace(" ", "_").replace(":", "_")
             print(f"STATUS:ERROR|CODE:SELECTION_ERROR|MESSAGE:{error_msg}")
         else:
             print(f"Error selecting scanner: {e}")
-        # Try to reopen the previous connection
-        try:
-            if not current_ser.is_open:
-                current_ser.open()
-            return None
-        except Exception as reconnect_error:
-            logger.error(
-                f"Error reopening previous connection: {reconnect_error}"
-            )
-            return None
+        return None
 
     # Connect to selected scanner
     port, scanner_model = detected[selection - 1]
 
     try:
-        # Create new connection
-        new_ser = serial.Serial(port, 115200, timeout=1.0, write_timeout=1.0)
-
-        # Initialize adapter
-        @with_timeout(30)
-        def initialize_adapter():
-            return get_scanner_adapter(scanner_model, machine_mode)
-
-        new_adapter = initialize_adapter()
-        if not new_adapter:
-            if machine_mode:
-                print(f"STATUS:ERROR|CODE:NO_ADAPTER|MODEL:{scanner_model}")
-            else:
-                print(
-                    f"No adapter implemented for {scanner_model}, "
-                    "reconnecting to previous scanner..."
-                )
-            new_ser.close()
-            # Reopen previous connection
-            try:
-                if not current_ser.is_open:
-                    current_ser.open()
-                return None
-            except Exception as e:
-                logger.error(f"Error reopening previous connection: {e}")
-                return None
-
-        # Build new command table
-        new_commands, new_command_help = build_command_table(
-            new_adapter, new_ser
+        conn_id = connection_manager.open_connection(
+            port, scanner_model, machine_mode
+        )
+        new_ser, new_adapter, new_commands, new_command_help = connection_manager.get(
+            conn_id
         )
 
         if machine_mode:
             print(
-                f"STATUS:OK|ACTION:SWITCHED|PORT:{port}|MODEL:{scanner_model}"
+                f"STATUS:OK|ACTION:SWITCHED|PORT:{port}|MODEL:{scanner_model}|ID:{conn_id}"
             )
         else:
-            print(f"\nSuccessfully switched to {port} ({scanner_model})")
-        return (new_ser, new_adapter, new_commands, new_command_help)
+            print(
+                f"\nSuccessfully switched to {port} ({scanner_model}) [ID {conn_id}]"
+            )
+        return (
+            conn_id,
+            new_ser,
+            new_adapter,
+            new_commands,
+            new_command_help,
+        )
 
     except Exception as e:
         logger.error(f"Error connecting to new scanner: {e}")
@@ -212,16 +136,7 @@ def switch_scanner(
             print(f"STATUS:ERROR|CODE:CONNECTION_FAILED|MESSAGE:{error_msg}")
         else:
             print(f"Error connecting to new scanner: {e}")
-        # Try to reopen the previous connection
-        try:
-            if not current_ser.is_open:
-                current_ser.open()
-            return None
-        except Exception as reconnect_error:
-            logger.error(
-                f"Error reopening previous connection: {reconnect_error}"
-            )
-            return None
+        return None
 
 
 def handle_switch_command(
@@ -268,8 +183,8 @@ def detect_and_connect_scanner(machine_mode=False):
         machine_mode (bool): Whether to use machine-friendly output.
 
     Returns:
-        tuple: (ser, adapter, commands, command_help) or
-        (None, None, None, None) if failed
+        tuple: (conn_id, ser, adapter, commands, command_help) or
+        (None, None, None, None, None) if failed
     """
     if machine_mode:
         print("STATUS:INFO|ACTION:SCANNING_FOR_DEVICES")
@@ -291,7 +206,7 @@ def detect_and_connect_scanner(machine_mode=False):
                 "  5. Check device manager to confirm the scanner is recognized"
                 "by your computer"
             )
-        return None, None, None, None
+        return None, None, None, None, None
 
     if machine_mode:
         print(f"STATUS:INFO|SCANNERS_FOUND:{len(detected)}")
@@ -317,10 +232,10 @@ def detect_and_connect_scanner(machine_mode=False):
                 )
                 if selection == 0:  # Exit if user selects 0
                     print("Exiting.")
-                    return None, None, None, None
+                    return None, None, None, None, None
             except ValueError:
                 print("Invalid input. Exiting.")
-                return None, None, None, None
+                return None, None, None, None, None
 
         if 1 <= selection <= len(detected):
             port, scanner_model = detected[selection - 1]
@@ -329,36 +244,25 @@ def detect_and_connect_scanner(machine_mode=False):
                 print("STATUS:ERROR|CODE:INVALID_SELECTION")
             else:
                 print("Invalid selection.")
-            return None, None, None, None
+            return None, None, None, None, None
     except ValueError:
         print("Invalid input. Exiting.")
-        return None, None, None, None
+        return None, None, None, None, None
 
     try:
-        ser = serial.Serial(port, 115200, timeout=1.0, write_timeout=1.0)
-
-        @with_timeout(30)
-        def initialize_adapter():
-            return get_scanner_adapter(scanner_model, machine_mode)
-
-        adapter = initialize_adapter()
-        if not adapter:
-            if machine_mode:
-                print(f"STATUS:ERROR|CODE:NO_ADAPTER|MODEL:{scanner_model}")
-            else:
-                print(f"No adapter implemented for {scanner_model}.")
-            ser.close()
-            return None, None, None, None
+        conn_id = connection_manager.open_connection(
+            port, scanner_model, machine_mode
+        )
+        ser, adapter, commands, command_help = connection_manager.get(conn_id)
 
         if machine_mode:
             print(
-                f"STATUS:OK|ACTION:CONNECTED|PORT:{port}|MODEL:{scanner_model}"
+                f"STATUS:OK|ACTION:CONNECTED|PORT:{port}|MODEL:{scanner_model}|ID:{conn_id}"
             )
         else:
-            print(f"Connected to {port} ({scanner_model})")
+            print(f"Connected to {port} ({scanner_model}) [ID {conn_id}]")
 
-        commands, command_help = build_command_table(adapter, ser)
-        return ser, adapter, commands, command_help
+        return conn_id, ser, adapter, commands, command_help
 
     except Exception as e:
         logger.error(f"Error communicating with scanner: {e}")
@@ -367,7 +271,7 @@ def detect_and_connect_scanner(machine_mode=False):
             print(f"STATUS:ERROR|CODE:COMMUNICATION_FAILED|MESSAGE:{error_msg}")
         else:
             print(f"Error communicating with scanner: {e}")
-        return None, None, None, None
+        return None, None, None, None, None
 
 
 def scan_for_scanners():
