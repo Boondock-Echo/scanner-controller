@@ -48,7 +48,7 @@ def test_main_machine_mode_enabled(capsys, monkeypatch):
     well as evidence that the loop was invoked.
     """
 
-    def dummy_loop(adapter, ser, commands, command_help, machine_mode):
+    def dummy_loop(cm, adapter, ser, commands, command_help, machine_mode):
         print("MAIN_LOOP_CALLED")
 
     monkeypatch.setattr(main, "main_loop", dummy_loop)
@@ -81,7 +81,8 @@ def test_main_loop_exit_machine_mode(capsys, monkeypatch):
         "utilities.command.loop.initialize_readline", lambda c: None
     )
 
-    original_main_loop(None, None, {}, {}, True)
+    from utilities.scanner.manager import connection_manager
+    original_main_loop(connection_manager, None, None, {}, {}, True)
 
     out = capsys.readouterr().out
     assert "STATUS:INFO|MESSAGE:Scanner_ready" in out

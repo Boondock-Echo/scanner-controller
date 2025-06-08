@@ -11,12 +11,12 @@ import argparse
 import logging
 
 from utilities.command.loop import main_loop
+from utilities.scanner.manager import detect_and_connect_scanner, connection_manager
 
 # Local application/relative imports
 from utilities.core.shared_utils import diagnose_connection_issues
 from utilities.io.timeout_utils import ScannerTimeoutError
 from utilities.log_utils import configure_logging
-from utilities.scanner.manager import detect_and_connect_scanner
 
 # ------------------------------------------------------------------------------
 # LOGGING SETUP
@@ -75,7 +75,7 @@ def main():
             # Just start command loop with no scanner connected
             logger.info("Starting command loop without scanner in machine mode")
             print("STATUS:INFO|MESSAGE:Ready_for_commands")
-            main_loop(None, None, {}, {}, machine_mode)
+            main_loop(connection_manager, None, None, {}, {}, machine_mode)
         else:
             # For normal mode, continue with automatic scanner detection
             # Detect and connect to scanner
@@ -102,7 +102,7 @@ def main():
                 return
 
             # Start interactive command loop
-            main_loop(adapter, ser, commands, command_help, machine_mode)
+            main_loop(connection_manager, adapter, ser, commands, command_help, machine_mode)
 
     except ScannerTimeoutError:
         if machine_mode:
