@@ -42,6 +42,8 @@ def read_response(ser, timeout=1.0):
     except Exception as e:
         logging.error(f"Error reading response: {e}")
         return ""
+    finally:
+        ser.timeout = original_timeout
 
 
 def send_command(ser, cmd, delay=0.0):
