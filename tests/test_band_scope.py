@@ -31,7 +31,7 @@ def test_band_sweep_air_command(monkeypatch):
     monkeypatch.setattr(adapter, "send_command", lambda ser, cmd: cmd)
 
     commands, _ = build_command_table(adapter, None)
-    result = commands["band sweep"]("air")
+    result = commands["band sweep"](None, adapter, "air")
     assert result == "BSP,00125000,833,20M,0"
 
 
@@ -53,7 +53,7 @@ def test_custom_search_returns_pairs(monkeypatch):
     monkeypatch.setattr(adapter, "sweep_band_scope", sweep_stub)
     commands, _ = build_command_table(adapter, None)
 
-    result = commands["custom search"]("100 2 1")
+    result = commands["custom search"](None, adapter, "100 2 1")
     assert result == [(100.0, 0.5), (101.0, 0.6)]
 
 
@@ -96,6 +96,6 @@ def test_band_scope_auto_width(monkeypatch):
     )
 
     commands, _ = build_command_table(adapter, None)
-    output = commands["band scope"]("5")
+    output = commands["band scope"](None, adapter, "5")
     lines = output.splitlines()
     assert all(len(line) == 5 for line in lines)

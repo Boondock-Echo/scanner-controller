@@ -24,7 +24,7 @@ def test_band_scope_command_registered(monkeypatch):
 
     assert "band scope" in commands
     assert "band scope" in help_text
-    output = commands["band scope"]("10 5")
+    output = commands["band scope"](None, adapter, "10 5")
     lines = output.splitlines()
     assert len(lines) == 2
     assert all(len(line) == 5 for line in lines)

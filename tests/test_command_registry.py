@@ -29,8 +29,8 @@ def test_scan_start_stop_registered(monkeypatch):
     assert help_text["scan stop"] == "Stop scanner scanning process."
 
     # Ensure commands use adapter methods
-    assert commands["scan start"]() == "KEY:S"
-    assert commands["scan stop"]() == "KEY:H"
+    assert commands["scan start"](None, adapter) == "KEY:S"
+    assert commands["scan stop"](None, adapter) == "KEY:H"
 
 
 def test_bsp_and_bsv_commands_present(monkeypatch):
