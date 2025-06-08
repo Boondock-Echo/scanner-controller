@@ -7,6 +7,7 @@ This module contains functions for managing scanner connections and switching.
 import logging
 
 import serial
+from functools import partial
 
 from utilities.core.command_registry import build_command_table
 from utilities.scanner.backend import find_all_scanner_ports
@@ -351,6 +352,7 @@ def connect_to_scanner(
 
         # Build command table
         commands, command_help = build_command_table(adapter, ser)
+        commands = {name: partial(func, ser, adapter) for name, func in commands.items()}
 
         # If we need to merge with existing commands
         if existing_commands is not None and existing_command_help is not None:

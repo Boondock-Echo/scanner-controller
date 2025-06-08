@@ -1,5 +1,6 @@
 import logging
 import serial
+from functools import partial
 
 from utilities.core.command_registry import build_command_table
 from utilities.io.timeout_utils import with_timeout
@@ -55,10 +56,13 @@ class ConnectionManager:
             raise RuntimeError(f"No adapter implemented for {model}")
 
         commands, help_text = build_command_table(adapter, ser)
+        bound_commands = {
+            name: partial(func, ser, adapter) for name, func in commands.items()
+        }
 
         conn_id = self._next_id
         self._next_id += 1
-        self._connections[conn_id] = (ser, adapter, commands, help_text)
+        self._connections[conn_id] = (ser, adapter, bound_commands, help_text)
         self._active_id = conn_id
         logger.info(f"Opened connection {conn_id} on {port} ({model})")
         return conn_id
