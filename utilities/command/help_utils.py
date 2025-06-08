@@ -151,8 +151,8 @@ def show_help(commands, command_help, command="", adapter=None):
             ],
             "Other": [
                 cmd
-                for cmd in sorted(commands)
-                if cmd in standard_commands["Other"]
+                for cmd in standard_commands["Other"]
+                if cmd in commands
             ],
         }
 
