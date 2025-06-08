@@ -96,15 +96,7 @@ def show_help(commands, command_help, command="", adapter=None):
             "band sweep",
             "custom search",
         ],
-        "Other": [
-            "help",
-            "list",
-            "connect",
-            "use",
-            "close",
-            "switch",
-            "exit",
-        ],
+        "Other": OTHER_COMMANDS,
     }
 
     # Check if any high-level commands exist in COMMANDS
