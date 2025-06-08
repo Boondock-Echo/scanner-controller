@@ -39,6 +39,8 @@ def switch_scanner(
         or None if canceled/error
     """
 
+    active_conn_id = connection_manager.active_id
+
     if machine_mode:
         print("STATUS:INFO|ACTION:DETECTING_SCANNERS")
     else:
@@ -107,6 +109,15 @@ def switch_scanner(
     port, scanner_model = detected[selection - 1]
 
     try:
+        # Close the current active connection before opening a new one
+        if active_conn_id is not None:
+            connection_manager.close_connection(active_conn_id)
+        if current_ser and current_ser.is_open:
+            try:
+                current_ser.close()
+            except Exception as exc:
+                logger.error(f"Error closing current connection: {exc}")
+
         conn_id = connection_manager.open_connection(
             port, scanner_model, machine_mode
         )
