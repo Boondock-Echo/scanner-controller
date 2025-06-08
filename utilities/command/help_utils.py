@@ -96,7 +96,7 @@ def show_help(commands, command_help, command="", adapter=None):
             "band sweep",
             "custom search",
         ],
-        "Other": ["help", "switch", "exit"],
+        "Other": OTHER_COMMANDS,
     }
 
     # Check if any high-level commands exist in COMMANDS
@@ -141,7 +141,11 @@ def show_help(commands, command_help, command="", adapter=None):
                     or cmd.startswith("custom search")
                 )
             ],
-            "Other": ["help", "switch", "exit"],
+            "Other": [
+                cmd
+                for cmd in standard_commands["Other"]
+                if cmd in commands
+            ],
         }
 
         # Ensure Controlling Scanner commands are always displayed if they exist
