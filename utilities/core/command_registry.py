@@ -231,7 +231,7 @@ def build_command_table(adapter, ser):
 
         COMMAND_HELP["band sweep"] = (
             "Sweep using a preset. Usage: band sweep <preset> or "
-            "band sweep <freq> <step> <span> <max_hold>." + preset_help
+            "band sweep <freq> <step> <span> <max_hold> [bandwidth]." + preset_help
         )
     else:
         logging.debug("Registering placeholder 'band sweep' command")
@@ -253,7 +253,7 @@ def build_command_table(adapter, ser):
         COMMANDS["custom search"] = custom_search
         COMMAND_HELP["custom search"] = (
             "Perform a custom frequency sweep. Usage: custom search "
-            "<center> <span> <step>"
+            "<center> <span> <step> [bandwidth]"
         )
     else:
         logging.debug("Registering placeholder 'custom search' command")
