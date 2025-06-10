@@ -3,6 +3,7 @@
 import os
 import sys
 import time
+import threading
 
 import pytest
 
@@ -59,3 +60,19 @@ def test_with_timeout_propagates_exception():
 
     with pytest.raises(CustomError):
         bad()
+
+
+def test_with_timeout_thread_cleanup():
+    """Timed out calls should not leave background threads running."""
+
+    @with_timeout(0.1)
+    def never_ending(stop_event):
+        while not stop_event.is_set():
+            time.sleep(0.01)
+
+    before = {t.name for t in threading.enumerate()}
+    with pytest.raises(ScannerTimeoutError):
+        never_ending()
+    time.sleep(0.2)
+    after = {t.name for t in threading.enumerate()}
+    assert before == after
