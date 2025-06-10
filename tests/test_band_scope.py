@@ -42,6 +42,19 @@ def test_band_select_registered(monkeypatch):
 
     assert "band select" in commands
     assert "band select" in help_text
+    assert "band set" in commands
+    assert "band set" in help_text
+
+
+def test_band_set_alias(monkeypatch):
+    adapter = BCD325P2Adapter()
+    adapter.in_program_mode = True
+    monkeypatch.setattr(adapter, "send_command", lambda ser, cmd: cmd)
+
+    commands, _ = build_command_table(adapter, None)
+    result_alias = commands["band set"](None, adapter, "air")
+    result_select = commands["band select"](None, adapter, "air")
+    assert result_alias == result_select
 
 
 def test_custom_search_returns_pairs(monkeypatch):
