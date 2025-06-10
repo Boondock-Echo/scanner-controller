@@ -1,9 +1,10 @@
 """Tests for close_call_logger.record_close_calls."""
 
 import os
-import sys
-import types
 import sqlite3
+import sys
+import time
+import types
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -18,8 +19,8 @@ sys.modules.setdefault("serial.tools", serial_tools_stub)
 sys.modules.setdefault("serial.tools.list_ports", list_ports_stub)
 sys.modules.setdefault("serial", serial_stub)
 
-from utilities.scanner.close_call_logger import record_close_calls  # noqa: E402
 from config.close_call_bands import CLOSE_CALL_BANDS  # noqa: E402
+from utilities.scanner.close_call_logger import record_close_calls  # noqa: E402
 
 
 class DummyAdapter:
@@ -50,13 +51,11 @@ def test_band_mask_and_db_write(tmp_path, monkeypatch):
     calls = [130.0]
 
     def freq_stub(ser):
-        if calls:
-            return calls.pop(0)
-        raise KeyboardInterrupt
+        return calls.pop(0)
 
     monkeypatch.setattr(adapter, "read_frequency", freq_stub)
 
-    record_close_calls(adapter, None, "air", db_path=str(db))
+    record_close_calls(adapter, None, "air", db_path=str(db), max_records=1)
 
     assert adapter.mask == CLOSE_CALL_BANDS["air"]
 
@@ -73,12 +72,39 @@ def test_lockout_sends_lof(tmp_path, monkeypatch):
     calls = [162.5]
 
     def freq_stub(ser):
-        if calls:
-            return calls.pop(0)
-        raise KeyboardInterrupt
+        return calls.pop(0)
 
     monkeypatch.setattr(adapter, "read_frequency", freq_stub)
 
-    record_close_calls(adapter, None, "air", db_path=str(db), lockout=True)
+    record_close_calls(
+        adapter, None, "air", db_path=str(db), lockout=True, max_records=1
+    )
 
     assert adapter.lof_sent == "LOF,162.5"
+
+
+def test_max_time_limits_logging(tmp_path, monkeypatch):
+    adapter = DummyAdapter()
+    db = tmp_path / "cc.db"
+
+    calls = [130.0, 131.0, 132.0]
+
+    def freq_stub(ser):
+        return calls.pop(0)
+
+    monkeypatch.setattr(adapter, "read_frequency", freq_stub)
+
+    t = {"i": 0}
+
+    def time_stub():
+        t["i"] += 0.05
+        return t["i"]
+
+    monkeypatch.setattr(time, "time", time_stub)
+
+    record_close_calls(adapter, None, "air", db_path=str(db), max_time=0.25)
+
+    conn = sqlite3.connect(db)
+    count = conn.execute("SELECT COUNT(*) FROM close_calls").fetchone()[0]
+    conn.close()
+    assert count == 2
