@@ -4,6 +4,8 @@ Channel-related functions for the BCD325P2 scanner.
 Contains functions for reading and writing channel information.
 """
 
+import time
+
 from adapters.uniden.common.core import ensure_str
 
 
@@ -81,25 +83,39 @@ def write_channel_info(
         return self.feedback(False, f"Error writing channel info: {e}")
 
 
-def read_global_lockout(self, ser):
+def read_global_lockout(self, ser, timeout=5):
     """Read global lockout frequencies.
 
-    Args:
-        ser: Serial connection to the scanner.
+    Parameters
+    ----------
+    ser : serial.Serial
+        Serial connection to the scanner.
+    timeout : float, optional
+        Maximum time in seconds to wait for the ``GLF,-1`` sentinel.
 
-    Returns:
-        str: Lockout frequency data or error message.
+    Returns
+    -------
+    str
+        Lockout frequency data or an error message if timed out.
     """
     try:
         self.enter_programming_mode(ser)
         results = []
+        start = time.time()
         while True:
-            response = self.send_command(ser, "GLF")
-            response_str = ensure_str(response)
+            if time.time() - start > timeout:
+                self.exit_programming_mode(ser)
+                return self.feedback(
+                    False,
+                    f"Timed out waiting for GLF,-1 after {timeout} seconds",
+                )
 
-            if response_str.strip() == "GLF,-1":
+            response = self.send_command(ser, "GLF")
+            response_str = ensure_str(response).strip()
+
+            if response_str == "GLF,-1":
                 break
-            results.append(response_str.strip())
+            results.append(response_str)
         self.exit_programming_mode(ser)
         return self.feedback(True, "\n".join(results))
     except Exception as e:
