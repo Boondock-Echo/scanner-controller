@@ -235,9 +235,8 @@ def build_command_table(adapter, ser):
             preset_help = ""
 
         COMMAND_HELP["band select"] = (
-            "Select a band using a preset. Usage: band select <preset> or "
-            "band select <low_freq> <high_freq> <step> <modulation>."
-            + preset_help
+            f"Select a band using a preset. Usage: band select <preset> or "
+            f"band select <low_freq> <high_freq> <step> <modulation>.{preset_help}"
         )
     else:
         logging.debug("Registering placeholder 'band select' command")
