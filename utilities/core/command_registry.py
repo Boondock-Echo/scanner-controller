@@ -201,14 +201,7 @@ def build_command_table(adapter, ser):
             output = render_band_scope_waterfall(pairs, width)
 
             if width > 80:
-                split_lines = []
-                for line in output.splitlines():
-                    while len(line) > 80:
-                        split_lines.append(line[:80])
-                        line = line[80:]
-                    if line:
-                        split_lines.append(line)
-                output = "\n".join(split_lines)
+                output = split_output_lines(output, 80)
 
             return output
 
