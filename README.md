@@ -168,6 +168,15 @@ name or explicit parameters. The shorter alias `band set` behaves the same.
 > band set 108M 136M 12.5k AM
 ```
 
+After the `BSP` command is sent during `band select`, the scanner now
+automatically enters band-scope search by issuing a scan-start key.
+If the search is later halted you can resume it with the dedicated
+command:
+
+```text
+> band scope start
+```
+
 ### Band Scope Streaming
 
 Band scope status can be streamed using the `CSC` command. When activated the

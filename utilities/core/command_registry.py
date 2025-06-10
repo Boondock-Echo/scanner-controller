@@ -341,6 +341,13 @@ def build_command_table(adapter, ser):
             ser_
         )
         COMMAND_HELP["scan start"] = "Start scanner scanning process."
+        logging.debug("Registering 'band scope start' command")
+        COMMANDS["band scope start"] = lambda ser_, adapter_: adapter_.start_scanning(
+            ser_
+        )
+        COMMAND_HELP["band scope start"] = (
+            "Begin band-scope search using current settings."
+        )
     else:
         logging.debug("Registering placeholder 'scan start' command")
         COMMANDS["scan start"] = lambda ser_, adapter_: (
@@ -349,6 +356,13 @@ def build_command_table(adapter, ser):
         COMMAND_HELP["scan start"] = (
             "Start scanner scanning process. "
             "(Not available for this scanner model)"
+        )
+        logging.debug("Registering placeholder 'band scope start' command")
+        COMMANDS["band scope start"] = lambda ser_, adapter_: (
+            "Command 'band scope start' not supported on this scanner model"
+        )
+        COMMAND_HELP["band scope start"] = (
+            "Begin band-scope search. (Not available for this scanner model)"
         )
 
     if hasattr(adapter, 'stop_scanning'):

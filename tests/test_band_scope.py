@@ -123,9 +123,11 @@ def test_configure_band_scope_wraps_programming(monkeypatch):
         return "OK"
 
     monkeypatch.setattr(adapter, "send_command", send_command_stub)
+    monkeypatch.setattr(adapter, "start_scanning", lambda ser: calls.append("START"))
 
     adapter.configure_band_scope(None, "air")
 
     assert calls[0] == "PRG"
     assert calls[1].startswith("BSP")
+    assert calls[2] == "START"
     assert calls[-1] == "EPG"
