@@ -56,11 +56,10 @@ def read_rssi(self, ser):
 
         parts = response_str.split(",")
         if len(parts) == 3:
-            rssi_value = round(int(parts[1]) / 1023.0, 3)
-            return self.feedback(True, f"RSSI: {rssi_value}")
-        return self.feedback(False, f"Unexpected PWR response: {response_str}")
-    except Exception as e:
-        return self.feedback(False, f"Error reading RSSI: {e}")
+            return round(int(parts[1]) / 1023.0, 3)
+    except Exception:
+        pass
+    return None
 
 
 def read_battery_voltage(self, ser):

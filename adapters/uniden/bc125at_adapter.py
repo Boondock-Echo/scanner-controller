@@ -73,6 +73,7 @@ class BC125ATAdapter(UnidenScannerAdapter):
         super().__init__(machine_mode, commands)
         self.machine_mode_id = "BC125AT"
         self.in_program_mode = False
+        self.band_scope_width = None
         logger.info(
             f"BC125AT adapter initialized (machine_mode={machine_mode})"
         )
@@ -140,6 +141,70 @@ class BC125ATAdapter(UnidenScannerAdapter):
 
     # User control methods
     send_key = send_key
+
+    def _to_mhz(self, value):
+        """Convert a value with optional unit suffix to MHz."""
+        value_str = str(value).strip().lower()
+        for suffix in ("mhz", "m"):
+            if value_str.endswith(suffix):
+                return float(value_str[: -len(suffix)])
+        for suffix in ("khz", "k"):
+            if value_str.endswith(suffix):
+                return float(value_str[: -len(suffix)]) / 1000.0
+        return float(value_str)
+
+    def _to_khz(self, value):
+        """Convert a value with optional unit suffix to kHz."""
+        value_str = str(value).strip().lower()
+        for suffix in ("khz", "k"):
+            if value_str.endswith(suffix):
+                return float(value_str[: -len(suffix)])
+        for suffix in ("mhz", "m"):
+            if value_str.endswith(suffix):
+                return float(value_str[: -len(suffix)]) * 1000.0
+        return float(value_str)
+
+    def _calc_band_scope_width(self, span, step):
+        """Return the number of sweep bins from span and step values."""
+        try:
+            span_mhz = self._to_mhz(span)
+            step_khz = self._to_khz(step)
+            step_mhz = step_khz / 1000.0
+            if step_mhz <= 0:
+                return None
+            width = int(round(span_mhz / step_mhz)) + 1
+            return max(width, 1)
+        except Exception:
+            return None
+
+    def sweep_band_scope(self, ser, center_freq, span, step):
+        """Sweep across a frequency range using quick hold mode."""
+        try:
+            center = self._to_mhz(center_freq)
+            span_mhz = self._to_mhz(span)
+            step_khz = self._to_khz(step)
+            step_mhz = step_khz / 1000.0
+
+            start = center - span_mhz / 2.0
+            end = center + span_mhz / 2.0
+
+            results = []
+            freq = start
+            while freq <= end + 1e-6:
+                self.enter_quick_frequency_hold(ser, freq)
+                rssi_val = self.read_rssi(ser)
+                try:
+                    if isinstance(rssi_val, str) and "RSSI" in rssi_val:
+                        rssi_val = float(rssi_val.split("RSSI")[-1].split()[0])
+                except Exception:
+                    rssi_val = None
+                results.append((round(freq, 6), rssi_val))
+                freq += step_mhz
+            self.band_scope_width = self._calc_band_scope_width(span, step)
+            return results
+        except Exception as e:
+            logger.error(f"Error sweeping band scope: {e}")
+            return []
 
     def get_help(self, command):
         """Get help for a specific BC125AT command.
