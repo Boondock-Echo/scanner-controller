@@ -24,16 +24,21 @@ def show_help(commands, command_help, command="", adapter=None):
         command (str): Specific command to display help for.
         adapter (object): Scanner adapter instance.
     """
-    # Display help for a specific command
+    # Display help for a specific command or topic
     if command:
         cmd = command.strip().lower()
+
         if cmd in command_help:
             print(f"\nHelp for '{cmd}':\n  {command_help[cmd]}")
 
-            extended_help = get_extended_help(cmd)
-            if extended_help:
-                print(f"\n{extended_help}")
+        extended_help = get_extended_help(cmd)
+        if extended_help:
+            if cmd not in command_help:
+                print(f"\nHelp for '{cmd}':")
+            print(f"\n{extended_help}")
+            return
 
+        if cmd in command_help:
             return
 
         if adapter and hasattr(adapter, "get_help"):

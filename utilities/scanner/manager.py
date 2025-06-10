@@ -276,6 +276,7 @@ def detect_and_connect_scanner(machine_mode=False):
             )
         else:
             print(f"Connected to {port} ({scanner_model}) [ID {conn_id}]")
+            print("Type 'help' for available commands.")
 
         return conn_id, ser, adapter, commands, command_help
 
