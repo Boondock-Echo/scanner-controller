@@ -22,26 +22,26 @@ def test_presets_load():
     assert "air" in presets
     assert "race" in presets
     assert isinstance(presets["air"], tuple)
-    assert len(presets["air"]) == 5
+    assert len(presets["air"]) == 4
 
 
-def test_band_sweep_air_command(monkeypatch):
+def test_band_select_air_command(monkeypatch):
     adapter = BCD325P2Adapter()
     adapter.in_program_mode = True
     monkeypatch.setattr(adapter, "send_command", lambda ser, cmd: cmd)
 
     commands, _ = build_command_table(adapter, None)
-    result = commands["band sweep"](None, adapter, "air")
+    result = commands["band select"](None, adapter, "air")
     assert result == "BSP,00125000,833,20M,0"
 
 
-def test_band_sweep_registered(monkeypatch):
+def test_band_select_registered(monkeypatch):
     adapter = BCD325P2Adapter()
     monkeypatch.setattr(adapter, "configure_band_scope", lambda ser, *a: "")
     commands, help_text = build_command_table(adapter, None)
 
-    assert "band sweep" in commands
-    assert "band sweep" in help_text
+    assert "band select" in commands
+    assert "band select" in help_text
 
 
 def test_custom_search_returns_pairs(monkeypatch):
