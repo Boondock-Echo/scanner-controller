@@ -6,10 +6,7 @@ This module builds the command table from scanner adapter capabilities.
 
 import logging
 
-from utilities.graph_utils import (
-    render_rssi_graph,
-    render_band_scope_waterfall,
-)
+from utilities.graph_utils import render_rssi_graph, render_band_scope_waterfall
 
 
 def build_command_table(adapter, ser):
@@ -72,13 +69,15 @@ def build_command_table(adapter, ser):
     # -- Volume commands --
     if hasattr(adapter, 'read_volume'):
         logging.debug("Registering 'get volume' command")
-        COMMANDS["get volume"] = lambda ser_, adapter_: adapter_.read_volume(ser_)
+        COMMANDS["get volume"] = lambda ser_, adapter_: adapter_.read_volume(
+            ser_
+        )
         COMMAND_HELP["get volume"] = "Get the current volume level."
 
     if hasattr(adapter, 'write_volume'):
         logging.debug("Registering 'set volume' command")
-        COMMANDS["set volume"] = lambda ser_, adapter_, arg: adapter_.write_volume(
-            ser_, arg
+        COMMANDS["set volume"] = (
+            lambda ser_, adapter_, arg: adapter_.write_volume(ser_, arg)
         )
         COMMAND_HELP["set volume"] = (
             "Set the volume level. Usage: set volume <level>"
@@ -87,13 +86,15 @@ def build_command_table(adapter, ser):
     # -- Squelch commands --
     if hasattr(adapter, 'read_squelch'):
         logging.debug("Registering 'get squelch' command")
-        COMMANDS["get squelch"] = lambda ser_, adapter_: adapter_.read_squelch(ser_)
+        COMMANDS["get squelch"] = lambda ser_, adapter_: adapter_.read_squelch(
+            ser_
+        )
         COMMAND_HELP["get squelch"] = "Get the current squelch level."
 
     if hasattr(adapter, 'write_squelch'):
         logging.debug("Registering 'set squelch' command")
-        COMMANDS["set squelch"] = lambda ser_, adapter_, arg: adapter_.write_squelch(
-            ser_, arg
+        COMMANDS["set squelch"] = (
+            lambda ser_, adapter_, arg: adapter_.write_squelch(ser_, arg)
         )
         COMMAND_HELP["set squelch"] = (
             "Set the squelch level. Usage: set squelch <level>"
@@ -103,23 +104,23 @@ def build_command_table(adapter, ser):
     # Battery voltage
     if hasattr(adapter, 'read_battery_voltage'):
         logging.debug("Registering 'get battery' command")
-        COMMANDS["get battery"] = lambda ser_, adapter_: adapter_.read_battery_voltage(
-            ser_
+        COMMANDS["get battery"] = (
+            lambda ser_, adapter_: adapter_.read_battery_voltage(ser_)
         )
         COMMAND_HELP["get battery"] = "Get the battery voltage."
 
     # Frequency
     if hasattr(adapter, 'read_frequency'):
         logging.debug("Registering 'get frequency' command")
-        COMMANDS["get frequency"] = lambda ser_, adapter_: adapter_.read_frequency(
-            ser_
+        COMMANDS["get frequency"] = (
+            lambda ser_, adapter_: adapter_.read_frequency(ser_)
         )
         COMMAND_HELP["get frequency"] = "Get the current frequency."
 
     if hasattr(adapter, 'write_frequency'):
         logging.debug("Registering 'set frequency' command")
-        COMMANDS["set frequency"] = lambda ser_, adapter_, arg: adapter_.write_frequency(
-            ser_, arg
+        COMMANDS["set frequency"] = (
+            lambda ser_, adapter_, arg: adapter_.write_frequency(ser_, arg)
         )
         COMMAND_HELP["set frequency"] = (
             "Set the frequency. Usage: set frequency <freq_mhz>"
@@ -128,13 +129,17 @@ def build_command_table(adapter, ser):
     # Status
     if hasattr(adapter, 'read_status'):
         logging.debug("Registering 'get status' command")
-        COMMANDS["get status"] = lambda ser_, adapter_: adapter_.read_status(ser_)
+        COMMANDS["get status"] = lambda ser_, adapter_: adapter_.read_status(
+            ser_
+        )
         COMMAND_HELP["get status"] = "Get the scanner status information."
 
     # Signal meter
     if hasattr(adapter, 'read_s_meter'):
         logging.debug("Registering 'get signal' command")
-        COMMANDS["get signal"] = lambda ser_, adapter_: adapter_.read_s_meter(ser_)
+        COMMANDS["get signal"] = lambda ser_, adapter_: adapter_.read_s_meter(
+            ser_
+        )
         COMMAND_HELP["get signal"] = "Get the signal strength meter reading."
 
     # -- Controlling Scanner commands --
@@ -211,15 +216,15 @@ def build_command_table(adapter, ser):
             "Stream band scope data. (Not available for this scanner model)"
         )
 
-    # Band sweep presets
+    # Band select presets
     if hasattr(adapter, 'configure_band_scope'):
-        logging.debug("Registering 'band sweep' command")
+        logging.debug("Registering 'band select' command")
 
-        def band_sweep(ser_, adapter_, arg=""):
+        def band_select(ser_, adapter_, arg=""):
             parts = arg.split()
             return adapter_.configure_band_scope(ser_, *parts)
 
-        COMMANDS["band sweep"] = band_sweep
+        COMMANDS["band select"] = band_select
 
         try:
             from config.band_scope_presets import BAND_SCOPE_PRESETS
@@ -229,17 +234,18 @@ def build_command_table(adapter, ser):
         except ImportError:
             preset_help = ""
 
-        COMMAND_HELP["band sweep"] = (
-            "Sweep using a preset. Usage: band sweep <preset> or "
-            "band sweep <freq> <step> <span> <max_hold> [bandwidth]." + preset_help
+        COMMAND_HELP["band select"] = (
+            "Select a band using a preset. Usage: band select <preset> or "
+            "band select <low_freq> <high_freq> <step> <modulation>."
+            + preset_help
         )
     else:
-        logging.debug("Registering placeholder 'band sweep' command")
-        COMMANDS["band sweep"] = lambda ser_, adapter_, arg: (
-            "Command 'band sweep' not supported on this scanner model"
+        logging.debug("Registering placeholder 'band select' command")
+        COMMANDS["band select"] = lambda ser_, adapter_, arg: (
+            "Command 'band select' not supported on this scanner model"
         )
-        COMMAND_HELP["band sweep"] = (
-            "Sweep using a preset. (Not available for this scanner model)"
+        COMMAND_HELP["band select"] = (
+            "Select a band using a preset. (Not available for this scanner model)"
         )
 
     # Custom search (frequency sweep)
@@ -268,8 +274,8 @@ def build_command_table(adapter, ser):
     # Dump memory
     if hasattr(adapter, 'dump_memory_to_file'):
         logging.debug("Registering 'dump memory' command")
-        COMMANDS["dump memory"] = lambda ser_, adapter_: adapter_.dump_memory_to_file(
-            ser_
+        COMMANDS["dump memory"] = (
+            lambda ser_, adapter_: adapter_.dump_memory_to_file(ser_)
         )
         COMMAND_HELP["dump memory"] = "Dump scanner memory to a file."
     else:
@@ -290,19 +296,19 @@ def build_command_table(adapter, ser):
             band = arg.strip() or "air"
             return record_close_calls(adapter_, ser_, band, lockout=lockout)
 
-        COMMANDS["log close calls"] = lambda ser_, adapter_, arg="": _log_close_calls(
-            ser_, adapter_, arg
+        COMMANDS["log close calls"] = (
+            lambda ser_, adapter_, arg="": _log_close_calls(ser_, adapter_, arg)
         )
-        COMMAND_HELP[
-            "log close calls"
-        ] = "Log Close Call hits. Usage: log close calls <band>"
+        COMMAND_HELP["log close calls"] = (
+            "Log Close Call hits. Usage: log close calls <band>"
+        )
 
-        COMMANDS["log close calls lockout"] = lambda ser_, adapter_, arg="": _log_close_calls(
-            ser_, adapter_, arg, True
+        COMMANDS["log close calls lockout"] = (
+            lambda ser_, adapter_, arg="": _log_close_calls(
+                ser_, adapter_, arg, True
+            )
         )
-        COMMAND_HELP[
-            "log close calls lockout"
-        ] = (
+        COMMAND_HELP["log close calls lockout"] = (
             "Log Close Call hits and lock them out. Usage: log close calls lockout <band>"
         )
     except Exception:
@@ -327,7 +333,9 @@ def build_command_table(adapter, ser):
 
     if hasattr(adapter, 'stop_scanning'):
         logging.debug("Registering 'scan stop' command")
-        COMMANDS["scan stop"] = lambda ser_, adapter_: adapter_.stop_scanning(ser_)
+        COMMANDS["scan stop"] = lambda ser_, adapter_: adapter_.stop_scanning(
+            ser_
+        )
         COMMAND_HELP["scan stop"] = "Stop scanner scanning process."
     else:
         logging.debug("Registering placeholder 'scan stop' command")

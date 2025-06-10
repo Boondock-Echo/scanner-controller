@@ -168,10 +168,9 @@ class BCD325P2Adapter(UnidenScannerAdapter):
         if not args:
             return self.feedback(
                 False,
-                "Expected a preset name or <freq> <step> <span> <max_hold> [bandwidth]",
+                "Expected a preset name or <low_freq> <high_freq> <step> <modulation>",
             )
 
-        bandwidth = None
         if len(args) == 1:
             preset = str(args[0]).lower()
             try:
@@ -180,23 +179,32 @@ class BCD325P2Adapter(UnidenScannerAdapter):
                 if preset not in BAND_SCOPE_PRESETS:
                     return self.feedback(False, f"Unknown preset '{preset}'")
 
-                freq, step, span, max_hold, bandwidth = BAND_SCOPE_PRESETS[preset]
+                low, high, step, _mod = BAND_SCOPE_PRESETS[preset]
             except Exception as e:
                 return self.feedback(False, f"Error loading presets: {e}")
         elif len(args) == 4:
-            freq, step, span, max_hold = args
-        elif len(args) == 5:
-            freq, step, span, max_hold, bandwidth = args
+            low, high, step, _mod = args
         else:
             return self.feedback(
                 False,
-                "Expected a preset name or <freq> <step> <span> <max_hold> [bandwidth]",
+                "Expected a preset name or <low_freq> <high_freq> <step> <modulation>",
             )
+
+        low_khz = self._to_khz(low)
+        high_khz = self._to_khz(high)
+        span_mhz = (high_khz - low_khz) / 1000.0
+        center_khz = (low_khz + high_khz) / 2.0
+        freq = f"{int(round(center_khz)):08d}"
+        span = f"{span_mhz:g}M"
+        max_hold = 0
+        bandwidth = None
 
         try:
             with programming_session(self, ser) as ok:
                 if not ok:
-                    return self.feedback(False, "Failed to enter programming mode")
+                    return self.feedback(
+                        False, "Failed to enter programming mode"
+                    )
 
                 cmd_obj = self.commands.get("BSP")
                 if cmd_obj:
@@ -282,7 +290,9 @@ class BCD325P2Adapter(UnidenScannerAdapter):
                 rssi = self.read_rssi(ser)
                 results.append((round(freq, 6), rssi))
                 freq += step_mhz
-            self.band_scope_width = self._calc_band_scope_width(span, bandwidth or step)
+            self.band_scope_width = self._calc_band_scope_width(
+                span, bandwidth or step
+            )
             self.signal_bandwidth = bandwidth
             return results
         except Exception as e:
