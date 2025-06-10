@@ -192,20 +192,22 @@ def build_command_table(adapter, ser):
         def band_scope(ser_, adapter_, arg=""):
             parts = arg.split()
             count = int(parts[0]) if parts else 1024
-            if len(parts) > 1:
-                width = int(parts[1])
-            else:
-                width = getattr(adapter_, "band_scope_width", 64) or 64
-            results = adapter_.stream_custom_search(ser_, count)
-            pairs = [
-                (freq, rssi / 1023.0 if rssi is not None else None)
-                for rssi, freq, _ in results
-            ]
-            return render_band_scope_waterfall(pairs, width)
+            width = getattr(adapter_, "band_scope_width", 64) or 64
+            pairs = []
+            for rssi, freq, _ in adapter_.stream_custom_search(ser_, count):
+                pairs.append(
+                    (freq, rssi / 1023.0 if rssi is not None else None)
+                )
+            output = render_band_scope_waterfall(pairs, width)
+
+            if width > 80:
+                output = split_output_lines(output, 80)
+
+            return output
 
         COMMANDS["band scope"] = band_scope
         COMMAND_HELP["band scope"] = (
-            "Stream band scope data. Usage: band scope [record_count] [width]"
+            "Stream band scope data. Usage: band scope [record_count]"
         )
     else:
         logging.debug("Registering placeholder 'band scope' command")

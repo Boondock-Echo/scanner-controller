@@ -173,7 +173,7 @@ class BC125ATAdapter(UnidenScannerAdapter):
             bw_mhz = self._to_mhz(bandwidth)
             if bw_mhz <= 0:
                 return None
-            width = min(int(round(span_mhz / bw_mhz)) + 1, 80)
+            width = int(round(span_mhz / bw_mhz)) + 1
             return max(width, 1)
         except Exception:
             return None
