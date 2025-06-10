@@ -131,3 +131,24 @@ def test_configure_band_scope_wraps_programming(monkeypatch):
     assert calls[1].startswith("BSP")
     assert calls[2] == "START"
     assert calls[-1] == "EPG"
+
+
+def test_band_scope_output_wrapped(monkeypatch):
+    adapter = BCD325P2Adapter()
+
+    # Set a width larger than the terminal width to trigger wrapping
+    adapter.band_scope_width = 160
+
+    def fake_stream(ser, c=160):
+        for i in range(c):
+            yield (0, 145.0 + 0.1 * i, 0)
+
+    monkeypatch.setattr(adapter, "stream_custom_search", fake_stream)
+
+    commands, _ = build_command_table(adapter, None)
+    output = commands["band scope"](None, adapter, "160")
+    lines = output.splitlines()
+
+    # Output should be wrapped so no line exceeds 80 characters
+    assert len(lines) == 2
+    assert all(len(line) <= 80 for line in lines)
