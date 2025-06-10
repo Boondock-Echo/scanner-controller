@@ -64,6 +64,10 @@ from adapters.uniden.uniden_base_adapter import UnidenScannerAdapter
 
 # Application imports
 from command_libraries.uniden.bcd325p2_commands import commands
+from config.step_size_defaults import STEP_SIZE_DEFAULTS
+from utilities.validators import validate_enum
+
+MOD_VALIDATOR = validate_enum("MOD", ["AM", "FM", "NFM", "WFM", "FMB", "AUTO"])
 
 logger = logging.getLogger(__name__)
 
@@ -171,24 +175,37 @@ class BCD325P2Adapter(UnidenScannerAdapter):
                 "Expected a preset name or <low_freq> <high_freq> <step> <modulation>",
             )
 
+        band = None
         if len(args) == 1:
-            preset = str(args[0]).lower()
+            band = str(args[0]).lower()
             try:
                 from config.band_scope_presets import BAND_SCOPE_PRESETS
 
-                if preset not in BAND_SCOPE_PRESETS:
-                    return self.feedback(False, f"Unknown preset '{preset}'")
+                if band not in BAND_SCOPE_PRESETS:
+                    return self.feedback(False, f"Unknown preset '{band}'")
 
-                low, high, step, _mod = BAND_SCOPE_PRESETS[preset]
+                low, high, step, mod = BAND_SCOPE_PRESETS[band]
             except Exception as e:
                 return self.feedback(False, f"Error loading presets: {e}")
         elif len(args) == 4:
-            low, high, step, _mod = args
+            low, high, step, mod = args
+        elif len(args) == 3:
+            band = str(args[0]).lower()
+            low, high, mod = args
+            step = STEP_SIZE_DEFAULTS.get(band)
         else:
             return self.feedback(
                 False,
-                "Expected a preset name or <low_freq> <high_freq> <step> <modulation>",
+                "Expected a preset name or <low_freq> <high_freq> [step] <modulation>",
             )
+
+        if step in (None, ""):
+            if band and band in STEP_SIZE_DEFAULTS:
+                step = STEP_SIZE_DEFAULTS[band]
+        try:
+            MOD_VALIDATOR(mod)
+        except ValueError as e:
+            return self.feedback(False, str(e))
 
         low_khz = self._to_khz(low)
         high_khz = self._to_khz(high)

@@ -138,6 +138,26 @@ custom search <center> <span> <step>
 The command returns pairs of `(frequency, rssi)` values. These readings can be
 fed into a future GUI waterfall display for visual analysis of signal activity.
 
+### Band Step Size Defaults
+
+When selecting a preset or band without specifying a step size, the controller
+uses conventional values defined in `config/step_size_defaults.py`. A few
+examples are shown below:
+
+| Band           | Step (kHz) |
+| -------------- | ---------- |
+| air            | 833        |
+| race           | 1250       |
+| marine         | 2500       |
+| railroad       | 1500       |
+| ham2m          | 2000       |
+| ham70cm        | 1250       |
+| weather        | 2500       |
+| cb             | 1000       |
+| frs            | 1250       |
+| public_safety  | 1250       |
+| mil_air        | 2500       |
+
 ### Band Scope Streaming
 
 Band scope status can be streamed using the `CSC` command. When activated the
