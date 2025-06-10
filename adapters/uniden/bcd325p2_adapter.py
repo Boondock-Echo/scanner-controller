@@ -56,7 +56,7 @@ from adapters.uniden.common.core import (
 from adapters.uniden.common.programming import (
     enter_programming_mode,
     exit_programming_mode,
-    requires_programming_mode,
+    programming_session,
 )
 
 # First-party imports
@@ -150,7 +150,6 @@ class BCD325P2Adapter(UnidenScannerAdapter):
             logger.error(f"Error reading RSSI: {e}")
         return None
 
-    @requires_programming_mode
     def configure_band_scope(self, ser, *args):
         """Configure band scope system settings or apply a preset.
 
@@ -195,21 +194,27 @@ class BCD325P2Adapter(UnidenScannerAdapter):
             )
 
         try:
-            cmd_obj = self.commands.get("BSP")
-            if cmd_obj:
-                if cmd_obj.validator:
-                    cmd_obj.validator([freq, step, span, max_hold])
-                cmd = cmd_obj.set_format.format(
-                    freq=freq, step=step, span=span, max_hold=max_hold
-                )
-            else:
-                cmd = f"BSP,{freq},{step},{span},{max_hold}"
+            with programming_session(self, ser) as ok:
+                if not ok:
+                    return self.feedback(False, "Failed to enter programming mode")
 
-            response = self.send_command(ser, cmd)
-            response_str = ensure_str(response)
-            self.band_scope_width = self._calc_band_scope_width(span, bandwidth or step)
-            self.signal_bandwidth = bandwidth
-            return self.feedback(True, response_str)
+                cmd_obj = self.commands.get("BSP")
+                if cmd_obj:
+                    if cmd_obj.validator:
+                        cmd_obj.validator([freq, step, span, max_hold])
+                    cmd = cmd_obj.set_format.format(
+                        freq=freq, step=step, span=span, max_hold=max_hold
+                    )
+                else:
+                    cmd = f"BSP,{freq},{step},{span},{max_hold}"
+
+                response = self.send_command(ser, cmd)
+                response_str = ensure_str(response)
+                self.band_scope_width = self._calc_band_scope_width(
+                    span, bandwidth or step
+                )
+                self.signal_bandwidth = bandwidth
+                return self.feedback(True, response_str)
         except Exception as e:
             return self.feedback(False, f"Error configuring band scope: {e}")
 

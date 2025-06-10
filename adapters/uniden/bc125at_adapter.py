@@ -48,6 +48,7 @@ from adapters.uniden.common.core import (
 from adapters.uniden.common.programming import (
     enter_programming_mode,
     exit_programming_mode,
+    programming_session,
 )
 
 # First-party imports
@@ -176,6 +177,41 @@ class BC125ATAdapter(UnidenScannerAdapter):
             return max(width, 1)
         except Exception:
             return None
+
+    def configure_band_scope(self, ser, *args):
+        """Perform a manual band sweep using preset or parameters."""
+        if not args:
+            return self.feedback(
+                False,
+                "Expected a preset name or <freq> <step> <span> <max_hold> [bandwidth]",
+            )
+
+        bandwidth = None
+        if len(args) == 1:
+            preset = str(args[0]).lower()
+            try:
+                from config.band_scope_presets import BAND_SCOPE_PRESETS
+
+                if preset not in BAND_SCOPE_PRESETS:
+                    return self.feedback(False, f"Unknown preset '{preset}'")
+
+                freq, step, span, _max_hold, bandwidth = BAND_SCOPE_PRESETS[preset]
+            except Exception as e:
+                return self.feedback(False, f"Error loading presets: {e}")
+        elif len(args) == 4:
+            freq, step, span, _max_hold = args
+        elif len(args) == 5:
+            freq, step, span, _max_hold, bandwidth = args
+        else:
+            return self.feedback(
+                False,
+                "Expected a preset name or <freq> <step> <span> <max_hold> [bandwidth]",
+            )
+
+        with programming_session(self, ser) as ok:
+            if not ok:
+                return self.feedback(False, "Failed to enter programming mode")
+            return self.sweep_band_scope(ser, freq, span, step, bandwidth)
 
     def sweep_band_scope(self, ser, center_freq, span, step, bandwidth=None):
         """Sweep across a frequency range using quick hold mode."""

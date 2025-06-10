@@ -99,3 +99,20 @@ def test_band_scope_auto_width(monkeypatch):
     output = commands["band scope"](None, adapter, "5")
     lines = output.splitlines()
     assert all(len(line) == 5 for line in lines)
+
+
+def test_configure_band_scope_wraps_programming(monkeypatch):
+    adapter = BCD325P2Adapter()
+    calls = []
+
+    def send_command_stub(ser, cmd):
+        calls.append(cmd)
+        return "OK"
+
+    monkeypatch.setattr(adapter, "send_command", send_command_stub)
+
+    adapter.configure_band_scope(None, "air")
+
+    assert calls[0] == "PRG"
+    assert calls[1].startswith("BSP")
+    assert calls[-1] == "EPG"
