@@ -152,3 +152,18 @@ def test_band_scope_output_wrapped(monkeypatch):
     # Output should be wrapped so no line exceeds 80 characters
     assert len(lines) == 2
     assert all(len(line) <= 80 for line in lines)
+
+
+def test_band_scope_no_data(monkeypatch):
+    adapter = BCD325P2Adapter()
+
+    def empty_stream(ser, c=5):
+        if False:
+            yield  # pragma: no cover
+
+    monkeypatch.setattr(adapter, "stream_custom_search", empty_stream)
+
+    commands, _ = build_command_table(adapter, None)
+    result = commands["band scope"](None, adapter, "5")
+
+    assert result == "No band scope data received"
