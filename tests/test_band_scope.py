@@ -158,8 +158,7 @@ def test_band_scope_no_data(monkeypatch):
     adapter = BCD325P2Adapter()
 
     def empty_stream(ser, c=5):
-        if False:
-            yield  # pragma: no cover
+        yield from []
 
     monkeypatch.setattr(adapter, "stream_custom_search", empty_stream)
 
