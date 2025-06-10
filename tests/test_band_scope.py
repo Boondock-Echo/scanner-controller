@@ -89,11 +89,11 @@ def test_band_scope_auto_width(monkeypatch):
     adapter.sweep_band_scope(None, "146M", "2M", "0.5M", "0.5M")
     assert adapter.band_scope_width == 5
 
-    monkeypatch.setattr(
-        adapter,
-        "stream_custom_search",
-        lambda ser, c=5: [(0, 145.0 + 0.5 * i, 0) for i in range(c)],
-    )
+    def fake_stream(ser, c=5):
+        for i in range(c):
+            yield (0, 145.0 + 0.5 * i, 0)
+
+    monkeypatch.setattr(adapter, "stream_custom_search", fake_stream)
 
     commands, _ = build_command_table(adapter, None)
     output = commands["band scope"](None, adapter, "5")

@@ -22,16 +22,16 @@ def stream_custom_search(self, ser, record_count=1024):
         Number of result lines to read before stopping the stream.
         Defaults to 1024.
 
-    Returns
-    -------
-    list of tuple
-        Tuples of ``(rssi, freq, sql)`` collected from the scanner.
+    Yields
+    ------
+    tuple
+        ``(rssi, freq, sql)`` tuples as they are read from the scanner.
     """
-    results = []
+    count = 0
     try:
         # Start streaming without the usual buffer flush delay
         send_command(ser, "CSC,ON", delay=0)
-        while len(results) < record_count:
+        while count < record_count:
             if not wait_for_data(ser, max_wait=0.5):
                 break
             line = read_response(ser, timeout=1.0)
@@ -45,7 +45,8 @@ def stream_custom_search(self, ser, record_count=1024):
                     rssi = int(parts[1])
                     freq = float(parts[2])
                     sql = int(parts[3])
-                    results.append((rssi, freq, sql))
+                    yield (rssi, freq, sql)
+                    count += 1
                 except ValueError:
                     logger.debug(f"Malformed line: {line}")
         # Stop streaming and read final OK
@@ -53,4 +54,3 @@ def stream_custom_search(self, ser, record_count=1024):
         read_response(ser, timeout=1.0)
     except Exception as e:
         logger.error(f"Error during custom search stream: {e}")
-    return results

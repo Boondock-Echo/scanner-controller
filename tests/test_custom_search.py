@@ -14,17 +14,18 @@ from utilities.core.command_registry import build_command_table  # noqa: E402
 
 def test_band_scope_command_registered(monkeypatch):
     adapter = BCD325P2Adapter()
-    monkeypatch.setattr(
-        adapter,
-        "stream_custom_search",
-        lambda ser, c=1024: [(0, 100.0 + i % 5, 0) for i in range(int(c))],
-    )
+    def fake_stream(ser, c=1024):
+        for i in range(int(c)):
+            yield (0, 100.0 + i % 5, 0)
+
+    monkeypatch.setattr(adapter, "stream_custom_search", fake_stream)
+    adapter.band_scope_width = 5
 
     commands, help_text = build_command_table(adapter, None)
 
     assert "band scope" in commands
     assert "band scope" in help_text
-    output = commands["band scope"](None, adapter, "10 5")
+    output = commands["band scope"](None, adapter, "10")
     lines = output.splitlines()
     assert len(lines) == 2
     assert all(len(line) == 5 for line in lines)
@@ -46,6 +47,6 @@ def test_band_scope_collects(monkeypatch):
         cs, "read_response", lambda ser, timeout=1.0: data_lines.pop(0)
     )
 
-    results = adapter.stream_custom_search(None, 2)
+    results = list(adapter.stream_custom_search(None, 2))
 
     assert results == [(10, 162.0, 1), (11, 163.0, 0)]
