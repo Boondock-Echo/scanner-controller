@@ -91,26 +91,49 @@ def send_command(ser, cmd):
     return read_response(ser)
 
 
-def test_all_commands(ser):
-    """
-    Test all three-letter commands (AAA to ZZZ) on the scanner.
+def test_all_commands(ser, start_cmd=None, end_cmd=None, max_commands=None):
+    """Test a range of three-letter commands on the scanner.
 
-    Iterates over all three-letter combinations (AAA to ZZZ, skipping "PRG"
-    and "POF", include other functions as they cause failures or multi-line
-    received messages lag behind transmissions.), sends each command to the
-    scanner, logs each result to a progress file as we go, and returns the list
-    of results.
+    Iterates over all valid three-letter combinations and sends each command
+    to the scanner. Results are written incrementally to ``commands_progress.txt``.
+    The search space can be restricted with ``start_cmd``, ``end_cmd`` or
+    ``max_commands`` to allow partial runs.
+
+    Parameters
+    ----------
+    ser : serial.Serial
+        Active serial connection to the scanner.
+    start_cmd : str, optional
+        Command at which to begin testing (default ``AAA``).
+    end_cmd : str, optional
+        Command at which to stop testing (default ``ZZZ``).
+    max_commands : int, optional
+        Limit on the number of commands tested from the starting point.
+
+    Returns
+    -------
+    list[tuple[str, str]]
+        List of ``(command, response)`` pairs in the order tested.
     """
     results = []
     letters = string.ascii_uppercase
-    total = 26**3 - 4  # subtracting "PRG", "POF", "MNU", "STS"
+    skip = {"PRG", "POF", "MNU", "STS"}
+
+    commands = ["".join(c) for c in itertools.product(letters, repeat=3)]
+    commands = [c for c in commands if c not in skip]
+
+    if start_cmd:
+        commands = [c for c in commands if c >= start_cmd]
+    if end_cmd:
+        commands = [c for c in commands if c <= end_cmd]
+    if max_commands is not None:
+        commands = commands[:max_commands]
+
+    total = len(commands)
     count = 0
     progress_filename = "commands_progress.txt"
     with open(progress_filename, "w") as f:
-        for combo in itertools.product(letters, repeat=3):
-            cmd = "".join(combo)
-            if cmd in ("PRG", "POF", "MNU", "STS"):
-                continue
+        for cmd in commands:
             count += 1
             try:
                 response = send_command(ser, cmd)
@@ -132,7 +155,7 @@ def test_all_commands(ser):
                 raise
             results.append((cmd, response))
             f.write(f"{cmd}: {response}\n")
-            if count % 100 == 0:
+            if count % 100 == 0 or count == total:
                 print(f"Tested {count}/{total} commands")
             f.flush()  # ensure immediate writing to file
     print(f"Progress written to {progress_filename}")
