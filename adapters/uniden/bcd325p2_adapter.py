@@ -239,6 +239,13 @@ class BCD325P2Adapter(UnidenScannerAdapter):
                     span, bandwidth or step
                 )
                 self.signal_bandwidth = bandwidth
+                # Automatically start band-scope search after configuring
+                # the system settings so the user immediately enters the
+                # sweep mode.
+                try:
+                    self.start_scanning(ser)
+                except Exception as e:  # pragma: no cover - log and proceed
+                    logger.error(f"Error starting band scope search: {e}")
                 return self.feedback(True, response_str)
         except Exception as e:
             return self.feedback(False, f"Error configuring band scope: {e}")

@@ -13,7 +13,7 @@ from adapters.uniden.bcd325p2_adapter import BCD325P2Adapter  # noqa: E402
 from utilities.core.command_registry import build_command_table  # noqa: E402
 
 
-def test_band_sweep_registered_and_output(monkeypatch, capsys):
+def test_band_sweep_registered_and_output(monkeypatch):
     adapter = BCD325P2Adapter()
 
     data = [
@@ -32,8 +32,8 @@ def test_band_sweep_registered_and_output(monkeypatch, capsys):
     assert "band sweep" in commands
     assert "band sweep" in help_text
 
-    commands["band sweep"](None, adapter, "2")
-    out_lines = capsys.readouterr().out.strip().splitlines()
+    output = commands["band sweep"](None, adapter, "2")
+    out_lines = output.splitlines()
 
     assert len(out_lines) == 2
     for line in out_lines:
