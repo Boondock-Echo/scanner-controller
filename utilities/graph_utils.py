@@ -95,3 +95,19 @@ def render_band_scope_waterfall(pairs, width=64):
     return "\n".join(lines)
 
 
+def split_output_lines(output, width):
+    """Wrap each line of ``output`` so no line exceeds ``width`` characters."""
+
+    if width <= 0:
+        return output
+
+    wrapped_lines = []
+    for line in output.splitlines():
+        while len(line) > width:
+            wrapped_lines.append(line[:width])
+            line = line[width:]
+        wrapped_lines.append(line)
+
+    return "\n".join(wrapped_lines)
+
+

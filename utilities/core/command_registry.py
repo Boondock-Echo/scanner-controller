@@ -6,7 +6,11 @@ This module builds the command table from scanner adapter capabilities.
 
 import logging
 
-from utilities.graph_utils import render_rssi_graph, render_band_scope_waterfall
+from utilities.graph_utils import (
+    render_rssi_graph,
+    render_band_scope_waterfall,
+    split_output_lines,
+)
 
 
 def build_command_table(adapter, ser):
