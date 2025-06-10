@@ -9,7 +9,7 @@ import logging
 from utilities.command.help_utils import show_help
 from utilities.command.parser import parse_command
 from utilities.io.readline_setup import initialize_readline
-from utilities.scanner.manager import connect_to_scanner
+from utilities.scanner.manager import connect_to_scanner, scan_for_scanners
 
 logger = logging.getLogger(__name__)
 
@@ -116,6 +116,32 @@ def main_loop(connection_manager, adapter=None, ser=None, commands=None, command
             return f"STATUS:OK|ACTION:CLOSED|ID:{cid}"
         return f"Closed connection {cid}"
 
+    def scan_cmd(_arg=None):
+        result = scan_for_scanners()
+        if machine_mode:
+            return result
+        if result.startswith("STATUS:ERROR"):
+            return "No scanners found"
+        parts = result.split("|")[1:]  # drop STATUS
+        scanners = []
+        current = {}
+        for part in parts:
+            if ":" not in part:
+                continue
+            key, val = part.split(":", 1)
+            if key == "SCANNER":
+                if current:
+                    scanners.append(current)
+                current = {"id": val}
+            elif key == "PORT":
+                current["port"] = val
+            elif key == "MODEL":
+                current["model"] = val
+        if current:
+            scanners.append(current)
+        lines = [f"  {s['id']}. {s.get('port', '')} — {s.get('model', '')}" for s in scanners]
+        return "\n".join(lines)
+
     def switch_cmd(scanner_id):
         if connection_manager.active_id is not None:
             connection_manager.close_connection(connection_manager.active_id)
@@ -123,6 +149,7 @@ def main_loop(connection_manager, adapter=None, ser=None, commands=None, command
 
     global_commands.update({
         "list": lambda: list_connections(),
+        "scan": lambda: scan_cmd(),
         "connect": lambda arg: connect_cmd(arg),
         "use": lambda arg: use_cmd(arg),
         "close": lambda arg: close_cmd(arg),
@@ -130,6 +157,7 @@ def main_loop(connection_manager, adapter=None, ser=None, commands=None, command
     })
     global_help.update({
         "list": "List open connections",
+        "scan": "Detect connected scanners",
         "connect": "Connect to scanner ID from 'scan'",
         "use": "Select active connection",
         "close": "Close a connection",
