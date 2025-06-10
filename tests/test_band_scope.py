@@ -22,7 +22,7 @@ def test_presets_load():
     assert "air" in presets
     assert "race" in presets
     assert isinstance(presets["air"], tuple)
-    assert len(presets["air"]) == 4
+    assert len(presets["air"]) == 5
 
 
 def test_band_sweep_air_command(monkeypatch):
@@ -47,13 +47,13 @@ def test_band_sweep_registered(monkeypatch):
 def test_custom_search_returns_pairs(monkeypatch):
     adapter = BCD325P2Adapter()
 
-    def sweep_stub(ser, c, s, st):
+    def sweep_stub(ser, c, s, st, bw=None):
         return [(100.0, 0.5), (101.0, 0.6)]
 
     monkeypatch.setattr(adapter, "sweep_band_scope", sweep_stub)
     commands, _ = build_command_table(adapter, None)
 
-    result = commands["custom search"](None, adapter, "100 2 1")
+    result = commands["custom search"](None, adapter, "100 2 1 1")
     assert result == [(100.0, 0.5), (101.0, 0.6)]
 
 
@@ -62,7 +62,7 @@ def test_custom_search_parses_units(monkeypatch):
 
     monkeypatch.setattr(adapter, "write_frequency", lambda ser, f: None)
     monkeypatch.setattr(adapter, "read_rssi", lambda ser: 0)
-    result = adapter.sweep_band_scope(None, "144M", "2M", "500k")
+    result = adapter.sweep_band_scope(None, "144M", "2M", "500k", "500k")
     assert result[0][0] == 143.0
 
 
@@ -86,7 +86,7 @@ def test_band_scope_auto_width(monkeypatch):
 
     monkeypatch.setattr(adapter, "write_frequency", lambda ser, f: None)
     monkeypatch.setattr(adapter, "read_rssi", lambda ser: 0)
-    adapter.sweep_band_scope(None, "146M", "2M", "0.5M")
+    adapter.sweep_band_scope(None, "146M", "2M", "0.5M", "0.5M")
     assert adapter.band_scope_width == 5
 
     monkeypatch.setattr(

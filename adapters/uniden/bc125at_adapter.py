@@ -74,6 +74,7 @@ class BC125ATAdapter(UnidenScannerAdapter):
         self.machine_mode_id = "BC125AT"
         self.in_program_mode = False
         self.band_scope_width = None
+        self.signal_bandwidth = None
         logger.info(
             f"BC125AT adapter initialized (machine_mode={machine_mode})"
         )
@@ -164,20 +165,19 @@ class BC125ATAdapter(UnidenScannerAdapter):
                 return float(value_str[: -len(suffix)]) * 1000.0
         return float(value_str)
 
-    def _calc_band_scope_width(self, span, step):
-        """Return the number of sweep bins from span and step values."""
+    def _calc_band_scope_width(self, span, bandwidth):
+        """Return the number of sweep bins from span and bandwidth values."""
         try:
             span_mhz = self._to_mhz(span)
-            step_khz = self._to_khz(step)
-            step_mhz = step_khz / 1000.0
-            if step_mhz <= 0:
+            bw_mhz = self._to_mhz(bandwidth)
+            if bw_mhz <= 0:
                 return None
-            width = int(round(span_mhz / step_mhz)) + 1
+            width = min(int(round(span_mhz / bw_mhz)) + 1, 80)
             return max(width, 1)
         except Exception:
             return None
 
-    def sweep_band_scope(self, ser, center_freq, span, step):
+    def sweep_band_scope(self, ser, center_freq, span, step, bandwidth=None):
         """Sweep across a frequency range using quick hold mode."""
         try:
             center = self._to_mhz(center_freq)
@@ -200,7 +200,8 @@ class BC125ATAdapter(UnidenScannerAdapter):
                     rssi_val = None
                 results.append((round(freq, 6), rssi_val))
                 freq += step_mhz
-            self.band_scope_width = self._calc_band_scope_width(span, step)
+            self.band_scope_width = self._calc_band_scope_width(span, bandwidth or step)
+            self.signal_bandwidth = bandwidth
             return results
         except Exception as e:
             logger.error(f"Error sweeping band scope: {e}")
