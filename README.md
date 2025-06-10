@@ -158,6 +158,16 @@ examples are shown below:
 | public_safety  | 1250       |
 | mil_air        | 2500       |
 
+### Band Select Command
+
+The `band select` command configures the band scope using either a preset
+name or explicit parameters. The shorter alias `band set` behaves the same.
+
+```text
+> band select air
+> band set 108M 136M 12.5k AM
+```
+
 ### Band Scope Streaming
 
 Band scope status can be streamed using the `CSC` command. When activated the

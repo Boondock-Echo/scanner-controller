@@ -243,6 +243,7 @@ def build_command_table(adapter, ser):
             return adapter_.configure_band_scope(ser_, *parts)
 
         COMMANDS["band select"] = band_select
+        COMMANDS["band set"] = band_select
 
         try:
             from config.band_scope_presets import BAND_SCOPE_PRESETS
@@ -252,10 +253,12 @@ def build_command_table(adapter, ser):
         except ImportError:
             preset_help = ""
 
-        COMMAND_HELP["band select"] = (
+        help_msg = (
             f"Select a band using a preset. Usage: band select <preset> or "
             f"band select <low_freq> <high_freq> <step> <modulation>.{preset_help}"
         )
+        COMMAND_HELP["band select"] = help_msg
+        COMMAND_HELP["band set"] = help_msg
     else:
         logging.debug("Registering placeholder 'band select' command")
         COMMANDS["band select"] = lambda ser_, adapter_, arg: (
