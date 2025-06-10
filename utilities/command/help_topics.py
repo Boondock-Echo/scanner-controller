@@ -90,6 +90,16 @@ Methods:
   jump_mode            - jump to a search or Close Call mode
   jump_to_number_tag   - jump to a system/channel number tag
 """,
+    "scan": """
+Scan Command Usage:
+-------------------
+The 'scan' command lists all detected scanners without connecting.
+
+Syntax: scan
+
+Run this first when multiple scanners are connected. Use the ID
+numbers it prints with the 'connect' command.
+""",
     "connect": """
 Connect Command Usage:
 ----------------------

@@ -173,8 +173,8 @@ The controller can maintain more than one active connection. The CLI now
 supports a small set of connection management commands:
 
 - `list` – show all open connections with the active one marked by `*`.
-- `connect <id>` – scan for devices and connect to the scanner with the given
-  ID.
+- `scan` – list detected scanners.
+- `connect <id>` – connect to the scanner with the given ID (see `scan`).
 - `use <id>` – make the specified connection active for subsequent commands.
 - `close <id>` – disconnect and remove a connection from the list.
 
@@ -189,6 +189,9 @@ Below is a short example showing band-scope streaming from two scanners:
 
 ```text
 $ python main.py
+> scan
+  1. /dev/ttyUSB0 — BCD325P2
+  2. /dev/ttyUSB1 — BC125AT
 > connect 1
 Connected to /dev/ttyUSB0 [ID 1]
 > connect 2
