@@ -209,6 +209,22 @@ def build_command_table(adapter, ser):
         COMMAND_HELP["band scope"] = (
             "Stream band scope data. Usage: band scope [record_count]"
         )
+
+        logging.debug("Registering 'band sweep' command")
+
+        def band_sweep(ser_, adapter_, arg=""):
+            parts = arg.split()
+            count = int(parts[0]) if parts else 1024
+            output_lines = []
+            for rssi, freq, _ in adapter_.stream_custom_search(ser_, count):
+                if rssi is None or freq is None:
+                    continue
+                output_lines.append(f"{freq:.4f}, {rssi / 1023.0:.3f}")
+            return "\n".join(output_lines)
+        COMMANDS["band sweep"] = band_sweep
+        COMMAND_HELP["band sweep"] = (
+            "Stream band sweep data. Usage: band sweep [record_count]"
+        )
     else:
         logging.debug("Registering placeholder 'band scope' command")
         COMMANDS["band scope"] = lambda ser_, adapter_, arg="": (

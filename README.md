@@ -169,6 +169,16 @@ read.
 When called through the CLI's `band scope` command these readings are displayed
 as a simple two-line graph to give quick visual feedback.
 
+The related `band sweep` command streams the raw values directly. Each line
+printed contains the frequency in megahertz and the normalized RSSI level:
+
+```text
+<freq_mhz>, <rssi/1023.0>
+```
+
+For example: `162.5500, 0.450`. This format is consistent in both human and
+machine modes and is convenient for logging or further processing.
+
 ### Close Call Logging
 
 The utility function `record_close_calls` allows continuous logging of Close Call
