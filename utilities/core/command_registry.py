@@ -357,6 +357,7 @@ def build_command_table(adapter, ser):
             "Start scanner scanning process. "
             "(Not available for this scanner model)"
         )
+        logging.debug("Registering placeholder 'band scope start' command")
         COMMANDS["band scope start"] = lambda ser_, adapter_: (
             "Command 'band scope start' not supported on this scanner model"
         )
