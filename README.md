@@ -158,6 +158,15 @@ hit is saved with timestamp, frequency, tone (if available) and RSSI level. When
 the `lockout` variant is used the frequency is also added to the scanner's
 temporary lockout list via the `LOF` command.
 
+The logger normally runs indefinitely. To capture a limited number of hits or
+stop after a set time, pass ``max_records`` or ``max_time`` to
+``record_close_calls``:
+
+```python
+from utilities.scanner.close_call_logger import record_close_calls
+record_close_calls(adapter, ser, "air", max_time=10)
+```
+
 ### Using Multiple Scanners
 
 The controller can maintain more than one active connection. The CLI now

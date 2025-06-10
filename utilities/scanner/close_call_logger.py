@@ -22,9 +22,24 @@ def _parse_float(value: object) -> Optional[float]:
 
 
 def record_close_calls(
-    adapter, ser, band, *, db_path="close_calls.db", lockout=False
+    adapter,
+    ser,
+    band,
+    *,
+    db_path="close_calls.db",
+    lockout=False,
+    max_records: Optional[int] = None,
+    max_time: Optional[float] = None,
 ):
-    """Monitor Close Call hits within a chosen band and log each hit."""
+    """Monitor Close Call hits within a chosen band and log each hit.
+
+    Parameters
+    ----------
+    max_records : int, optional
+        Stop logging after this many hits have been recorded.
+    max_time : float, optional
+        Stop logging after this many seconds have elapsed.
+    """
     band_key = str(band).lower()
     if band_key not in CLOSE_CALL_BANDS:
         raise KeyError(f"Unknown band: {band}")
@@ -41,8 +56,14 @@ def record_close_calls(
     conn.commit()
 
     record_count = 0
+    total_records = 0
+    start_time = time.time()
     try:
         while True:
+            if max_records is not None and total_records >= max_records:
+                break
+            if max_time is not None and time.time() - start_time >= max_time:
+                break
             try:
                 freq_raw = adapter.read_frequency(ser)
                 freq = _parse_float(freq_raw)
@@ -58,6 +79,7 @@ def record_close_calls(
                     (ts, freq, tone, rssi),
                 )
                 record_count += 1
+                total_records += 1
 
                 # Commit after every 10 records
                 if record_count >= 10:
