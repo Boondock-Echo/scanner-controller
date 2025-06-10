@@ -49,3 +49,45 @@ def test_find_scanner_port_none(monkeypatch):
 
     assert ucf.find_scanner_port(max_attempts=2) is None
 
+
+def test_test_all_commands_max(monkeypatch, tmp_path):
+    """Limit the number of commands tested with ``max_commands``."""
+
+    monkeypatch.setattr(ucf, "send_command", lambda ser, cmd: f"{cmd},OK")
+
+    progress = tmp_path / "progress.txt"
+    open_orig = open
+
+    def open_patch(file, mode="r", *args, **kwargs):
+        if file == "commands_progress.txt":
+            file = progress
+        return open_orig(file, mode, *args, **kwargs)
+
+    monkeypatch.setattr("builtins.open", open_patch)
+
+    results = ucf.test_all_commands(None, max_commands=3)
+
+    assert [cmd for cmd, _ in results] == ["AAA", "AAB", "AAC"]
+    assert progress.read_text().count("\n") == 3
+
+
+def test_test_all_commands_start_end(monkeypatch, tmp_path):
+    """Restrict testing to a command range using ``start_cmd`` and ``end_cmd``."""
+
+    monkeypatch.setattr(ucf, "send_command", lambda ser, cmd: f"{cmd},OK")
+
+    progress = tmp_path / "progress.txt"
+    open_orig = open
+
+    def open_patch(file, mode="r", *args, **kwargs):
+        if file == "commands_progress.txt":
+            file = progress
+        return open_orig(file, mode, *args, **kwargs)
+
+    monkeypatch.setattr("builtins.open", open_patch)
+
+    results = ucf.test_all_commands(None, start_cmd="ABC", end_cmd="ABD")
+
+    assert [cmd for cmd, _ in results] == ["ABC", "ABD"]
+    assert progress.read_text().count("\n") == 2
+
