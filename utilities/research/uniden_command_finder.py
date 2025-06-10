@@ -16,14 +16,16 @@ import serial
 from serial.tools import list_ports
 
 
-def find_scanner_port(baudrate=115200, timeout=0.5):
+def find_scanner_port(baudrate=115200, timeout=0.5, max_attempts=5):
     """
     Poll all available COM ports, send the "MDL" command.
 
     Return the port name if the response is "MDL,BCD325P2".
-    If not found, waits 5 seconds and retries.
+    If not found, retry up to ``max_attempts`` times waiting 5 seconds
+    between each attempt.
     """
-    while True:
+    attempts = 0
+    while attempts < max_attempts:
         ports = list_ports.comports()
         for port in ports:
             try:
@@ -41,13 +43,16 @@ def find_scanner_port(baudrate=115200, timeout=0.5):
                         return port.device
             except Exception as e:
                 print(f"Error on port {port.device}: {e}")
-        print(
-            (
-                "Scanner not found. Please plug in and turn on the scanner. "
-                "Retrying in 5 seconds..."
+        attempts += 1
+        if attempts < max_attempts:
+            print(
+                (
+                    "Scanner not found. Please plug in and turn on the scanner. "
+                    "Retrying in 5 seconds..."
+                )
             )
-        )
-        time.sleep(5)
+            time.sleep(5)
+    return None
 
 
 def read_response(ser, timeout=0.5):
@@ -182,6 +187,9 @@ def main():
     baudrate = 115200  # Updated baud rate
     print("Searching for Uniden BCD325P2 scanner...")
     port = find_scanner_port(baudrate=baudrate, timeout=0.5)
+    if port is None:
+        print("Scanner not found.")
+        return
 
     try:
         ser = serial.Serial(port, baudrate, timeout=0.5)
