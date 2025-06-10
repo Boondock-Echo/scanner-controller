@@ -4,8 +4,13 @@ Timeout utilities for Scanner Controller.
 This module provides tools for handling timeouts in operations.
 """
 
+import inspect
 import logging
 import threading
+from concurrent.futures import (
+    ThreadPoolExecutor,
+    TimeoutError as FutureTimeoutError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -31,36 +36,36 @@ def with_timeout(timeout_seconds, default_result=None):
     """
 
     def timeout_function(func):
+        sig = inspect.signature(func)
+        uses_stop_event = "stop_event" in sig.parameters
+
         def wrapper(*args, **kwargs):
-            result = [default_result]
-            exception = [None]
+            stop_event = threading.Event()
 
-            def target():
+            def call_func():
+                if uses_stop_event:
+                    kwargs_with_event = dict(kwargs)
+                    kwargs_with_event["stop_event"] = stop_event
+                    return func(*args, **kwargs_with_event)
+                return func(*args, **kwargs)
+
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(call_func)
                 try:
-                    result[0] = func(*args, **kwargs)
-                except Exception as e:
-                    exception[0] = e
-
-            thread = threading.Thread(target=target)
-            thread.daemon = True
-            thread.start()
-            thread.join(timeout_seconds)
-
-            if thread.is_alive():
-                logger.warning(
-                    f"Operation {func.__name__} timed out after "
-                    f"{timeout_seconds} seconds"
-                )
-                if default_result is None:
-                    raise ScannerTimeoutError(
-                        f"Operation timed out after {timeout_seconds} seconds"
+                    return future.result(timeout=timeout_seconds)
+                except FutureTimeoutError:
+                    logger.warning(
+                        f"Operation {func.__name__} timed out after {timeout_seconds} seconds"
                     )
-                return default_result
-
-            if exception[0]:
-                raise exception[0]
-
-            return result[0]
+                    stop_event.set()
+                    future.cancel()
+                    if default_result is None:
+                        raise ScannerTimeoutError(
+                            f"Operation timed out after {timeout_seconds} seconds"
+                        )
+                    return default_result
+                except Exception as exc:
+                    raise exc
 
         return wrapper
 
