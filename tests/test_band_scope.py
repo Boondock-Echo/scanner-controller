@@ -143,7 +143,7 @@ def test_configure_band_scope_sets_width(monkeypatch):
     monkeypatch.setattr(adapter, "start_scanning", lambda ser: None)
 
     adapter.configure_band_scope(None, "air")
-    assert adapter.band_scope_width and adapter.band_scope_width > 1
+    assert adapter.band_scope_width == 2402
 
     def fake_stream(ser, c=adapter.band_scope_width):
         for i in range(c):
@@ -154,7 +154,7 @@ def test_configure_band_scope_sets_width(monkeypatch):
     commands, _ = build_command_table(adapter, None)
     output = commands["band scope"](None, adapter, "5")
     lines = output.splitlines()
-    assert all(len(line) == adapter.band_scope_width for line in lines)
+    assert all(len(line) <= 80 for line in lines)
 
 
 def test_band_scope_output_wrapped(monkeypatch):

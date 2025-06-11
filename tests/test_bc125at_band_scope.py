@@ -69,4 +69,4 @@ def test_bc125at_configure_band_scope_sets_width(monkeypatch):
     monkeypatch.setattr(adapter, "read_rssi", lambda ser: 0)
 
     adapter.configure_band_scope(None, "air")
-    assert adapter.band_scope_width and adapter.band_scope_width > 1
+    assert adapter.band_scope_width == 2402

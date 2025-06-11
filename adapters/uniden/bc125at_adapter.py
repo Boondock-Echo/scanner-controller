@@ -171,14 +171,22 @@ class BC125ATAdapter(UnidenScannerAdapter):
         return float(value_str)
 
     def _calc_band_scope_width(self, span, bandwidth):
-        """Return the number of sweep bins from span and bandwidth values."""
+        """Return the number of sweep bins from span and bandwidth values.
+
+        Bare integers are interpreted as hundredths of a kilohertz
+        (e.g. ``833`` becomes ``8.33 kHz``).
+        """
         try:
             span_mhz = self._to_mhz(span)
             bw_val = str(bandwidth).strip().lower()
             if any(bw_val.endswith(s) for s in ("mhz", "m", "khz", "k")):
                 bw_mhz = self._to_mhz(bandwidth)
             else:
-                bw_mhz = float(bw_val) / 1000.0
+                if bw_val.lstrip("-+").isdigit():
+                    bw_khz = float(bw_val) / 100.0
+                else:
+                    bw_khz = float(bw_val)
+                bw_mhz = bw_khz / 1000.0
             if bw_mhz <= 0:
                 return None
             width = int(round(span_mhz / bw_mhz)) + 1
