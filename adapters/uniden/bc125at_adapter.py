@@ -174,7 +174,11 @@ class BC125ATAdapter(UnidenScannerAdapter):
         """Return the number of sweep bins from span and bandwidth values."""
         try:
             span_mhz = self._to_mhz(span)
-            bw_mhz = self._to_mhz(bandwidth)
+            bw_val = str(bandwidth).strip().lower()
+            if any(bw_val.endswith(s) for s in ("mhz", "m", "khz", "k")):
+                bw_mhz = self._to_mhz(bandwidth)
+            else:
+                bw_mhz = float(bw_val) / 1000.0
             if bw_mhz <= 0:
                 return None
             width = int(round(span_mhz / bw_mhz)) + 1
