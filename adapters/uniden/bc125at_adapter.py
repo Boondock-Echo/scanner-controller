@@ -230,7 +230,7 @@ class BC125ATAdapter(UnidenScannerAdapter):
         high_khz = self._to_khz(high)
         span_mhz = (high_khz - low_khz) / 1000.0
         center_khz = (low_khz + high_khz) / 2.0
-        freq = f"{int(round(center_khz)):08d}"
+        freq = f"{int(round(center_khz * 10)):08d}"
         span = f"{span_mhz:g}M"
 
         with programming_session(self, ser) as ok:
