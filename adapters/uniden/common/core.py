@@ -211,6 +211,13 @@ def send_command(self, ser, cmd):
             f"Value: {response!r}"
         )
 
+        # Update programming mode flag when manually issuing PRG/EPG
+        clean_cmd = cmd_str.strip().upper()
+        if clean_cmd in {"PRG", "EPG"} and hasattr(self, "in_program_mode"):
+            resp_str = ensure_str(response)
+            if "OK" in resp_str:
+                self.in_program_mode = clean_cmd == "PRG"
+
         # Make sure we return bytes for consistency
         return ensure_bytes(response)
     except Exception as e:
