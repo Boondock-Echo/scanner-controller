@@ -70,6 +70,12 @@ class UnidenScannerAdapter(BaseScannerAdapter):
                 f"Value: {response!r}"
             )
 
+            clean_cmd = cmd_str.strip().upper()
+            if clean_cmd in {"PRG", "EPG"} and hasattr(self, "in_program_mode"):
+                resp_str = self.ensure_str(response)
+                if "OK" in resp_str:
+                    self.in_program_mode = clean_cmd == "PRG"
+
             # Return bytes for consistency
             return self.ensure_bytes(response)
         except Exception as e:
