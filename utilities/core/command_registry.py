@@ -202,6 +202,8 @@ def build_command_table(adapter, ser):
                 pairs.append(
                     (freq, rssi / 1023.0 if rssi is not None else None)
                 )
+            if not pairs:
+                return "No band scope data received"
             output = render_band_scope_waterfall(pairs, width)
 
             if width > 80:
