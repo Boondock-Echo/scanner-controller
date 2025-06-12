@@ -245,6 +245,8 @@ class BCD325P2Adapter(UnidenScannerAdapter):
             450,
             500,
         ]
+        # Select the smallest span value from the allowed_spans list that is greater than or equal to span_mhz.
+        # If no such value exists, default to the largest value in the list.
         span_val = next((s for s in allowed_spans if s >= span_mhz), allowed_spans[-1])
         span = f"{span_val:g}M"
         max_hold = 0
