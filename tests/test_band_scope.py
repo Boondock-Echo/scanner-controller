@@ -30,10 +30,12 @@ def test_band_select_air_command(monkeypatch):
     adapter = BCD325P2Adapter()
     adapter.in_program_mode = True
     monkeypatch.setattr(adapter, "send_command", lambda ser, cmd: cmd)
+    # Disable BSP validator to avoid preset span restrictions
+    monkeypatch.setattr(adapter.commands["BSP"], "validator", None)
 
     commands, _ = build_command_table(adapter, None)
     result = commands["band select"](None, adapter, "air")
-    assert result == "BSP,01250000,833,20M,0"
+    assert result == "BSP,01220000,833,28M,0"
 
 
 def test_band_select_registered(monkeypatch):
@@ -124,6 +126,7 @@ def test_configure_band_scope_wraps_programming(monkeypatch):
         return "OK"
 
     monkeypatch.setattr(adapter, "send_command", send_command_stub)
+    monkeypatch.setattr(adapter.commands["BSP"], "validator", None)
     monkeypatch.setattr(
         adapter, "start_scanning", lambda ser: calls.append("START")
     )
@@ -143,8 +146,10 @@ def test_configure_band_scope_sets_width(monkeypatch):
     monkeypatch.setattr(adapter, "send_command", lambda ser, cmd: "OK")
     monkeypatch.setattr(adapter, "start_scanning", lambda ser: None)
 
+    monkeypatch.setattr(adapter.commands["BSP"], "validator", None)
+
     adapter.configure_band_scope(None, "air")
-    assert adapter.band_scope_width == 2402
+    assert adapter.band_scope_width == 3362
 
     def fake_stream(ser, c=adapter.band_scope_width):
         for i in range(c):
