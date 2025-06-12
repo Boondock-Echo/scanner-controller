@@ -260,25 +260,43 @@ class BCD325P2Adapter(UnidenScannerAdapter):
             return self.feedback(False, f"Error configuring band scope: {e}")
 
     def _to_mhz(self, value):
-        """Convert a value with optional unit suffix to MHz."""
+        """Convert a numeric string with optional unit suffix to MHz."""
         value_str = str(value).strip().lower()
+
+        if value_str.isdigit():
+            ivalue = int(value_str)
+            if ivalue > 10000:
+                return ivalue / 10000.0
+            return ivalue / 100000.0
+
         for suffix in ("mhz", "m"):
             if value_str.endswith(suffix):
                 return float(value_str[: -len(suffix)])
+
         for suffix in ("khz", "k"):
             if value_str.endswith(suffix):
                 return float(value_str[: -len(suffix)]) / 1000.0
+
         return float(value_str)
 
     def _to_khz(self, value):
-        """Convert a value with optional unit suffix to kHz."""
+        """Convert a numeric string with optional unit suffix to kHz."""
         value_str = str(value).strip().lower()
+
+        if value_str.isdigit():
+            ivalue = int(value_str)
+            if ivalue > 10000:
+                return ivalue / 10.0
+            return ivalue / 100.0
+
         for suffix in ("khz", "k"):
             if value_str.endswith(suffix):
                 return float(value_str[: -len(suffix)])
+
         for suffix in ("mhz", "m"):
             if value_str.endswith(suffix):
                 return float(value_str[: -len(suffix)]) * 1000.0
+
         return float(value_str)
 
     def _calc_band_scope_width(self, span, bandwidth):
