@@ -13,6 +13,7 @@ import importlib
 from adapters.uniden.bcd325p2_adapter import BCD325P2Adapter  # noqa: E402
 from utilities.core.command_registry import build_command_table  # noqa: E402
 from utilities.graph_utils import render_band_scope_waterfall
+import pytest
 
 
 def test_presets_load():
@@ -190,3 +191,72 @@ def test_band_scope_no_data(monkeypatch):
     result = commands["band scope"](None, adapter, "5")
 
     assert result == "No band scope data received"
+
+
+def test_band_scope_baseline(monkeypatch):
+    adapter = BCD325P2Adapter()
+    adapter.band_scope_width = 3
+
+    def stream_stub(ser, c=3):
+        yield (10, 100.0, 0)
+        yield (20, 101.0, 0)
+        yield (40, 102.0, 0)
+
+    monkeypatch.setattr(adapter, "stream_custom_search", stream_stub)
+
+    captured = {}
+
+    import utilities.core.command_registry as cr
+
+    def fake_render(pairs, width):
+        captured["pairs"] = pairs
+        return "graph"
+
+    monkeypatch.setattr(cr, "render_band_scope_waterfall", fake_render)
+
+    commands, _ = build_command_table(adapter, None)
+    result = commands["band scope"](None, adapter, "3")
+
+    assert result == "graph"
+    expected = [
+        (100.0, 0.0),
+        (101.0, 10 / 1023.0),
+        (102.0, 30 / 1023.0),
+    ]
+    assert captured["pairs"] == pytest.approx(expected)
+
+
+def test_band_scope_log_scaling(monkeypatch):
+    adapter = BCD325P2Adapter()
+    adapter.band_scope_width = 3
+
+    def stream_stub(ser, c=3):
+        yield (10, 100.0, 0)
+        yield (20, 101.0, 0)
+        yield (40, 102.0, 0)
+
+    monkeypatch.setattr(adapter, "stream_custom_search", stream_stub)
+
+    captured = {}
+    import utilities.core.command_registry as cr
+
+    def fake_render(pairs, width):
+        captured["pairs"] = pairs
+        return "graph"
+
+    monkeypatch.setattr(cr, "render_band_scope_waterfall", fake_render)
+
+    commands, _ = build_command_table(adapter, None)
+    result = commands["band scope"](None, adapter, "3 log")
+
+    assert result == "graph"
+    import math
+
+    baseline = 10
+    max_db = 20 * math.log10(1023 - baseline + 1)
+    expected = [
+        (100.0, 0.0),
+        (101.0, 20 * math.log10(10 + 1) / max_db),
+        (102.0, 20 * math.log10(30 + 1) / max_db),
+    ]
+    assert captured["pairs"] == pytest.approx(expected)
