@@ -243,7 +243,46 @@ def build_command_table(adapter, ser):
             if width > 80:
                 output = split_output_lines(output, 80)
 
-            return output
+            freqs = [f for f, _ in pairs]
+            if freqs:
+                f_min = min(freqs)
+                f_max = max(freqs)
+            else:
+                center = getattr(adapter_, "last_center", None)
+                span = getattr(adapter_, "last_span", None)
+                if center is not None and span is not None:
+                    f_min = center - span / 2.0
+                    f_max = center + span / 2.0
+                else:
+                    f_min = f_max = None
+
+            center = getattr(adapter_, "last_center", None)
+            span = getattr(adapter_, "last_span", None)
+            step = getattr(adapter_, "last_step", None)
+            mod = getattr(adapter_, "last_mod", None)
+
+            if center is None and f_min is not None and f_max is not None:
+                center = (f_min + f_max) / 2.0
+            if span is None and f_min is not None and f_max is not None:
+                span = f_max - f_min
+
+            def fmt_freq(val):
+                return f"{val:.3f}" if val is not None else "n/a"
+
+            def fmt_span(val):
+                if val is None:
+                    return "n/a"
+                if val >= 1:
+                    return f"{val:g}M"
+                return f"{val * 1000:g}k"
+
+            summary = (
+                f"center={fmt_freq(center)} min={fmt_freq(f_min)} "
+                f"max={fmt_freq(f_max)} span={fmt_span(span)} "
+                f"step={fmt_span(step)} mod={mod or 'N/A'}"
+            )
+
+            return output + "\n" + summary
 
         COMMANDS["band scope"] = band_scope
         COMMAND_HELP["band scope"] = (

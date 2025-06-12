@@ -27,8 +27,8 @@ def test_band_scope_command_registered(monkeypatch):
     assert "band scope" in help_text
     output = commands["band scope"](None, adapter, "10")
     lines = output.splitlines()
-    assert len(lines) == 2
-    assert all(len(line) == 5 for line in lines)
+    assert len(lines) == 3
+    assert all(len(line) == 5 for line in lines[:-1])
 
 
 def test_band_scope_collects(monkeypatch):

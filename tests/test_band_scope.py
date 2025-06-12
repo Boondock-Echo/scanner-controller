@@ -112,7 +112,7 @@ def test_band_scope_auto_width(monkeypatch):
     commands, _ = build_command_table(adapter, None)
     output = commands["band scope"](None, adapter, "5")
     lines = output.splitlines()
-    assert all(len(line) == 5 for line in lines)
+    assert all(len(line) == 5 for line in lines[:-1])
 
 
 def test_configure_band_scope_wraps_programming(monkeypatch):
@@ -175,8 +175,8 @@ def test_band_scope_output_wrapped(monkeypatch):
     lines = output.splitlines()
 
     # Output should be wrapped so no line exceeds 80 characters
-    assert len(lines) == 2
-    assert all(len(line) <= 80 for line in lines)
+    assert len(lines) == 3
+    assert all(len(line) <= 80 for line in lines[:-1])
 
 
 def test_band_scope_no_data(monkeypatch):
@@ -217,7 +217,7 @@ def test_band_scope_baseline(monkeypatch):
     commands, _ = build_command_table(adapter, None)
     result = commands["band scope"](None, adapter, "3")
 
-    assert result == "graph"
+    assert result.splitlines()[0] == "graph"
     expected = [
         (100.0, 0.0),
         (101.0, 10 / 1023.0),
@@ -249,7 +249,7 @@ def test_band_scope_log_scaling(monkeypatch):
     commands, _ = build_command_table(adapter, None)
     result = commands["band scope"](None, adapter, "3 log")
 
-    assert result == "graph"
+    assert result.splitlines()[0] == "graph"
     import math
 
     baseline = 10
@@ -260,3 +260,29 @@ def test_band_scope_log_scaling(monkeypatch):
         (102.0, 20 * math.log10(30 + 1) / max_db),
     ]
     assert captured["pairs"] == pytest.approx(expected)
+
+
+def test_band_scope_summary_line(monkeypatch):
+    adapter = BCD325P2Adapter()
+    adapter.band_scope_width = 3
+    adapter.last_center = 146.0
+    adapter.last_span = 2.0
+    adapter.last_step = 0.5
+    adapter.last_mod = "FM"
+
+    def stream_stub(ser, c=3):
+        yield (10, 145.0, 0)
+        yield (20, 146.0, 0)
+        yield (30, 147.0, 0)
+
+    monkeypatch.setattr(adapter, "stream_custom_search", stream_stub)
+
+    commands, _ = build_command_table(adapter, None)
+    output = commands["band scope"](None, adapter, "3")
+    lines = output.splitlines()
+    assert lines[-1].startswith("center=")
+    assert "min=145.000" in lines[-1]
+    assert "max=147.000" in lines[-1]
+    assert "span=2M" in lines[-1]
+    assert "step=500k" in lines[-1]
+    assert "mod=FM" in lines[-1]

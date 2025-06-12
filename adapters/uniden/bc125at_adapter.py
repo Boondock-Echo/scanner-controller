@@ -78,6 +78,10 @@ class BC125ATAdapter(UnidenScannerAdapter):
         super().__init__(machine_mode, commands)
         self.machine_mode_id = "BC125AT"
         self.in_program_mode = False
+        self.last_center = None
+        self.last_span = None
+        self.last_step = None
+        self.last_mod = None
         self.band_scope_width = None
         self.signal_bandwidth = None
         logger.info(
@@ -241,6 +245,11 @@ class BC125ATAdapter(UnidenScannerAdapter):
         freq = f"{int(round(center_khz * 10)):08d}"
         span = f"{span_mhz:g}M"
 
+        self.last_center = center_khz / 1000.0
+        self.last_span = span_mhz
+        self.last_step = self._to_mhz(step)
+        self.last_mod = mod
+
         with programming_session(self, ser) as ok:
             if not ok:
                 return self.feedback(False, "Failed to enter programming mode")
@@ -253,6 +262,11 @@ class BC125ATAdapter(UnidenScannerAdapter):
             span_mhz = self._to_mhz(span)
             step_khz = self._to_khz(step)
             step_mhz = step_khz / 1000.0
+
+            self.last_center = center
+            self.last_span = span_mhz
+            self.last_step = step_mhz
+            self.last_mod = None
 
             start = center - span_mhz / 2.0
             end = center + span_mhz / 2.0

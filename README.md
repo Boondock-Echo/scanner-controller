@@ -186,7 +186,13 @@ stopping the stream. By default, **1024** records are collected. After the limit
 is reached the command `CSC,OFF` is issued and the final `CSC,OK` response is
 read.
 When called through the CLI's `band scope` command these readings are displayed
-as a simple two-line graph to give quick visual feedback.
+as a simple two-line graph to give quick visual feedback. A summary line with
+the sweep parameters is printed after the waterfall output:
+
+```text
+(graph lines)
+center=146.000 min=145.000 max=147.000 span=2M step=0.5M mod=FM
+```
 
 The related `band sweep` command streams the raw values directly. Each line
 printed contains the frequency in megahertz and the normalized RSSI level:
