@@ -5,6 +5,8 @@ This module builds the command table from scanner adapter capabilities.
 """
 
 import logging
+import math
+import config
 
 from utilities.graph_utils import (
     render_rssi_graph,
@@ -195,15 +197,47 @@ def build_command_table(adapter, ser):
 
         def band_scope(ser_, adapter_, arg=""):
             parts = arg.split()
-            count = int(parts[0]) if parts else 1024
+            count = 1024
+            log_scale = getattr(config, "BAND_SCOPE_LOG_SCALE", False)
+            for part in parts:
+                if part.lower() == "log":
+                    log_scale = True
+                else:
+                    try:
+                        count = int(part)
+                    except ValueError:
+                        pass
+
             width = getattr(adapter_, "band_scope_width", 64) or 64
-            pairs = []
+
+            records = []
+            baseline = None
             for rssi, freq, _ in adapter_.stream_custom_search(ser_, count):
-                pairs.append(
-                    (freq, rssi / 1023.0 if rssi is not None else None)
-                )
-            if not pairs:
+                records.append((rssi, freq))
+                if rssi and rssi > 0:
+                    baseline = rssi if baseline is None else min(baseline, rssi)
+
+            if not records:
                 return "No band scope data received"
+
+            baseline = baseline or 0
+            max_db = (
+                20 * math.log10(1023 - baseline + 1) if log_scale else None
+            )
+
+            pairs = []
+            for rssi, freq in records:
+                if rssi is None:
+                    pairs.append((freq, None))
+                    continue
+                adj = max(0, rssi - baseline)
+                value = adj / 1023.0
+                if log_scale:
+                    value = (
+                        20 * math.log10(adj + 1) / max_db if max_db and adj > 0 else 0.0
+                    )
+                pairs.append((freq, value))
+
             output = render_band_scope_waterfall(pairs, width)
 
             if width > 80:
