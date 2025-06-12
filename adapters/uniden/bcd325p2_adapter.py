@@ -216,12 +216,42 @@ class BCD325P2Adapter(UnidenScannerAdapter):
         span_mhz = (high_khz - low_khz) / 1000.0
         center_khz = (low_khz + high_khz) / 2.0
         freq = f"{int(round(center_khz * 10)):08d}"
-        span = f"{span_mhz:g}M"
+
+        allowed_spans = [
+            0.2,
+            0.4,
+            0.6,
+            0.8,
+            1,
+            2,
+            4,
+            6,
+            8,
+            10,
+            20,
+            40,
+            60,
+            80,
+            100,
+            120,
+            140,
+            160,
+            180,
+            200,
+            250,
+            300,
+            350,
+            400,
+            450,
+            500,
+        ]
+        span_val = next((s for s in allowed_spans if s >= span_mhz), allowed_spans[-1])
+        span = f"{span_val:g}M"
         max_hold = 0
         bandwidth = None
 
         self.last_center = center_khz / 1000.0
-        self.last_span = span_mhz
+        self.last_span = span_val
         self.last_step = self._to_mhz(step)
         self.last_mod = mod
 
