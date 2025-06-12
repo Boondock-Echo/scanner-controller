@@ -33,7 +33,7 @@ def test_band_scope_command_registered(monkeypatch):
 
 def test_band_scope_collects(monkeypatch):
     adapter = BCD325P2Adapter()
-    data_lines = ["CSC,10,162.0,1", "CSC,11,163.0,0", "CSC,OK"]
+    data_lines = ["CSC,10,01620000,1", "CSC,11,01630000,0", "CSC,OK"]
 
     monkeypatch.setattr(adapter, "send_command", lambda ser, cmd, delay=0: "")
 

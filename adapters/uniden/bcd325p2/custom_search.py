@@ -43,7 +43,10 @@ def stream_custom_search(self, ser, record_count=1024):
             if len(parts) >= 4:
                 try:
                     rssi = int(parts[1])
-                    freq = float(parts[2])
+                    if parts[2].isdigit():
+                        freq = int(parts[2]) / 10000.0
+                    else:
+                        freq = float(parts[2])
                     sql = int(parts[3])
                     yield (rssi, freq, sql)
                     count += 1
