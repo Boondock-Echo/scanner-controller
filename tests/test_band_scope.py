@@ -35,7 +35,7 @@ def test_band_select_air_command(monkeypatch):
 
     commands, _ = build_command_table(adapter, None)
     result = commands["band select"](None, adapter, "air")
-    assert result == "BSP,01220000,833,28M,0"
+    assert result == "BSP,01220000,833,40M,0"
 
 
 def test_band_select_registered(monkeypatch):
@@ -149,7 +149,7 @@ def test_configure_band_scope_sets_width(monkeypatch):
     monkeypatch.setattr(adapter.commands["BSP"], "validator", None)
 
     adapter.configure_band_scope(None, "air")
-    assert adapter.band_scope_width == 3362
+    assert adapter.band_scope_width == 4803
 
     def fake_stream(ser, c=adapter.band_scope_width):
         for i in range(c):
