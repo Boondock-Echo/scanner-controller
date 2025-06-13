@@ -210,6 +210,12 @@ def build_command_table(adapter, ser):
 
             width = getattr(adapter_, "band_scope_width", 64) or 64
 
+            if getattr(adapter_, "in_program_mode", False):
+                return (
+                    "Scanner is in programming mode. "
+                    "Run 'send EPG' then 'band scope start'."
+                )
+
             records = []
             baseline = None
             for rssi, freq, _ in adapter_.stream_custom_search(ser_, count):

@@ -291,3 +291,25 @@ def test_band_scope_summary_line(monkeypatch):
     assert "span=2M" in lines[-1]
     assert "step=500k" in lines[-1]
     assert "mod=FM" in lines[-1]
+
+
+def test_band_scope_in_program_mode(monkeypatch):
+    adapter = BCD325P2Adapter()
+    adapter.in_program_mode = True
+
+    called = []
+
+    def stream_stub(ser, c=3):
+        called.append(True)
+        yield (10, 145.0, 0)
+
+    monkeypatch.setattr(adapter, "stream_custom_search", stream_stub)
+
+    commands, _ = build_command_table(adapter, None)
+    result = commands["band scope"](None, adapter, "3")
+
+    assert (
+        result
+        == "Scanner is in programming mode. Run 'send EPG' then 'band scope start'."
+    )
+    assert not called
