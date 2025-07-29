@@ -1,12 +1,4 @@
-# BC125AT command definitions for Uniden scanners
-
-"""
-Bc125At Commands module.
-
-This module provides functionality related to bc125at commands.
-It includes command definitions, help text, and utility functions for
-interacting with the BC125AT scanner.
-"""
+"""Command definitions for the Uniden BC125AT scanner."""
 
 # Application imports
 from .bc125at.basic_commands import BASIC_COMMANDS

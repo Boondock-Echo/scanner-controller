@@ -1,3 +1,5 @@
+"""Tests for frequency conversion helper methods."""
+
 import types
 import sys
 import pytest

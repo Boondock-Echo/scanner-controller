@@ -1,3 +1,5 @@
+"""Tests for band sweep command generation."""
+
 import os
 import sys
 import types

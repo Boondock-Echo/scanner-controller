@@ -1,3 +1,5 @@
+"""Tests for creating Uniden scanner adapters via factories."""
+
 import os
 import sys
 import types

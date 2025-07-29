@@ -1,3 +1,5 @@
+"""Manage multiple scanner connections and active adapters."""
+
 import logging
 import serial
 from functools import partial

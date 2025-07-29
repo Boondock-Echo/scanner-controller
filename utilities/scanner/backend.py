@@ -1,3 +1,5 @@
+"""Utility functions for scanner serial communication."""
+
 import logging
 import time
 

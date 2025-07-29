@@ -1,3 +1,5 @@
+"""Tests for program flag handling in adapters."""
+
 import os
 import sys
 import types

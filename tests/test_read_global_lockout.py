@@ -1,3 +1,5 @@
+"""Tests for reading global lockout data from adapters."""
+
 import os
 import sys
 import types
