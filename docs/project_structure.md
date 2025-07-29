@@ -9,7 +9,7 @@ The root directory should be kept clean and contain only essential files:
 - `README.md` - Project documentation
 - `LICENSE` - License information
 - `run_scanner_gui.py` - Main entry point for the GUI application
-- `setup.py` - Package installation script
+- `pyproject.toml` - Packaging configuration file
 - `requirements.txt` - Production dependencies
 - `requirements-dev.txt` - Development dependencies
 - `.gitignore` - Git ignore file
