@@ -236,3 +236,31 @@ def test_band_scope_list_hits(monkeypatch):
     lines = output.splitlines()
     assert lines[:2] == ["146.0000", "148.0000"]
     assert lines[-1].startswith("center=")
+
+def test_band_scope_respects_preset_range(monkeypatch):
+    adapter = BCD325P2Adapter()
+    adapter.in_program_mode = True
+    monkeypatch.setattr(adapter, "send_command", lambda ser, cmd: "OK")
+    monkeypatch.setattr(adapter.commands["BSP"], "validator", None)
+    monkeypatch.setattr(adapter, "start_scanning", lambda ser: None)
+
+    commands, _ = build_command_table(adapter, None)
+    commands["band select"](None, adapter, "ham2m")
+    adapter.in_program_mode = False
+
+    def stream_stub(ser, c=1024):
+        SIGNAL_LOW = 10  # Low signal strength
+        SIGNAL_MEDIUM = 20  # Medium signal strength
+        SIGNAL_HIGH = 30  # High signal strength
+
+        yield (SIGNAL_LOW, 144.0, 0)
+        yield (SIGNAL_MEDIUM, 146.0, 0)
+        yield (SIGNAL_HIGH, 148.0, 0)
+    monkeypatch.setattr(adapter, "stream_custom_search", stream_stub)
+
+    output = commands["band scope"](None, adapter, "list")
+    lines = output.splitlines()
+    hits = [float(h) for h in lines[:-1]]
+    assert all(144.0 <= f <= 148.0 for f in hits)
+    assert "min=144.000" in lines[-1]
+    assert "max=148.000" in lines[-1]
