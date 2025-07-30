@@ -12,6 +12,7 @@ serial_stub.Serial = lambda *a, **k: None
 sys.modules.setdefault("serial", serial_stub)
 
 import importlib
+
 from adapters.uniden.bcd325p2_adapter import BCD325P2Adapter  # noqa: E402
 from utilities.core.command_registry import build_command_table  # noqa: E402
 
@@ -81,6 +82,26 @@ def test_custom_search_parses_units(monkeypatch):
     result = adapter.sweep_band_scope(None, "144M", "2M", "500k", "500k")
     assert result[0][0] == 143.0
 
+
+def test_custom_search_parses_short_frequency(monkeypatch):
+    adapter = BCD325P2Adapter()
+
+    data_lines = ["CSC,10,250200,1", "CSC,OK"]
+
+    from adapters.uniden.bcd325p2 import custom_search as cs
+
+    monkeypatch.setattr(adapter, "send_command", lambda ser, cmd, delay=0: "")
+    monkeypatch.setattr(cs, "send_command", lambda ser, cmd, delay=0: "")
+    monkeypatch.setattr(
+        cs, "wait_for_data", lambda ser, max_wait=0.5: bool(data_lines)
+    )
+    monkeypatch.setattr(
+        cs, "read_response", lambda ser, timeout=1.0: data_lines.pop(0)
+    )
+
+    results = list(adapter.stream_custom_search(None, 1))
+
+    assert results == [(10, 25.02, 1)]
 
 
 def test_band_scope_auto_width(monkeypatch):
@@ -181,7 +202,6 @@ def test_configure_band_scope_sets_width(monkeypatch):
     assert lines[0].startswith("center=")
 
 
-
 def test_band_scope_no_data(monkeypatch):
     adapter = BCD325P2Adapter()
 
@@ -194,7 +214,6 @@ def test_band_scope_no_data(monkeypatch):
     result = commands["band scope"](None, adapter, "5")
 
     assert result == "No band scope data received"
-
 
 
 def test_band_scope_summary_line(monkeypatch):
@@ -267,6 +286,7 @@ def test_band_scope_list_hits(monkeypatch):
     assert lines[:2] == ["146.0000, 0.049", "148.0000, 0.029"]
     assert lines[-1].startswith("center=")
 
+
 def test_band_scope_respects_preset_range(monkeypatch):
     adapter = BCD325P2Adapter()
     adapter.in_program_mode = True
@@ -286,6 +306,7 @@ def test_band_scope_respects_preset_range(monkeypatch):
         yield (SIGNAL_LOW, 144.0, 0)
         yield (SIGNAL_MEDIUM, 146.0, 0)
         yield (SIGNAL_HIGH, 148.0, 0)
+
     monkeypatch.setattr(adapter, "stream_custom_search", stream_stub)
 
     output = commands["band scope"](None, adapter, "list")
