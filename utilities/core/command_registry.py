@@ -227,7 +227,7 @@ def build_command_table(adapter, ser):
                 if rssi and rssi > 0:
                     baseline = rssi if baseline is None else min(baseline, rssi)
                     if list_hits:
-                        hits.append(format_frequency(freq))
+                        hits.append(f"{freq:.4f}")
 
             if not records:
                 return "No band scope data received"
