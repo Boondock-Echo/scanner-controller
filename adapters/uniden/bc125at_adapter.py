@@ -36,7 +36,11 @@ from adapters.uniden.bc125at.status_info import (
     read_sw_ver,
     read_window_voltage,
 )
-from adapters.uniden.bc125at.user_control import send_key
+from adapters.uniden.bc125at.user_control import (
+    send_key,
+    start_scanning,
+    stop_scanning,
+)
 
 # Import common functions
 from adapters.uniden.common.core import (
@@ -151,6 +155,8 @@ class BC125ATAdapter(UnidenScannerAdapter):
 
     # User control methods
     send_key = send_key
+    start_scanning = start_scanning
+    stop_scanning = stop_scanning
 
     def _to_mhz(self, value):
         """Convert a numeric string with optional unit suffix to MHz."""
@@ -271,7 +277,12 @@ class BC125ATAdapter(UnidenScannerAdapter):
         with programming_session(self, ser) as ok:
             if not ok:
                 return self.feedback(False, "Failed to enter programming mode")
-            return self.sweep_band_scope(ser, freq, span, step)
+            result = self.sweep_band_scope(ser, freq, span, step)
+            try:
+                self.start_scanning(ser)
+            except Exception as e:  # pragma: no cover - log and proceed
+                logger.error(f"Error starting band scope search: {e}")
+            return result
 
     def sweep_band_scope(self, ser, center_freq, span, step, bandwidth=None):
         """Sweep across a frequency range using quick hold mode."""

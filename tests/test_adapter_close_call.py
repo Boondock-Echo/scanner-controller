@@ -1,4 +1,4 @@
-"""Tests for BCD325P2Adapter close call helpers and scan controls."""
+"""Tests for Uniden adapter scan controls and close call helpers."""
 
 import os
 import sys
@@ -9,14 +9,24 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 # Provide minimal serial stub
 serial_stub = types.ModuleType("serial")
 serial_stub.Serial = lambda *a, **k: None
+serial_tools_stub = types.ModuleType("serial.tools")
+list_ports_stub = types.ModuleType("serial.tools.list_ports")
+list_ports_stub.comports = lambda *a, **k: []
+serial_tools_stub.list_ports = list_ports_stub
+serial_stub.tools = serial_tools_stub
 sys.modules.setdefault("serial", serial_stub)
+sys.modules.setdefault("serial.tools", serial_tools_stub)
+sys.modules.setdefault("serial.tools.list_ports", list_ports_stub)
 
 from adapters.uniden.bcd325p2_adapter import BCD325P2Adapter  # noqa: E402
+from adapters.uniden.bc125at_adapter import BC125ATAdapter  # noqa: E402
+import pytest
 
 
-def test_scan_controls_return_raw(monkeypatch):
+@pytest.mark.parametrize("adapter_cls", [BCD325P2Adapter, BC125ATAdapter])
+def test_scan_controls_return_raw(monkeypatch, adapter_cls):
     """start_scanning and stop_scanning return raw responses."""
-    adapter = BCD325P2Adapter()
+    adapter = adapter_cls()
     monkeypatch.setattr(adapter, "send_key", lambda ser, seq: f"KEY:{seq}")
 
     assert adapter.start_scanning(None) == "KEY:S"
