@@ -8,11 +8,7 @@ import logging
 import math
 import config
 
-from utilities.graph_utils import (
-    render_rssi_graph,
-    render_band_scope_waterfall,
-    split_output_lines,
-)
+from utilities.graph_utils import render_rssi_graph
 
 
 def build_command_table(adapter, ser):
@@ -211,8 +207,6 @@ def build_command_table(adapter, ser):
                     except ValueError:
                         pass
 
-            width = getattr(adapter_, "band_scope_width", 64) or 64
-
             if getattr(adapter_, "in_program_mode", False):
                 return (
                     "Scanner is in programming mode. "
@@ -221,44 +215,15 @@ def build_command_table(adapter, ser):
 
             records = []
             hits = []
-            baseline = None
             for rssi, freq, _ in adapter_.stream_custom_search(ser_, count):
                 records.append((rssi, freq))
                 if rssi and rssi > 0:
-                    baseline = rssi if baseline is None else min(baseline, rssi)
-                    if list_hits:
-                        hits.append(f"{freq:.4f}")
+                    hits.append(f"{freq:.4f}")
 
             if not records:
                 return "No band scope data received"
 
-            if list_hits:
-                return "\n".join(hits)
-
-            baseline = baseline or 0
-            max_db = (
-                20 * math.log10(1023 - baseline + 1) if log_scale else None
-            )
-
-            pairs = []
-            for rssi, freq in records:
-                if rssi is None:
-                    pairs.append((freq, None))
-                    continue
-                adj = max(0, rssi - baseline)
-                value = adj / 1023.0
-                if log_scale:
-                    value = (
-                        20 * math.log10(adj + 1) / max_db if max_db and adj > 0 else 0.0
-                    )
-                pairs.append((freq, value))
-
-            output = render_band_scope_waterfall(pairs, width)
-
-            if width > 80:
-                output = split_output_lines(output, 80)
-
-            freqs = [f for f, _ in pairs]
+            freqs = [f for _, f in records]
             if freqs:
                 f_min = min(freqs)
                 f_max = max(freqs)
@@ -297,11 +262,11 @@ def build_command_table(adapter, ser):
                 f"step={fmt_span(step)} mod={mod or 'N/A'}"
             )
 
-            return output + "\n" + summary
+            return "\n".join(hits + [summary])
 
         COMMANDS["band scope"] = band_scope
         COMMAND_HELP["band scope"] = (
-            "Stream band scope data. Usage: band scope [record_count] [log|list|hits]"
+            "Stream band scope data. Usage: band scope [record_count]"
         )
 
         logging.debug("Registering 'band sweep' command")

@@ -185,22 +185,14 @@ The controller now gathers a configurable number of these records before
 stopping the stream. By default, **1024** records are collected. After the limit
 is reached the command `CSC,OFF` is issued and the final `CSC,OK` response is
 read.
-When called through the CLI's `band scope` command these readings are displayed
-as a simple two-line graph to give quick visual feedback. A summary line with
-the sweep parameters is printed after the waterfall output:
+When called through the CLI's `band scope` command these readings are printed as
+a list of hit frequencies. After all hits a summary line describes the sweep
+parameters. Only results with RSSI above zero are printed:
 
 ```text
-(graph lines)
-center=146.000 min=145.000 max=147.000 span=2M step=0.5M mod=FM
-```
-
-To get a plain list of hit frequencies instead of a graph, append `list` or
-`hits` to the command. Only results with RSSI above zero are printed:
-
-```text
-> band scope list
 146.5200
 147.0400
+center=146.000 min=145.000 max=147.000 span=2M step=0.5M mod=FM
 ```
 
 The related `band sweep` command streams the raw values directly. Each line
@@ -266,11 +258,13 @@ Connected to /dev/ttyUSB1 [ID 2]
 > use 1
 Using connection 1
 > band scope 20
-(graph for scanner 1)
+(hits for scanner 1)
+center=...
 > use 2
 Using connection 2
 > band scope 20
-(graph for scanner 2)
+(hits for scanner 2)
+center=...
 ```
 
 ## Extending the System

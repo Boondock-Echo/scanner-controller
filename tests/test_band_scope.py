@@ -1,4 +1,4 @@
-"""Tests for rendering the band scope waterfall and presets."""
+"""Tests for band scope command behavior and presets."""
 
 import os
 import sys
@@ -14,8 +14,6 @@ sys.modules.setdefault("serial", serial_stub)
 import importlib
 from adapters.uniden.bcd325p2_adapter import BCD325P2Adapter  # noqa: E402
 from utilities.core.command_registry import build_command_table  # noqa: E402
-from utilities.graph_utils import render_band_scope_waterfall
-import pytest
 
 
 def test_presets_load():
@@ -84,20 +82,6 @@ def test_custom_search_parses_units(monkeypatch):
     assert result[0][0] == 143.0
 
 
-def test_render_band_scope_waterfall_wrap():
-    pairs = [
-        (100.0, 0.0),
-        (101.0, 0.5),
-        (102.0, 1.0),
-        (100.0, 1.0),
-        (101.0, 0.5),
-        (102.0, 0.0),
-    ]
-    output = render_band_scope_waterfall(pairs, width=3)
-    lines = output.splitlines()
-    assert len(lines) == 2
-    assert all(len(line) == 3 for line in lines)
-
 
 def test_band_scope_auto_width(monkeypatch):
     adapter = BCD325P2Adapter()
@@ -116,7 +100,8 @@ def test_band_scope_auto_width(monkeypatch):
     commands, _ = build_command_table(adapter, None)
     output = commands["band scope"](None, adapter, "5")
     lines = output.splitlines()
-    assert all(len(line) == 5 for line in lines[:-1])
+    assert len(lines) == 1
+    assert lines[0].startswith("center=")
 
 
 def test_configure_band_scope_wraps_programming(monkeypatch):
@@ -153,6 +138,8 @@ def test_configure_band_scope_sets_width(monkeypatch):
     adapter.configure_band_scope(None, "air")
     assert adapter.band_scope_width == 4803
 
+    adapter.in_program_mode = False
+
     def fake_stream(ser, c=adapter.band_scope_width):
         for i in range(c):
             yield (0, 100.0 + i, 0)
@@ -162,28 +149,9 @@ def test_configure_band_scope_sets_width(monkeypatch):
     commands, _ = build_command_table(adapter, None)
     output = commands["band scope"](None, adapter, "5")
     lines = output.splitlines()
-    assert all(len(line) <= 80 for line in lines)
+    assert len(lines) == 1
+    assert lines[0].startswith("center=")
 
-
-def test_band_scope_output_wrapped(monkeypatch):
-    adapter = BCD325P2Adapter()
-
-    # Set a width larger than the terminal width to trigger wrapping
-    adapter.band_scope_width = 160
-
-    def fake_stream(ser, c=160):
-        for i in range(c):
-            yield (0, 145.0 + 0.1 * i, 0)
-
-    monkeypatch.setattr(adapter, "stream_custom_search", fake_stream)
-
-    commands, _ = build_command_table(adapter, None)
-    output = commands["band scope"](None, adapter, "160")
-    lines = output.splitlines()
-
-    # Output should be wrapped so no line exceeds 80 characters
-    assert len(lines) == 3
-    assert all(len(line) <= 80 for line in lines[:-1])
 
 
 def test_band_scope_no_data(monkeypatch):
@@ -199,74 +167,6 @@ def test_band_scope_no_data(monkeypatch):
 
     assert result == "No band scope data received"
 
-
-def test_band_scope_baseline(monkeypatch):
-    adapter = BCD325P2Adapter()
-    adapter.band_scope_width = 3
-
-    def stream_stub(ser, c=3):
-        yield (10, 100.0, 0)
-        yield (20, 101.0, 0)
-        yield (40, 102.0, 0)
-
-    monkeypatch.setattr(adapter, "stream_custom_search", stream_stub)
-
-    captured = {}
-
-    import utilities.core.command_registry as cr
-
-    def fake_render(pairs, width):
-        captured["pairs"] = pairs
-        return "graph"
-
-    monkeypatch.setattr(cr, "render_band_scope_waterfall", fake_render)
-
-    commands, _ = build_command_table(adapter, None)
-    result = commands["band scope"](None, adapter, "3")
-
-    assert result.splitlines()[0] == "graph"
-    expected = [
-        (100.0, 0.0),
-        (101.0, 10 / 1023.0),
-        (102.0, 30 / 1023.0),
-    ]
-    assert captured["pairs"] == pytest.approx(expected)
-
-
-def test_band_scope_log_scaling(monkeypatch):
-    adapter = BCD325P2Adapter()
-    adapter.band_scope_width = 3
-
-    def stream_stub(ser, c=3):
-        yield (10, 100.0, 0)
-        yield (20, 101.0, 0)
-        yield (40, 102.0, 0)
-
-    monkeypatch.setattr(adapter, "stream_custom_search", stream_stub)
-
-    captured = {}
-    import utilities.core.command_registry as cr
-
-    def fake_render(pairs, width):
-        captured["pairs"] = pairs
-        return "graph"
-
-    monkeypatch.setattr(cr, "render_band_scope_waterfall", fake_render)
-
-    commands, _ = build_command_table(adapter, None)
-    result = commands["band scope"](None, adapter, "3 log")
-
-    assert result.splitlines()[0] == "graph"
-    import math
-
-    baseline = 10
-    max_db = 20 * math.log10(1023 - baseline + 1)
-    expected = [
-        (100.0, 0.0),
-        (101.0, 20 * math.log10(10 + 1) / max_db),
-        (102.0, 20 * math.log10(30 + 1) / max_db),
-    ]
-    assert captured["pairs"] == pytest.approx(expected)
 
 
 def test_band_scope_summary_line(monkeypatch):
@@ -287,6 +187,7 @@ def test_band_scope_summary_line(monkeypatch):
     commands, _ = build_command_table(adapter, None)
     output = commands["band scope"](None, adapter, "3")
     lines = output.splitlines()
+    assert lines[:3] == ["145.0000", "146.0000", "147.0000"]
     assert lines[-1].startswith("center=")
     assert "min=145.000" in lines[-1]
     assert "max=147.000" in lines[-1]
@@ -330,4 +231,6 @@ def test_band_scope_list_hits(monkeypatch):
 
     commands, _ = build_command_table(adapter, None)
     output = commands["band scope"](None, adapter, "list")
-    assert output.splitlines() == ["146.0000", "148.0000"]
+    lines = output.splitlines()
+    assert lines[:2] == ["146.0000", "148.0000"]
+    assert lines[-1].startswith("center=")
