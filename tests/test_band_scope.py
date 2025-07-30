@@ -137,8 +137,8 @@ def test_configure_band_scope_wraps_programming(monkeypatch):
 
     assert calls[0] == "PRG"
     assert calls[1].startswith("BSP")
-    assert calls[2] == "START"
-    assert calls[-1] == "EPG"
+    assert calls[2] == "EPG"
+    assert calls[-1] == "START"
 
 
 def test_configure_band_scope_sets_width(monkeypatch):
