@@ -23,7 +23,7 @@ def test_band_sweep_registered_and_output(monkeypatch):
         (256, 163.55, 0),
     ]
 
-    def fake_stream(ser, count=1024):
+    def fake_stream(ser, count=1024, debug=False):
         for rssi, freq, sql in data[:count]:
             yield rssi, freq, sql
 

@@ -91,7 +91,7 @@ def test_band_scope_auto_width(monkeypatch):
     adapter.sweep_band_scope(None, "146M", "2M", "0.5M", "0.5M")
     assert adapter.band_scope_width == 5
 
-    def fake_stream(ser, c=5):
+    def fake_stream(ser, c=5, debug=False):
         for i in range(c):
             yield (0, 145.0 + 0.5 * i, 0)
 
@@ -168,7 +168,7 @@ def test_configure_band_scope_sets_width(monkeypatch):
 
     adapter.in_program_mode = False
 
-    def fake_stream(ser, c=adapter.band_scope_width):
+    def fake_stream(ser, c=adapter.band_scope_width, debug=False):
         for i in range(c):
             yield (0, 100.0 + i, 0)
 
@@ -185,7 +185,7 @@ def test_configure_band_scope_sets_width(monkeypatch):
 def test_band_scope_no_data(monkeypatch):
     adapter = BCD325P2Adapter()
 
-    def empty_stream(ser, c=5):
+    def empty_stream(ser, c=5, debug=False):
         yield from []
 
     monkeypatch.setattr(adapter, "stream_custom_search", empty_stream)
@@ -205,7 +205,7 @@ def test_band_scope_summary_line(monkeypatch):
     adapter.last_step = 0.5
     adapter.last_mod = "FM"
 
-    def stream_stub(ser, c=3):
+    def stream_stub(ser, c=3, debug=False):
         yield (10, 145.0, 0)
         yield (20, 146.0, 0)
         yield (30, 147.0, 0)
@@ -234,7 +234,7 @@ def test_band_scope_in_program_mode(monkeypatch):
 
     called = []
 
-    def stream_stub(ser, c=3):
+    def stream_stub(ser, c=3, debug=False):
         called.append(True)
         yield (10, 145.0, 0)
 
@@ -253,7 +253,7 @@ def test_band_scope_in_program_mode(monkeypatch):
 def test_band_scope_list_hits(monkeypatch):
     adapter = BCD325P2Adapter()
 
-    def stream_stub(ser, c=1024):
+    def stream_stub(ser, c=1024, debug=False):
         yield (0, 145.0, 0)
         yield (50, 146.0, 1)
         yield (0, 147.0, 0)
@@ -278,7 +278,7 @@ def test_band_scope_respects_preset_range(monkeypatch):
     commands["band select"](None, adapter, "ham2m")
     adapter.in_program_mode = False
 
-    def stream_stub(ser, c=1024):
+    def stream_stub(ser, c=1024, debug=False):
         SIGNAL_LOW = 10  # Low signal strength
         SIGNAL_MEDIUM = 20  # Medium signal strength
         SIGNAL_HIGH = 30  # High signal strength

@@ -16,7 +16,7 @@ from utilities.core.command_registry import build_command_table  # noqa: E402
 
 def test_band_scope_command_registered(monkeypatch):
     adapter = BCD325P2Adapter()
-    def fake_stream(ser, c=1024):
+    def fake_stream(ser, c=1024, debug=False):
         for i in range(int(c)):
             yield (0, 100.0 + i % 5, 0)
 

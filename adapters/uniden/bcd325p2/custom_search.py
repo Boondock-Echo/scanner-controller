@@ -11,7 +11,7 @@ from utilities.core.serial_utils import (
 logger = logging.getLogger(__name__)
 
 
-def stream_custom_search(self, ser, record_count=1024):
+def stream_custom_search(self, ser, record_count=1024, debug=False):
     """Stream custom search results using the CSC command.
 
     Parameters
@@ -21,6 +21,9 @@ def stream_custom_search(self, ser, record_count=1024):
     record_count : int, optional
         Number of result lines to read before stopping the stream.
         Defaults to 1024.
+    debug : bool, optional
+        If ``True``, log each raw line read from the scanner before
+        parsing it. Defaults to ``False``.
 
     Yields
     ------
@@ -35,6 +38,8 @@ def stream_custom_search(self, ser, record_count=1024):
             if not wait_for_data(ser, max_wait=0.5):
                 break
             line = read_response(ser, timeout=1.0)
+            if debug:
+                logger.debug(line)
             if not line:
                 break
             if not line.startswith("CSC,"):
@@ -54,6 +59,8 @@ def stream_custom_search(self, ser, record_count=1024):
                     logger.debug(f"Malformed line: {line}")
         # Stop streaming and read final OK
         send_command(ser, "CSC,OFF", delay=0)
-        read_response(ser, timeout=1.0)
+        line = read_response(ser, timeout=1.0)
+        if debug:
+            logger.debug(line)
     except Exception as e:
         logger.error(f"Error during custom search stream: {e}")
