@@ -50,7 +50,7 @@ def stream_custom_search(self, ser, record_count=1024, debug=False):
                     rssi = int(parts[1])
                     freq_str = parts[2]
                     if freq_str.isdigit():
-                        freq = int(freq_str) / 1000.0
+                        freq = int(freq_str) / 10000.0
                     else:
                         freq = float(freq_str)
                     sql = int(parts[3])
