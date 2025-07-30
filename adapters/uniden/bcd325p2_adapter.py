@@ -324,14 +324,20 @@ class BCD325P2Adapter(UnidenScannerAdapter):
                         f"{QUICK_KEY},{START_KEY},{NUMBER_TAG},{AGC_ANALOG},"
                         f"{AGC_DIGITAL},{P25WAITING}"
                     )
-                self.send_command(ser, csp_cmd)
+                csp_resp = self.send_command(ser, csp_cmd)
+                csp_resp_str = ensure_str(csp_resp)
+                if "OK" not in csp_resp_str:
+                    return self.feedback(False, f"CSP error: {csp_resp_str}")
 
                 csg_obj = self.commands.get("CSG")
                 if csg_obj:
                     csg_cmd = csg_obj.set_format.format(status="0111111111")
                 else:
                     csg_cmd = f"CSG,{CSG_ENABLE_RANGE_1}"
-                self.send_command(ser, csg_cmd)
+                csg_resp = self.send_command(ser, csg_cmd)
+                csg_resp_str = ensure_str(csg_resp)
+                if "OK" not in csg_resp_str:
+                    return self.feedback(False, f"CSG error: {csg_resp_str}")
 
                 self.band_scope_width = self._calc_band_scope_width(
                     span, bandwidth or step
