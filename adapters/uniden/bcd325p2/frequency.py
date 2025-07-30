@@ -70,7 +70,7 @@ def enter_quick_frequency_hold(self, ser, freq_mhz):
     """
     try:
         # Convert frequency to 100 Hz units for the scanner
-        freq_100hz = int(float(freq_mhz) * 10000)
+        freq_100hz = int(Decimal(freq_mhz) * 10000)
 
         # Use QSH command directly
         response = self.send_command(ser, f"QSH,{freq_100hz},AUTO,0")
