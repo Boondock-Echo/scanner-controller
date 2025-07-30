@@ -118,12 +118,13 @@ def test_configure_band_scope_wraps_programming(monkeypatch):
         adapter, "start_scanning", lambda ser: calls.append("START")
     )
 
-    adapter.configure_band_scope(None, "air")
+    result = adapter.configure_band_scope(None, "air")
 
     assert calls[0] == "PRG"
     assert calls[1].startswith("BSP")
     assert calls[2] == "EPG"
     assert calls[-1] == "START"
+    assert result == "OK"
 
 
 def test_configure_band_scope_sets_width(monkeypatch):
@@ -135,8 +136,9 @@ def test_configure_band_scope_sets_width(monkeypatch):
 
     monkeypatch.setattr(adapter.commands["BSP"], "validator", None)
 
-    adapter.configure_band_scope(None, "air")
+    result = adapter.configure_band_scope(None, "air")
     assert adapter.band_scope_width == 4803
+    assert result == "OK"
 
     adapter.in_program_mode = False
 
