@@ -5,8 +5,10 @@ This module builds the command table from scanner adapter capabilities.
 """
 
 import logging
-import math
 import config
+
+# Maximum RSSI value returned by scanners
+MAX_RSSI = 1023.0
 
 from utilities.graph_utils import render_rssi_graph
 
@@ -194,12 +196,9 @@ def build_command_table(adapter, ser):
         def band_scope(ser_, adapter_, arg=""):
             parts = arg.split()
             count = 1024
-            log_scale = getattr(config, "BAND_SCOPE_LOG_SCALE", False)
             list_hits = False
             for part in parts:
-                if part.lower() == "log":
-                    log_scale = True
-                elif part.lower() in ("list", "hits"):
+                if part.lower() in ("list", "hits"):
                     list_hits = True
                 else:
                     try:
@@ -278,7 +277,7 @@ def build_command_table(adapter, ser):
             for rssi, freq, _ in adapter_.stream_custom_search(ser_, count):
                 if rssi is None or freq is None:
                     continue
-                output_lines.append(f"{freq:.4f}, {rssi / 1023.0:.3f}")
+                output_lines.append(f"{freq:.4f}, {rssi / MAX_RSSI:.3f}")
             return "\n".join(output_lines)
         COMMANDS["band sweep"] = band_sweep
         COMMAND_HELP["band sweep"] = (
