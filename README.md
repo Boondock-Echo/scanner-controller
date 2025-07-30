@@ -327,6 +327,35 @@ python tools/clear_pycache.py
 python -m dev_tools.analyze_unused_files
 ```
 
+### Running Tests
+
+1. Create and activate a virtual environment:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate  # On Windows use .venv\Scripts\activate
+```
+
+2. Install development dependencies:
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+3. Run the test suite:
+
+```bash
+pytest
+```
+
+4. Optionally run lint checks using the following commands:
+
+```bash
+black . --check
+flake8
+isort . --check
+```
+
 ## Debugging Communication
 
 Enable verbose logging to troubleshoot serial issues:
