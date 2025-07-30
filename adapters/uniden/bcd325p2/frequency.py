@@ -44,7 +44,7 @@ def write_frequency(self, ser, freq):
     """
     try:
         # Convert frequency to 100 Hz units for the scanner
-        freq_100hz = int(float(freq) * 10000)
+        freq_100hz = int(Decimal(freq) * 10000)
 
         # Use QSH command to tune to the frequency
         response = self.send_command(ser, f"QSH,{freq_100hz},AUTO,0")
