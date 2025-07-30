@@ -348,7 +348,7 @@ pip install -r requirements-dev.txt
 pytest
 ```
 
-4. Optionally run lint checks as shown in `test_dev_requirements.sh`:
+4. Optionally run lint checks using the following commands:
 
 ```bash
 black . --check
