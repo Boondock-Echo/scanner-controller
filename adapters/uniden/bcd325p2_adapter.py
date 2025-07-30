@@ -277,6 +277,62 @@ class BCD325P2Adapter(UnidenScannerAdapter):
 
                 response = self.send_command(ser, cmd)
                 response_str = ensure_str(response)
+
+                csp_obj = self.commands.get("CSP")
+                if csp_obj:
+                    csp_cmd = csp_obj.set_format.format(
+                        srch_index=1,
+                        name="",
+                        limit_l=int(low_khz),
+                        limit_h=int(high_khz),
+                        stp=step,
+                        mod=mod,
+                        att=0,
+                        dly=0,
+                        rsv="",
+                        hld=0,
+                        lout=0,
+                        c_ch=0,
+                        quick_key=".",
+                        start_key=".",
+                        number_tag="NONE",
+                        agc_analog=0,
+                        agc_digital=0,
+                        p25waiting=0,
+                    )
+                else:
+                    # Define named constants for CSP command parameters
+                    SRCH_INDEX = 1
+                    NAME = ""
+                    ATT = 0
+                    DLY = 0
+                    RSV = ""
+                    HLD = 0
+                    LOUT = 0
+                    C_CH = 0
+                    QUICK_KEY = "."
+                    START_KEY = "."
+                    NUMBER_TAG = "NONE"
+                    AGC_ANALOG = 0
+                    AGC_DIGITAL = 0
+                    P25WAITING = 0
+
+                    # Construct the fallback CSP command string
+                    csp_cmd = (
+                        f"CSP,{SRCH_INDEX},{NAME},{int(low_khz)},{int(high_khz)},"
+                        f"{step},{mod},{ATT},{DLY},{RSV},{HLD},{LOUT},{C_CH},"
+                        f"{QUICK_KEY},{START_KEY},{NUMBER_TAG},{AGC_ANALOG},"
+                        f"{AGC_DIGITAL},{P25WAITING}"
+                    )
+                self.send_command(ser, csp_cmd)
+
+                csg_obj = self.commands.get("CSG")
+                if csg_obj:
+                    csg_cmd = csg_obj.set_format.format(status="0111111111")
+                else:
+                    csg_cmd = f"CSG,{CSG_ENABLE_RANGE_1}"
+                self.send_command(ser, csg_cmd)
+
                 self.band_scope_width = self._calc_band_scope_width(
                     span, bandwidth or step
                 )
