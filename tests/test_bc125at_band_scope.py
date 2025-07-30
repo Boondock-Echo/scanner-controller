@@ -58,8 +58,8 @@ def test_bc125at_configure_band_scope_wraps_programming(monkeypatch):
     adapter.configure_band_scope(None, "air")
 
     assert calls[0] == "PRG"
-    assert "START" in calls
-    assert calls[-1] == "EPG"
+    assert calls[1] == "EPG"
+    assert calls[-1] == "START"
 
 
 def test_bc125at_configure_band_scope_sets_width(monkeypatch):
