@@ -249,10 +249,13 @@ def test_band_scope_respects_preset_range(monkeypatch):
     adapter.in_program_mode = False
 
     def stream_stub(ser, c=1024):
-        yield (10, 144.0, 0)
-        yield (20, 146.0, 0)
-        yield (30, 148.0, 0)
+        SIGNAL_LOW = 10  # Low signal strength
+        SIGNAL_MEDIUM = 20  # Medium signal strength
+        SIGNAL_HIGH = 30  # High signal strength
 
+        yield (SIGNAL_LOW, 144.0, 0)
+        yield (SIGNAL_MEDIUM, 146.0, 0)
+        yield (SIGNAL_HIGH, 148.0, 0)
     monkeypatch.setattr(adapter, "stream_custom_search", stream_stub)
 
     output = commands["band scope"](None, adapter, "list")
