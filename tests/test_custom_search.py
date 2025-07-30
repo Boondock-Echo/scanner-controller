@@ -29,8 +29,8 @@ def test_band_scope_command_registered(monkeypatch):
     assert "band scope" in help_text
     output = commands["band scope"](None, adapter, "10")
     lines = output.splitlines()
-    assert len(lines) == 3
-    assert all(len(line) == 5 for line in lines[:-1])
+    assert len(lines) == 1
+    assert lines[0].startswith("center=")
 
 
 def test_band_scope_collects(monkeypatch):
@@ -52,3 +52,4 @@ def test_band_scope_collects(monkeypatch):
     results = list(adapter.stream_custom_search(None, 2))
 
     assert results == [(10, 162.0, 1), (11, 163.0, 0)]
+
