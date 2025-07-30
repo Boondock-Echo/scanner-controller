@@ -301,8 +301,28 @@ class BCD325P2Adapter(UnidenScannerAdapter):
                         p25waiting=0,
                     )
                 else:
+                    # Define named constants for CSP command parameters
+                    SRCH_INDEX = 1
+                    NAME = ""
+                    ATT = 0
+                    DLY = 0
+                    RSV = ""
+                    HLD = 0
+                    LOUT = 0
+                    C_CH = 0
+                    QUICK_KEY = "."
+                    START_KEY = "."
+                    NUMBER_TAG = "NONE"
+                    AGC_ANALOG = 0
+                    AGC_DIGITAL = 0
+                    P25WAITING = 0
+
+                    # Construct the fallback CSP command string
                     csp_cmd = (
-                        f"CSP,1,,{int(low_khz)},{int(high_khz)},{step},{mod},0,0,,0,0,0,,,.,.,,NONE,0,0,0"
+                        f"CSP,{SRCH_INDEX},{NAME},{int(low_khz)},{int(high_khz)},"
+                        f"{step},{mod},{ATT},{DLY},{RSV},{HLD},{LOUT},{C_CH},"
+                        f"{QUICK_KEY},{START_KEY},{NUMBER_TAG},{AGC_ANALOG},"
+                        f"{AGC_DIGITAL},{P25WAITING}"
                     )
                 self.send_command(ser, csp_cmd)
 
