@@ -330,7 +330,7 @@ class BCD325P2Adapter(UnidenScannerAdapter):
                 if csg_obj:
                     csg_cmd = csg_obj.set_format.format(status="0111111111")
                 else:
-                    csg_cmd = "CSG,0111111111"
+                    csg_cmd = f"CSG,{CSG_ENABLE_RANGE_1}"
                 self.send_command(ser, csg_cmd)
 
                 self.band_scope_width = self._calc_band_scope_width(
