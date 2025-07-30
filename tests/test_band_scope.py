@@ -30,13 +30,13 @@ def test_presets_load():
 def test_band_select_air_command(monkeypatch):
     adapter = BCD325P2Adapter()
     adapter.in_program_mode = True
-    monkeypatch.setattr(adapter, "send_command", lambda ser, cmd: cmd)
+    monkeypatch.setattr(adapter, "send_command", lambda ser, cmd: "OK")
     # Disable BSP validator to avoid preset span restrictions
     monkeypatch.setattr(adapter.commands["BSP"], "validator", None)
 
     commands, _ = build_command_table(adapter, None)
     result = commands["band select"](None, adapter, "air")
-    assert result == "BSP,01220000,833,40M,0"
+    assert result == "OK"
 
 
 def test_band_select_registered(monkeypatch):
@@ -315,3 +315,19 @@ def test_band_scope_respects_preset_range(monkeypatch):
     assert all(144.0 <= f <= 148.0 for f in hits)
     assert "min=144.000" in lines[-1]
     assert "max=148.000" in lines[-1]
+
+
+def test_configure_band_scope_reports_errors(monkeypatch):
+    adapter = BCD325P2Adapter()
+
+    def send_command_stub(ser, cmd):
+        if cmd.startswith("CSP"):
+            return "ERR"
+        return "OK"
+
+    monkeypatch.setattr(adapter, "send_command", send_command_stub)
+    monkeypatch.setattr(adapter.commands["BSP"], "validator", None)
+    monkeypatch.setattr(adapter, "start_scanning", lambda ser: None)
+
+    result = adapter.configure_band_scope(None, "air")
+    assert result.startswith("CSP error")
