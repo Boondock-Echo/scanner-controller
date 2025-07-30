@@ -1,11 +1,4 @@
-# signalMeters.py
-
-"""
-Signal meter widget module.
-
-This module provides functions to build signal meter widgets for displaying
-RSSI and squelch levels.
-"""
+"""Widget helpers for displaying RSSI and squelch meters."""
 
 import logging
 

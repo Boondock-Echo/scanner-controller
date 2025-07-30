@@ -1,3 +1,5 @@
+"""Tests for BC125AT band scope functionality."""
+
 import os
 import sys
 import types

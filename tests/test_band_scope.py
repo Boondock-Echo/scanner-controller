@@ -1,3 +1,5 @@
+"""Tests for rendering the band scope waterfall and presets."""
+
 import os
 import sys
 import types

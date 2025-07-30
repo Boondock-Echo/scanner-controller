@@ -1,10 +1,4 @@
-# readline_setup.py
-
-"""
-Readline setup module.
-
-Provides utilities for command line interface with tab completion.
-"""
+"""Setup readline with tab completion for the command line interface."""
 
 
 def initialize_readline(COMMANDS):

@@ -1,3 +1,5 @@
+"""Tests for custom search data streaming."""
+
 import os
 import sys
 import types

@@ -1,3 +1,5 @@
+"""Thread for background polling of the scanner status."""
+
 from __future__ import annotations
 
 import logging

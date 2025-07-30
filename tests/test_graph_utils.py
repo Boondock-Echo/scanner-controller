@@ -1,3 +1,5 @@
+"""Tests for utility functions that render ASCII graphs."""
+
 import os
 import sys
 

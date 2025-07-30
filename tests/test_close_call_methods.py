@@ -1,3 +1,5 @@
+"""Tests for Close Call command formatting methods."""
+
 import os
 import sys
 import types
