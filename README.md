@@ -186,12 +186,13 @@ stopping the stream. By default, **1024** records are collected. After the limit
 is reached the command `CSC,OFF` is issued and the final `CSC,OK` response is
 read.
 When called through the CLI's `band scope` command these readings are printed as
-a list of hit frequencies. After all hits a summary line describes the sweep
-parameters. Only results with RSSI above zero are printed:
+a list of hit frequencies with their normalized signal strength. After all hits
+a summary line describes the sweep parameters. Only results with RSSI above zero
+are printed:
 
 ```text
-146.5200
-147.0400
+146.5200, 0.450
+147.0400, 0.610
 center=146.000 min=145.000 max=147.000 span=2M step=0.5M mod=FM
 ```
 

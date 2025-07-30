@@ -218,7 +218,7 @@ def build_command_table(adapter, ser):
             for rssi, freq, _ in adapter_.stream_custom_search(ser_, count):
                 records.append((rssi, freq))
                 if rssi and rssi > 0:
-                    hits.append(f"{freq:.4f}")
+                    hits.append(f"{freq:.4f}, {rssi / 1023.0:.3f}")
 
             if not records:
                 return "No band scope data received"

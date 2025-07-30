@@ -189,7 +189,11 @@ def test_band_scope_summary_line(monkeypatch):
     commands, _ = build_command_table(adapter, None)
     output = commands["band scope"](None, adapter, "3")
     lines = output.splitlines()
-    assert lines[:3] == ["145.0000", "146.0000", "147.0000"]
+    assert lines[:3] == [
+        "145.0000, 0.010",
+        "146.0000, 0.020",
+        "147.0000, 0.029",
+    ]
     assert lines[-1].startswith("center=")
     assert "min=145.000" in lines[-1]
     assert "max=147.000" in lines[-1]
@@ -234,7 +238,7 @@ def test_band_scope_list_hits(monkeypatch):
     commands, _ = build_command_table(adapter, None)
     output = commands["band scope"](None, adapter, "list")
     lines = output.splitlines()
-    assert lines[:2] == ["146.0000", "148.0000"]
+    assert lines[:2] == ["146.0000, 0.049", "148.0000, 0.029"]
     assert lines[-1].startswith("center=")
 
 def test_band_scope_respects_preset_range(monkeypatch):
@@ -260,7 +264,7 @@ def test_band_scope_respects_preset_range(monkeypatch):
 
     output = commands["band scope"](None, adapter, "list")
     lines = output.splitlines()
-    hits = [float(h) for h in lines[:-1]]
+    hits = [float(h.split(",")[0]) for h in lines[:-1]]
     assert all(144.0 <= f <= 148.0 for f in hits)
     assert "min=144.000" in lines[-1]
     assert "max=148.000" in lines[-1]
