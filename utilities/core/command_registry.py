@@ -214,7 +214,10 @@ def build_command_table(adapter, ser):
 
             records = []
             hits = []
-            for rssi, freq, _ in adapter_.stream_custom_search(ser_, count):
+            debug_mode = logging.getLogger().isEnabledFor(logging.DEBUG)
+            for rssi, freq, _ in adapter_.stream_custom_search(
+                ser_, count, debug=debug_mode
+            ):
                 records.append((rssi, freq))
                 if rssi and rssi > 0:
                     hits.append(f"{freq:.4f}, {rssi / MAX_RSSI:.3f}")
@@ -274,7 +277,10 @@ def build_command_table(adapter, ser):
             parts = arg.split()
             count = int(parts[0]) if parts else 1024
             output_lines = []
-            for rssi, freq, _ in adapter_.stream_custom_search(ser_, count):
+            debug_mode = logging.getLogger().isEnabledFor(logging.DEBUG)
+            for rssi, freq, _ in adapter_.stream_custom_search(
+                ser_, count, debug=debug_mode
+            ):
                 if rssi is None or freq is None:
                     continue
                 output_lines.append(f"{freq:.4f}, {rssi / MAX_RSSI:.3f}")
