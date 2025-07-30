@@ -199,9 +199,12 @@ def build_command_table(adapter, ser):
             parts = arg.split()
             count = 1024
             log_scale = getattr(config, "BAND_SCOPE_LOG_SCALE", False)
+            list_hits = False
             for part in parts:
                 if part.lower() == "log":
                     log_scale = True
+                elif part.lower() in ("list", "hits"):
+                    list_hits = True
                 else:
                     try:
                         count = int(part)
@@ -217,14 +220,20 @@ def build_command_table(adapter, ser):
                 )
 
             records = []
+            hits = []
             baseline = None
             for rssi, freq, _ in adapter_.stream_custom_search(ser_, count):
                 records.append((rssi, freq))
                 if rssi and rssi > 0:
                     baseline = rssi if baseline is None else min(baseline, rssi)
+                    if list_hits:
+                        hits.append(format_frequency(freq))
 
             if not records:
                 return "No band scope data received"
+
+            if list_hits:
+                return "\n".join(hits)
 
             baseline = baseline or 0
             max_db = (
@@ -292,7 +301,7 @@ def build_command_table(adapter, ser):
 
         COMMANDS["band scope"] = band_scope
         COMMAND_HELP["band scope"] = (
-            "Stream band scope data. Usage: band scope [record_count]"
+            "Stream band scope data. Usage: band scope [record_count] [log|list|hits]"
         )
 
         logging.debug("Registering 'band sweep' command")

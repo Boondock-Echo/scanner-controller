@@ -194,6 +194,15 @@ the sweep parameters is printed after the waterfall output:
 center=146.000 min=145.000 max=147.000 span=2M step=0.5M mod=FM
 ```
 
+To get a plain list of hit frequencies instead of a graph, append `list` or
+`hits` to the command. Only results with RSSI above zero are printed:
+
+```text
+> band scope list
+146.5200
+147.0400
+```
+
 The related `band sweep` command streams the raw values directly. Each line
 printed contains the frequency in megahertz and the normalized RSSI level:
 
