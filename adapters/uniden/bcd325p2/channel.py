@@ -38,7 +38,8 @@ def write_channel_info(
         ser: Serial connection to the scanner.
         index: Channel index.
         name: Channel name.
-        freq_khz: Frequency in kHz.
+        freq_khz: Frequency value as an eight-digit number in
+            100‑Hz increments.
         mod: Modulation type.
         ctcss: CTCSS tone.
         delay: Delay setting.
