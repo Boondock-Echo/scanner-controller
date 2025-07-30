@@ -395,7 +395,7 @@ class BCD325P2Adapter(UnidenScannerAdapter):
         """Return the number of sweep bins from span and bandwidth values.
 
         Bare integers are interpreted as eight-digit values in 100‑Hz
-        increments (e.g. ``833`` becomes ``8.33`` kHz).
+        increments (e.g. ``08330000`` becomes ``833.000 kHz``).
         """
         try:
             span_mhz = self._to_mhz(span)
