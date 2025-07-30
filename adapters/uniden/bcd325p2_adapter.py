@@ -368,7 +368,11 @@ class BCD325P2Adapter(UnidenScannerAdapter):
         return float(value_str)
 
     def _to_khz(self, value):
-        """Convert a numeric string with optional unit suffix to kHz."""
+        """Convert a numeric string with optional unit suffix to kHz.
+
+        Bare integer strings are interpreted as eight-digit frequency
+        values representing 100‑Hz increments.
+        """
         value_str = str(value).strip().lower()
 
         if value_str.isdigit():
@@ -390,8 +394,8 @@ class BCD325P2Adapter(UnidenScannerAdapter):
     def _calc_band_scope_width(self, span, bandwidth):
         """Return the number of sweep bins from span and bandwidth values.
 
-        Bare integers are interpreted as hundredths of a kilohertz
-        (e.g. ``833`` becomes ``8.33 kHz``).
+        Bare integers are interpreted as eight-digit values in 100‑Hz
+        increments (e.g. ``08330000`` becomes ``833.000 kHz``).
         """
         try:
             span_mhz = self._to_mhz(span)
