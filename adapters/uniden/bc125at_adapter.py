@@ -274,17 +274,18 @@ class BC125ATAdapter(UnidenScannerAdapter):
         self.last_step = self._to_mhz(step)
         self.last_mod = mod
 
-        result = None
         with programming_session(self, ser) as ok:
             if not ok:
                 return self.feedback(False, "Failed to enter programming mode")
-            result = self.sweep_band_scope(ser, freq, span, step)
+            sweep_results = self.sweep_band_scope(ser, freq, span, step)
+            if not sweep_results:  # Check if the sweep operation failed
+                return self.feedback(False, "Band scope sweep failed")
         # Start the band-scope search after leaving programming mode
         try:
             self.start_scanning(ser)
         except Exception as e:  # pragma: no cover - log and proceed
             logger.error(f"Error starting band scope search: {e}")
-        return result
+        return self.feedback(True, "OK")
 
     def sweep_band_scope(self, ser, center_freq, span, step, bandwidth=None):
         """Sweep across a frequency range using quick hold mode."""
