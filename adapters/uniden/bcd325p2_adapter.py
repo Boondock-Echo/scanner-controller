@@ -257,6 +257,7 @@ class BCD325P2Adapter(UnidenScannerAdapter):
         self.last_step = self._to_mhz(step)
         self.last_mod = mod
 
+        response_value = None
         try:
             with programming_session(self, ser) as ok:
                 if not ok:

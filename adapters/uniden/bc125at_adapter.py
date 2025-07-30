@@ -274,6 +274,7 @@ class BC125ATAdapter(UnidenScannerAdapter):
         self.last_step = self._to_mhz(step)
         self.last_mod = mod
 
+        result = None
         with programming_session(self, ser) as ok:
             if not ok:
                 return self.feedback(False, "Failed to enter programming mode")
