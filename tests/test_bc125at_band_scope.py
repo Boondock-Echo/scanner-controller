@@ -55,11 +55,12 @@ def test_bc125at_configure_band_scope_wraps_programming(monkeypatch):
     monkeypatch.setattr(adapter, "read_rssi", lambda ser: 0)
     monkeypatch.setattr(adapter, "start_scanning", lambda ser: calls.append("START"))
 
-    adapter.configure_band_scope(None, "air")
+    result = adapter.configure_band_scope(None, "air")
 
     assert calls[0] == "PRG"
     assert calls[1] == "EPG"
     assert calls[-1] == "START"
+    assert result == "OK"
 
 
 def test_bc125at_configure_band_scope_sets_width(monkeypatch):
@@ -73,5 +74,6 @@ def test_bc125at_configure_band_scope_sets_width(monkeypatch):
     monkeypatch.setattr(adapter, "read_rssi", lambda ser: 0)
     monkeypatch.setattr(adapter, "start_scanning", lambda ser: None)
 
-    adapter.configure_band_scope(None, "air")
+    result = adapter.configure_band_scope(None, "air")
     assert adapter.band_scope_width == 3362
+    assert result == "OK"
