@@ -36,17 +36,18 @@ def write_frequency(self, ser, freq):
 
     Args:
         ser: Serial connection to the scanner.
-        freq: Frequency to set (in MHz).
+        freq: Frequency to set in MHz. The value will be converted to
+            100 Hz units for the command.
 
     Returns:
         str: Status message after frequency entry.
     """
     try:
-        # Convert frequency to kHz for the scanner
-        freq_khz = int(float(freq) * 1000)
+        # Convert frequency to 100 Hz units for the scanner
+        freq_100hz = int(float(freq) * 10000)
 
         # Use QSH command to tune to the frequency
-        response = self.send_command(ser, f"QSH,{freq_khz},AUTO,0")
+        response = self.send_command(ser, f"QSH,{freq_100hz},AUTO,0")
         response_str = ensure_str(response)
 
         if "OK" in response_str:
@@ -61,17 +62,18 @@ def enter_quick_frequency_hold(self, ser, freq_mhz):
 
     Args:
         ser: Serial connection to the scanner.
-        freq_mhz: Frequency in MHz.
+        freq_mhz: Frequency in MHz. This value will be converted to
+            100 Hz units for the command.
 
     Returns:
         str: Status message after frequency entry.
     """
     try:
-        # Convert frequency to kHz for the scanner
-        freq_khz = int(float(freq_mhz) * 1000)
+        # Convert frequency to 100 Hz units for the scanner
+        freq_100hz = int(float(freq_mhz) * 10000)
 
         # Use QSH command directly
-        response = self.send_command(ser, f"QSH,{freq_khz},AUTO,0")
+        response = self.send_command(ser, f"QSH,{freq_100hz},AUTO,0")
         response_str = ensure_str(response)
 
         if "OK" in response_str:
