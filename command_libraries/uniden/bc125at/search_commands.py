@@ -43,7 +43,7 @@ SEARCH_COMMANDS = {
         requires_prg=True,
         set_format="ULF,{frequency}",
         validator=validate_param_constraints(
-            [(int, lambda x: 25000 <= x <= 512000)]  # frequency (kHz)
+            [(int, lambda x: 2500000 <= x <= 51200000)]  # frequency (100 Hz)
         ),
         help="""Unlock Global Lockout Frequency.
 
@@ -51,13 +51,14 @@ SEARCH_COMMANDS = {
         ULF,[FRQ] - Unlock a frequency
 
         Parameters:
-        FRQ : Frequency to unlock (25000-512000 kHz)
+        FRQ : Frequency to unlock in 100 Hz units
+              (2500000-51200000, 8-digit format)
 
         Response:
         ULF,OK - Frequency successfully unlocked
 
         Examples:
-        ULF,155625 - Unlock 155.625 MHz
+        ULF,15562500 - Unlock 155.625 MHz
 
         Notes:
         - Removes the specified frequency from the global lockout list
@@ -69,7 +70,7 @@ SEARCH_COMMANDS = {
         requires_prg=True,
         set_format="LOF,{frequency}",
         validator=validate_param_constraints(
-            [(int, lambda x: 25000 <= x <= 512000)]  # frequency (kHz)
+            [(int, lambda x: 2500000 <= x <= 51200000)]  # frequency (100 Hz)
         ),
         help="""Lock Out Frequency.
 
@@ -77,13 +78,14 @@ SEARCH_COMMANDS = {
         LOF,[FRQ] - Lock out a frequency
 
         Parameters:
-        FRQ : Frequency to lock out (25000-512000 kHz)
+        FRQ : Frequency to lock out in 100 Hz units
+              (2500000-51200000, 8-digit format)
 
         Response:
         LOF,OK - Frequency successfully locked out
 
         Examples:
-        LOF,155625 - Lock out 155.625 MHz
+        LOF,15562500 - Lock out 155.625 MHz
 
         Notes:
         - Adds the specified frequency to the global lockout list
@@ -132,8 +134,14 @@ SEARCH_COMMANDS = {
         validator=validate_param_constraints(
             [
                 (int, lambda x: 1 <= x <= 10),  # index (1-10)
-                (int, lambda x: 25000 <= x <= 512000),  # lower_limit (kHz)
-                (int, lambda x: 25000 <= x <= 512000),  # upper_limit (kHz)
+                (
+                    int,
+                    lambda x: 2500000 <= x <= 51200000,
+                ),  # lower_limit (100 Hz)
+                (
+                    int,
+                    lambda x: 2500000 <= x <= 51200000,
+                ),  # upper_limit (100 Hz)
             ]
         ),
         help="""Get/Set Custom Search Settings.
@@ -144,12 +152,15 @@ SEARCH_COMMANDS = {
 
         Parameters:
         INDEX : Custom search range index (1-10)
-        LIMIT_L : Lower limit frequency in kHz (25000-512000)
-        LIMIT_H : Upper limit frequency in kHz (25000-512000)
+        LIMIT_L : Lower limit frequency in 100 Hz units
+                  (2500000-51200000, 8-digit format)
+        LIMIT_H : Upper limit frequency in 100 Hz units
+                  (2500000-51200000, 8-digit format)
 
         Examples:
         CSP,1 - Get settings for custom search range 1
-        CSP,1,450000,470000 - Set custom search range 1 to 450.000-470.000 MHz
+        CSP,1,45000000,47000000 - Set custom search range 1
+            to 450.000-470.000 MHz
 
         Notes:
         - In set command, only filled parameters are changed
