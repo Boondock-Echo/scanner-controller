@@ -114,6 +114,8 @@ def test_configure_band_scope_wraps_programming(monkeypatch):
 
     monkeypatch.setattr(adapter, "send_command", send_command_stub)
     monkeypatch.setattr(adapter.commands["BSP"], "validator", None)
+    monkeypatch.setattr(adapter.commands["CSP"], "validator", None)
+    monkeypatch.setattr(adapter.commands["CSG"], "validator", None)
     monkeypatch.setattr(
         adapter, "start_scanning", lambda ser: calls.append("START")
     )
@@ -122,9 +124,33 @@ def test_configure_band_scope_wraps_programming(monkeypatch):
 
     assert calls[0] == "PRG"
     assert calls[1].startswith("BSP")
-    assert calls[2] == "EPG"
+    assert calls[2].startswith("CSP")
+    assert calls[3] == "CSG,0111111111"
+    assert calls[4] == "EPG"
     assert calls[-1] == "START"
     assert result == "OK"
+
+
+def test_configure_band_scope_csp_format(monkeypatch):
+    adapter = BCD325P2Adapter()
+    calls = []
+
+    def send_command_stub(ser, cmd):
+        calls.append(cmd)
+        return "OK"
+
+    monkeypatch.setattr(adapter, "send_command", send_command_stub)
+    monkeypatch.setattr(adapter.commands["BSP"], "validator", None)
+    monkeypatch.setattr(adapter.commands["CSP"], "validator", None)
+    monkeypatch.setattr(adapter.commands["CSG"], "validator", None)
+    monkeypatch.setattr(adapter, "start_scanning", lambda ser: None)
+
+    adapter.configure_band_scope(None, "air")
+
+    csp_cmd = next(cmd for cmd in calls if cmd.startswith("CSP"))
+    assert ",108000," in csp_cmd
+    assert ",136000," in csp_cmd
+    assert ",833," in csp_cmd
 
 
 def test_configure_band_scope_sets_width(monkeypatch):

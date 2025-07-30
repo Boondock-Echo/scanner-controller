@@ -277,6 +277,42 @@ class BCD325P2Adapter(UnidenScannerAdapter):
 
                 response = self.send_command(ser, cmd)
                 response_str = ensure_str(response)
+
+                csp_obj = self.commands.get("CSP")
+                if csp_obj:
+                    csp_cmd = csp_obj.set_format.format(
+                        srch_index=1,
+                        name="",
+                        limit_l=int(low_khz),
+                        limit_h=int(high_khz),
+                        stp=step,
+                        mod=mod,
+                        att=0,
+                        dly=0,
+                        rsv="",
+                        hld=0,
+                        lout=0,
+                        c_ch=0,
+                        quick_key=".",
+                        start_key=".",
+                        number_tag="NONE",
+                        agc_analog=0,
+                        agc_digital=0,
+                        p25waiting=0,
+                    )
+                else:
+                    csp_cmd = (
+                        f"CSP,1,,{int(low_khz)},{int(high_khz)},{step},{mod},0,0,,0,0,0,,,.,.,,NONE,0,0,0"
+                    )
+                self.send_command(ser, csp_cmd)
+
+                csg_obj = self.commands.get("CSG")
+                if csg_obj:
+                    csg_cmd = csg_obj.set_format.format(status="0111111111")
+                else:
+                    csg_cmd = "CSG,0111111111"
+                self.send_command(ser, csg_cmd)
+
                 self.band_scope_width = self._calc_band_scope_width(
                     span, bandwidth or step
                 )
