@@ -215,9 +215,9 @@ class BCD325P2Adapter(UnidenScannerAdapter):
         high_mhz = self._to_mhz(high)
         span_mhz = high_mhz - low_mhz
         center_mhz = (low_mhz + high_mhz) / 2.0
-        freq = f"{int(round(center_mhz * 10000)):08d}"
-        low_lim = int(round(low_mhz * 10000))
-        high_lim = int(round(high_mhz * 10000))
+        freq = f"{int(round(center_mhz * HZ_PER_100HZ_UNIT)):08d}"
+        low_lim = int(round(low_mhz * HZ_PER_100HZ_UNIT))
+        high_lim = int(round(high_mhz * HZ_PER_100HZ_UNIT))
 
         allowed_spans = [
             0.2,
