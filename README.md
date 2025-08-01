@@ -174,12 +174,6 @@ programs custom search range 1 using `CSP` and enables only that range with
 `CSG,0111111111` so the scope limits match the selected band. The `CSP`
 command uses the preset limits in 100‑Hz units (e.g. `01080000` for 108 MHz)
 to align with the scanner's expected format.
-If the search is later halted you can resume it with the dedicated
-command:
-
-```text
-> band scope start
-```
 
 ### Band Scope Streaming
 

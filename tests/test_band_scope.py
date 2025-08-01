@@ -272,7 +272,7 @@ def test_band_scope_in_program_mode(monkeypatch):
 
     assert (
         result
-        == "Scanner is in programming mode. Run 'send EPG' then 'band scope start'."
+        == "Scanner is in programming mode. Run 'send EPG' then rerun 'band scope'."
     )
     assert not called
 
