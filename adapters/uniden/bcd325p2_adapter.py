@@ -53,11 +53,15 @@ from adapters.uniden.common.core import (
     feedback,
     send_command,
 )
-from adapters.uniden.common import SCANNER_UNITS_PER_MHZ
 from adapters.uniden.common.programming import (
     enter_programming_mode,
     exit_programming_mode,
     programming_session,
+)
+from adapters.uniden.common.constants import (
+    HZ_PER_MHZ,
+    HZ_PER_SCANNER_UNIT,
+    SCANNER_UNITS_PER_MHZ,
 )
 
 # First-party imports
@@ -362,9 +366,9 @@ class BCD325P2Adapter(UnidenScannerAdapter):
 
         if value_str.isdigit():
             ivalue = int(value_str)
-            if ivalue > 10000:
-                return ivalue / 10000.0
-            return ivalue / 100000.0
+            if ivalue > SCANNER_UNITS_PER_MHZ:
+                return ivalue / SCANNER_UNITS_PER_MHZ
+            return ivalue / (SCANNER_UNITS_PER_MHZ * 10)
 
         for suffix in ("mhz", "m"):
             if value_str.endswith(suffix):
@@ -372,7 +376,7 @@ class BCD325P2Adapter(UnidenScannerAdapter):
 
         for suffix in ("khz", "k"):
             if value_str.endswith(suffix):
-                return float(value_str[: -len(suffix)]) / 1000.0
+                return float(value_str[: -len(suffix)]) / (HZ_PER_MHZ // 1000)
 
         return float(value_str)
 
@@ -386,9 +390,9 @@ class BCD325P2Adapter(UnidenScannerAdapter):
 
         if value_str.isdigit():
             ivalue = int(value_str)
-            if ivalue > 10000:
-                return ivalue / 10.0
-            return ivalue / 100.0
+            if ivalue > SCANNER_UNITS_PER_MHZ:
+                return ivalue * HZ_PER_SCANNER_UNIT / (HZ_PER_MHZ // 1000)
+            return ivalue * HZ_PER_SCANNER_UNIT / SCANNER_UNITS_PER_MHZ
 
         for suffix in ("khz", "k"):
             if value_str.endswith(suffix):
@@ -396,7 +400,7 @@ class BCD325P2Adapter(UnidenScannerAdapter):
 
         for suffix in ("mhz", "m"):
             if value_str.endswith(suffix):
-                return float(value_str[: -len(suffix)]) * 1000.0
+                return float(value_str[: -len(suffix)]) * (HZ_PER_MHZ // 1000)
 
         return float(value_str)
 
