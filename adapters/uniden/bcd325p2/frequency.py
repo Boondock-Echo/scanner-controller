@@ -4,9 +4,9 @@ Frequency-related functions for the BCD325P2 scanner.
 Contains functions for reading and setting frequencies.
 """
 
+from decimal import Decimal
 import time
 
-from decimal import Decimal
 from adapters.uniden.common.constants import (
     HZ_PER_MHZ,
     HZ_PER_SCANNER_UNIT,
