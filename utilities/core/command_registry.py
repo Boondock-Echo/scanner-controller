@@ -198,7 +198,7 @@ def build_command_table(adapter, ser):
         def band_scope(ser_, adapter_, arg=""):
             parts = arg.split()
             sweep_count = 1
-            list_hits = False
+            mode = "list"
             preset = None
 
             # Determine first non-flag token for preset or sweep count
@@ -206,7 +206,7 @@ def build_command_table(adapter, ser):
             for part in parts:
                 lower = part.lower()
                 if lower in ("list", "hits"):
-                    list_hits = True
+                    mode = lower
                     continue
                 if not first_non_flag_found:
                     first_non_flag_found = True
@@ -243,7 +243,6 @@ def build_command_table(adapter, ser):
             record_count = width * sweep_count
 
             records = []
-            hits = []
             debug_mode = logging.getLogger().isEnabledFor(logging.DEBUG)
             show_progress = sys.stdout.isatty()
             spinner = itertools.cycle("|/-\\") if show_progress else None
@@ -252,8 +251,6 @@ def build_command_table(adapter, ser):
                 ser_, record_count, debug=debug_mode
             ):
                 records.append((rssi, freq))
-                if rssi and rssi > 0:
-                    hits.append(f"{freq:.4f}, {rssi / MAX_RSSI:.3f}")
                 if show_progress:
                     processed += 1
                     ch = next(spinner)
@@ -306,7 +303,23 @@ def build_command_table(adapter, ser):
                 f"step={fmt_span(step)} mod={mod or 'N/A'}"
             )
 
-            return "\n".join(hits + [summary])
+            lines = []
+            if mode == "hits":
+                rssi_vals = [(r or 0) for r, _ in records]
+                mean_rssi = sum(rssi_vals) / len(records)
+                threshold = mean_rssi * 1.2
+                for rssi, freq in records:
+                    if rssi is None or freq is None:
+                        continue
+                    if rssi > threshold:
+                        lines.append(f"{freq:.4f}, {rssi / MAX_RSSI:.3f}")
+            else:
+                for rssi, freq in records:
+                    if rssi is None or freq is None:
+                        continue
+                    lines.append(f"{freq:.4f}, {rssi / MAX_RSSI:.3f}")
+
+            return "\n".join(lines + [summary])
 
         COMMANDS["band scope"] = band_scope
         COMMAND_HELP["band scope"] = (
