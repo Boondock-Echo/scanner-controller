@@ -26,7 +26,7 @@ from utilities.scanner.close_call_logger import record_close_calls  # noqa: E402
 class DummyAdapter:
     def __init__(self):
         self.mask = None
-        self.lof_sent = None
+        self.commands = []
 
     def set_close_call(self, ser, params):
         self.mask = params
@@ -41,7 +41,7 @@ class DummyAdapter:
         return 0.5
 
     def send_command(self, ser, cmd):
-        self.lof_sent = cmd
+        self.commands.append(cmd)
 
 
 def test_band_mask_and_db_write(tmp_path, monkeypatch):
@@ -80,7 +80,25 @@ def test_lockout_sends_lof(tmp_path, monkeypatch):
         adapter, None, "air", db_path=str(db), lockout=True, max_records=1
     )
 
-    assert adapter.lof_sent == "LOF,162.5"
+    assert adapter.commands == ["LOF,162.5", "ULF,162.5"]
+
+
+def test_unlocks_on_interrupt(tmp_path, monkeypatch):
+    adapter = DummyAdapter()
+    db = tmp_path / "cc.db"
+
+    calls = [162.5]
+
+    def freq_stub(ser):
+        if calls:
+            return calls.pop(0)
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(adapter, "read_frequency", freq_stub)
+
+    record_close_calls(adapter, None, "air", db_path=str(db), lockout=True)
+
+    assert adapter.commands == ["LOF,162.5", "ULF,162.5"]
 
 
 def test_max_time_limits_logging(tmp_path, monkeypatch):

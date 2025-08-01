@@ -5,7 +5,7 @@ from __future__ import annotations
 import select
 import sys
 import time
-from typing import IO, List, Optional, Tuple
+from typing import IO, List, Optional, Set, Tuple
 
 from config.close_call_bands import CLOSE_CALL_BANDS
 
@@ -45,6 +45,7 @@ def close_call_search(
     max_hits: Optional[int] = None,
     max_time: Optional[float] = None,
     input_stream: Optional[IO[str]] = None,
+    lockout: bool = False,
 ) -> Tuple[List[Tuple[float, Optional[float], str, Optional[float]]], bool]:
     """Collect Close Call hits within a band.
 
@@ -76,6 +77,7 @@ def close_call_search(
     start_time = time.time()
     cancelled = False
     stream = input_stream if input_stream is not None else sys.stdin
+    locked: Set[float] = set()
 
     try:
         while True:
@@ -96,10 +98,17 @@ def close_call_search(
                 rssi = _parse_float(rssi_raw)
                 ts = time.time()
                 hits.append((ts, freq, tone, rssi))
+                if lockout and freq is not None:
+                    adapter.send_command(ser, f"LOF,{freq}")
+                    locked.add(freq)
             except KeyboardInterrupt:
                 cancelled = True
                 break
     finally:
-        pass
+        for freq in locked:
+            try:
+                adapter.send_command(ser, f"ULF,{freq}")
+            except Exception:
+                pass
 
     return hits, not cancelled
