@@ -6,6 +6,11 @@ Contains functions for reading and setting frequencies.
 
 import time
 
+from adapters.uniden.common.constants import (
+    HZ_PER_MHZ,
+    HZ_PER_SCANNER_UNIT,
+    SCANNER_UNITS_PER_MHZ,
+)
 from adapters.uniden.common.core import ensure_str
 from utilities.scanner.backend import send_command
 
@@ -25,7 +30,7 @@ def read_frequency(self, ser):
 
         parts = response_str.strip().split(",")
         if len(parts) == 3 and parts[0] == "PWR":
-            freq_mhz = (int(parts[2]) * 100) / 1_000_000
+            freq_mhz = (int(parts[2]) * HZ_PER_SCANNER_UNIT) / HZ_PER_MHZ
             return self.feedback(True, f"Frequency: {freq_mhz} MHz")
         return self.feedback(False, f"Unexpected response: {response_str}")
     except Exception as e:
@@ -80,7 +85,7 @@ def enter_quick_frequency_hold(self, ser, freq_mhz):
 
         parts = response_str.strip().split(",")
         if len(parts) == 3 and parts[0] == "PWR":
-            actual_freq = int(parts[2]) / 10000.0
+            actual_freq = int(parts[2]) / SCANNER_UNITS_PER_MHZ
             if abs(actual_freq - freq_mhz) < 0.005:
                 return self.feedback(
                     True,
