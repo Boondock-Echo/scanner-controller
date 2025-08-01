@@ -37,6 +37,11 @@ try:
 except Exception:  # pragma: no cover - optional import for tests
     record_close_calls = None
 
+try:
+    from utilities.scanner.close_call_search import close_call_search
+except Exception:  # pragma: no cover - optional import for tests
+    close_call_search = None
+
 # Only export specific names (instead of using __all__ = ['*'])
 __all__ = [
     "configure_logging",
@@ -61,4 +66,5 @@ __all__ = [
     "wait_for_data",
     "render_rssi_graph",
     "record_close_calls",
+    "close_call_search",
 ]
