@@ -2,6 +2,7 @@
 
 import logging
 
+from adapters.uniden.common.constants import SCANNER_UNITS_PER_MHZ
 from utilities.core.serial_utils import (
     read_response,
     send_command,
@@ -50,7 +51,7 @@ def stream_custom_search(self, ser, record_count=1024, debug=False):
                     rssi = int(parts[1])
                     freq_str = parts[2]
                     if freq_str.isdigit():
-                        freq = int(freq_str) / 10000.0
+                        freq = int(freq_str) / SCANNER_UNITS_PER_MHZ
                     else:
                         freq = float(freq_str)
                     sql = int(parts[3])
