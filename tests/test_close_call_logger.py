@@ -80,7 +80,7 @@ def test_lockout_sends_lof(tmp_path, monkeypatch):
     adapter = DummyAdapter()
     db = tmp_path / "cc.db"
 
-    calls = [162.5]
+    calls = [130.0]
 
     def freq_stub(ser):
         return calls.pop(0)
@@ -91,7 +91,7 @@ def test_lockout_sends_lof(tmp_path, monkeypatch):
         adapter, None, "air", db_path=str(db), lockout=True, max_records=1
     )
 
-    assert adapter.commands == ["LOF,162.5", "ULF,162.5"]
+    assert adapter.commands == ["LOF,130.0", "ULF,130.0"]
 
 
 def test_unlocks_on_interrupt(tmp_path, monkeypatch):
@@ -137,3 +137,24 @@ def test_max_time_limits_logging(tmp_path, monkeypatch):
     count = conn.execute("SELECT COUNT(*) FROM close_calls").fetchone()[0]
     conn.close()
     assert count == 2
+
+
+def test_out_of_range_hit_is_ignored(tmp_path, monkeypatch):
+    adapter = DummyAdapter()
+    db = tmp_path / "cc.db"
+
+    calls = [105.0, 130.0]
+
+    def freq_stub(ser):
+        return calls.pop(0)
+
+    monkeypatch.setattr(adapter, "read_frequency", freq_stub)
+
+    record_close_calls(adapter, None, "air", db_path=str(db), max_records=1)
+
+    conn = sqlite3.connect(db)
+    rows = conn.execute("SELECT frequency FROM close_calls").fetchall()
+    conn.close()
+
+    assert rows == [(130.0,)]
+    assert adapter.commands == ["LOF,105.0", "ULF,105.0"]
