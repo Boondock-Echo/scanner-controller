@@ -4,7 +4,9 @@ Command Registry Module.
 This module builds the command table from scanner adapter capabilities.
 """
 
+import itertools
 import logging
+import sys
 import config
 
 # Maximum RSSI value returned by scanners
@@ -243,12 +245,24 @@ def build_command_table(adapter, ser):
             records = []
             hits = []
             debug_mode = logging.getLogger().isEnabledFor(logging.DEBUG)
+            show_progress = sys.stdout.isatty()
+            spinner = itertools.cycle("|/-\\") if show_progress else None
+            processed = 0
             for rssi, freq, _ in adapter_.stream_custom_search(
                 ser_, record_count, debug=debug_mode
             ):
                 records.append((rssi, freq))
                 if rssi and rssi > 0:
                     hits.append(f"{freq:.4f}, {rssi / MAX_RSSI:.3f}")
+                if show_progress:
+                    processed += 1
+                    ch = next(spinner)
+                    percent = processed / record_count * 100
+                    sys.stdout.write(f"\r{ch} {percent:5.1f}%")
+                    sys.stdout.flush()
+            if show_progress:
+                sys.stdout.write("\r")
+                sys.stdout.flush()
 
             if not records:
                 return "No band scope data received"
