@@ -53,6 +53,7 @@ from adapters.uniden.common.core import (
     feedback,
     send_command,
 )
+from adapters.uniden.common import SCANNER_UNITS_PER_MHZ
 from adapters.uniden.common.programming import (
     enter_programming_mode,
     exit_programming_mode,
@@ -215,9 +216,9 @@ class BCD325P2Adapter(UnidenScannerAdapter):
         high_mhz = self._to_mhz(high)
         span_mhz = high_mhz - low_mhz
         center_mhz = (low_mhz + high_mhz) / 2.0
-        freq = f"{int(round(center_mhz * HZ_PER_100HZ_UNIT)):08d}"
-        low_lim = int(round(low_mhz * HZ_PER_100HZ_UNIT))
-        high_lim = int(round(high_mhz * HZ_PER_100HZ_UNIT))
+        freq = f"{int(round(center_mhz * SCANNER_UNITS_PER_MHZ)):08d}"
+        low_lim = int(round(low_mhz * SCANNER_UNITS_PER_MHZ))
+        high_lim = int(round(high_mhz * SCANNER_UNITS_PER_MHZ))
 
         allowed_spans = [
             0.2,
