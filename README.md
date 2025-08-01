@@ -171,7 +171,9 @@ name or explicit parameters. The shorter alias `band set` behaves the same.
 After the `BSP` command is sent during `band select`, the scanner now
 automatically enters band-scope search by issuing a scan-start key. It also
 programs custom search range 1 using `CSP` and enables only that range with
-`CSG,0111111111` so the scope limits match the selected band.
+`CSG,0111111111` so the scope limits match the selected band. The `CSP`
+command uses the preset limits in 100‑Hz units (e.g. `01080000` for 108 MHz)
+to align with the scanner's expected format.
 If the search is later halted you can resume it with the dedicated
 command:
 
