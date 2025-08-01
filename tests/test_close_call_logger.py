@@ -25,14 +25,24 @@ from utilities.scanner.close_call_logger import record_close_calls  # noqa: E402
 
 class DummyAdapter:
     def __init__(self):
-        self.mask = None
+        self.set_calls = []
+        self.jump_calls = []
         self.commands = []
+        self.scanned = False
+
+    def get_close_call(self, ser):
+        return "ORIG"
 
     def set_close_call(self, ser, params):
-        self.mask = params
+        self.set_calls.append(params)
 
     def jump_mode(self, ser, mode):
-        self.jumped = mode
+        self.jump_calls.append(mode)
+        if mode == "":
+            return "SCN_MODE"
+
+    def start_scanning(self, ser):
+        self.scanned = True
 
     def read_frequency(self, ser):
         raise NotImplementedError
@@ -56,8 +66,9 @@ def test_band_mask_and_db_write(tmp_path, monkeypatch):
     monkeypatch.setattr(adapter, "read_frequency", freq_stub)
 
     record_close_calls(adapter, None, "air", db_path=str(db), max_records=1)
-
-    assert adapter.mask == CLOSE_CALL_BANDS["air"]
+    assert adapter.set_calls == [CLOSE_CALL_BANDS["air"], "ORIG"]
+    assert adapter.jump_calls == ["", "CC_MODE"]
+    assert adapter.scanned
 
     conn = sqlite3.connect(db)
     count = conn.execute("SELECT COUNT(*) FROM close_calls").fetchone()[0]

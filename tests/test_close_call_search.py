@@ -25,15 +25,24 @@ from utilities.scanner.close_call_search import close_call_search  # noqa: E402
 
 class DummyAdapter:
     def __init__(self):
-        self.mask = None
-        self.jumped = None
+        self.set_calls = []
+        self.jump_calls = []
         self.commands = []
+        self.scanned = False
+
+    def get_close_call(self, ser):
+        return "ORIG"
 
     def set_close_call(self, ser, params):
-        self.mask = params
+        self.set_calls.append(params)
 
     def jump_mode(self, ser, mode):
-        self.jumped = mode
+        self.jump_calls.append(mode)
+        if mode == "":
+            return "SCN_MODE"
+
+    def start_scanning(self, ser):
+        self.scanned = True
 
     def read_frequency(self, ser):
         raise NotImplementedError
@@ -60,7 +69,9 @@ def test_search_max_hits(monkeypatch):
 
     assert len(hits) == 2
     assert completed
-    assert adapter.mask == CLOSE_CALL_BANDS["air"]
+    assert adapter.set_calls == [CLOSE_CALL_BANDS["air"], "ORIG"]
+    assert adapter.jump_calls == ["", "CC_MODE"]
+    assert adapter.scanned
 
 
 def test_search_max_time(monkeypatch):
