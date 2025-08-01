@@ -6,6 +6,7 @@ import time
 from typing import Optional
 
 from config.close_call_bands import CLOSE_CALL_BANDS
+from adapters.uniden.common.constants import SCANNER_UNITS_PER_MHZ
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +55,18 @@ def record_close_calls(
     adapter.set_close_call(ser, mask)
     adapter.jump_mode(ser, "CC_MODE")
 
+    try:
+        from config.band_scope_presets import BAND_SCOPE_PRESETS
+
+        low_str, high_str, *_ = BAND_SCOPE_PRESETS.get(band_key, (None, None))
+        if low_str is not None and high_str is not None:
+            low_limit = int(low_str) / SCANNER_UNITS_PER_MHZ
+            high_limit = int(high_str) / SCANNER_UNITS_PER_MHZ
+        else:
+            low_limit = high_limit = None
+    except Exception:
+        low_limit = high_limit = None
+
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()
     cur.execute(
@@ -79,6 +92,17 @@ def record_close_calls(
                     tone = adapter.read_tone(ser)
                 rssi_raw = adapter.read_rssi(ser)
                 rssi = _parse_float(rssi_raw)
+
+                if (
+                    freq is not None
+                    and low_limit is not None
+                    and high_limit is not None
+                    and not (low_limit <= freq <= high_limit)
+                ):
+                    adapter.send_command(ser, f"LOF,{freq}")
+                    locked.add(freq)
+                    logger.info("Locked out frequency %s outside range", freq)
+                    continue
 
                 ts = time.time()
                 cur.execute(
