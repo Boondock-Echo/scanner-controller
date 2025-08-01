@@ -140,3 +140,21 @@ def test_lockout_unlocks(monkeypatch):
     close_call_search(adapter, None, "air", max_hits=2, lockout=True, input_stream=io.StringIO(""))
 
     assert adapter.commands == ["LOF,130.0", "LOF,131.0", "ULF,130.0", "ULF,131.0"]
+
+
+def test_out_of_range_hit(monkeypatch):
+    adapter = DummyAdapter()
+    calls = [105.0, 130.0]
+
+    def freq_stub(ser):
+        return calls.pop(0)
+
+    monkeypatch.setattr(adapter, "read_frequency", freq_stub)
+
+    hits, completed = close_call_search(
+        adapter, None, "air", max_hits=1, input_stream=io.StringIO("")
+    )
+
+    assert [h[1] for h in hits] == [130.0]
+    assert completed
+    assert adapter.commands == ["LOF,105.0", "ULF,105.0"]
