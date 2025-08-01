@@ -211,11 +211,13 @@ class BCD325P2Adapter(UnidenScannerAdapter):
         except ValueError as e:
             return self.feedback(False, str(e))
 
-        low_khz = self._to_khz(low)
-        high_khz = self._to_khz(high)
-        span_mhz = (high_khz - low_khz) / 1000.0
-        center_khz = (low_khz + high_khz) / 2.0
-        freq = f"{int(round(center_khz * 10)):08d}"
+        low_mhz = self._to_mhz(low)
+        high_mhz = self._to_mhz(high)
+        span_mhz = high_mhz - low_mhz
+        center_mhz = (low_mhz + high_mhz) / 2.0
+        freq = f"{int(round(center_mhz * 10000)):08d}"
+        low_lim = int(round(low_mhz * 10000))
+        high_lim = int(round(high_mhz * 10000))
 
         allowed_spans = [
             0.2,
@@ -252,7 +254,7 @@ class BCD325P2Adapter(UnidenScannerAdapter):
         max_hold = 0
         bandwidth = None
 
-        self.last_center = center_khz / 1000.0
+        self.last_center = center_mhz
         self.last_span = span_val
         self.last_step = self._to_mhz(step)
         self.last_mod = mod
@@ -283,8 +285,8 @@ class BCD325P2Adapter(UnidenScannerAdapter):
                     csp_cmd = csp_obj.set_format.format(
                         srch_index=1,
                         name="",
-                        limit_l=int(low_khz),
-                        limit_h=int(high_khz),
+                        limit_l=low_lim,
+                        limit_h=high_lim,
                         stp=step,
                         mod=mod,
                         att=0,
@@ -319,7 +321,7 @@ class BCD325P2Adapter(UnidenScannerAdapter):
 
                     # Construct the fallback CSP command string
                     csp_cmd = (
-                        f"CSP,{SRCH_INDEX},{NAME},{int(low_khz)},{int(high_khz)},"
+                        f"CSP,{SRCH_INDEX},{NAME},{low_lim},{high_lim},"
                         f"{step},{mod},{ATT},{DLY},{RSV},{HLD},{LOUT},{C_CH},"
                         f"{QUICK_KEY},{START_KEY},{NUMBER_TAG},{AGC_ANALOG},"
                         f"{AGC_DIGITAL},{P25WAITING}"

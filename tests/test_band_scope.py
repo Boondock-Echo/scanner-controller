@@ -169,8 +169,8 @@ def test_configure_band_scope_csp_format(monkeypatch):
     adapter.configure_band_scope(None, "air")
 
     csp_cmd = next(cmd for cmd in calls if cmd.startswith("CSP"))
-    assert ",108000," in csp_cmd
-    assert ",136000," in csp_cmd
+    assert ",1080000," in csp_cmd
+    assert ",1360000," in csp_cmd
     assert ",833," in csp_cmd
 
 
