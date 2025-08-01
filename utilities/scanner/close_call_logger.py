@@ -43,6 +43,12 @@ def record_close_calls(
     band_key = str(band).lower()
     if band_key not in CLOSE_CALL_BANDS:
         raise KeyError(f"Unknown band: {band}")
+    # Preserve current Close Call settings and mode so we can restore them later
+    current_settings = adapter.get_close_call(ser)
+    try:
+        current_mode = adapter.jump_mode(ser, "")
+    except Exception:  # pragma: no cover - best effort only
+        current_mode = None
 
     mask = CLOSE_CALL_BANDS[band_key]
     adapter.set_close_call(ser, mask)
@@ -104,3 +110,20 @@ def record_close_calls(
             except Exception:
                 pass
         conn.close()
+        # Restore previous Close Call settings and resume prior mode
+        try:
+            adapter.set_close_call(ser, current_settings)
+        except Exception:  # pragma: no cover - best effort only
+            pass
+        try:
+            if current_mode == "SCN_MODE":
+                adapter.start_scanning(ser)
+            elif current_mode:
+                adapter.jump_mode(ser, current_mode)
+            else:
+                adapter.start_scanning(ser)
+        except Exception:  # pragma: no cover - best effort only
+            try:
+                adapter.start_scanning(ser)
+            except Exception:
+                pass
