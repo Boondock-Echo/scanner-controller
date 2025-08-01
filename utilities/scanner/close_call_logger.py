@@ -58,6 +58,7 @@ def record_close_calls(
     record_count = 0
     total_records = 0
     start_time = time.time()
+    locked = set()
     try:
         while True:
             if max_records is not None and total_records >= max_records:
@@ -88,10 +89,18 @@ def record_close_calls(
 
                 if lockout and freq is not None:
                     adapter.send_command(ser, f"LOF,{freq}")
+                    locked.add(freq)
             except KeyboardInterrupt:
                 break
-        # Commit any remaining records
-        if record_count > 0:
-            conn.commit()
     finally:
+        if record_count > 0:
+            try:
+                conn.commit()
+            except Exception:
+                pass
+        for freq in locked:
+            try:
+                adapter.send_command(ser, f"ULF,{freq}")
+            except Exception:
+                pass
         conn.close()

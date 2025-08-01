@@ -27,6 +27,7 @@ class DummyAdapter:
     def __init__(self):
         self.mask = None
         self.jumped = None
+        self.commands = []
 
     def set_close_call(self, ser, params):
         self.mask = params
@@ -39,6 +40,9 @@ class DummyAdapter:
 
     def read_rssi(self, ser):
         return 0.5
+
+    def send_command(self, ser, cmd):
+        self.commands.append(cmd)
 
 
 def test_search_max_hits(monkeypatch):
@@ -105,8 +109,23 @@ def test_search_user_cancel(monkeypatch):
 
     input_stream = DummyInput(["", "q"])
     hits, completed = close_call_search(
-        adapter, None, "air", max_hits=5, input_stream=input_stream
+        adapter, None, "air", max_hits=5, input_stream=input_stream, lockout=True
     )
 
     assert len(hits) == 1
     assert not completed
+    assert adapter.commands == ["LOF,130.0", "ULF,130.0"]
+
+
+def test_lockout_unlocks(monkeypatch):
+    adapter = DummyAdapter()
+    calls = [130.0, 131.0]
+
+    def freq_stub(ser):
+        return calls.pop(0)
+
+    monkeypatch.setattr(adapter, "read_frequency", freq_stub)
+
+    close_call_search(adapter, None, "air", max_hits=2, lockout=True, input_stream=io.StringIO(""))
+
+    assert adapter.commands == ["LOF,130.0", "LOF,131.0", "ULF,130.0", "ULF,131.0"]
