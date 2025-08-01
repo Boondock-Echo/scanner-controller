@@ -195,14 +195,14 @@ def build_command_table(adapter, ser):
 
         def band_scope(ser_, adapter_, arg=""):
             parts = arg.split()
-            count = 1024
+            sweep_count = 1
             list_hits = False
             for part in parts:
                 if part.lower() in ("list", "hits"):
                     list_hits = True
                 else:
                     try:
-                        count = int(part)
+                        sweep_count = int(part)
                     except ValueError:
                         pass
 
@@ -212,11 +212,14 @@ def build_command_table(adapter, ser):
                     "Run 'send EPG' then 'band scope start'."
                 )
 
+            width = getattr(adapter_, "band_scope_width", None) or 1024
+            record_count = width * sweep_count
+
             records = []
             hits = []
             debug_mode = logging.getLogger().isEnabledFor(logging.DEBUG)
             for rssi, freq, _ in adapter_.stream_custom_search(
-                ser_, count, debug=debug_mode
+                ser_, record_count, debug=debug_mode
             ):
                 records.append((rssi, freq))
                 if rssi and rssi > 0:
@@ -268,7 +271,7 @@ def build_command_table(adapter, ser):
 
         COMMANDS["band scope"] = band_scope
         COMMAND_HELP["band scope"] = (
-            "Stream band scope data. Usage: band scope [record_count]"
+            "Stream band scope data. Usage: band scope [sweeps] [list|hits]"
         )
 
         logging.debug("Registering 'band sweep' command")

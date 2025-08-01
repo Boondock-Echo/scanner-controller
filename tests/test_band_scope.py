@@ -112,7 +112,10 @@ def test_band_scope_auto_width(monkeypatch):
     adapter.sweep_band_scope(None, "146M", "2M", "0.5M", "0.5M")
     assert adapter.band_scope_width == 5
 
+    counts = []
+
     def fake_stream(ser, c=5, debug=False):
+        counts.append(c)
         for i in range(c):
             yield (0, 145.0 + 0.5 * i, 0)
 
@@ -123,6 +126,7 @@ def test_band_scope_auto_width(monkeypatch):
     lines = output.splitlines()
     assert len(lines) == 1
     assert lines[0].startswith("center=")
+    assert counts[0] == adapter.band_scope_width * 5
 
 
 def test_configure_band_scope_wraps_programming(monkeypatch):
@@ -224,7 +228,10 @@ def test_band_scope_summary_line(monkeypatch):
     adapter.last_step = 0.5
     adapter.last_mod = "FM"
 
+    counts = []
+
     def stream_stub(ser, c=3, debug=False):
+        counts.append(c)
         yield (10, 145.0, 0)
         yield (20, 146.0, 0)
         yield (30, 147.0, 0)
@@ -245,6 +252,7 @@ def test_band_scope_summary_line(monkeypatch):
     assert "span=2M" in lines[-1]
     assert "step=500k" in lines[-1]
     assert "mod=FM" in lines[-1]
+    assert counts[0] == adapter.band_scope_width * 3
 
 
 def test_band_scope_in_program_mode(monkeypatch):
@@ -272,7 +280,10 @@ def test_band_scope_in_program_mode(monkeypatch):
 def test_band_scope_list_hits(monkeypatch):
     adapter = BCD325P2Adapter()
 
+    counts = []
+
     def stream_stub(ser, c=1024, debug=False):
+        counts.append(c)
         yield (0, 145.0, 0)
         yield (50, 146.0, 1)
         yield (0, 147.0, 0)
@@ -285,6 +296,7 @@ def test_band_scope_list_hits(monkeypatch):
     lines = output.splitlines()
     assert lines[:2] == ["146.0000, 0.049", "148.0000, 0.029"]
     assert lines[-1].startswith("center=")
+    assert counts[0] == 1024
 
 
 def test_band_scope_respects_preset_range(monkeypatch):

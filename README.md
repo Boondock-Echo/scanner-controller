@@ -184,15 +184,16 @@ command:
 ### Band Scope Streaming
 
 Band scope status can be streamed using the `CSC` command. When activated the
-scanner outputs lines of the form `CSC,<RSSI>,<FRQ>,<SQL>` for each hit.
-The controller now gathers a configurable number of these records before
-stopping the stream. By default, **1024** records are collected. After the limit
-is reached the command `CSC,OFF` is issued and the final `CSC,OK` response is
-read.
-When called through the CLI's `band scope` command these readings are printed as
-a list of hit frequencies with their normalized signal strength. After all hits
-a summary line describes the sweep parameters. Only results with RSSI above zero
-are printed:
+scanner outputs lines of the form `CSC,<RSSI>,<FRQ>,<SQL>` for each hit. The
+controller now processes data in **sweeps**. Each sweep gathers
+`band_scope_width` records (falling back to 1024 if that width is unknown). The
+CLI's `band scope` command performs one sweep by default; providing a number runs
+that many sweeps. Before streaming, the total record count is calculated as
+`band_scope_width * sweeps`. After the final record the command `CSC,OFF` is
+issued and the final `CSC,OK` response is read.
+When called through the CLI these readings are printed as a list of hit
+frequencies with their normalized signal strength. After all hits a summary line
+describes the sweep parameters. Only results with RSSI above zero are printed:
 
 ```text
 146.5200, 0.450
@@ -208,7 +209,12 @@ printed contains the frequency in megahertz and the normalized RSSI level:
 ```
 
 For example: `162.5500, 0.450`. This format is consistent in both human and
-machine modes and is convenient for logging or further processing.
+machine modes and is convenient for logging or further processing. Use the
+optional `list` or `hits` argument to show only channels with activity:
+
+```text
+> band scope [sweeps] [list|hits]
+```
 
 ### Close Call Logging
 
