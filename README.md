@@ -211,16 +211,23 @@ optional mode argument to control output: `list` displays all values while
 
 ```text
 > band scope <preset> [sweeps] [list|hits]
+> band scope <preset> cc search
+> band scope <preset> cc log
 ```
+
+The `cc search` subcommand performs a Close Call search within the chosen
+band and prints any hit frequencies after the search ends. The `cc log`
+variant starts continuous logging of hits until interrupted.
 
 ### Close Call Logging
 
 The utility function `record_close_calls` allows continuous logging of Close Call
-hits to an SQLite database. Use the CLI commands `log close calls` or
-`log close calls lockout` and provide a band name such as `air` or `frs`. Each
-hit is saved with timestamp, frequency, tone (if available) and RSSI level. When
-the `lockout` variant is used the frequency is also added to the scanner's
-temporary lockout list via the `LOF` command.
+hits to an SQLite database. Use the CLI command `band scope <preset> cc log` or
+the legacy commands `log close calls` / `log close calls lockout` and provide a
+band name such as `air` or `frs`. Each hit is saved with timestamp, frequency,
+tone (if available) and RSSI level. When the `lockout` variant is used the
+frequency is also added to the scanner's temporary lockout list via the `LOF`
+command.
 
 The logger normally runs indefinitely. To capture a limited number of hits or
 stop after a set time, pass ``max_records`` or ``max_time`` to
