@@ -146,8 +146,8 @@ def build_command_table(adapter, ser):
         )
         COMMAND_HELP["get signal"] = "Get the signal strength meter reading."
 
-    # -- Controlling Scanner commands --
-    # Always register essential controlling scanner commands
+    # -- Scanner Control commands --
+    # Always register essential scanner control commands
 
     # Send key
     if hasattr(adapter, 'send_key'):
