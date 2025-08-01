@@ -183,12 +183,11 @@ def show_help(commands, command_help, command="", adapter=None):
     )
 
     # Display high-level commands using the grid format with aligned colons
-    print(
-        """
-                            High-Level Commands
---------------------------------------------------------------------------------
-          """
-    )
+    header_width = 80  # Standard width for headers
+    print()
+    print("High-Level Commands".center(header_width))
+    print("-" * header_width)
+    print()
     cols_hl = 3  # Use 3 columns max for long command names
 
     for category, cmds in general_commands.items():
@@ -213,13 +212,10 @@ def show_help(commands, command_help, command="", adapter=None):
 
     # 2. Device-specific commands from command libraries
     if command_groups:
-        print("\n")
-        print(
-            """
-              Device-Specific Commands:
---------------------------------------------------------------------------------
-              """
-        )
+        print()
+        print("Device-Specific Commands".center(header_width))
+        print("-" * header_width)
+        print()
 
         # Display each category with aligned colons and consistent command
         # spacing
