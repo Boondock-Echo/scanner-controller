@@ -95,7 +95,7 @@ def show_help(commands, command_help, command="", adapter=None):
             "set backlight",
             "set contrast",
         ],
-        "Controlling Scanner": [
+        "Scanner Control": [
             "hold frequency",
             "send",
             "send key",
@@ -137,7 +137,7 @@ def show_help(commands, command_help, command="", adapter=None):
             "Set Commands": [
                 cmd for cmd in sorted(commands) if cmd.startswith("set ")
             ],
-            "Controlling Scanner": [
+            "Scanner Control": [
                 cmd
                 for cmd in sorted(commands)
                 if (
@@ -156,11 +156,11 @@ def show_help(commands, command_help, command="", adapter=None):
             ],
         }
 
-        # Ensure Controlling Scanner commands are always displayed if they exist
-        if not general_commands["Controlling Scanner"]:
-            general_commands["Controlling Scanner"] = [
+        # Ensure Scanner Control commands are always displayed if they exist
+        if not general_commands["Scanner Control"]:
+            general_commands["Scanner Control"] = [
                 cmd
-                for cmd in standard_commands["Controlling Scanner"]
+                for cmd in standard_commands["Scanner Control"]
                 if cmd in commands
             ]
     else:
