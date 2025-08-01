@@ -33,7 +33,7 @@ def main_loop(connection_manager, adapter=None, ser=None, commands=None, command
         Whether to use machine-friendly output. Default ``False``.
     """
     if not machine_mode:
-        print("Type 'help' for a list of commands.\n")
+        print("Type 'help' to display the help menu.\n")
     else:
         print("STATUS:INFO|MESSAGE:Scanner_ready")
 

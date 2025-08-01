@@ -171,28 +171,27 @@ name or explicit parameters. The shorter alias `band set` behaves the same.
 After the `BSP` command is sent during `band select`, the scanner now
 automatically enters band-scope search by issuing a scan-start key. It also
 programs custom search range 1 using `CSP` and enables only that range with
-`CSG,0111111111` so the scope limits match the selected band.
-If the search is later halted you can resume it with the dedicated
-command:
-
-```text
-> band scope start
-```
+`CSG,0111111111` so the scope limits match the selected band. The `CSP`
+command uses the preset limits in 100‑Hz units (e.g. `01080000` for 108 MHz)
+to align with the scanner's expected format.
 
 ### Band Scope Streaming
 
 Band scope status can be streamed using the `CSC` command. When activated the
-scanner outputs lines of the form `CSC,<RSSI>,<FRQ>,<SQL>` for each hit.
-The controller now gathers a configurable number of these records before
-stopping the stream. By default, **1024** records are collected. After the limit
-is reached the command `CSC,OFF` is issued and the final `CSC,OK` response is
-read.
-When called through the CLI's `band scope` command these readings are printed as
-a list of hit frequencies with their normalized signal strength. After all hits
-a summary line describes the sweep parameters. Only results with RSSI above zero
-are printed:
+scanner outputs lines of the form `CSC,<RSSI>,<FRQ>,<SQL>` for each hit. The
+controller now processes data in **sweeps**. Each sweep gathers
+`band_scope_width` records (falling back to 1024 if that width is unknown). The
+CLI's `band scope` command takes a preset name followed by an optional sweep
+count and mode; providing a number runs that many sweeps. Before streaming, the
+total record count is calculated as `band_scope_width * sweeps`. After the final
+record the command `CSC,OFF` is issued and the final `CSC,OK` response is read.
+In **list** mode (the default) every `(frequency, RSSI)` pair collected during
+the sweeps is printed. In **hits** mode the mean RSSI is computed and only
+frequencies more than 20% above that mean are displayed. After all readings a
+summary line describes the sweep parameters:
 
 ```text
+145.0000, 0.000
 146.5200, 0.450
 147.0400, 0.610
 center=146.000 min=145.000 max=147.000 span=2M step=0.5M mod=FM
@@ -206,7 +205,13 @@ printed contains the frequency in megahertz and the normalized RSSI level:
 ```
 
 For example: `162.5500, 0.450`. This format is consistent in both human and
-machine modes and is convenient for logging or further processing.
+machine modes and is convenient for logging or further processing. Use the
+optional mode argument to control output: `list` displays all values while
+`hits` shows only entries 20% above the mean RSSI level:
+
+```text
+> band scope <preset> [sweeps] [list|hits]
+```
 
 ### Close Call Logging
 
@@ -260,12 +265,12 @@ Connected to /dev/ttyUSB1 [ID 2]
 [2]  /dev/ttyUSB1
 > use 1
 Using connection 1
-> band scope 20
+> band scope 20 hits
 (hits for scanner 1)
 center=...
 > use 2
 Using connection 2
-> band scope 20
+> band scope 20 hits
 (hits for scanner 2)
 center=...
 ```

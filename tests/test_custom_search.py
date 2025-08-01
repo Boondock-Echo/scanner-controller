@@ -16,7 +16,10 @@ from utilities.core.command_registry import build_command_table  # noqa: E402
 
 def test_band_scope_command_registered(monkeypatch):
     adapter = BCD325P2Adapter()
+    counts = []
+
     def fake_stream(ser, c=1024, debug=False):
+        counts.append(c)
         for i in range(int(c)):
             yield (0, 100.0 + i % 5, 0)
 
@@ -27,10 +30,11 @@ def test_band_scope_command_registered(monkeypatch):
 
     assert "band scope" in commands
     assert "band scope" in help_text
-    output = commands["band scope"](None, adapter, "10")
+    output = commands["band scope"](None, adapter, "10 hits")
     lines = output.splitlines()
     assert len(lines) == 1
     assert lines[0].startswith("center=")
+    assert counts[0] == adapter.band_scope_width * 10
 
 
 def test_band_scope_collects(monkeypatch):

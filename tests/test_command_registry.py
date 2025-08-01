@@ -25,18 +25,12 @@ def test_scan_start_stop_registered(monkeypatch):
 
     assert "scan start" in commands
     assert "scan stop" in commands
-    assert "band scope start" in commands
     assert help_text["scan start"] == "Start scanner scanning process."
     assert help_text["scan stop"] == "Stop scanner scanning process."
-    assert (
-        help_text["band scope start"]
-        == "Begin band-scope search using current settings."
-    )
 
     # Ensure commands use adapter methods
     assert commands["scan start"](None, adapter) == "KEY:S"
     assert commands["scan stop"](None, adapter) == "KEY:H"
-    assert commands["band scope start"](None, adapter) == "KEY:S"
 
 
 def test_bsp_and_bsv_commands_present(monkeypatch):

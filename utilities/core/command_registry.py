@@ -4,7 +4,9 @@ Command Registry Module.
 This module builds the command table from scanner adapter capabilities.
 """
 
+import itertools
 import logging
+import sys
 import config
 
 # Maximum RSSI value returned by scanners
@@ -146,8 +148,8 @@ def build_command_table(adapter, ser):
         )
         COMMAND_HELP["get signal"] = "Get the signal strength meter reading."
 
-    # -- Controlling Scanner commands --
-    # Always register essential controlling scanner commands
+    # -- Scanner Control commands --
+    # Always register essential scanner control commands
 
     # Send key
     if hasattr(adapter, 'send_key'):
@@ -195,32 +197,69 @@ def build_command_table(adapter, ser):
 
         def band_scope(ser_, adapter_, arg=""):
             parts = arg.split()
-            count = 1024
-            list_hits = False
+            sweep_count = 1
+            mode = "list"
+            preset = None
+
+            # Determine first non-flag token for preset or sweep count
+            first_non_flag_found = False
             for part in parts:
-                if part.lower() in ("list", "hits"):
-                    list_hits = True
-                else:
+                lower = part.lower()
+                if lower in ("list", "hits"):
+                    mode = lower
+                    continue
+                if not first_non_flag_found:
+                    first_non_flag_found = True
                     try:
-                        count = int(part)
+                        from config.band_scope_presets import BAND_SCOPE_PRESETS
+
+                        if lower in BAND_SCOPE_PRESETS:
+                            preset = lower
+                            continue
+                    except Exception:
+                        pass
+                    try:
+                        sweep_count = int(part)
                     except ValueError:
                         pass
+                else:
+                    try:
+                        sweep_count = int(part)
+                    except ValueError:
+                        pass
+
+            if preset and hasattr(adapter_, "configure_band_scope"):
+                result = adapter_.configure_band_scope(ser_, preset)
+                if result and "OK" not in result.upper():
+                    return result
 
             if getattr(adapter_, "in_program_mode", False):
                 return (
                     "Scanner is in programming mode. "
-                    "Run 'send EPG' then 'band scope start'."
+                    "Run 'send EPG' then rerun 'band scope'."
                 )
 
+            width = getattr(adapter_, "band_scope_width", None) or 1024
+            record_count = width * sweep_count
+
             records = []
-            hits = []
             debug_mode = logging.getLogger().isEnabledFor(logging.DEBUG)
+            show_progress = sys.stdout.isatty()
+            spinner = itertools.cycle("|/-\\") if show_progress else None
+            processed = 0
             for rssi, freq, _ in adapter_.stream_custom_search(
-                ser_, count, debug=debug_mode
+                ser_, record_count, debug=debug_mode
             ):
                 records.append((rssi, freq))
-                if rssi and rssi > 0:
-                    hits.append(f"{freq:.4f}, {rssi / MAX_RSSI:.3f}")
+                if show_progress:
+                    processed += 1
+                    ch = next(spinner)
+                    percent = processed / record_count * 100
+                    sys.stdout.write(f"\r{ch} {percent:5.1f}%")
+                    sys.stdout.flush()
+            if show_progress:
+                sys.stdout.write("\r")
+                sys.stdout.flush()
 
             if not records:
                 return "No band scope data received"
@@ -264,11 +303,27 @@ def build_command_table(adapter, ser):
                 f"step={fmt_span(step)} mod={mod or 'N/A'}"
             )
 
-            return "\n".join(hits + [summary])
+            lines = []
+            if mode == "hits":
+                rssi_vals = [(r or 0) for r, _ in records]
+                mean_rssi = sum(rssi_vals) / len(records)
+                threshold = mean_rssi * 1.2
+                for rssi, freq in records:
+                    if rssi is None or freq is None:
+                        continue
+                    if rssi > threshold:
+                        lines.append(f"{freq:.4f}, {rssi / MAX_RSSI:.3f}")
+            else:
+                for rssi, freq in records:
+                    if rssi is None or freq is None:
+                        continue
+                    lines.append(f"{freq:.4f}, {rssi / MAX_RSSI:.3f}")
+
+            return "\n".join(lines + [summary])
 
         COMMANDS["band scope"] = band_scope
         COMMAND_HELP["band scope"] = (
-            "Stream band scope data. Usage: band scope [record_count]"
+            "Stream band scope data. Usage: band scope <preset> [sweeps] [list|hits]"
         )
 
         logging.debug("Registering 'band sweep' command")
@@ -405,13 +460,6 @@ def build_command_table(adapter, ser):
             ser_
         )
         COMMAND_HELP["scan start"] = "Start scanner scanning process."
-        logging.debug("Registering 'band scope start' command")
-        COMMANDS["band scope start"] = lambda ser_, adapter_: adapter_.start_scanning(
-            ser_
-        )
-        COMMAND_HELP["band scope start"] = (
-            "Begin band-scope search using current settings."
-        )
     else:
         logging.debug("Registering placeholder 'scan start' command")
         COMMANDS["scan start"] = lambda ser_, adapter_: (
@@ -420,13 +468,6 @@ def build_command_table(adapter, ser):
         COMMAND_HELP["scan start"] = (
             "Start scanner scanning process. "
             "(Not available for this scanner model)"
-        )
-        logging.debug("Registering placeholder 'band scope start' command")
-        COMMANDS["band scope start"] = lambda ser_, adapter_: (
-            "Command 'band scope start' not supported on this scanner model"
-        )
-        COMMAND_HELP["band scope start"] = (
-            "Begin band-scope search. (Not available for this scanner model)"
         )
 
     if hasattr(adapter, 'stop_scanning'):

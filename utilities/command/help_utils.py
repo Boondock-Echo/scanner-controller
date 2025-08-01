@@ -5,13 +5,11 @@ This module contains functions for displaying help information
 about available commands and features.
 """
 
-import logging
+from textwrap import dedent
 
 from utilities.command.help_topics import get_extended_help
 
 OTHER_COMMANDS = ["help", "list", "connect", "use", "close", "switch", "exit"]
-
-logger = logging.getLogger(__name__)
 
 
 def show_help(commands, command_help, command="", adapter=None):
@@ -59,15 +57,17 @@ def show_help(commands, command_help, command="", adapter=None):
     # Display general help (no specific command provided)
 
     print(
-        """
-================================================================================
-    ██   ██ ███████ ██      ██████      ███    ███ ███████ ███    ██ ██    ██
-    ██   ██ ██      ██      ██   ██     ████  ████ ██      ████   ██ ██    ██
-    ███████ █████   ██      ██████      ██ ████ ██ █████   ██ ██  ██ ██    ██
-    ██   ██ ██      ██      ██          ██  ██  ██ ██      ██  ██ ██ ██    ██
-    ██   ██ ███████ ███████ ██          ██      ██ ███████ ██   ████  ██████
-================================================================================
-          """
+        dedent(
+            """
+            ================================================================================
+                ██   ██ ███████ ██      ██████      ███    ███ ███████ ███    ██ ██    ██
+                ██   ██ ██      ██      ██   ██     ████  ████ ██      ████   ██ ██    ██
+                ███████ █████   ██      ██████      ██ ████ ██ █████   ██ ██  ██ ██    ██
+                ██   ██ ██      ██      ██          ██  ██  ██ ██      ██  ██ ██ ██    ██
+                ██   ██ ███████ ███████ ██          ██      ██ ███████ ██   ████  ██████
+            ================================================================================
+            """
+        )
     )
 
     # 1. General scanner commands (from adapter)
@@ -92,7 +92,7 @@ def show_help(commands, command_help, command="", adapter=None):
             "set backlight",
             "set contrast",
         ],
-        "Controlling Scanner": [
+        "Scanner Control": [
             "hold frequency",
             "send",
             "send key",
@@ -134,7 +134,7 @@ def show_help(commands, command_help, command="", adapter=None):
             "Set Commands": [
                 cmd for cmd in sorted(commands) if cmd.startswith("set ")
             ],
-            "Controlling Scanner": [
+            "Scanner Control": [
                 cmd
                 for cmd in sorted(commands)
                 if (
@@ -153,11 +153,11 @@ def show_help(commands, command_help, command="", adapter=None):
             ],
         }
 
-        # Ensure Controlling Scanner commands are always displayed if they exist
-        if not general_commands["Controlling Scanner"]:
-            general_commands["Controlling Scanner"] = [
+        # Ensure Scanner Control commands are always displayed if they exist
+        if not general_commands["Scanner Control"]:
+            general_commands["Scanner Control"] = [
                 cmd
-                for cmd in standard_commands["Controlling Scanner"]
+                for cmd in standard_commands["Scanner Control"]
                 if cmd in commands
             ]
     else:
@@ -180,12 +180,11 @@ def show_help(commands, command_help, command="", adapter=None):
     )
 
     # Display high-level commands using the grid format with aligned colons
-    print(
-        """
-                            High-Level Commands
---------------------------------------------------------------------------------
-          """
-    )
+    header_width = 80  # Standard width for headers
+    print()
+    print("High-Level Commands".center(header_width))
+    print("-" * header_width)
+    print()
     cols_hl = 3  # Use 3 columns max for long command names
 
     for category, cmds in general_commands.items():
@@ -210,13 +209,10 @@ def show_help(commands, command_help, command="", adapter=None):
 
     # 2. Device-specific commands from command libraries
     if command_groups:
-        print("\n")
-        print(
-            """
-              Device-Specific Commands:
---------------------------------------------------------------------------------
-              """
-        )
+        print()
+        print("Device-Specific Commands".center(header_width))
+        print("-" * header_width)
+        print()
 
         # Display each category with aligned colons and consistent command
         # spacing

@@ -58,6 +58,11 @@ from adapters.uniden.common.programming import (
     exit_programming_mode,
     programming_session,
 )
+from adapters.uniden.common.constants import (
+    HZ_PER_MHZ,
+    HZ_PER_SCANNER_UNIT,
+    SCANNER_UNITS_PER_MHZ,
+)
 
 # First-party imports
 from adapters.uniden.uniden_base_adapter import UnidenScannerAdapter
@@ -211,11 +216,13 @@ class BCD325P2Adapter(UnidenScannerAdapter):
         except ValueError as e:
             return self.feedback(False, str(e))
 
-        low_khz = self._to_khz(low)
-        high_khz = self._to_khz(high)
-        span_mhz = (high_khz - low_khz) / 1000.0
-        center_khz = (low_khz + high_khz) / 2.0
-        freq = f"{int(round(center_khz * 10)):08d}"
+        low_mhz = self._to_mhz(low)
+        high_mhz = self._to_mhz(high)
+        span_mhz = high_mhz - low_mhz
+        center_mhz = (low_mhz + high_mhz) / 2.0
+        freq = f"{int(round(center_mhz * SCANNER_UNITS_PER_MHZ)):08d}"
+        low_lim = int(round(low_mhz * SCANNER_UNITS_PER_MHZ))
+        high_lim = int(round(high_mhz * SCANNER_UNITS_PER_MHZ))
 
         allowed_spans = [
             0.2,
@@ -252,7 +259,7 @@ class BCD325P2Adapter(UnidenScannerAdapter):
         max_hold = 0
         bandwidth = None
 
-        self.last_center = center_khz / 1000.0
+        self.last_center = center_mhz
         self.last_span = span_val
         self.last_step = self._to_mhz(step)
         self.last_mod = mod
@@ -283,8 +290,8 @@ class BCD325P2Adapter(UnidenScannerAdapter):
                     csp_cmd = csp_obj.set_format.format(
                         srch_index=1,
                         name="",
-                        limit_l=int(low_khz),
-                        limit_h=int(high_khz),
+                        limit_l=low_lim,
+                        limit_h=high_lim,
                         stp=step,
                         mod=mod,
                         att=0,
@@ -319,19 +326,25 @@ class BCD325P2Adapter(UnidenScannerAdapter):
 
                     # Construct the fallback CSP command string
                     csp_cmd = (
-                        f"CSP,{SRCH_INDEX},{NAME},{int(low_khz)},{int(high_khz)},"
+                        f"CSP,{SRCH_INDEX},{NAME},{low_lim},{high_lim},"
                         f"{step},{mod},{ATT},{DLY},{RSV},{HLD},{LOUT},{C_CH},"
                         f"{QUICK_KEY},{START_KEY},{NUMBER_TAG},{AGC_ANALOG},"
                         f"{AGC_DIGITAL},{P25WAITING}"
                     )
-                self.send_command(ser, csp_cmd)
+                csp_resp = self.send_command(ser, csp_cmd)
+                csp_resp_str = ensure_str(csp_resp)
+                if "OK" not in csp_resp_str:
+                    return self.feedback(False, f"CSP error: {csp_resp_str}")
 
                 csg_obj = self.commands.get("CSG")
                 if csg_obj:
                     csg_cmd = csg_obj.set_format.format(status="0111111111")
                 else:
                     csg_cmd = f"CSG,{CSG_ENABLE_RANGE_1}"
-                self.send_command(ser, csg_cmd)
+                csg_resp = self.send_command(ser, csg_cmd)
+                csg_resp_str = ensure_str(csg_resp)
+                if "OK" not in csg_resp_str:
+                    return self.feedback(False, f"CSG error: {csg_resp_str}")
 
                 self.band_scope_width = self._calc_band_scope_width(
                     span, bandwidth or step
@@ -353,9 +366,9 @@ class BCD325P2Adapter(UnidenScannerAdapter):
 
         if value_str.isdigit():
             ivalue = int(value_str)
-            if ivalue > 10000:
-                return ivalue / 10000.0
-            return ivalue / 100000.0
+            if ivalue > SCANNER_UNITS_PER_MHZ:
+                return ivalue / SCANNER_UNITS_PER_MHZ
+            return ivalue / (SCANNER_UNITS_PER_MHZ * 10)
 
         for suffix in ("mhz", "m"):
             if value_str.endswith(suffix):
@@ -363,7 +376,7 @@ class BCD325P2Adapter(UnidenScannerAdapter):
 
         for suffix in ("khz", "k"):
             if value_str.endswith(suffix):
-                return float(value_str[: -len(suffix)]) / 1000.0
+                return float(value_str[: -len(suffix)]) / (HZ_PER_MHZ // 1000)
 
         return float(value_str)
 
@@ -377,9 +390,9 @@ class BCD325P2Adapter(UnidenScannerAdapter):
 
         if value_str.isdigit():
             ivalue = int(value_str)
-            if ivalue > 10000:
-                return ivalue / 10.0
-            return ivalue / 100.0
+            if ivalue > SCANNER_UNITS_PER_MHZ:
+                return ivalue * HZ_PER_SCANNER_UNIT / (HZ_PER_MHZ // 1000)
+            return ivalue * HZ_PER_SCANNER_UNIT / SCANNER_UNITS_PER_MHZ
 
         for suffix in ("khz", "k"):
             if value_str.endswith(suffix):
@@ -387,7 +400,7 @@ class BCD325P2Adapter(UnidenScannerAdapter):
 
         for suffix in ("mhz", "m"):
             if value_str.endswith(suffix):
-                return float(value_str[: -len(suffix)]) * 1000.0
+                return float(value_str[: -len(suffix)]) * (HZ_PER_MHZ // 1000)
 
         return float(value_str)
 

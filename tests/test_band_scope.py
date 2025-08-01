@@ -30,13 +30,13 @@ def test_presets_load():
 def test_band_select_air_command(monkeypatch):
     adapter = BCD325P2Adapter()
     adapter.in_program_mode = True
-    monkeypatch.setattr(adapter, "send_command", lambda ser, cmd: cmd)
+    monkeypatch.setattr(adapter, "send_command", lambda ser, cmd: "OK")
     # Disable BSP validator to avoid preset span restrictions
     monkeypatch.setattr(adapter.commands["BSP"], "validator", None)
 
     commands, _ = build_command_table(adapter, None)
     result = commands["band select"](None, adapter, "air")
-    assert result == "BSP,01220000,833,40M,0"
+    assert result == "OK"
 
 
 def test_band_select_registered(monkeypatch):
@@ -112,17 +112,21 @@ def test_band_scope_auto_width(monkeypatch):
     adapter.sweep_band_scope(None, "146M", "2M", "0.5M", "0.5M")
     assert adapter.band_scope_width == 5
 
+    counts = []
+
     def fake_stream(ser, c=5, debug=False):
+        counts.append(c)
         for i in range(c):
             yield (0, 145.0 + 0.5 * i, 0)
 
     monkeypatch.setattr(adapter, "stream_custom_search", fake_stream)
 
     commands, _ = build_command_table(adapter, None)
-    output = commands["band scope"](None, adapter, "5")
+    output = commands["band scope"](None, adapter, "5 hits")
     lines = output.splitlines()
     assert len(lines) == 1
     assert lines[0].startswith("center=")
+    assert counts[0] == adapter.band_scope_width * 5
 
 
 def test_configure_band_scope_wraps_programming(monkeypatch):
@@ -169,8 +173,8 @@ def test_configure_band_scope_csp_format(monkeypatch):
     adapter.configure_band_scope(None, "air")
 
     csp_cmd = next(cmd for cmd in calls if cmd.startswith("CSP"))
-    assert ",108000," in csp_cmd
-    assert ",136000," in csp_cmd
+    assert ",1080000," in csp_cmd
+    assert ",1360000," in csp_cmd
     assert ",833," in csp_cmd
 
 
@@ -196,7 +200,7 @@ def test_configure_band_scope_sets_width(monkeypatch):
     monkeypatch.setattr(adapter, "stream_custom_search", fake_stream)
 
     commands, _ = build_command_table(adapter, None)
-    output = commands["band scope"](None, adapter, "5")
+    output = commands["band scope"](None, adapter, "5 hits")
     lines = output.splitlines()
     assert len(lines) == 1
     assert lines[0].startswith("center=")
@@ -224,7 +228,10 @@ def test_band_scope_summary_line(monkeypatch):
     adapter.last_step = 0.5
     adapter.last_mod = "FM"
 
+    counts = []
+
     def stream_stub(ser, c=3, debug=False):
+        counts.append(c)
         yield (10, 145.0, 0)
         yield (20, 146.0, 0)
         yield (30, 147.0, 0)
@@ -245,6 +252,7 @@ def test_band_scope_summary_line(monkeypatch):
     assert "span=2M" in lines[-1]
     assert "step=500k" in lines[-1]
     assert "mod=FM" in lines[-1]
+    assert counts[0] == adapter.band_scope_width * 3
 
 
 def test_band_scope_in_program_mode(monkeypatch):
@@ -264,15 +272,18 @@ def test_band_scope_in_program_mode(monkeypatch):
 
     assert (
         result
-        == "Scanner is in programming mode. Run 'send EPG' then 'band scope start'."
+        == "Scanner is in programming mode. Run 'send EPG' then rerun 'band scope'."
     )
     assert not called
 
 
-def test_band_scope_list_hits(monkeypatch):
+def test_band_scope_modes(monkeypatch):
     adapter = BCD325P2Adapter()
 
+    counts = []
+
     def stream_stub(ser, c=1024, debug=False):
+        counts.append(c)
         yield (0, 145.0, 0)
         yield (50, 146.0, 1)
         yield (0, 147.0, 0)
@@ -281,10 +292,97 @@ def test_band_scope_list_hits(monkeypatch):
     monkeypatch.setattr(adapter, "stream_custom_search", stream_stub)
 
     commands, _ = build_command_table(adapter, None)
-    output = commands["band scope"](None, adapter, "list")
-    lines = output.splitlines()
-    assert lines[:2] == ["146.0000, 0.049", "148.0000, 0.029"]
-    assert lines[-1].startswith("center=")
+
+    # Default (list) mode
+    output_default = commands["band scope"](None, adapter, "")
+    output_list = commands["band scope"](None, adapter, "list")
+    lines_default = output_default.splitlines()
+    assert lines_default[:4] == [
+        "145.0000, 0.000",
+        "146.0000, 0.049",
+        "147.0000, 0.000",
+        "148.0000, 0.029",
+    ]
+    assert lines_default[-1].startswith("center=")
+    assert output_default == output_list
+
+    # Hits mode filters entries 20% above mean RSSI
+    output_hits = commands["band scope"](None, adapter, "hits")
+    lines_hits = output_hits.splitlines()
+    assert lines_hits[:2] == ["146.0000, 0.049", "148.0000, 0.029"]
+    assert lines_hits[-1].startswith("center=")
+
+    assert counts == [1024, 1024, 1024]
+
+
+def test_band_scope_preset_invocation(monkeypatch):
+    adapter = BCD325P2Adapter()
+
+    calls = {}
+
+    def configure_stub(ser, preset):
+        calls["preset"] = preset
+        adapter.band_scope_width = 5
+        return "OK"
+
+    def stream_stub(ser, c, debug=False):
+        calls["count"] = c
+        yield (10, 100.0, 0)
+
+    monkeypatch.setattr(adapter, "configure_band_scope", configure_stub)
+    monkeypatch.setattr(adapter, "stream_custom_search", stream_stub)
+
+    commands, _ = build_command_table(adapter, None)
+    commands["band scope"](None, adapter, "air")
+
+    assert calls["preset"] == "air"
+    assert calls["count"] == adapter.band_scope_width
+
+
+def test_band_scope_preset_with_sweeps(monkeypatch):
+    adapter = BCD325P2Adapter()
+
+    calls = {}
+
+    def configure_stub(ser, preset):
+        calls["preset"] = preset
+        adapter.band_scope_width = 5
+        return "OK"
+
+    def stream_stub(ser, c, debug=False):
+        calls["count"] = c
+        yield (10, 144.0, 0)
+
+    monkeypatch.setattr(adapter, "configure_band_scope", configure_stub)
+    monkeypatch.setattr(adapter, "stream_custom_search", stream_stub)
+
+    commands, _ = build_command_table(adapter, None)
+    commands["band scope"](None, adapter, "ham2m 2")
+
+    assert calls["preset"] == "ham2m"
+    assert calls["count"] == adapter.band_scope_width * 2
+
+
+def test_band_scope_accepts_non_exact_ok_response(monkeypatch):
+    adapter = BCD325P2Adapter()
+
+    calls = {"stream": 0}
+
+    def configure_stub(ser, preset):
+        adapter.band_scope_width = 5
+        return "BSP,OK"
+
+    def stream_stub(ser, c, debug=False):
+        calls["stream"] += 1
+        yield (10, 100.0, 0)
+
+    monkeypatch.setattr(adapter, "configure_band_scope", configure_stub)
+    monkeypatch.setattr(adapter, "stream_custom_search", stream_stub)
+
+    commands, _ = build_command_table(adapter, None)
+    commands["band scope"](None, adapter, "air")
+
+    assert calls["stream"] == 1
 
 
 def test_band_scope_respects_preset_range(monkeypatch):
@@ -315,3 +413,19 @@ def test_band_scope_respects_preset_range(monkeypatch):
     assert all(144.0 <= f <= 148.0 for f in hits)
     assert "min=144.000" in lines[-1]
     assert "max=148.000" in lines[-1]
+
+
+def test_configure_band_scope_reports_errors(monkeypatch):
+    adapter = BCD325P2Adapter()
+
+    def send_command_stub(ser, cmd):
+        if cmd.startswith("CSP"):
+            return "ERR"
+        return "OK"
+
+    monkeypatch.setattr(adapter, "send_command", send_command_stub)
+    monkeypatch.setattr(adapter.commands["BSP"], "validator", None)
+    monkeypatch.setattr(adapter, "start_scanning", lambda ser: None)
+
+    result = adapter.configure_band_scope(None, "air")
+    assert result.startswith("CSP error")

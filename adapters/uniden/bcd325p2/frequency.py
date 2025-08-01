@@ -4,8 +4,14 @@ Frequency-related functions for the BCD325P2 scanner.
 Contains functions for reading and setting frequencies.
 """
 
+from decimal import Decimal
 import time
 
+from adapters.uniden.common.constants import (
+    HZ_PER_MHZ,
+    HZ_PER_SCANNER_UNIT,
+    SCANNER_UNITS_PER_MHZ,
+)
 from adapters.uniden.common.core import ensure_str
 
 
@@ -24,7 +30,7 @@ def read_frequency(self, ser):
 
         parts = response_str.strip().split(",")
         if len(parts) >= 3 and parts[0] == "PWR":
-            freq_mhz = (int(parts[2]) * 100) / 1_000_000
+            freq_mhz = (int(parts[2]) * HZ_PER_SCANNER_UNIT) / HZ_PER_MHZ
             return self.feedback(True, f"Frequency: {freq_mhz} MHz")
         return self.feedback(False, f"Unexpected response: {response_str}")
     except Exception as e:
@@ -44,7 +50,7 @@ def write_frequency(self, ser, freq):
     """
     try:
         # Convert frequency to 100 Hz units for the scanner
-        freq_100hz = int(Decimal(freq) * 10000)
+        freq_100hz = int(Decimal(freq) * SCANNER_UNITS_PER_MHZ)
 
         # Use QSH command to tune to the frequency
         response = self.send_command(ser, f"QSH,{freq_100hz},AUTO,0")
@@ -70,7 +76,7 @@ def enter_quick_frequency_hold(self, ser, freq_mhz):
     """
     try:
         # Convert frequency to 100 Hz units for the scanner
-        freq_100hz = int(Decimal(freq_mhz) * 10000)
+        freq_100hz = int(Decimal(freq_mhz) * SCANNER_UNITS_PER_MHZ)
 
         # Use QSH command directly
         response = self.send_command(ser, f"QSH,{freq_100hz},AUTO,0")
@@ -84,7 +90,7 @@ def enter_quick_frequency_hold(self, ser, freq_mhz):
             parts = verify_str.strip().split(",")
 
             if len(parts) >= 3 and parts[0] == "PWR":
-                actual_freq = int(parts[2]) / 10000.0
+                actual_freq = int(parts[2]) / SCANNER_UNITS_PER_MHZ
                 if (
                     abs(actual_freq - freq_mhz) < 0.05
                 ):  # Allow for small rounding differences
