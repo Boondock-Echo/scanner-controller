@@ -5,14 +5,11 @@ This module contains functions for displaying help information
 about available commands and features.
 """
 
-import logging
 from textwrap import dedent
 
 from utilities.command.help_topics import get_extended_help
 
 OTHER_COMMANDS = ["help", "list", "connect", "use", "close", "switch", "exit"]
-
-logger = logging.getLogger(__name__)
 
 
 def show_help(commands, command_help, command="", adapter=None):
