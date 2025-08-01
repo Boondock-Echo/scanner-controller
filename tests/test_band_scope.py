@@ -347,6 +347,28 @@ def test_band_scope_preset_with_sweeps(monkeypatch):
     assert calls["count"] == adapter.band_scope_width * 2
 
 
+def test_band_scope_accepts_non_exact_ok_response(monkeypatch):
+    adapter = BCD325P2Adapter()
+
+    calls = {"stream": 0}
+
+    def configure_stub(ser, preset):
+        adapter.band_scope_width = 5
+        return "BSP,OK"
+
+    def stream_stub(ser, c, debug=False):
+        calls["stream"] += 1
+        yield (10, 100.0, 0)
+
+    monkeypatch.setattr(adapter, "configure_band_scope", configure_stub)
+    monkeypatch.setattr(adapter, "stream_custom_search", stream_stub)
+
+    commands, _ = build_command_table(adapter, None)
+    commands["band scope"](None, adapter, "air")
+
+    assert calls["stream"] == 1
+
+
 def test_band_scope_respects_preset_range(monkeypatch):
     adapter = BCD325P2Adapter()
     adapter.in_program_mode = True

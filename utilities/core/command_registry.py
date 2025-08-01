@@ -230,7 +230,7 @@ def build_command_table(adapter, ser):
 
             if preset and hasattr(adapter_, "configure_band_scope"):
                 result = adapter_.configure_band_scope(ser_, preset)
-                if result and result != "OK":
+                if result and "OK" not in result.upper():
                     return result
 
             if getattr(adapter_, "in_program_mode", False):
