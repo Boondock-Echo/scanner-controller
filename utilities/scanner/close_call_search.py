@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import itertools
 import select
 import sys
 import time
@@ -85,6 +86,7 @@ def close_call_search(
     cancelled = False
     stream = input_stream if input_stream is not None else sys.stdin
     locked: Set[float] = set()
+    spinner = itertools.cycle("|/-\\")
 
     try:
         while True:
@@ -95,6 +97,11 @@ def close_call_search(
             if _user_requested_exit(stream):
                 cancelled = True
                 break
+            elapsed = time.time() - start_time
+            sys.stdout.write(
+                f"\r{next(spinner)} Hits: {len(hits)} Elapsed: {elapsed:0.1f}s"
+            )
+            sys.stdout.flush()
             try:
                 freq_raw = adapter.read_frequency(ser)
                 freq = _parse_float(freq_raw)
@@ -112,6 +119,7 @@ def close_call_search(
                 cancelled = True
                 break
     finally:
+        sys.stdout.write("\n")
         for freq in locked:
             try:
                 adapter.send_command(ser, f"ULF,{freq}")

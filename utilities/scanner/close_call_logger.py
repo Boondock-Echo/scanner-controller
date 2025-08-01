@@ -1,7 +1,9 @@
 """Close Call logging utilities."""
 
+import itertools
 import logging
 import sqlite3
+import sys
 import time
 from typing import Optional
 
@@ -65,12 +67,18 @@ def record_close_calls(
     total_records = 0
     start_time = time.time()
     locked = set()
+    spinner = itertools.cycle("|/-\\")
     try:
         while True:
             if max_records is not None and total_records >= max_records:
                 break
             if max_time is not None and time.time() - start_time >= max_time:
                 break
+            elapsed = time.time() - start_time
+            sys.stdout.write(
+                f"\r{next(spinner)} Hits: {total_records} Elapsed: {elapsed:0.1f}s"
+            )
+            sys.stdout.flush()
             try:
                 freq_raw = adapter.read_frequency(ser)
                 freq = _parse_float(freq_raw)
@@ -99,6 +107,7 @@ def record_close_calls(
             except KeyboardInterrupt:
                 break
     finally:
+        sys.stdout.write("\n")
         if record_count > 0:
             try:
                 conn.commit()
