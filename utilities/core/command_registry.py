@@ -201,6 +201,35 @@ def build_command_table(adapter, ser):
             mode = "list"
             preset = None
 
+            # Handle Close Call subcommands: "band scope <preset> cc search|log"
+            if len(parts) >= 2 and parts[1].lower() == "cc":
+                preset = parts[0].lower()
+                action = parts[2].lower() if len(parts) >= 3 else ""
+                if action == "search":
+                    try:
+                        from utilities.scanner.close_call_search import (
+                            close_call_search,
+                        )
+
+                        hits, _ = close_call_search(adapter_, ser_, preset)
+                        return "\n".join(
+                            f"{freq:.4f}"
+                            for _, freq, _, _ in hits
+                            if freq is not None
+                        )
+                    except Exception as exc:  # pragma: no cover - best effort
+                        return str(exc)
+                if action == "log":
+                    try:
+                        from utilities.scanner.close_call_logger import (
+                            record_close_calls,
+                        )
+
+                        return record_close_calls(adapter_, ser_, preset)
+                    except Exception as exc:  # pragma: no cover - best effort
+                        return str(exc)
+                return "Usage: band scope <preset> cc search|log"
+
             # Determine first non-flag token for preset or sweep count
             first_non_flag_found = False
             for part in parts:
@@ -323,7 +352,8 @@ def build_command_table(adapter, ser):
 
         COMMANDS["band scope"] = band_scope
         COMMAND_HELP["band scope"] = (
-            "Stream band scope data. Usage: band scope <preset> [sweeps] [list|hits]"
+            "Stream band scope data or manage Close Call. Usage: band scope <preset> "
+            "[sweeps] [list|hits] | band scope <preset> cc search|log"
         )
 
         logging.debug("Registering 'band sweep' command")
@@ -350,7 +380,7 @@ def build_command_table(adapter, ser):
             "Command 'band scope' not supported on this scanner model"
         )
         COMMAND_HELP["band scope"] = (
-            "Stream band scope data. (Not available for this scanner model)"
+            "Stream band scope data or manage Close Call. (Not available for this scanner model)"
         )
 
     # Band select presets
