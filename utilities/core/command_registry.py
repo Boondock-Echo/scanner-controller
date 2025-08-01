@@ -197,14 +197,39 @@ def build_command_table(adapter, ser):
             parts = arg.split()
             sweep_count = 1
             list_hits = False
+            preset = None
+
+            # Determine first non-flag token for preset or sweep count
+            first_non_flag_found = False
             for part in parts:
-                if part.lower() in ("list", "hits"):
+                lower = part.lower()
+                if lower in ("list", "hits"):
                     list_hits = True
+                    continue
+                if not first_non_flag_found:
+                    first_non_flag_found = True
+                    try:
+                        from config.band_scope_presets import BAND_SCOPE_PRESETS
+
+                        if lower in BAND_SCOPE_PRESETS:
+                            preset = lower
+                            continue
+                    except Exception:
+                        pass
+                    try:
+                        sweep_count = int(part)
+                    except ValueError:
+                        pass
                 else:
                     try:
                         sweep_count = int(part)
                     except ValueError:
                         pass
+
+            if preset and hasattr(adapter_, "configure_band_scope"):
+                result = adapter_.configure_band_scope(ser_, preset)
+                if result and result != "OK":
+                    return result
 
             if getattr(adapter_, "in_program_mode", False):
                 return (
@@ -271,7 +296,7 @@ def build_command_table(adapter, ser):
 
         COMMANDS["band scope"] = band_scope
         COMMAND_HELP["band scope"] = (
-            "Stream band scope data. Usage: band scope [sweeps] [list|hits]"
+            "Stream band scope data. Usage: band scope <preset> [sweeps] [list|hits]"
         )
 
         logging.debug("Registering 'band sweep' command")

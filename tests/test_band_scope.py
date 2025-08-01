@@ -299,6 +299,54 @@ def test_band_scope_list_hits(monkeypatch):
     assert counts[0] == 1024
 
 
+def test_band_scope_preset_invocation(monkeypatch):
+    adapter = BCD325P2Adapter()
+
+    calls = {}
+
+    def configure_stub(ser, preset):
+        calls["preset"] = preset
+        adapter.band_scope_width = 5
+        return "OK"
+
+    def stream_stub(ser, c, debug=False):
+        calls["count"] = c
+        yield (10, 100.0, 0)
+
+    monkeypatch.setattr(adapter, "configure_band_scope", configure_stub)
+    monkeypatch.setattr(adapter, "stream_custom_search", stream_stub)
+
+    commands, _ = build_command_table(adapter, None)
+    commands["band scope"](None, adapter, "air")
+
+    assert calls["preset"] == "air"
+    assert calls["count"] == adapter.band_scope_width
+
+
+def test_band_scope_preset_with_sweeps(monkeypatch):
+    adapter = BCD325P2Adapter()
+
+    calls = {}
+
+    def configure_stub(ser, preset):
+        calls["preset"] = preset
+        adapter.band_scope_width = 5
+        return "OK"
+
+    def stream_stub(ser, c, debug=False):
+        calls["count"] = c
+        yield (10, 144.0, 0)
+
+    monkeypatch.setattr(adapter, "configure_band_scope", configure_stub)
+    monkeypatch.setattr(adapter, "stream_custom_search", stream_stub)
+
+    commands, _ = build_command_table(adapter, None)
+    commands["band scope"](None, adapter, "ham2m 2")
+
+    assert calls["preset"] == "ham2m"
+    assert calls["count"] == adapter.band_scope_width * 2
+
+
 def test_band_scope_respects_preset_range(monkeypatch):
     adapter = BCD325P2Adapter()
     adapter.in_program_mode = True
