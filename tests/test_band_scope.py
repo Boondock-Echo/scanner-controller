@@ -122,7 +122,7 @@ def test_band_scope_auto_width(monkeypatch):
     monkeypatch.setattr(adapter, "stream_custom_search", fake_stream)
 
     commands, _ = build_command_table(adapter, None)
-    output = commands["band scope"](None, adapter, "5")
+    output = commands["band scope"](None, adapter, "5 hits")
     lines = output.splitlines()
     assert len(lines) == 1
     assert lines[0].startswith("center=")
@@ -200,7 +200,7 @@ def test_configure_band_scope_sets_width(monkeypatch):
     monkeypatch.setattr(adapter, "stream_custom_search", fake_stream)
 
     commands, _ = build_command_table(adapter, None)
-    output = commands["band scope"](None, adapter, "5")
+    output = commands["band scope"](None, adapter, "5 hits")
     lines = output.splitlines()
     assert len(lines) == 1
     assert lines[0].startswith("center=")
@@ -277,7 +277,7 @@ def test_band_scope_in_program_mode(monkeypatch):
     assert not called
 
 
-def test_band_scope_list_hits(monkeypatch):
+def test_band_scope_modes(monkeypatch):
     adapter = BCD325P2Adapter()
 
     counts = []
@@ -292,11 +292,27 @@ def test_band_scope_list_hits(monkeypatch):
     monkeypatch.setattr(adapter, "stream_custom_search", stream_stub)
 
     commands, _ = build_command_table(adapter, None)
-    output = commands["band scope"](None, adapter, "list")
-    lines = output.splitlines()
-    assert lines[:2] == ["146.0000, 0.049", "148.0000, 0.029"]
-    assert lines[-1].startswith("center=")
-    assert counts[0] == 1024
+
+    # Default (list) mode
+    output_default = commands["band scope"](None, adapter, "")
+    output_list = commands["band scope"](None, adapter, "list")
+    lines_default = output_default.splitlines()
+    assert lines_default[:4] == [
+        "145.0000, 0.000",
+        "146.0000, 0.049",
+        "147.0000, 0.000",
+        "148.0000, 0.029",
+    ]
+    assert lines_default[-1].startswith("center=")
+    assert output_default == output_list
+
+    # Hits mode filters entries 20% above mean RSSI
+    output_hits = commands["band scope"](None, adapter, "hits")
+    lines_hits = output_hits.splitlines()
+    assert lines_hits[:2] == ["146.0000, 0.049", "148.0000, 0.029"]
+    assert lines_hits[-1].startswith("center=")
+
+    assert counts == [1024, 1024, 1024]
 
 
 def test_band_scope_preset_invocation(monkeypatch):

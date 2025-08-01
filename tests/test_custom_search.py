@@ -30,7 +30,7 @@ def test_band_scope_command_registered(monkeypatch):
 
     assert "band scope" in commands
     assert "band scope" in help_text
-    output = commands["band scope"](None, adapter, "10")
+    output = commands["band scope"](None, adapter, "10 hits")
     lines = output.splitlines()
     assert len(lines) == 1
     assert lines[0].startswith("center=")
