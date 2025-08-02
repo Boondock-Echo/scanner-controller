@@ -429,3 +429,36 @@ def test_configure_band_scope_reports_errors(monkeypatch):
 
     result = adapter.configure_band_scope(None, "air")
     assert result.startswith("CSP error")
+
+
+def test_band_scope_logging(monkeypatch, tmp_path):
+    adapter = BCD325P2Adapter()
+
+    def stream_stub(ser, c=1024, debug=False):
+        for i in range(3):
+            yield (10 + i, 100.0 + i, 0)
+
+    monkeypatch.setattr(adapter, "stream_custom_search", stream_stub)
+    commands, _ = build_command_table(adapter, None)
+
+    logged = {}
+
+    def fake_record(records, summary, fmt, path):
+        logged["records"] = list(records)
+        logged["summary"] = summary
+        logged["fmt"] = fmt
+        logged["path"] = path
+        return "logged"
+
+    import utilities.scanner.band_scope_logger as bsl
+
+    monkeypatch.setattr(bsl, "record_band_scope", fake_record)
+
+    out_file = tmp_path / "data.csv"
+    result = commands["band scope"](None, adapter, f"log csv {out_file}")
+
+    assert result == "logged"
+    assert logged["fmt"] == "csv"
+    assert logged["path"] == str(out_file)
+    assert len(logged["records"]) == 3
+    assert logged["summary"].startswith("center=")
