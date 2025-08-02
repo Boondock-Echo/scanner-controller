@@ -5,6 +5,7 @@ import os
 import sys
 import time
 import types
+import pytest
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -158,3 +159,42 @@ def test_out_of_range_hit(monkeypatch):
     assert [h[1] for h in hits] == [130.0]
     assert completed
     assert adapter.commands == ["LOF,105.0", "ULF,105.0"]
+
+
+@pytest.mark.parametrize("key", ["q", "\r"])
+def test_user_cancel_windows(monkeypatch, key):
+    adapter = DummyAdapter()
+    calls = [130.0, 131.0]
+
+    def freq_stub(ser):
+        return calls.pop(0)
+
+    monkeypatch.setattr(adapter, "read_frequency", freq_stub)
+
+    class MSVCRTStub:
+        def __init__(self, key):
+            self.key = key
+            self.count = 0
+
+        def kbhit(self):
+            self.count += 1
+            if self.count == 1:
+                return False
+            return True
+
+        def getwch(self):
+            return self.key
+
+    monkeypatch.setattr(sys, "platform", "win32")
+    msvcrt_stub = MSVCRTStub(key)
+    module = types.ModuleType("msvcrt")
+    module.kbhit = msvcrt_stub.kbhit
+    module.getwch = msvcrt_stub.getwch
+    monkeypatch.setitem(sys.modules, "msvcrt", module)
+
+    hits, completed = close_call_search(
+        adapter, None, "air", max_hits=5, input_stream=io.StringIO("")
+    )
+
+    assert len(hits) == 1
+    assert not completed

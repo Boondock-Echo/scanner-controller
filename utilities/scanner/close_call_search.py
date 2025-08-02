@@ -26,14 +26,21 @@ def _parse_float(value: object) -> Optional[float]:
 def _user_requested_exit(stream: IO[str]) -> bool:
     """Return ``True`` if the user pressed Enter or ``q`` to cancel."""
     try:
-        if hasattr(stream, "fileno"):
-            r, _, _ = select.select([stream], [], [], 0)
-            if r:
-                ch = stream.read(1)
+        if sys.platform == "win32":
+            import msvcrt  # type: ignore
+
+            if msvcrt.kbhit():
+                ch = msvcrt.getwch()
                 return ch in {"q", "Q", "\n", "\r"}
         else:
-            ch = stream.read(1)
-            return ch in {"q", "Q", "\n", "\r"}
+            if hasattr(stream, "fileno"):
+                r, _, _ = select.select([stream], [], [], 0)
+                if r:
+                    ch = stream.read(1)
+                    return ch in {"q", "Q", "\n", "\r"}
+            else:
+                ch = stream.read(1)
+                return ch in {"q", "Q", "\n", "\r"}
     except Exception:
         return False
     return False
