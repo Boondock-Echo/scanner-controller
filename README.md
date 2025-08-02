@@ -213,7 +213,23 @@ optional mode argument to control output: `list` displays all values while
 > band scope <preset> [sweeps] [list|hits]
 > band scope <preset> cc search
 > band scope <preset> cc log
+> band scope <preset> log csv|json|db <path>
 ```
+
+Add the optional `log` argument to save sweep data to a file. Supported formats
+are `csv`, `json`, and `db` (SQLite). Provide a destination after the format and
+the file will be created at that path (relative to the current working
+directory unless an absolute path is used). Examples:
+
+```text
+> band scope air 5 log csv band_air.csv
+> band scope air log db air_sweeps.db
+```
+
+CSV and JSON produce plain text files. The `db` option stores results in an
+SQLite database and requires SQLite support. Install it with your system's
+package manager (e.g., `sudo apt install sqlite3` on Debian/Ubuntu) or ensure
+that Python is built with SQLite enabled.
 
 The `cc search` subcommand performs a Close Call search within the chosen
 band and prints any hit frequencies after the search ends. Press **Enter** or
