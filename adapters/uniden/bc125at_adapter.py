@@ -320,6 +320,8 @@ class BC125ATAdapter(UnidenScannerAdapter):
                 try:
                     if isinstance(rssi_val, str) and "RSSI" in rssi_val:
                         rssi_val = float(rssi_val.split("RSSI")[-1].split()[0])
+                    if rssi_val is not None:
+                        rssi_val = int(float(rssi_val) * 1023)
                 except Exception:
                     rssi_val = None
                 results.append((round(freq, 6), rssi_val))

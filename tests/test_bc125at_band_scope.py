@@ -25,9 +25,10 @@ def test_bc125at_sweep_parses_units(monkeypatch):
     monkeypatch.setattr(
         adapter, "enter_quick_frequency_hold", lambda ser, f: None
     )
-    monkeypatch.setattr(adapter, "read_rssi", lambda ser: 0)
+    monkeypatch.setattr(adapter, "read_rssi", lambda ser: 1.0)
     result = adapter.sweep_band_scope(None, "144M", "2M", "500k", "500k")
     assert result[0][0] == 143.0
+    assert result[0][1] == 1023
 
 
 def test_bc125at_band_scope_auto_width(monkeypatch):
