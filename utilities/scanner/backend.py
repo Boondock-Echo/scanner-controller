@@ -6,25 +6,7 @@ import time
 import serial
 from serial.tools import list_ports
 
-
-def clear_serial_buffer(ser, delay=0.0):
-    """Clear accumulated data in the serial buffer.
-
-    Parameters
-    ----------
-    ser : serial.Serial
-        Open serial connection to the scanner.
-    delay : float, optional
-        Time to wait before flushing the buffer. Defaults to ``0`` seconds.
-    """
-    try:
-        if delay:
-            time.sleep(delay)
-        while ser.in_waiting:
-            ser.read(ser.in_waiting)
-        logging.debug("Serial buffer cleared.")
-    except Exception as e:
-        logging.error(f"Error clearing serial buffer: {e}")
+from utilities.core.serial_utils import clear_serial_buffer
 
 
 def wait_for_data(ser, max_wait=0.3):

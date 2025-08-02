@@ -1,11 +1,4 @@
-"""
-This module provides utility functions and classes for scanner control.
-
-It includes serial buffer management and command handling.
-"""
-
-import logging
-import time
+"""Utility classes for scanner control."""
 
 from utilities.errors import CommandError
 
@@ -108,23 +101,3 @@ class ScannerCommand:
                 f"{self.name}: Command returned an error: {response}"
             )
         return self.parser(response) if self.parser else response
-
-
-def clear_serial_buffer(ser, delay=0.0):
-    """Clear accumulated data in the serial buffer before sending commands.
-
-    Parameters
-    ----------
-    ser : serial.Serial
-        Serial connection to clear.
-    delay : float, optional
-        Time to wait before flushing the buffer. Defaults to ``0`` seconds.
-    """
-    try:
-        if delay:
-            time.sleep(delay)
-        while ser.in_waiting:
-            ser.read(ser.in_waiting)
-        logging.debug("Serial buffer cleared.")
-    except Exception as e:
-        logging.error(f"Error clearing serial buffer: {e}")

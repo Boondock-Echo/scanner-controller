@@ -1,14 +1,11 @@
-"""
-Shared utilities for scanner communication and control.
+"""Shared utilities for scanner communication and control.
 
 This module provides common functionality used across different scanner adapter
 implementations, including command building and serial communication helpers.
 """
 
-import logging
 import os
 import sys
-import time
 
 
 def ensure_root_in_path():
@@ -117,71 +114,6 @@ class ScannerCommand:
         return self.parser(response) if self.parser else response
 
 
-def clear_serial_buffer(ser, delay=0.0):
-    """Clear accumulated data in the serial buffer before sending commands.
-
-    Parameters
-    ----------
-    ser : serial.Serial
-        Open serial connection to the scanner.
-    delay : float, optional
-        Time to wait before flushing the buffer. Defaults to ``0`` seconds.
-    """
-    try:
-        if delay:
-            time.sleep(delay)
-        while ser.in_waiting:
-            ser.read(ser.in_waiting)
-        logging.debug("Serial buffer cleared.")
-    except Exception as e:
-        logging.error(f"Error clearing serial buffer: {e}")
-
-
-def send_command(ser, cmd, delay=0.0):
-    """Clear the buffer and send a command (with CR termination) to the device.
-
-    Parameters
-    ----------
-    ser : serial.Serial
-        Open serial connection object.
-    cmd : str
-        Command string to send.
-    delay : float, optional
-        Delay passed to :func:`clear_serial_buffer`. Defaults to ``0`` seconds.
-
-    Returns
-    -------
-    str
-        Response from the device as a string.
-    """
-    clear_serial_buffer(ser, delay)
-    full_cmd = cmd.strip() + "\r"
-    try:
-        ser.write(full_cmd.encode("utf-8"))
-        logging.info(f"Sent command: {cmd}")
-    except Exception as e:
-        logging.error(f"Error sending command {cmd}: {e}")
-        return ""
-    return read_response(ser)
-
-
-def read_response(ser, timeout=1.0):
-    """
-    Read a response from the serial port with a timeout.
-
-    Args:
-        ser: An open serial connection object
-        timeout: Maximum time to wait for a response
-
-    Returns:
-        str: The response from the device as a string
-    """
-    ser.timeout = timeout
-    response = ser.read_until(b"\r").decode("utf-8").strip()
-    logging.debug(f"Received response: {response}")
-    return response
-
-
 def diagnose_connection_issues():
     """
     Diagnose common connection issues with the scanner.
@@ -206,3 +138,4 @@ def diagnose_connection_issues():
     print("  2. Check that the correct port is selected.")
     print("  3. Ensure no other application is using the port.")
     print("  4. Try reconnecting the scanner or using a different USB port.")
+
