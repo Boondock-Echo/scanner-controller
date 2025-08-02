@@ -200,6 +200,8 @@ def build_command_table(adapter, ser):
             sweep_count = 1
             mode = "list"
             preset = None
+            log_format = None
+            log_path = None
 
             # Handle Close Call subcommands: "band scope <preset> cc search|log"
             if len(parts) >= 2 and parts[1].lower() == "cc":
@@ -234,6 +236,19 @@ def build_command_table(adapter, ser):
                     except Exception as exc:  # pragma: no cover - best effort
                         return str(exc)
                 return "Usage: band scope <preset> cc search|log"
+
+            # Parse logging directives: "log csv|json|db <path>"
+            if "log" in parts:
+                try:
+                    idx = parts.index("log")
+                    log_format = parts[idx + 1].lower()
+                    log_path = parts[idx + 2]
+                    parts = parts[:idx] + parts[idx + 3 :]
+                except Exception:
+                    return (
+                        "Usage: band scope <preset> [sweeps] [list|hits] "
+                        "log csv|json|db <path>"
+                    )
 
             # Determine first non-flag token for preset or sweep count
             first_non_flag_found = False
@@ -338,6 +353,7 @@ def build_command_table(adapter, ser):
             )
 
             lines = []
+            norm_records = []
             if mode == "hits":
                 rssi_vals = [(r or 0) for r, _ in records]
                 mean_rssi = sum(rssi_vals) / len(records)
@@ -345,20 +361,32 @@ def build_command_table(adapter, ser):
                 for rssi, freq in records:
                     if rssi is None or freq is None:
                         continue
+                    val = rssi / MAX_RSSI
                     if rssi > threshold:
-                        lines.append(f"{freq:.4f}, {rssi / MAX_RSSI:.3f}")
+                        lines.append(f"{freq:.4f}, {val:.3f}")
+                        norm_records.append((freq, val))
             else:
                 for rssi, freq in records:
                     if rssi is None or freq is None:
                         continue
-                    lines.append(f"{freq:.4f}, {rssi / MAX_RSSI:.3f}")
+                    val = rssi / MAX_RSSI
+                    lines.append(f"{freq:.4f}, {val:.3f}")
+                    norm_records.append((freq, val))
+
+            if log_format:
+                try:
+                    from utilities.scanner.band_scope_logger import record_band_scope
+
+                    return record_band_scope(norm_records, summary, log_format, log_path)
+                except Exception as exc:  # pragma: no cover - best effort
+                    return str(exc)
 
             return "\n".join(lines + [summary])
 
         COMMANDS["band scope"] = band_scope
         COMMAND_HELP["band scope"] = (
             "Stream band scope data or manage Close Call. Usage: band scope <preset> "
-            "[sweeps] [list|hits] | band scope <preset> cc search|log. "
+            "[sweeps] [list|hits] [log csv|json|db <path>] | band scope <preset> cc search|log. "
             "During 'cc search', press Enter or 'q' to stop."
         )
 
