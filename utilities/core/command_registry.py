@@ -211,7 +211,12 @@ def build_command_table(adapter, ser):
                             close_call_search,
                         )
 
-                        hits, _ = close_call_search(adapter_, ser_, preset)
+                        # Allow the user to terminate the search by pressing
+                        # Enter or ``q``. The adapter's previous settings are
+                        # restored automatically.
+                        hits, _ = close_call_search(
+                            adapter_, ser_, preset, input_stream=sys.stdin
+                        )
                         return "\n".join(
                             f"{freq:.4f}"
                             for _, freq, _, _ in hits
@@ -353,7 +358,8 @@ def build_command_table(adapter, ser):
         COMMANDS["band scope"] = band_scope
         COMMAND_HELP["band scope"] = (
             "Stream band scope data or manage Close Call. Usage: band scope <preset> "
-            "[sweeps] [list|hits] | band scope <preset> cc search|log"
+            "[sweeps] [list|hits] | band scope <preset> cc search|log. "
+            "During 'cc search', press Enter or 'q' to stop."
         )
 
         logging.debug("Registering 'band sweep' command")

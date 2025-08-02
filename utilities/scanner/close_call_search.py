@@ -24,7 +24,7 @@ def _parse_float(value: object) -> Optional[float]:
 
 
 def _user_requested_exit(stream: IO[str]) -> bool:
-    """Return ``True`` if the user requested cancellation."""
+    """Return ``True`` if the user pressed Enter or ``q`` to cancel."""
     try:
         if hasattr(stream, "fileno"):
             r, _, _ = select.select([stream], [], [], 0)
@@ -50,6 +50,10 @@ def close_call_search(
     lockout: bool = False,
 ) -> Tuple[List[Tuple[float, Optional[float], str, Optional[float]]], bool]:
     """Collect Close Call hits within a band.
+
+    Press ``Enter`` or ``q`` while the search is running to stop early. The
+    scanner's previous Close Call and mode settings are restored before
+    returning.
 
     Parameters
     ----------
@@ -113,6 +117,7 @@ def close_call_search(
             elapsed = time.time() - start_time
             sys.stdout.write(
                 f"\r{next(spinner)} Hits: {len(hits)} Elapsed: {elapsed:0.1f}s"
+                " (press Enter or 'q' to stop)"
             )
             sys.stdout.flush()
             try:

@@ -216,8 +216,10 @@ optional mode argument to control output: `list` displays all values while
 ```
 
 The `cc search` subcommand performs a Close Call search within the chosen
-band and prints any hit frequencies after the search ends. The `cc log`
-variant starts continuous logging of hits until interrupted.
+band and prints any hit frequencies after the search ends. Press **Enter** or
+`q` at any time to terminate the search and restore the scanner's previous
+settings. The `cc log` variant starts continuous logging of hits until
+interrupted.
 
 ### Close Call Logging
 
