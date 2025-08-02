@@ -12,12 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 def record_band_scope(
-    records: Iterable[Tuple[float, float]],
-    summary: str,
-    fmt: str,
-    path: str,
+    records: Iterable[Tuple[float, float]], summary: str, fmt: str, path: str
 ):
-    """Record band scope data in various formats.
+    """Record band scope data.
 
     Parameters
     ----------
@@ -30,8 +27,8 @@ def record_band_scope(
         One of ``"csv"``, ``"json"``, or ``"db"``.
     path:
         Destination file path.
-    """
 
+    """
     fmt = fmt.lower()
     if fmt == "csv":
         with open(path, "w", newline="") as fh:
@@ -55,13 +52,8 @@ def record_band_scope(
         cur.execute(
             "CREATE TABLE IF NOT EXISTS band_scope (frequency REAL, rssi REAL)"
         )
-        cur.executemany(
-            "INSERT INTO band_scope VALUES (?, ?)",
-            records,
-        )
-        cur.execute(
-            "CREATE TABLE IF NOT EXISTS metadata (summary TEXT)"
-        )
+        cur.executemany("INSERT INTO band_scope VALUES (?, ?)", records)
+        cur.execute("CREATE TABLE IF NOT EXISTS metadata (summary TEXT)")
         cur.execute("INSERT INTO metadata VALUES (?)", (summary,))
         conn.commit()
         conn.close()
@@ -73,4 +65,3 @@ def record_band_scope(
 
 
 __all__ = ["record_band_scope"]
-

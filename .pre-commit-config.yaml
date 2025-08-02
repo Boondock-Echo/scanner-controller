@@ -1,48 +1,41 @@
 # Pre-commit hooks configuration
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
-    hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-added-large-files
-
-  - repo: https://github.com/PyCQA/flake8
-    rev: 6.1.0
-    hooks:
-      - id: flake8
-        additional_dependencies:
-          [flake8-docstrings, flake8-import-order, flake8-bugbear]
-        types: [python]
-        exclude: '(^|/)(\.venv|venv|\.git|__pycache__|\.pytest_cache|\.github)/'
-        # More robust exclude pattern that will definitely catch .venv directory
-
-  - repo: https://github.com/psf/black
-    rev: 23.9.1
-    hooks:
-      - id: black
-        language_version: python3
-        args: ["--config=pyproject.toml"]
-
-  - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-        args: ["--settings-path=pyproject.toml"]
-
   - repo: local
     hooks:
+      - id: trailing-whitespace
+        name: trailing-whitespace
+        entry: python tools/hooks/trailing_whitespace_fixer.py
+        language: system
+        types: [text]
+
+      - id: end-of-file-fixer
+        name: end-of-file-fixer
+        entry: python tools/hooks/end_of_file_fixer.py
+        language: system
+        types: [text]
+
+      - id: flake8
+        name: flake8
+        entry: python -m flake8
+        language: system
+        types: [python]
+        exclude: '(^|/)(\.venv|venv|\.git|__pycache__|\.pytest_cache|\.github)/'
+
+      - id: black
+        name: black
+        entry: python -m black --config=pyproject.toml
+        language: system
+        types: [python]
+
+      - id: isort
+        name: isort
+        entry: python -m isort --settings-path=pyproject.toml
+        language: system
+        types: [python]
+
       - id: pytest
         name: pytest
         entry: python -m pytest
         language: system
         pass_filenames: false
         types: [python]
-
-      - id: isort
-        name: isort
-        entry: python -m isort
-        language: system
-        types: [python]
-        args: ["--profile", "black"]
