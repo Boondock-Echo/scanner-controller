@@ -41,6 +41,7 @@ from adapters.uniden.bc125at.user_control import (
     start_scanning,
     stop_scanning,
 )
+from adapters.uniden.bc125at.custom_search import stream_custom_search
 
 # Import common functions
 from adapters.uniden.common.core import (
@@ -162,6 +163,9 @@ class BC125ATAdapter(UnidenScannerAdapter):
     send_key = send_key
     start_scanning = start_scanning
     stop_scanning = stop_scanning
+
+    # Custom search streaming
+    stream_custom_search = stream_custom_search
 
     def _to_mhz(self, value):
         """Convert a numeric string with optional unit suffix to MHz."""
