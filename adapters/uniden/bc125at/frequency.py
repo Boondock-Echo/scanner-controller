@@ -12,7 +12,7 @@ from adapters.uniden.common.constants import (
     SCANNER_UNITS_PER_MHZ,
 )
 from adapters.uniden.common.core import ensure_str
-from utilities.scanner.backend import send_command
+from utilities.core.serial_utils import send_command
 
 
 def read_frequency(self, ser):

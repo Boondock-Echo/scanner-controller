@@ -40,8 +40,12 @@ def clear_serial_buffer(ser, delay=0.0):
 
 
 def read_response(ser, timeout=1.0):
-    """Read a response from the serial port with a timeout."""
-    original_timeout = ser.timeout  # Capture the original timeout
+    """Read a response from the serial port with a timeout.
+
+    The serial timeout is temporarily overridden and restored after the
+    read completes to avoid side effects on the caller's configuration.
+    """
+    original_timeout = getattr(ser, "timeout", None)
     try:
         ser.timeout = timeout
         response = ser.read_until(b"\r").decode("utf-8").strip()
@@ -50,6 +54,9 @@ def read_response(ser, timeout=1.0):
     except Exception as e:
         logging.error(f"Error reading response: {e}")
         return ""
+    finally:
+        if original_timeout is not None:
+            ser.timeout = original_timeout
 
 
 def send_command(ser, cmd, delay=0.0):
