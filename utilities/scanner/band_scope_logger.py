@@ -6,16 +6,14 @@ import csv
 import json
 import logging
 import sqlite3
+import os
 from typing import Iterable, Tuple
 
 logger = logging.getLogger(__name__)
 
 
 def record_band_scope(
-    records: Iterable[Tuple[float, float]],
-    summary: str,
-    fmt: str,
-    path: str,
+    records: Iterable[Tuple[float, float]], summary: str, fmt: str, path: str
 ):
     """Record band scope data in various formats.
 
@@ -31,8 +29,10 @@ def record_band_scope(
     path:
         Destination file path.
     """
-
     fmt = fmt.lower()
+    directory = os.path.dirname(path)
+    if directory:
+        os.makedirs(directory, exist_ok=True)
     if fmt == "csv":
         with open(path, "w", newline="") as fh:
             writer = csv.writer(fh)
@@ -55,13 +55,8 @@ def record_band_scope(
         cur.execute(
             "CREATE TABLE IF NOT EXISTS band_scope (frequency REAL, rssi REAL)"
         )
-        cur.executemany(
-            "INSERT INTO band_scope VALUES (?, ?)",
-            records,
-        )
-        cur.execute(
-            "CREATE TABLE IF NOT EXISTS metadata (summary TEXT)"
-        )
+        cur.executemany("INSERT INTO band_scope VALUES (?, ?)", records)
+        cur.execute("CREATE TABLE IF NOT EXISTS metadata (summary TEXT)")
         cur.execute("INSERT INTO metadata VALUES (?)", (summary,))
         conn.commit()
         conn.close()
@@ -73,4 +68,3 @@ def record_band_scope(
 
 
 __all__ = ["record_band_scope"]
-
