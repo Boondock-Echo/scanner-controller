@@ -8,10 +8,13 @@ scanner models through a consistent interface.
 
 import serial
 
+from utilities.graph_utils import render_rssi_graph
 from utilities.log_utils import get_logger
 
 # Get a logger for this module with increased verbosity
 logger = get_logger(__name__, level="DEBUG")
+
+MAX_RSSI = 1023.0
 
 
 class ScannerController:
@@ -261,6 +264,40 @@ class ScannerController:
         except Exception as e:
             logger.error(f"Error reading RSSI: {e}")
             return 0.0
+
+    def sweep_band_scope(self, center, span, step, bandwidth=None):
+        """Perform a band sweep and return an ASCII RSSI graph.
+
+        Parameters
+        ----------
+        center : float or str
+            Center frequency of the sweep.
+        span : float or str
+            Span width around the center frequency.
+        step : float or str
+            Step size between measurements.
+        bandwidth : float or str, optional
+            Optional bandwidth for width calculation.
+
+        Returns
+        -------
+        str
+            Two-line Unicode graph representing relative signal strength.
+        """
+        if not self.adapter:
+            return ""
+
+        try:
+            pairs = self.adapter.sweep_band_scope(
+                self.ser, center, span, step, bandwidth
+            )
+            normalized = [
+                (freq, (rssi or 0) / MAX_RSSI) for freq, rssi in pairs
+            ]
+            return render_rssi_graph(normalized)
+        except Exception as e:
+            logger.error(f"Error performing band sweep: {e}")
+            return ""
 
     def set_volume(self, level):
         """

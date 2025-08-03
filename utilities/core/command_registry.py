@@ -143,10 +143,26 @@ def build_command_table(adapter, ser):
     # Signal meter
     if hasattr(adapter, 'read_s_meter'):
         logging.debug("Registering 'get signal' command")
-        COMMANDS["get signal"] = lambda ser_, adapter_: adapter_.read_s_meter(
-            ser_
-        )
-        COMMAND_HELP["get signal"] = "Get the signal strength meter reading."
+
+        def get_signal(ser_, adapter_):
+            result = adapter_.read_s_meter(ser_)
+            if (
+                isinstance(result, str)
+                and (
+                    "unsupported" in result.lower()
+                    or "not supported" in result.lower()
+                )
+                and hasattr(adapter_, "read_rssi")
+            ):
+                return adapter_.read_rssi(ser_)
+            return result
+
+        COMMANDS["get signal"] = get_signal
+        COMMAND_HELP["get signal"] = "Get the signal strength reading."
+    elif hasattr(adapter, 'read_rssi'):
+        logging.debug("Registering 'get signal' command (RSSI fallback)")
+        COMMANDS["get signal"] = lambda ser_, adapter_: adapter_.read_rssi(ser_)
+        COMMAND_HELP["get signal"] = "Get the signal strength reading."
 
     # -- Scanner Control commands --
     # Always register essential scanner control commands
@@ -190,6 +206,9 @@ def build_command_table(adapter, ser):
             "Enter frequency hold mode. Usage: hold frequency <freq_mhz> "
             "(Not available for this scanner model)"
         )
+
+    # Band scope (CSC streaming or manual sweep)
+    if hasattr(adapter, 'stream_custom_search'):
 
     # Band scope (CSC streaming or search sweep)
     if hasattr(adapter, 'stream_custom_search') or hasattr(adapter, 'search_band_scope'):
@@ -396,6 +415,43 @@ def build_command_table(adapter, ser):
         COMMANDS["band sweep"] = band_sweep
         COMMAND_HELP["band sweep"] = (
             "Stream band sweep data. Usage: band sweep [record_count]"
+        )
+    elif hasattr(adapter, 'sweep_band_scope'):
+        logging.debug("Registering 'band scope' command (sweep mode)")
+
+        def band_scope(ser_, adapter_, arg=""):
+            parts = arg.split()
+            preset = parts[0].lower() if parts else None
+
+            if preset and hasattr(adapter_, "configure_band_scope"):
+                result = adapter_.configure_band_scope(ser_, preset)
+                if result and isinstance(result, str) and "OK" not in result.upper():
+                    return result
+
+            center = getattr(adapter_, "last_center", None)
+            span = getattr(adapter_, "last_span", None)
+            step = getattr(adapter_, "last_step", None)
+            bandwidth = getattr(adapter_, "signal_bandwidth", None)
+
+            if None in (center, span, step):
+                return "Band scope not configured"
+
+            pairs = adapter_.sweep_band_scope(
+                ser_, center, span, step, bandwidth
+            )
+
+            if not pairs:
+                return "No band scope data received"
+
+            norm_pairs = [
+                (freq, (rssi or 0) / MAX_RSSI) for freq, rssi in pairs
+            ]
+            return render_rssi_graph(norm_pairs)
+
+        COMMANDS["band scope"] = band_scope
+        COMMAND_HELP["band scope"] = (
+            "Perform a quick band sweep and display signal levels. "
+            "Usage: band scope [preset]"
         )
     else:
         logging.debug("Registering placeholder 'band scope' command")
