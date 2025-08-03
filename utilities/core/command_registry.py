@@ -209,6 +209,9 @@ def build_command_table(adapter, ser):
 
     # Band scope (CSC streaming or manual sweep)
     if hasattr(adapter, 'stream_custom_search'):
+
+    # Band scope (CSC streaming or search sweep)
+    if hasattr(adapter, 'stream_custom_search') or hasattr(adapter, 'search_band_scope'):
         logging.debug("Registering 'band scope' command")
 
         def band_scope(ser_, adapter_, arg=""):
@@ -216,6 +219,7 @@ def build_command_table(adapter, ser):
             sweep_count = 1
             mode = "list"
             preset = None
+            use_search_sweep = False
 
             # Handle Close Call subcommands: "band scope <preset> cc search|log"
             if len(parts) >= 2 and parts[1].lower() == "cc":
@@ -258,6 +262,9 @@ def build_command_table(adapter, ser):
                 if lower in ("list", "hits"):
                     mode = lower
                     continue
+                if lower == "search":
+                    use_search_sweep = True
+                    continue
                 if not first_non_flag_found:
                     first_non_flag_found = True
                     try:
@@ -278,41 +285,53 @@ def build_command_table(adapter, ser):
                     except ValueError:
                         pass
 
-            if preset and hasattr(adapter_, "configure_band_scope"):
-                result = adapter_.configure_band_scope(ser_, preset)
-                if result and "OK" not in result.upper():
-                    return result
-
-            if getattr(adapter_, "in_program_mode", False):
-                return (
-                    "Scanner is in programming mode. "
-                    "Run 'send EPG' then rerun 'band scope'."
-                )
-
-            width = getattr(adapter_, "band_scope_width", None) or 1024
-            record_count = width * sweep_count
-
             records = []
-            debug_mode = logging.getLogger().isEnabledFor(logging.DEBUG)
-            show_progress = sys.stdout.isatty()
-            spinner = itertools.cycle("|/-\\") if show_progress else None
-            processed = 0
-            for rssi, freq, _ in adapter_.stream_custom_search(
-                ser_, record_count, debug=debug_mode
-            ):
-                records.append((rssi, freq))
-                if show_progress:
-                    processed += 1
-                    ch = next(spinner)
-                    percent = processed / record_count * 100
-                    sys.stdout.write(f"\r{ch} {percent:5.1f}%")
-                    sys.stdout.flush()
-            if show_progress:
-                sys.stdout.write("\r")
-                sys.stdout.flush()
 
-            if not records:
-                return "No band scope data received"
+            if use_search_sweep:
+                if not hasattr(adapter_, "search_band_scope"):
+                    return "Search-based sweep not supported on this scanner"
+                if not preset:
+                    return "Usage: band scope <preset> search"
+                for _ in range(sweep_count):
+                    sweep_records = adapter_.search_band_scope(ser_, preset)
+                    records.extend(sweep_records)
+                if not records:
+                    return "No band scope data received"
+            else:
+                if preset and hasattr(adapter_, "configure_band_scope"):
+                    result = adapter_.configure_band_scope(ser_, preset)
+                    if result and "OK" not in result.upper():
+                        return result
+
+                if getattr(adapter_, "in_program_mode", False):
+                    return (
+                        "Scanner is in programming mode. "
+                        "Run 'send EPG' then rerun 'band scope'."
+                    )
+
+                width = getattr(adapter_, "band_scope_width", None) or 1024
+                record_count = width * sweep_count
+
+                debug_mode = logging.getLogger().isEnabledFor(logging.DEBUG)
+                show_progress = sys.stdout.isatty()
+                spinner = itertools.cycle("|/-\\") if show_progress else None
+                processed = 0
+                for rssi, freq, _ in adapter_.stream_custom_search(
+                    ser_, record_count, debug=debug_mode
+                ):
+                    records.append((rssi, freq))
+                    if show_progress:
+                        processed += 1
+                        ch = next(spinner)
+                        percent = processed / record_count * 100
+                        sys.stdout.write(f"\r{ch} {percent:5.1f}%")
+                        sys.stdout.flush()
+                if show_progress:
+                    sys.stdout.write("\r")
+                    sys.stdout.flush()
+
+                if not records:
+                    return "No band scope data received"
 
             freqs = [f for _, f in records]
             if freqs:
@@ -374,8 +393,9 @@ def build_command_table(adapter, ser):
         COMMANDS["band scope"] = band_scope
         COMMAND_HELP["band scope"] = (
             "Stream band scope data or manage Close Call. Usage: band scope <preset> "
-            "[sweeps] [list|hits] | band scope <preset> cc search|log. "
-            "During 'cc search', press Enter or 'q' to stop."
+            "[sweeps] [list|hits] [search] | band scope <preset> cc search|log. "
+            "During 'cc search', press Enter or 'q' to stop. "
+            "Append 'search' to use a PWR-based sweep on models without CSC streaming."
         )
 
         logging.debug("Registering 'band sweep' command")

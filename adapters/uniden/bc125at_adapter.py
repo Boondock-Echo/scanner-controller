@@ -317,6 +317,105 @@ class BC125ATAdapter(UnidenScannerAdapter):
             logger.error(f"Error sweeping band scope: {e}")
             return []
 
+    def search_band_scope(self, ser, preset):
+        """Search a band using custom search and PWR polling.
+
+        This uses the scanner's built-in custom search feature to step
+        through a preset range while repeatedly querying ``PWR`` to gather
+        raw RSSI and frequency pairs. The results represent a single pass
+        across the range.
+
+        Parameters
+        ----------
+        ser : serial.Serial
+            Serial connection to the scanner.
+        preset : str
+            Name of the band-scope preset to use.
+
+        Returns
+        -------
+        list
+            List of ``(rssi, freq_mhz)`` tuples. ``rssi`` values are raw
+            10-bit readings in the range 0-1023 and ``freq_mhz`` values are
+            floating point frequencies in megahertz.
+        """
+        try:
+            from config.band_scope_presets import BAND_SCOPE_PRESETS
+
+            band = str(preset).lower()
+            if band not in BAND_SCOPE_PRESETS:
+                logger.error(f"Unknown preset '{band}'")
+                return []
+
+            low, high, step, mod = BAND_SCOPE_PRESETS[band]
+
+            low_khz = self._to_khz(low)
+            high_khz = self._to_khz(high)
+            step_khz = self._to_khz(step)
+
+            span_mhz = (high_khz - low_khz) / 1000.0
+            center_khz = (low_khz + high_khz) / 2.0
+            step_mhz = step_khz / 1000.0
+
+            self.last_center = center_khz / 1000.0
+            self.last_span = span_mhz
+            self.last_step = step_mhz
+            self.last_mod = mod
+
+            self.band_scope_width = self._calc_band_scope_width(span_mhz, step_mhz)
+            self.signal_bandwidth = step
+
+            lower = f"{int(round(low_khz * 10)):08d}"
+            upper = f"{int(round(high_khz * 10)):08d}"
+
+            csp_cmd = f"CSP,0,{lower},{upper}"
+            csp_resp = self.send_command(ser, csp_cmd)
+            if "OK" not in self.ensure_str(csp_resp):
+                return []
+
+            csg_resp = self.send_command(ser, "CSG,0111111111")
+            if "OK" not in self.ensure_str(csg_resp):
+                return []
+
+            self.start_scanning(ser)
+
+            width = self.band_scope_width or 0
+            results = []
+            prev_freq = None
+            attempts = 0
+            while width == 0 or len(results) < width:
+                resp = self.send_command(ser, "PWR")
+                resp_str = self.ensure_str(resp)
+                parts = resp_str.split(",")
+                if len(parts) < 3:
+                    break
+                try:
+                    rssi = int(parts[1])
+                    freq_str = parts[2]
+                    if freq_str.isdigit():
+                        freq = int(freq_str) / SCANNER_UNITS_PER_MHZ
+                    else:
+                        freq = float(freq_str)
+                    results.append((rssi, freq))
+                    if prev_freq is not None and freq < prev_freq:
+                        break
+                    prev_freq = freq
+                except ValueError:
+                    logger.debug(f"Malformed PWR response: {resp_str}")
+                attempts += 1
+                if width and attempts > width * 2:
+                    break
+
+            try:
+                self.stop_scanning(ser)
+            except Exception:  # pragma: no cover - best effort
+                pass
+
+            return results
+        except Exception as e:  # pragma: no cover - log and fail gracefully
+            logger.error(f"Error during search-based band scope: {e}")
+            return []
+
     def get_help(self, command):
         """Get help for a specific BC125AT command.
 
