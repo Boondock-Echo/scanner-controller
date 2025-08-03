@@ -4,6 +4,7 @@ This module contains functions for managing scanner connections and switching.
 """
 
 import logging
+
 import serial  # noqa: F401
 
 from utilities.scanner.backend import find_all_scanner_ports
@@ -34,7 +35,10 @@ def detect_and_connect_scanner(machine_mode=False):
     else:
         print("Searching for connected scanners...")
 
-    detected = find_all_scanner_ports()
+    skip_ports = [
+        ser.port for _, (ser, _, _, _) in connection_manager.list_all()
+    ]
+    detected = find_all_scanner_ports(skip_ports=skip_ports)
 
     if not detected:
         if machine_mode:
@@ -131,7 +135,10 @@ def scan_for_scanners():
     """
     logger.info("Scanning for connected scanners")
 
-    detected = find_all_scanner_ports()
+    skip_ports = [
+        ser.port for _, (ser, _, _, _) in connection_manager.list_all()
+    ]
+    detected = find_all_scanner_ports(skip_ports=skip_ports)
 
     if not detected:
         return "STATUS:ERROR|CODE:NO_SCANNERS_FOUND"
@@ -149,6 +156,7 @@ def connect_to_scanner(
     machine_mode=True,
     existing_commands=None,
     existing_command_help=None,
+    skip_ports=None,
 ):
     """Connect to a specific scanner by its ID.
 
@@ -164,6 +172,8 @@ def connect_to_scanner(
         Existing commands dictionary to update.
     existing_command_help : dict, optional
         Existing command help dictionary to update.
+    skip_ports : list[str], optional
+        Serial ports that should be skipped when scanning.
 
     Returns
     -------
@@ -179,8 +189,12 @@ def connect_to_scanner(
             "MESSAGE:Scanner_ID_must_be_a_number"
         )
 
+    if skip_ports is None:
+        skip_ports = [
+            ser.port for _, (ser, _, _, _) in connection_manager.list_all()
+        ]
     # Get the list of available scanners
-    detected = find_all_scanner_ports()
+    detected = find_all_scanner_ports(skip_ports=skip_ports)
 
     if not detected:
         return "STATUS:ERROR|CODE:NO_SCANNERS_FOUND"
@@ -233,6 +247,12 @@ def switch_scanner(
     """
     if connection_manager.active_id is not None:
         connection_manager.close_connection(connection_manager.active_id)
+    skip_ports = [
+        ser.port for _, (ser, _, _, _) in connection_manager.list_all()
+    ]
     return connect_func(
-        connection_manager, scanner_id, machine_mode=machine_mode
+        connection_manager,
+        scanner_id,
+        machine_mode=machine_mode,
+        skip_ports=skip_ports,
     )
