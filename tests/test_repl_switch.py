@@ -9,13 +9,19 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 # Minimal serial stub similar to other tests
 serial_stub = types.ModuleType("serial")
 
+
 class DummySerial:
+    """Simple serial stub used for testing."""
+
     def __init__(self, port, *a, **k):
+        """Store the port name and mark it as open."""
         self.port = port
         self.is_open = True
 
     def close(self):
+        """Mark the connection as closed."""
         self.is_open = False
+
 
 serial_stub.Serial = DummySerial
 serial_tools_stub = types.ModuleType("serial.tools")
@@ -27,9 +33,9 @@ sys.modules.setdefault("serial", serial_stub)
 sys.modules.setdefault("serial.tools", serial_tools_stub)
 sys.modules.setdefault("serial.tools.list_ports", list_ports_stub)
 
-from utilities.scanner.connection_manager import ConnectionManager  # noqa: E402
-from utilities.command.loop import main_loop  # noqa: E402
 import utilities.scanner.connection_manager as cm_module  # noqa: E402
+from utilities.command.loop import main_loop  # noqa: E402
+from utilities.scanner.connection_manager import ConnectionManager  # noqa: E402
 
 
 class DummyAdapter:
@@ -39,12 +45,17 @@ class DummyAdapter:
 def _patch_manager(monkeypatch):
     monkeypatch.setattr(cm_module.serial, "Serial", DummySerial, raising=False)
     monkeypatch.setattr(
-        cm_module, "get_scanner_adapter", lambda model, machine_mode=False: DummyAdapter()
+        cm_module,
+        "get_scanner_adapter",
+        lambda model, machine_mode=False: DummyAdapter(),
     )
     monkeypatch.setattr(
         cm_module,
         "build_command_table",
-        lambda adapter, ser: ({"ping": lambda ser_, adapter_: f"pong:{ser_.port}"}, {"ping": "ping"}),
+        lambda adapter, ser: (
+            {"ping": lambda ser_, adapter_: f"pong:{ser_.port}"},
+            {"ping": "ping"},
+        ),
     )
 
 
@@ -63,15 +74,20 @@ def test_repl_switch(monkeypatch, capsys):
     # remember serial for id2 so we can check closed state
     ser2 = cm.get(id2)[0]
 
-    def fake_connect(scanner_id, machine_mode=False):
-        new_id = cm.open_connection("COM3", "X")
-        return cm.get(new_id)
+    def fake_connect(cm_arg, scanner_id, machine_mode=False, skip_ports=None):
+        assert skip_ports == ["COM1"]
+        new_id = cm_arg.open_connection("COM3", "X")
+        return cm_arg.get(new_id)
 
-    monkeypatch.setattr("utilities.command.loop.connect_to_scanner", fake_connect)
+    monkeypatch.setattr(
+        "utilities.command.loop.connect_to_scanner", fake_connect
+    )
 
     inputs = ["switch 1", "list", "exit"]
     monkeypatch.setattr("builtins.input", lambda prompt="": inputs.pop(0))
-    monkeypatch.setattr("utilities.command.loop.initialize_readline", lambda c: None)
+    monkeypatch.setattr(
+        "utilities.command.loop.initialize_readline", lambda c: None
+    )
 
     main_loop(cm, machine_mode=False)
 
@@ -83,4 +99,3 @@ def test_repl_switch(monkeypatch, capsys):
     assert cm.get(id2) is None
     assert ser2.is_open is False
     assert cm.get(cm.active_id)[0].port == "COM3"
-

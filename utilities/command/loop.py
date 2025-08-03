@@ -9,12 +9,23 @@ import logging
 from utilities.command.help_utils import show_help
 from utilities.command.parser import parse_command
 from utilities.io.readline_setup import initialize_readline
-from utilities.scanner.manager import connect_to_scanner, scan_for_scanners
+from utilities.scanner.manager import (
+    connect_to_scanner,
+    scan_for_scanners,
+    switch_scanner,
+)
 
 logger = logging.getLogger(__name__)
 
 
-def main_loop(connection_manager, adapter=None, ser=None, commands=None, command_help=None, machine_mode=False):
+def main_loop(
+    connection_manager,
+    adapter=None,
+    ser=None,
+    commands=None,
+    command_help=None,
+    machine_mode=False,
+):
     """Interactive REPL for executing scanner commands.
 
     Parameters
@@ -81,13 +92,17 @@ def main_loop(connection_manager, adapter=None, ser=None, commands=None, command
         return "\n".join(lines)
 
     def connect_cmd(scanner_id):
-        result = connect_to_scanner(scanner_id, machine_mode=machine_mode)
+        result = connect_to_scanner(
+            connection_manager, scanner_id, machine_mode=machine_mode
+        )
         if isinstance(result, tuple):
             refresh_active()
             conn_id = connection_manager.active_id
             ser_, _, _, _ = connection_manager.get()
             if machine_mode:
-                return f"STATUS:OK|ACTION:CONNECTED|ID:{conn_id}|PORT:{ser_.port}"
+                return (
+                    f"STATUS:OK|ACTION:CONNECTED|ID:{conn_id}|PORT:{ser_.port}"
+                )
             return f"Connected to {ser_.port} [ID {conn_id}]"
         return result
 
@@ -139,35 +154,55 @@ def main_loop(connection_manager, adapter=None, ser=None, commands=None, command
                 current["model"] = val
         if current:
             scanners.append(current)
-        lines = [f"  {s['id']}. {s.get('port', '')} — {s.get('model', '')}" for s in scanners]
+        lines = [
+            f"  {s['id']}. {s.get('port', '')} — {s.get('model', '')}"
+            for s in scanners
+        ]
         return "\n".join(lines)
 
     def switch_cmd(scanner_id):
-        if connection_manager.active_id is not None:
-            connection_manager.close_connection(connection_manager.active_id)
-        return connect_cmd(scanner_id)
+        result = switch_scanner(
+            connection_manager,
+            scanner_id,
+            machine_mode=machine_mode,
+            connect_func=connect_to_scanner,
+        )
+        if isinstance(result, tuple):
+            refresh_active()
+            conn_id = connection_manager.active_id
+            ser_, _, _, _ = connection_manager.get()
+            if machine_mode:
+                return (
+                    f"STATUS:OK|ACTION:CONNECTED|ID:{conn_id}|PORT:{ser_.port}"
+                )
+            return f"Connected to {ser_.port} [ID {conn_id}]"
+        return result
 
-    global_commands.update({
-        "list": lambda: list_connections(),
-        "scan": lambda: scan_cmd(),
-        "connect": lambda arg: connect_cmd(arg),
-        "use": lambda arg: use_cmd(arg),
-        "close": lambda arg: close_cmd(arg),
-        "switch": lambda arg: switch_cmd(arg),
-    })
-    global_help.update({
-        "list": "List open connections",
-        "scan": "Detect connected scanners",
-        "connect": "Connect to scanner ID from 'scan'",
-        "use": "Select active connection",
-        "close": "Close a connection",
-        "switch": "Close current connection before opening another",
-    })
+    global_commands.update(
+        {
+            "list": lambda: list_connections(),
+            "scan": lambda: scan_cmd(),
+            "connect": lambda arg: connect_cmd(arg),
+            "use": lambda arg: use_cmd(arg),
+            "close": lambda arg: close_cmd(arg),
+            "switch": lambda arg: switch_cmd(arg),
+        }
+    )
+    global_help.update(
+        {
+            "list": "List open connections",
+            "scan": "Detect connected scanners",
+            "connect": "Connect to scanner ID from 'scan'",
+            "use": "Select active connection",
+            "close": "Close a connection",
+            "switch": "Close current connection before opening another",
+        }
+    )
 
     refresh_active()
 
-    global_commands["help"] = (
-        lambda arg="": show_help(commands, command_help, arg, adapter)
+    global_commands["help"] = lambda arg="": show_help(
+        commands, command_help, arg, adapter
     )
     global_help["help"] = "Show this help message"
     refresh_active()
@@ -184,7 +219,9 @@ def main_loop(connection_manager, adapter=None, ser=None, commands=None, command
                     print("STATUS:INFO|ACTION:EXIT")
                 break
 
-            command, args = parse_command(user_input, commands, connection_manager)
+            command, args = parse_command(
+                user_input, commands, connection_manager
+            )
             handler = commands.get(command)
 
             if handler:
@@ -193,7 +230,9 @@ def main_loop(connection_manager, adapter=None, ser=None, commands=None, command
 
                     if result is not None:
                         if isinstance(result, bytes):
-                            formatted_result = result.decode("ascii", errors="replace").strip()
+                            formatted_result = result.decode(
+                                "ascii", errors="replace"
+                            ).strip()
                         elif isinstance(result, (int, float)):
                             formatted_result = str(result)
                         else:
@@ -203,18 +242,27 @@ def main_loop(connection_manager, adapter=None, ser=None, commands=None, command
                             if formatted_result.startswith("STATUS:"):
                                 print(formatted_result)
                             else:
-                                is_error = formatted_result.lower().startswith("error")
+                                is_error = formatted_result.lower().startswith(
+                                    "error"
+                                )
                                 status = "ERROR" if is_error else "OK"
-                                msg = formatted_result.replace(" ", "_").replace(":", "_")
+                                msg = formatted_result.replace(
+                                    " ", "_"
+                                ).replace(":", "_")
                                 print(
-                                    f"STATUS:{status}|COMMAND:{command}|RESULT:{msg}"
+                                    f"STATUS:{status}|COMMAND:{command}|"
+                                    f"RESULT:{msg}"
                                 )
                         else:
                             if formatted_result.startswith("STATUS:"):
                                 parts = formatted_result.split("|")
                                 for part in parts:
-                                    if part.startswith("MESSAGE:") or part.startswith("RESULT:"):
-                                        value = part.split(":", 1)[1].replace("_", " ")
+                                    if part.startswith(
+                                        "MESSAGE:"
+                                    ) or part.startswith("RESULT:"):
+                                        value = part.split(":", 1)[1].replace(
+                                            "_", " "
+                                        )
                                         print(value)
                                         break
                                 else:
@@ -226,12 +274,17 @@ def main_loop(connection_manager, adapter=None, ser=None, commands=None, command
                     logger.error(f"Command error: {str(e)}", exc_info=True)
                     if machine_mode:
                         error_msg = str(e).replace(" ", "_").replace(":", "_")
-                        print(f"STATUS:ERROR|COMMAND:{command}|MESSAGE:{error_msg}")
+                        print(
+                            f"STATUS:ERROR|COMMAND:{command}|"
+                            f"MESSAGE:{error_msg}"
+                        )
                     else:
                         print(f"[Error] {e}")
             else:
                 if machine_mode:
-                    print(f"STATUS:ERROR|CODE:UNKNOWN_COMMAND|COMMAND:{command}")
+                    print(
+                        f"STATUS:ERROR|CODE:UNKNOWN_COMMAND|COMMAND:{command}"
+                    )
                 else:
                     print("Unknown command. Type 'help' for options.")
         except KeyboardInterrupt:
@@ -240,7 +293,9 @@ def main_loop(connection_manager, adapter=None, ser=None, commands=None, command
             else:
                 print("\nUse 'exit' to quit the program.")
         except Exception as e:
-            logger.error(f"Unexpected error in command loop: {e}", exc_info=True)
+            logger.error(
+                f"Unexpected error in command loop: {e}", exc_info=True
+            )
             if machine_mode:
                 error_msg = str(e).replace(" ", "_").replace(":", "_")
                 print(f"STATUS:ERROR|CODE:UNEXPECTED|MESSAGE:{error_msg}")
