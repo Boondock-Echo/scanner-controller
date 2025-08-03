@@ -36,7 +36,7 @@ if not os.path.exists(core_dir):
 # Import core scanner functionality
 try:
     from utilities.core.serial_utils import clear_serial_buffer
-    from utilities.core.shared_utils import ScannerCommand
+    from utilities.core.command_library import ScannerCommand
 except ImportError:  # pragma: no cover - during refactoring
     import sys
 

@@ -4,7 +4,7 @@ Weather Alert related commands for the BCD325P2.
 These commands configure NOAA weather scanning and SAME alert group settings.
 """
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 WEATHER_ALERT_COMMANDS = {

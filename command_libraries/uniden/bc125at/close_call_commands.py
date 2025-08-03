@@ -6,7 +6,7 @@ to strong nearby radio transmissions. These commands enable configuration of the
 Close Call settings including bands, alerts, and modes.
 """
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 CLOSE_CALL_COMMANDS = {

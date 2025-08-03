@@ -4,7 +4,7 @@ Channel and Group Management commands for the BCD325P2.
 These commands allow you to create, modify, and delete channels and groups.
 """
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 CHANNEL_GROUP_COMMANDS = {

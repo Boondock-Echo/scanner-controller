@@ -5,7 +5,7 @@ These commands handle entering and exiting the scanner's programming mode,
 which is required for most configuration operations.
 """
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 PROGRAMMING_COMMANDS = {

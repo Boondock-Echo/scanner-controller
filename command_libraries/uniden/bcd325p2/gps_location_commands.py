@@ -5,7 +5,7 @@ These commands allow management of location-based alerts and GPS display
 options.
 """
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 GPS_LOCATION_COMMANDS = {

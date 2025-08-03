@@ -5,7 +5,7 @@ These commands provide functionality for band scope, tone-out,
 band coverage settings, and broadcast screen configuration.
 """
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 from utilities.validators import (
     validate_param_constraints,
     validate_frequency_8_digit,
