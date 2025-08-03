@@ -113,7 +113,7 @@ def main():
         description="Debug volume and squelch controls"
     )
     parser.add_argument(
-        '--port', required=True, help='Serial port (e.g., COM3)'
+        '--port', required=True, help='Serial port (e.g., COM3 or /dev/ttyUSB0)'
     )
     parser.add_argument('--model', default="Unknown", help='Scanner model')
     parser.add_argument(
