@@ -3,6 +3,7 @@
 import os
 import sys
 import types
+import pytest
 
 # Ensure project modules can be imported
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -20,11 +21,13 @@ sys.modules.setdefault("serial.tools", serial_tools_stub)
 sys.modules.setdefault("serial.tools.list_ports", list_ports_stub)
 
 from adapters.uniden.bc125at_adapter import BC125ATAdapter  # noqa: E402
+from adapters.uniden.bcd325p2_adapter import BCD325P2Adapter  # noqa: E402
 import utilities.core.serial_utils as serial_utils  # noqa: E402
 
 
-def test_prg_toggles_flag(monkeypatch):
-    adapter = BC125ATAdapter()
+@pytest.mark.parametrize("adapter_cls", [BC125ATAdapter, BCD325P2Adapter])
+def test_prg_toggles_flag(monkeypatch, adapter_cls):
+    adapter = adapter_cls()
     adapter.in_program_mode = False
     monkeypatch.setattr(serial_utils, "send_command", lambda ser, cmd: "OK")
 
@@ -33,8 +36,9 @@ def test_prg_toggles_flag(monkeypatch):
     assert adapter.in_program_mode
 
 
-def test_epg_toggles_flag(monkeypatch):
-    adapter = BC125ATAdapter()
+@pytest.mark.parametrize("adapter_cls", [BC125ATAdapter, BCD325P2Adapter])
+def test_epg_toggles_flag(monkeypatch, adapter_cls):
+    adapter = adapter_cls()
     adapter.in_program_mode = True
     monkeypatch.setattr(serial_utils, "send_command", lambda ser, cmd: "OK")
 
