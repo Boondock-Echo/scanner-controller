@@ -1,10 +1,16 @@
 """Backend helpers for scanner communication."""
 
+import glob
 import logging
 import time
 
 import serial
 from serial.tools import list_ports
+
+try:  # Optional dependency for HID scanners
+    import hid  # type: ignore
+except Exception:  # pragma: no cover - handled gracefully
+    hid = None
 
 from utilities.core.serial_utils import read_response, wait_for_data
 
@@ -63,4 +69,25 @@ def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2, skip_por
         logging.info("No scanners found. Retrying in 3 seconds...")
         time.sleep(3)
     logging.error("No scanners found after maximum retries.")
+    # Attempt HID device scan if available
+    if hid is not None:
+        logging.info("Checking for HID scanner devices")
+        for hid_path in glob.glob("/dev/usb/hiddev*"):
+            try:
+                dev = hid.device()
+                dev.open_path(hid_path.encode())
+                time.sleep(0.1)
+                logging.info(f"Sending MDL to {hid_path}")
+                dev.write(b"MDL\r")
+                data = dev.read(64, timeout=int(timeout * 1000))
+                response = bytes(data).decode(errors="ignore")
+                logging.info(f"Response from {hid_path}: {response}")
+                if response.startswith("MDL,"):
+                    model_code = response.split(",")[1].strip()
+                    detected.append((hid_path, model_code))
+                dev.close()
+            except Exception as e:  # pragma: no cover - best effort
+                logging.warning(f"Error testing HID device {hid_path}: {e}")
+        if detected:
+            return detected
     return []
