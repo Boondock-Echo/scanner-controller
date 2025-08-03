@@ -154,8 +154,6 @@ def connect_to_scanner(
     connection_manager,
     scanner_id,
     machine_mode=True,
-    existing_commands=None,
-    existing_command_help=None,
     skip_ports=None,
 ):
     """Connect to a specific scanner by its ID.
@@ -168,10 +166,6 @@ def connect_to_scanner(
         Scanner ID from the scan results.
     machine_mode : bool, optional
         Whether to initialize the adapter in machine mode. Defaults to True.
-    existing_commands : dict, optional
-        Existing commands dictionary to update.
-    existing_command_help : dict, optional
-        Existing command help dictionary to update.
     skip_ports : list[str], optional
         Serial ports that should be skipped when scanning.
 
@@ -210,10 +204,6 @@ def connect_to_scanner(
             port, scanner_model, machine_mode
         )
         ser, adapter, commands, command_help = connection_manager.get(conn_id)
-
-        if existing_commands is not None and existing_command_help is not None:
-            # Placeholder for merging logic if needed
-            pass
 
         return ser, adapter, commands, command_help
 
