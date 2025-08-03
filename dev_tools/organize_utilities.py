@@ -82,7 +82,6 @@ file_categories = {
         "command_library.py",
         "scanner_utils.py",
         "serial_utils.py",
-        "log_trim.py",
     ],
     "commands": [
         "uniden_command_finder.py",
@@ -100,6 +99,7 @@ file_categories = {
         "logUtils.py",
         "log_utils.py",
         "validators.py",
+        "log_trim.py",
     ],
 }
 
@@ -147,8 +147,8 @@ with open(os.path.join(utilities_dir, "__init__.py"), "w") as f:
     f.write(
         "from utilities.core.serial_utils import clear_serial_buffer\n"
     )
-    if any(name == "log_trim.py" for _, name in files_to_move["core"]):
-        f.write("from utilities.core.log_trim import trim_log_file\n")
+    if any(name == "log_trim.py" for _, name in files_to_move["tools"]):
+        f.write("from utilities.tools.log_trim import trim_log_file\n")
     f.write("\n")
 
     # Then import everything else silently
