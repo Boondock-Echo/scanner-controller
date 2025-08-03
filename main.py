@@ -100,8 +100,8 @@ def main():
                 detect_and_connect_scanner(machine_mode)
             )
 
-            if not all([ser, adapter, commands, command_help]):
-                # If connection was not successful
+            if any(v is None for v in (ser, adapter, commands, command_help)):
+                # If any required connection detail is missing
                 print(
                     "Failed to connect to scanner. Please check the connection "
                     "and try again."
