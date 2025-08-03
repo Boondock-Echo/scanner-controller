@@ -5,7 +5,7 @@ These commands control system-wide settings such as priority scanning modes,
 channel group settings, and other global functions.
 """
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 SYSTEM_COMMANDS = {

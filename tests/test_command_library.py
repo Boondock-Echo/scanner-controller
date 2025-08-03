@@ -1,4 +1,4 @@
-"""Tests for :class:`utilities.command_library.ScannerCommand`."""
+"""Tests for :class:`utilities.core.command_library.ScannerCommand`."""
 
 import os
 import sys
@@ -8,7 +8,7 @@ import pytest
 # Ensure the project root is on the Python path so `utilities` can be imported
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from utilities.command_library import ScannerCommand  # noqa: E402
+from utilities.core.command_library import ScannerCommand  # noqa: E402
 from utilities.errors import CommandError  # noqa: E402
 
 

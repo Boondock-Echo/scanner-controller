@@ -4,7 +4,7 @@ Scanner configuration commands for the BCD325P2.
 These commands allow you to configure various scanner settings and options.
 """
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 SCANNER_CONFIGURATION_COMMANDS = {

@@ -7,7 +7,7 @@ These commands provide core functionality for managing the BC125AT scanner's
 operation.
 """
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 CONFIG_COMMANDS = {

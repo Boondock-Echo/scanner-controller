@@ -4,7 +4,7 @@ System Configuration commands for the BCD325P2.
 These commands allow you to create, modify, delete, and manage scanner systems.
 """
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 SYSTEM_CONFIGURATION_COMMANDS = {

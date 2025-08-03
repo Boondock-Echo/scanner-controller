@@ -5,7 +5,7 @@ These commands allow you to create, modify, and manage talkgroup IDs in trunked
  radio systems.
 """
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 TALKGROUP_COMMANDS = {

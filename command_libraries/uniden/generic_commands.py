@@ -1,6 +1,6 @@
 """Generic command definitions for Uniden scanners."""
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 commands = {

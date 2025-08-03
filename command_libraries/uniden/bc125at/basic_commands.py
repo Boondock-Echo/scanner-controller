@@ -7,7 +7,7 @@ These commands provide the fundamental interface for controlling the scanner's
 basic functions and appearance settings.
 """
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 from utilities.validators import validate_enum, validate_param_constraints
 
 # Define validators for specific commands

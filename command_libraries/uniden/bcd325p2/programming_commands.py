@@ -5,7 +5,7 @@ These commands control entering and exiting programming mode, which is required
 for most configuration commands.
 """
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 
 PROGRAMMING_CONTROL_COMMANDS = {
     "PRG": ScannerCommand(

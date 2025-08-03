@@ -5,7 +5,7 @@ These commands retrieve status information from the scanner including
 reception status, RSSI levels, display information, and version details.
 """
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 
 STATUS_INFO_COMMANDS = {
     "GID": ScannerCommand(

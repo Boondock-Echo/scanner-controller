@@ -5,7 +5,7 @@ These commands retrieve status information from the scanner including model
 information, firmware version, and other system details.
 """
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 STATUS_COMMANDS = {
