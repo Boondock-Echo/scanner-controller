@@ -113,6 +113,20 @@ pip install .[hid]
 Some scanners, such as the **Uniden BC125AT**, may appear as HID devices at
 `/dev/usb/hiddev*` rather than traditional serial ports.
 
+### One-command Setup
+
+Run the helper script to load the USB serial driver and grant HID access:
+
+```bash
+tools/setup_hid.sh
+```
+
+Log out and back in, then verify detection with:
+
+```bash
+python tools/scanner_diagnostics.py --scan
+```
+
 ### Option 1: Load USB Serial Driver
 
 Expose the scanner as a serial port by loading the USB serial driver:
