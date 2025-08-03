@@ -33,19 +33,12 @@ if not os.path.exists(core_dir):
 
 # Function Imports
 # ---------------
-# Import core scanner functionality from shared utilities
-# These functions provide the primary interface for scanner communications
+# Import core scanner functionality
 try:
-    # Import essential scanner functions for re-export
-    # - clear_serial_buffer: Clears any pending data in the serial connection
-    # - ScannerCommand: Sends formatted commands to the scanner hardware
-    from utilities.core.shared_utils import clear_serial_buffer, ScannerCommand
-except ImportError:
-    # This exception handling is for development/refactoring scenarios
-    # where the file structure may be in transition
+    from utilities.core.serial_utils import clear_serial_buffer
+    from utilities.core.shared_utils import ScannerCommand
+except ImportError:  # pragma: no cover - during refactoring
     import sys
 
-    print("Warning: Could not import from utilities.core.shared_utils")
-    print("If you've already moved files, update this import path")
+    print("Warning: Could not import required utilities")
     print(f"Python path: {sys.path}")
-    print("Affected functionality: clear_serial_buffer, ScannerCommand")

@@ -51,7 +51,7 @@ class UnidenScannerAdapter(BaseScannerAdapter):
     def send_command(self, ser, cmd):
         """Send a command to the scanner and get the response."""
         try:
-            from utilities.scanner.backend import (
+            from utilities.core.serial_utils import (
                 send_command as utils_send_command,
             )
 

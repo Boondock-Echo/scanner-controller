@@ -20,13 +20,13 @@ sys.modules.setdefault("serial.tools", serial_tools_stub)
 sys.modules.setdefault("serial.tools.list_ports", list_ports_stub)
 
 from adapters.uniden.bc125at_adapter import BC125ATAdapter  # noqa: E402
-import utilities.scanner.backend as backend  # noqa: E402
+import utilities.core.serial_utils as serial_utils  # noqa: E402
 
 
 def test_prg_toggles_flag(monkeypatch):
     adapter = BC125ATAdapter()
     adapter.in_program_mode = False
-    monkeypatch.setattr(backend, "send_command", lambda ser, cmd: "OK")
+    monkeypatch.setattr(serial_utils, "send_command", lambda ser, cmd: "OK")
 
     resp = adapter.send_command(None, "PRG")
     assert resp == b"OK"
@@ -36,7 +36,7 @@ def test_prg_toggles_flag(monkeypatch):
 def test_epg_toggles_flag(monkeypatch):
     adapter = BC125ATAdapter()
     adapter.in_program_mode = True
-    monkeypatch.setattr(backend, "send_command", lambda ser, cmd: "OK")
+    monkeypatch.setattr(serial_utils, "send_command", lambda ser, cmd: "OK")
 
     resp = adapter.send_command(None, "EPG")
     assert resp == b"OK"

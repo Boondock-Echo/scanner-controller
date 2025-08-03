@@ -1,4 +1,4 @@
-"""Utility functions for scanner serial communication."""
+"""Backend helpers for scanner communication."""
 
 import logging
 import time
@@ -6,82 +6,10 @@ import time
 import serial
 from serial.tools import list_ports
 
-
-def clear_serial_buffer(ser, delay=0.0):
-    """Clear accumulated data in the serial buffer.
-
-    Parameters
-    ----------
-    ser : serial.Serial
-        Open serial connection to the scanner.
-    delay : float, optional
-        Time to wait before flushing the buffer. Defaults to ``0`` seconds.
-    """
-    try:
-        if delay:
-            time.sleep(delay)
-        while ser.in_waiting:
-            ser.read(ser.in_waiting)
-        logging.debug("Serial buffer cleared.")
-    except Exception as e:
-        logging.error(f"Error clearing serial buffer: {e}")
+from utilities.core.serial_utils import read_response, wait_for_data
 
 
-def wait_for_data(ser, max_wait=0.3):
-    """Wait for data to arrive on the serial port."""
-    start_time = time.time()
-    while time.time() - start_time < max_wait:
-        if ser.in_waiting > 0:
-            return True
-        time.sleep(0.01)
-    return False
-
-
-def read_response(ser, timeout=1.0):
-    """Read a response from the scanner."""
-    start_time = time.time()
-    response = b""
-    while True:
-        if time.time() - start_time > timeout:
-            break
-        if ser.in_waiting > 0:
-            new_data = ser.read(ser.in_waiting)
-            response += new_data
-            if response.endswith(b"\r\n") or response.endswith(b"\r"):
-                break
-        else:
-            time.sleep(0.01)
-    response_str = response.decode("ascii", errors="replace").strip()
-    logging.debug(f"Received: {response_str}")
-    return response_str
-
-
-def send_command(ser, command, delay=0.0):
-    """Send a command to the scanner and return the response.
-
-    Parameters
-    ----------
-    ser : serial.Serial
-        Open serial connection to the scanner.
-    command : str
-        Command string to send.
-    delay : float, optional
-        Delay passed to :func:`clear_serial_buffer` before sending the command.
-        Defaults to ``0`` seconds.
-    """
-    clear_serial_buffer(ser, delay)
-    if isinstance(command, str):
-        command = command.encode("ascii")
-    if not command.endswith(b"\r"):
-        command += b"\r"
-    logging.debug(f"Sending: {command}")
-    ser.write(command)
-    return read_response(ser)
-
-
-def find_all_scanner_ports(
-    baudrate=115200, timeout=0.5, max_retries=2, skip_ports=None
-):
+def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2, skip_ports=None):
     """Scan available serial ports for connected scanners."""
     if skip_ports is None:
         skip_ports = []

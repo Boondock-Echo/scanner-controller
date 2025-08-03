@@ -121,7 +121,7 @@ class ScannerController:
             return ""
 
         try:
-            from utilities.scanner.backend import send_command
+            from utilities.core.serial_utils import send_command
 
             logger.debug(f"{log_prefix}: Sending direct command: {command}")
 
