@@ -81,7 +81,9 @@ def main_loop(connection_manager, adapter=None, ser=None, commands=None, command
         return "\n".join(lines)
 
     def connect_cmd(scanner_id):
-        result = connect_to_scanner(scanner_id, machine_mode=machine_mode)
+        result = connect_to_scanner(
+            connection_manager, scanner_id, machine_mode=machine_mode
+        )
         if isinstance(result, tuple):
             refresh_active()
             conn_id = connection_manager.active_id

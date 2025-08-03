@@ -63,9 +63,9 @@ def test_repl_switch(monkeypatch, capsys):
     # remember serial for id2 so we can check closed state
     ser2 = cm.get(id2)[0]
 
-    def fake_connect(scanner_id, machine_mode=False):
-        new_id = cm.open_connection("COM3", "X")
-        return cm.get(new_id)
+    def fake_connect(cm_arg, scanner_id, machine_mode=False):
+        new_id = cm_arg.open_connection("COM3", "X")
+        return cm_arg.get(new_id)
 
     monkeypatch.setattr("utilities.command.loop.connect_to_scanner", fake_connect)
 
