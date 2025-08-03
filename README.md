@@ -115,6 +115,13 @@ Expose the scanner as a serial port by loading the USB serial driver:
 sudo modprobe usbserial vendor=0x1965 product=0x0017
 ```
 
+A `/dev/ttyUSB*` port should appear. Verify with:
+
+```bash
+dmesg | tail
+python tools/scanner_diagnostics.py --scan
+```
+
 ### Option 2: Use Native HID Support
 
 1. Install the optional [`hid`](https://pypi.org/project/hid/) library:
@@ -123,7 +130,14 @@ sudo modprobe usbserial vendor=0x1965 product=0x0017
    pip install hid
    ```
 
-2. Ensure `/dev/usb/hiddev*` paths are accessible. On Linux this may require
+2. Grant your user access to HID devices:
+
+   ```bash
+   sudo usermod -aG plugdev $USER
+   # log out and back in, or run: su - $USER
+   ```
+
+3. Ensure `/dev/usb/hiddev*` paths are accessible. On Linux this may require
    additional drivers, udev rules, or group permissions.
 
 ### Verifying Detection
@@ -141,6 +155,8 @@ python tools/scanner_diagnostics.py --scan
 ```
 
 HID paths will be listed alongside serial ports once configured correctly.
+
+After each change, re-run `python tools/scanner_diagnostics.py --scan` to confirm the device is detected.
 
 ## Usage
 
