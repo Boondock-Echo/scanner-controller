@@ -25,7 +25,7 @@ from utilities.scanner.connection_manager import ConnectionManager  # noqa: E402
 
 def test_scan_for_scanners_no_devices(monkeypatch):
     """Return an error string when no scanners are found."""
-    monkeypatch.setattr(manager, "find_all_scanner_ports", lambda: [])
+    monkeypatch.setattr(manager, "find_all_scanner_ports", lambda *a, **k: [])
     assert manager.scan_for_scanners() == "STATUS:ERROR|CODE:NO_SCANNERS_FOUND"
 
 
@@ -34,7 +34,7 @@ def test_scan_for_scanners_multiple(monkeypatch):
     monkeypatch.setattr(
         manager,
         "find_all_scanner_ports",
-        lambda: [("COM1", "ModelA"), ("COM2", "ModelB")],
+        lambda *a, **k: [("COM1", "ModelA"), ("COM2", "ModelB")],
     )
     result = manager.scan_for_scanners()
     assert result == (
@@ -42,6 +42,23 @@ def test_scan_for_scanners_multiple(monkeypatch):
         "SCANNER:1|PORT:COM1|MODEL:ModelA|"
         "SCANNER:2|PORT:COM2|MODEL:ModelB"
     )
+
+
+def test_scan_for_scanners_skips_existing(monkeypatch):
+    """Ports already in use should be excluded from scans."""
+    dummy_ser = types.SimpleNamespace(port="COM1")
+    monkeypatch.setattr(
+        manager.connection_manager,
+        "list_all",
+        lambda: [(1, (dummy_ser, None, None, None))],
+    )
+
+    def fake_scan(*, skip_ports=None):
+        assert skip_ports == ["COM1"]
+        return []
+
+    monkeypatch.setattr(manager, "find_all_scanner_ports", fake_scan)
+    assert manager.scan_for_scanners() == "STATUS:ERROR|CODE:NO_SCANNERS_FOUND"
 
 
 def test_connect_to_scanner_invalid_input(monkeypatch):
@@ -55,7 +72,7 @@ def test_connect_to_scanner_invalid_input(monkeypatch):
 
 def test_connect_to_scanner_no_scanners(monkeypatch):
     """Return an error when no scanners are detected."""
-    monkeypatch.setattr(manager, "find_all_scanner_ports", lambda: [])
+    monkeypatch.setattr(manager, "find_all_scanner_ports", lambda *a, **k: [])
     cm = ConnectionManager()
     assert (
         manager.connect_to_scanner(cm, "1")
@@ -66,7 +83,7 @@ def test_connect_to_scanner_no_scanners(monkeypatch):
 def test_connect_to_scanner_id_out_of_range(monkeypatch):
     """Return an error when the ID is outside the detected range."""
     monkeypatch.setattr(
-        manager, "find_all_scanner_ports", lambda: [("COM1", "X")]
+        manager, "find_all_scanner_ports", lambda *a, **k: [("COM1", "X")]
     )
     cm = ConnectionManager()
     assert (
@@ -88,13 +105,38 @@ def test_connect_to_scanner_unknown_uniden_model(monkeypatch):
 
     monkeypatch.setattr(manager.serial, "Serial", lambda *a, **k: DummySerial())
     monkeypatch.setattr(
-        manager, "find_all_scanner_ports", lambda: [("COM1", "BC999XLT")]
+        manager,
+        "find_all_scanner_ports",
+        lambda *a, **k: [("COM1", "BC999XLT")],
     )
 
     cm = ConnectionManager()
     ser, adapter, commands, help_text = manager.connect_to_scanner(cm, "1")
     assert isinstance(adapter, GenericUnidenAdapter)
     assert isinstance(ser, DummySerial)
+
+
+def test_detect_and_connect_scanner_skips_existing(monkeypatch):
+    """detect_and_connect_scanner should ignore active ports."""
+    dummy_ser = types.SimpleNamespace(port="COM1")
+    monkeypatch.setattr(
+        manager.connection_manager,
+        "list_all",
+        lambda: [(1, (dummy_ser, None, None, None))],
+    )
+
+    def fake_scan(*, skip_ports=None):
+        assert skip_ports == ["COM1"]
+        return []
+
+    monkeypatch.setattr(manager, "find_all_scanner_ports", fake_scan)
+    assert manager.detect_and_connect_scanner(machine_mode=True) == (
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
 
 
 def test_generic_uniden_read_volume(monkeypatch):
@@ -133,3 +175,30 @@ def test_generic_uniden_write_squelch(monkeypatch):
     adapter.commands.pop("SQL", None)
     monkeypatch.setattr(adapter, "send_command", lambda ser, cmd: b"OK")
     assert adapter.write_squelch(None, 2) is True
+
+
+def test_switch_scanner_skips_existing(monkeypatch):
+    """switch_scanner should skip ports still in use."""
+
+    class DummySerial:
+        def __init__(self, port):
+            self.port = port
+            self.is_open = True
+
+        def close(self):
+            self.is_open = False
+
+    cm = ConnectionManager()
+    cm._connections = {
+        1: (DummySerial("COM1"), None, None, None),
+        2: (DummySerial("COM2"), None, None, None),
+    }
+    cm._active_id = 1
+
+    def fake_connect(
+        connection_manager, scanner_id, machine_mode=True, skip_ports=None
+    ):
+        assert skip_ports == ["COM2"]
+        return "OK"
+
+    assert manager.switch_scanner(cm, "1", connect_func=fake_connect) == "OK"
