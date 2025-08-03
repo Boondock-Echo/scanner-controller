@@ -8,6 +8,7 @@ Serial communication helpers can be found in
 
 import os
 import sys
+import glob
 
 from utilities.core.command_library import ScannerCommand
 from utilities.core.serial_utils import read_response
@@ -26,19 +27,30 @@ def diagnose_connection_issues():
 
     print("\nDiagnosing connection issues...")
     ports = list(serial.tools.list_ports.comports())
-    if not ports:
-        print("No serial ports detected. Ensure the scanner is connected.")
+    hid_paths = glob.glob("/dev/usb/hiddev*")
+    if not ports and not hid_paths:
+        print("No serial or HID devices detected. Ensure the scanner is connected.")
         return
 
-    print("Available serial ports:")
-    for port in ports:
-        print(f"  - {port.device}: {port.description}")
+    if ports:
+        print("Available serial ports:")
+        for port in ports:
+            print(f"  - {port.device}: {port.description}")
+    else:
+        print("No serial ports detected.")
+
+    if hid_paths:
+        print("Available HID devices (may require additional setup or drivers):")
+        for path in hid_paths:
+            print(f"  - {path}")
+        print("See README section 'Enabling HID Devices' for more details.")
 
     print("\nSuggestions:")
     print("  1. Verify the scanner is powered on.")
     print("  2. Check that the correct port is selected.")
     print("  3. Ensure no other application is using the port.")
     print("  4. Try reconnecting the scanner or using a different USB port.")
+    print("  5. If using a HID device, install any required drivers or enable permissions.")
 
 
 __all__ = [

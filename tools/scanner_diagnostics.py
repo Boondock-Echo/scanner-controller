@@ -8,6 +8,7 @@ commands and displaying available adapter methods.
 import argparse
 import logging
 import time
+import glob
 
 import serial
 from serial.tools import list_ports
@@ -81,15 +82,23 @@ def main():
     )
     parser.add_argument('--model', help='Scanner model (e.g., BCD325P2)')
     parser.add_argument(
-        '--scan', action='store_true', help='Scan for available ports'
+        '--scan', action='store_true', help='Scan for available ports or HID devices'
     )
     args = parser.parse_args()
 
     if args.scan:
-        print("=== Scanning for available ports ===")
+        print("=== Scanning for available devices ===")
         ports = list(list_ports.comports())
         for port in ports:
             print(f"{port.device}: {port.description}")
+
+        hid_paths = glob.glob("/dev/usb/hiddev*")
+        for hid_path in hid_paths:
+            print(
+                f"{hid_path}: HID device (may require additional setup or drivers)"
+            )
+        if hid_paths:
+            print("See README section 'Enabling HID Devices' for more details.")
         return
 
     if not args.port:

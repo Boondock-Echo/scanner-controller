@@ -102,6 +102,18 @@ pip install -r requirements.txt
 
 4. Ensure the required scanner models are connected via serial ports.
 
+## Enabling HID Devices
+
+Some scanners appear as HID devices rather than traditional serial ports. To
+use these devices:
+
+1. Install the optional [`hid`](https://pypi.org/project/hid/) library:
+   `pip install hid`
+2. Ensure `/dev/usb/hiddev*` paths are accessible. On Linux this may require
+   additional drivers or udev rules.
+
+Once configured, diagnostics tools will list HID paths alongside serial ports.
+
 ## Usage
 
 Run the CLI version:
