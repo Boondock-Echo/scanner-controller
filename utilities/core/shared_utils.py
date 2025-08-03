@@ -20,10 +20,6 @@ def ensure_root_in_path():
         sys.path.insert(0, root_dir)
 
 
-# Call this function when the module is imported
-ensure_root_in_path()
-
-
 def diagnose_connection_issues():
     """Diagnose common connection problems with the scanner."""
     import serial.tools.list_ports
