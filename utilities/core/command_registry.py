@@ -143,10 +143,26 @@ def build_command_table(adapter, ser):
     # Signal meter
     if hasattr(adapter, 'read_s_meter'):
         logging.debug("Registering 'get signal' command")
-        COMMANDS["get signal"] = lambda ser_, adapter_: adapter_.read_s_meter(
-            ser_
-        )
-        COMMAND_HELP["get signal"] = "Get the signal strength meter reading."
+
+        def get_signal(ser_, adapter_):
+            result = adapter_.read_s_meter(ser_)
+            if (
+                isinstance(result, str)
+                and (
+                    "unsupported" in result.lower()
+                    or "not supported" in result.lower()
+                )
+                and hasattr(adapter_, "read_rssi")
+            ):
+                return adapter_.read_rssi(ser_)
+            return result
+
+        COMMANDS["get signal"] = get_signal
+        COMMAND_HELP["get signal"] = "Get the signal strength reading."
+    elif hasattr(adapter, 'read_rssi'):
+        logging.debug("Registering 'get signal' command (RSSI fallback)")
+        COMMANDS["get signal"] = lambda ser_, adapter_: adapter_.read_rssi(ser_)
+        COMMAND_HELP["get signal"] = "Get the signal strength reading."
 
     # -- Scanner Control commands --
     # Always register essential scanner control commands

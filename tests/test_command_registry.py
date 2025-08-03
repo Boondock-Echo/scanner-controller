@@ -42,3 +42,24 @@ def test_bsp_and_bsv_commands_present(monkeypatch):
 
     assert "bsv" in commands
     assert "bsp" in commands
+
+
+def test_get_signal_falls_back_to_rssi():
+    """Fallback to ``read_rssi`` when ``read_s_meter`` unsupported."""
+    adapter = types.SimpleNamespace(
+        read_s_meter=lambda ser: "S-meter not supported",
+        read_rssi=lambda ser: "RSSI",
+    )
+
+    commands, _ = build_command_table(adapter, None)
+
+    assert commands["get signal"](None, adapter) == "RSSI"
+
+
+def test_get_signal_uses_rssi_when_s_meter_missing():
+    """Register ``get signal`` using ``read_rssi`` if S-meter absent."""
+    adapter = types.SimpleNamespace(read_rssi=lambda ser: "RSSI")
+
+    commands, _ = build_command_table(adapter, None)
+
+    assert commands["get signal"](None, adapter) == "RSSI"
