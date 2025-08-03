@@ -42,13 +42,7 @@ from adapters.uniden.bc125at.user_control import (
     stop_scanning,
 )
 
-# Import common functions
-from adapters.uniden.common.core import (
-    ensure_bytes,
-    ensure_str,
-    feedback,
-    send_command,
-)
+# Import common programming helpers
 from adapters.uniden.common.programming import (
     enter_programming_mode,
     exit_programming_mode,
@@ -100,14 +94,8 @@ class BC125ATAdapter(UnidenScannerAdapter):
         logger.debug(f"Machine mode ID: {self.machine_mode_id}")
 
     # Import methods from modules
-    # Core methods
-    ensure_bytes = ensure_bytes
-    ensure_str = ensure_str
-    send_command = send_command
-
-    def feedback(self, success, message):
-        """Format feedback based on machine_mode setting."""
-        return feedback(self.machine_mode, success, message)
+    # Core methods inherited from UnidenScannerAdapter include
+    # ensure_bytes, ensure_str, send_command, and feedback
 
     # Override programming mode methods to add logging
     def enter_programming_mode(self, ser):
