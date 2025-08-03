@@ -16,7 +16,11 @@ def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2, skip_por
     detected = []
     retries = 0
     while retries < max_retries:
-        ports = list_ports.comports()
+        # list_ports.comports() returns an iterable that can be exhausted after
+        # a single pass on some platforms (e.g. Linux).  Convert it to a list so
+        # we can iterate over the available ports multiple times within this
+        # loop without losing data.
+        ports = list(list_ports.comports())
         logging.info(f"Available ports: {len(ports)}")
         for port_info in ports:
             logging.info(
