@@ -31,7 +31,7 @@ def main():
     # Import ScannerGUI here, after QApplication is created
     from scanner_gui.gui.scanner_gui import ScannerGUI
 
-    # Show warning if COM ports are inaccessible
+    # Show warning if serial ports are inaccessible
     busy_ports = []
     for port in list_ports.comports():
         try:
@@ -43,7 +43,7 @@ def main():
             busy_ports.append((port.device, str(e)))
 
     if busy_ports:
-        warning_msg = "Some COM ports are inaccessible and can't be used:\n\n"
+        warning_msg = "Some serial ports are inaccessible and can't be used:\n\n"
         for port, error in busy_ports:
             warning_msg += f"• {port}: {error}\n"
         warning_msg += (
