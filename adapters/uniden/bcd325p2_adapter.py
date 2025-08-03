@@ -46,13 +46,7 @@ from adapters.uniden.bcd325p2.user_control import (
     stop_scanning,
 )
 
-# Import common functions
-from adapters.uniden.common.core import (
-    ensure_bytes,
-    ensure_str,
-    feedback,
-    send_command,
-)
+# Import common programming helpers
 from adapters.uniden.common.programming import (
     enter_programming_mode,
     exit_programming_mode,
@@ -102,14 +96,8 @@ class BCD325P2Adapter(UnidenScannerAdapter):
         self.signal_bandwidth = None
 
     # Import methods from modules
-    # Core methods
-    ensure_bytes = ensure_bytes
-    ensure_str = ensure_str
-    send_command = send_command
-
-    def feedback(self, success, message):
-        """Format feedback based on machine_mode setting."""
-        return feedback(self.machine_mode, success, message)
+    # Core methods inherited from UnidenScannerAdapter include
+    # ensure_bytes, ensure_str, send_command, and feedback
 
     # Override programming mode methods to add logging
     def enter_programming_mode(self, ser):
@@ -155,7 +143,7 @@ class BCD325P2Adapter(UnidenScannerAdapter):
         """Return the normalized RSSI using the ``PWR`` command."""
         try:
             response = self.send_command(ser, "PWR")
-            response_str = ensure_str(response)
+            response_str = self.ensure_str(response)
             parts = response_str.split(",")
             if len(parts) >= 2:
                 return int(parts[1]) / 1023.0
@@ -283,7 +271,7 @@ class BCD325P2Adapter(UnidenScannerAdapter):
                     cmd = f"BSP,{freq},{step},{span},{max_hold}"
 
                 response = self.send_command(ser, cmd)
-                response_str = ensure_str(response)
+                response_str = self.ensure_str(response)
 
                 csp_obj = self.commands.get("CSP")
                 if csp_obj:
@@ -332,7 +320,7 @@ class BCD325P2Adapter(UnidenScannerAdapter):
                         f"{AGC_DIGITAL},{P25WAITING}"
                     )
                 csp_resp = self.send_command(ser, csp_cmd)
-                csp_resp_str = ensure_str(csp_resp)
+                csp_resp_str = self.ensure_str(csp_resp)
                 if "OK" not in csp_resp_str:
                     return self.feedback(False, f"CSP error: {csp_resp_str}")
 
@@ -342,7 +330,7 @@ class BCD325P2Adapter(UnidenScannerAdapter):
                 else:
                     csg_cmd = f"CSG,{CSG_ENABLE_RANGE_1}"
                 csg_resp = self.send_command(ser, csg_cmd)
-                csg_resp_str = ensure_str(csg_resp)
+                csg_resp_str = self.ensure_str(csg_resp)
                 if "OK" not in csg_resp_str:
                     return self.feedback(False, f"CSG error: {csg_resp_str}")
 
