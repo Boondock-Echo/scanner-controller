@@ -5,7 +5,7 @@ Basic commands include settings for backlight, battery save, contrast,
 key beep, volume, squelch, power off, key press, and opening message.
 """
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 BASIC_COMMANDS = {

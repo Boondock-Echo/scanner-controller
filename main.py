@@ -9,14 +9,18 @@ through their respective adapters.
 # Standard library imports
 import argparse
 import logging
+import os
+import sys
 
-from utilities.command.loop import main_loop
-from utilities.scanner.manager import detect_and_connect_scanner, connection_manager
+# Ensure that the root project directory is in the Python path.  This
+# supports running the application from a variety of execution contexts
+# without relying on package-level path manipulation.
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+if SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, SCRIPT_DIR)
 
-# Local application/relative imports
-from utilities.core.shared_utils import diagnose_connection_issues
-from utilities.io.timeout_utils import ScannerTimeoutError
-from utilities.log_utils import configure_logging
+main_loop = None
+
 
 # ------------------------------------------------------------------------------
 # LOGGING SETUP
@@ -32,6 +36,19 @@ def main():
     Parse command line arguments, detect and connect to a scanner,
     and launch the interactive command loop.
     """
+    from utilities.command.loop import main_loop as _main_loop
+    from utilities.core.shared_utils import diagnose_connection_issues
+    from utilities.io.timeout_utils import ScannerTimeoutError
+    from utilities.log_utils import configure_logging
+    from utilities.scanner.manager import (
+        connection_manager,
+        detect_and_connect_scanner,
+    )
+
+    global main_loop
+    if main_loop is None:
+        main_loop = _main_loop
+
     # Parse CLI options
     parser = argparse.ArgumentParser(description="Scanner Interface")
     parser.add_argument(
@@ -79,8 +96,8 @@ def main():
         else:
             # For normal mode, continue with automatic scanner detection
             # Detect and connect to scanner
-            conn_id, ser, adapter, commands, command_help = detect_and_connect_scanner(
-                machine_mode
+            conn_id, ser, adapter, commands, command_help = (
+                detect_and_connect_scanner(machine_mode)
             )
 
             if not all([ser, adapter, commands, command_help]):
@@ -102,7 +119,14 @@ def main():
                 return
 
             # Start interactive command loop
-            main_loop(connection_manager, adapter, ser, commands, command_help, machine_mode)
+            main_loop(
+                connection_manager,
+                adapter,
+                ser,
+                commands,
+                command_help,
+                machine_mode,
+            )
 
     except ScannerTimeoutError:
         if machine_mode:

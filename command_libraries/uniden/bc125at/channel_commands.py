@@ -6,7 +6,7 @@ configure channel groups, and control lockout settings. The BC125AT can store
 up to 500 conventional channels across 10 banks.
 """
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 CHANNEL_COMMANDS = {

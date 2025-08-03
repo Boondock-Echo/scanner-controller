@@ -57,6 +57,7 @@ This module provides functionality related to command library.
 
 # Import centralized logging utilities
 from utilities.log_utils import get_logger
+from utilities.errors import CommandError
 
 # Get a logger for this module
 logger = get_logger(__name__)
@@ -164,11 +165,11 @@ class ScannerCommand:
             The parsed response value (type depends on the parser function)
 
         Raises:
-            Exception: If the response contains an error indication
+            CommandError: If the response contains an error indication
         """
         response = response.strip()
-        if response == "ERR" or "ERR" in response:
-            raise Exception(
+        if response.upper().startswith("ERR"):
+            raise CommandError(
                 f"{self.name}: Command returned an error: {response}"
             )
         return self.parser(response) if self.parser else response

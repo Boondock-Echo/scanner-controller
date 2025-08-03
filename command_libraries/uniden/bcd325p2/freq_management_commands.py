@@ -5,7 +5,7 @@ These commands allow you to program, manage, and control frequencies on the
 scanner.
 """
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 FREQUENCY_MANAGEMENT_COMMANDS = {

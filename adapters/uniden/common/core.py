@@ -190,36 +190,3 @@ def format_response(response, pretty=False):
         return f"RESPONSE: {response_str}"
 
 
-def send_command(self, ser, cmd):
-    """Send a command to the scanner and get the response."""
-    try:
-        # Import the utility function instead of calling it directly
-        from utilities.scanner.backend import send_command as utils_send_command
-
-        # Ensure command is a string before passing to underlying function
-        if isinstance(cmd, bytes):
-            cmd_str = cmd.decode("ascii", errors="replace")
-        else:
-            cmd_str = str(cmd)
-
-        # Use the utility function to send the command
-        response = utils_send_command(ser, cmd_str)
-
-        # Log the command and response
-        logging.debug(
-            f"Command: {cmd_str}, Response type: {type(response)}, "
-            f"Value: {response!r}"
-        )
-
-        # Update programming mode flag when manually issuing PRG/EPG
-        clean_cmd = cmd_str.strip().upper()
-        if clean_cmd in {"PRG", "EPG"} and hasattr(self, "in_program_mode"):
-            resp_str = ensure_str(response)
-            if "OK" in resp_str:
-                self.in_program_mode = clean_cmd == "PRG"
-
-        # Make sure we return bytes for consistency
-        return ensure_bytes(response)
-    except Exception as e:
-        logger.error(f"Error in send_command: {e}")
-        return b""

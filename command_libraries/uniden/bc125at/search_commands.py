@@ -5,7 +5,7 @@ These commands control the scanner's search features including service search,
 custom search, search settings, and frequency lockout functions.
 """
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 from utilities.validators import validate_param_constraints
 
 SEARCH_COMMANDS = {

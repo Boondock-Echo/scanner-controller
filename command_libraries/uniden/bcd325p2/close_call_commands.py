@@ -6,7 +6,7 @@ signals, even if they are not programmed into the scanner. The commands in this
 section are related to the Close Call feature.
 """
 
-from utilities.core.shared_utils import ScannerCommand
+from utilities.core.command_library import ScannerCommand
 from utilities.validators import (
     validate_binary_options,
     validate_param_constraints,
