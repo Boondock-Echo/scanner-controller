@@ -314,16 +314,18 @@ def scan_for_scanners():
 
 
 def connect_to_scanner(
+    connection_manager,
     scanner_id,
     machine_mode=True,
     existing_commands=None,
     existing_command_help=None,
 ):
-    """
-    Connect to a specific scanner by its ID (from scan_for_scanners).
+    """Connect to a specific scanner by its ID (from :func:`scan_for_scanners`).
 
     Parameters
     ----------
+    connection_manager : ConnectionManager
+        Manager instance used to open and track the connection.
     scanner_id : str
         Scanner ID from the scan results.
     machine_mode : bool, optional
@@ -333,11 +335,13 @@ def connect_to_scanner(
     existing_command_help : dict, optional
         Existing command help dictionary to update.
 
-    Returns:
-        tuple
-            ``(ser, adapter, commands, command_help)`` if successful,
-            or an error message string if failed.
+    Returns
+    -------
+    tuple
+        ``(ser, adapter, commands, command_help)`` if successful, or an
+        error message string if failed.
     """
+
     try:
         scanner_id = int(scanner_id)
     except ValueError:
