@@ -8,13 +8,13 @@ detection, and control that are not specific to any single scanner model.
 from utilities.scanner.factory import get_scanner_adapter
 from utilities.scanner.manager import (
     connect_to_scanner,
-    handle_switch_command,
     scan_for_scanners,
+    switch_scanner,
 )
 
 __all__ = [
     "connect_to_scanner",
-    "handle_switch_command",
     "scan_for_scanners",
+    "switch_scanner",
     "get_scanner_adapter",
 ]
