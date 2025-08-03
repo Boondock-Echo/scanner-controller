@@ -100,6 +100,12 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
+To include optional HID support, install the package with the `hid` extra:
+
+```bash
+pip install .[hid]
+```
+
 4. Ensure the required scanner models are connected via serial ports.
 
 ## Enabling HID Devices on Linux
@@ -124,10 +130,11 @@ python tools/scanner_diagnostics.py --scan
 
 ### Option 2: Use Native HID Support
 
-1. Install the optional [`hid`](https://pypi.org/project/hid/) library:
+1. Install the optional [`hid`](https://pypi.org/project/hid/) library via the
+   `hid` extra:
 
    ```bash
-   pip install hid
+   pip install .[hid]
    ```
 
 2. Grant your user access to HID devices:
