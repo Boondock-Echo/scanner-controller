@@ -25,3 +25,4 @@ pyflakes==3.3.2
 pytest==8.3.5
 pyreadline3==3.5.4
 virtualenv==20.30.0
+hid==1.0.*
