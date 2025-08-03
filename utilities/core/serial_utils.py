@@ -45,7 +45,7 @@ def read_response(ser, timeout=1.0):
     The serial timeout is temporarily overridden and restored after the
     read completes to avoid side effects on the caller's configuration.
     """
-    original_timeout = getattr(ser, "timeout", None)
+    original_timeout = ser.timeout
     try:
         ser.timeout = timeout
         response = ser.read_until(b"\r").decode("utf-8").strip()
@@ -55,8 +55,7 @@ def read_response(ser, timeout=1.0):
         logging.error(f"Error reading response: {e}")
         return ""
     finally:
-        if original_timeout is not None:
-            ser.timeout = original_timeout
+        ser.timeout = original_timeout
 
 
 def send_command(ser, cmd, delay=0.0):

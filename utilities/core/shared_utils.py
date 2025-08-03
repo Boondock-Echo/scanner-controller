@@ -6,6 +6,7 @@ Serial communication helpers can be found in
 ``utilities.core.serial_utils``.
 """
 
+import logging
 import os
 import sys
 
@@ -44,5 +45,26 @@ def diagnose_connection_issues():
     print("  4. Try reconnecting the scanner or using a different USB port.")
 
 
-__all__ = ["ScannerCommand", "ensure_root_in_path", "diagnose_connection_issues"]
+def read_response(ser, timeout=1.0):
+    """Read a response from the serial port with a temporary timeout."""
+
+    original_timeout = ser.timeout
+    try:
+        ser.timeout = timeout
+        response = ser.read_until(b"\r").decode("utf-8").strip()
+        logging.debug(f"Shared utils received response: {response}")
+        return response
+    except Exception as e:  # pragma: no cover - error path
+        logging.error(f"Error reading response: {e}")
+        return ""
+    finally:
+        ser.timeout = original_timeout
+
+
+__all__ = [
+    "ScannerCommand",
+    "ensure_root_in_path",
+    "diagnose_connection_issues",
+    "read_response",
+]
 
