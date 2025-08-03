@@ -1,13 +1,11 @@
-"""Tests for shared utilities functions."""
-
+"""Tests for the centralized ``read_response`` function."""
 from unittest.mock import MagicMock
 
-from utilities.core.shared_utils import read_response
+from utilities.core.serial_utils import read_response
 
 
 def test_read_response_restores_timeout():
     """Ensure read_response restores the original timeout."""
-
     ser = MagicMock()
     ser.timeout = 5
     ser.read_until.return_value = b"RES\r"
