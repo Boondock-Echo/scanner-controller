@@ -118,12 +118,18 @@ def read_status(self, ser):
 
 
 def read_s_meter(self, ser):
-    """S-meter (not supported on BC125AT).
+    """Read S-meter value using the RSSI command.
 
     Args:
         ser: Serial connection to the scanner.
 
     Returns:
-        str: Error message indicating feature not supported.
+        str: Normalized RSSI reading or error message.
     """
-    return self.feedback(False, "S-Meter not supported on BC125AT")
+    try:
+        strength = self.read_rssi(ser)
+        if strength is not None:
+            return self.feedback(True, f"S-Meter: {strength}")
+    except Exception:
+        pass
+    return self.feedback(False, "Error reading S-meter")
