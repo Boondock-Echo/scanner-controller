@@ -91,7 +91,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Test scanner volume range support"
     )
-    parser.add_argument('port', help='Serial port (e.g., COM3)')
+    parser.add_argument('port', help='Serial port (e.g., COM3 or /dev/ttyUSB0)')
     parser.add_argument(
         '--baudrate', type=int, default=115200, help='Baud rate'
     )

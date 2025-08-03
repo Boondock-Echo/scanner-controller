@@ -76,7 +76,9 @@ def main():
     parser = argparse.ArgumentParser(
         description="Scanner communication diagnostics tool"
     )
-    parser.add_argument('--port', help='Serial port to use (e.g., COM3)')
+    parser.add_argument(
+        '--port', help='Serial port to use (e.g., COM3 or /dev/ttyUSB0)'
+    )
     parser.add_argument('--model', help='Scanner model (e.g., BCD325P2)')
     parser.add_argument(
         '--scan', action='store_true', help='Scan for available ports'
