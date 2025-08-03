@@ -18,6 +18,7 @@ sys.modules.setdefault("serial.tools", serial_tools_stub)
 sys.modules.setdefault("serial.tools.list_ports", list_ports_stub)
 
 from adapters.uniden.bc125at_adapter import BC125ATAdapter  # noqa: E402
+from utilities.core.command_registry import build_command_table  # noqa: E402
 
 
 def test_bc125at_sweep_parses_units(monkeypatch):
@@ -77,3 +78,48 @@ def test_bc125at_configure_band_scope_sets_width(monkeypatch):
     result = adapter.configure_band_scope(None, "air")
     assert adapter.band_scope_width == 3362
     assert result == "OK"
+
+
+def test_bc125at_commands_registered(monkeypatch):
+    adapter = BC125ATAdapter()
+    monkeypatch.setattr(adapter, "configure_band_scope", lambda ser, *a: "")
+    monkeypatch.setattr(
+        adapter, "sweep_band_scope", lambda ser, c, s, st, bw=None: []
+    )
+    commands, help_text = build_command_table(adapter, None)
+    assert "band select" in commands
+    assert "band scope" in commands
+    assert "custom search" in commands
+    assert "band select" in help_text
+
+
+def test_bc125at_custom_search_returns_pairs(monkeypatch):
+    adapter = BC125ATAdapter()
+
+    def sweep_stub(ser, c, s, st, bw=None):
+        return [(100.0, 0.5), (101.0, 0.6)]
+
+    monkeypatch.setattr(adapter, "sweep_band_scope", sweep_stub)
+
+    commands, _ = build_command_table(adapter, None)
+
+    result = commands["custom search"](None, adapter, "100 2 1")
+    assert result == [(100.0, 0.5), (101.0, 0.6)]
+
+
+def test_bc125at_band_scope_graph(monkeypatch):
+    adapter = BC125ATAdapter()
+    adapter.last_center = 146.0
+    adapter.last_span = 2.0
+    adapter.last_step = 0.5
+
+    def sweep_stub(ser, c, s, st, bw=None):
+        return [(145.0, 100), (146.0, 200)]
+
+    monkeypatch.setattr(adapter, "sweep_band_scope", sweep_stub)
+
+    commands, _ = build_command_table(adapter, None)
+    output = commands["band scope"](None, adapter, "")
+    lines = output.splitlines()
+    assert len(lines) == 2
+

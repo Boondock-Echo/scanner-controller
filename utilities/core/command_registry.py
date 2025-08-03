@@ -191,7 +191,7 @@ def build_command_table(adapter, ser):
             "(Not available for this scanner model)"
         )
 
-    # Band scope (CSC streaming)
+    # Band scope (CSC streaming or manual sweep)
     if hasattr(adapter, 'stream_custom_search'):
         logging.debug("Registering 'band scope' command")
 
@@ -379,6 +379,43 @@ def build_command_table(adapter, ser):
         COMMANDS["band sweep"] = band_sweep
         COMMAND_HELP["band sweep"] = (
             "Stream band sweep data. Usage: band sweep [record_count]"
+        )
+    elif hasattr(adapter, 'sweep_band_scope'):
+        logging.debug("Registering 'band scope' command (sweep mode)")
+
+        def band_scope(ser_, adapter_, arg=""):
+            parts = arg.split()
+            preset = parts[0].lower() if parts else None
+
+            if preset and hasattr(adapter_, "configure_band_scope"):
+                result = adapter_.configure_band_scope(ser_, preset)
+                if result and isinstance(result, str) and "OK" not in result.upper():
+                    return result
+
+            center = getattr(adapter_, "last_center", None)
+            span = getattr(adapter_, "last_span", None)
+            step = getattr(adapter_, "last_step", None)
+            bandwidth = getattr(adapter_, "signal_bandwidth", None)
+
+            if None in (center, span, step):
+                return "Band scope not configured"
+
+            pairs = adapter_.sweep_band_scope(
+                ser_, center, span, step, bandwidth
+            )
+
+            if not pairs:
+                return "No band scope data received"
+
+            norm_pairs = [
+                (freq, (rssi or 0) / MAX_RSSI) for freq, rssi in pairs
+            ]
+            return render_rssi_graph(norm_pairs)
+
+        COMMANDS["band scope"] = band_scope
+        COMMAND_HELP["band scope"] = (
+            "Perform a quick band sweep and display signal levels. "
+            "Usage: band scope [preset]"
         )
     else:
         logging.debug("Registering placeholder 'band scope' command")
