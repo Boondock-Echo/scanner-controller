@@ -18,6 +18,7 @@ sys.modules.setdefault("serial.tools", serial_tools_stub)
 sys.modules.setdefault("serial.tools.list_ports", list_ports_stub)
 
 from adapters.uniden.bc125at_adapter import BC125ATAdapter  # noqa: E402
+from utilities.core.command_registry import build_command_table  # noqa: E402
 
 
 def test_bc125at_sweep_parses_units(monkeypatch):
@@ -77,3 +78,33 @@ def test_bc125at_configure_band_scope_sets_width(monkeypatch):
     result = adapter.configure_band_scope(None, "air")
     assert adapter.band_scope_width == 3362
     assert result == "OK"
+
+
+def test_bc125at_band_scope_search_flag(monkeypatch):
+    adapter = BC125ATAdapter()
+    monkeypatch.setattr(adapter, "_calc_band_scope_width", lambda span, bw: 3)
+
+    pwr_responses = [
+        "PWR,10,01080000",
+        "PWR,20,01080010",
+        "PWR,30,01080020",
+    ]
+
+    def send_command_stub(ser, cmd):
+        if cmd.startswith("CSP"):
+            return "OK"
+        if cmd.startswith("CSG"):
+            return "OK"
+        if cmd == "PWR":
+            return pwr_responses.pop(0)
+        return "OK"
+
+    monkeypatch.setattr(adapter, "send_command", send_command_stub)
+    monkeypatch.setattr(adapter, "start_scanning", lambda ser: None)
+    monkeypatch.setattr(adapter, "stop_scanning", lambda ser: None)
+
+    commands, _ = build_command_table(adapter, None)
+    output = commands["band scope"](None, adapter, "air search")
+    lines = output.splitlines()
+    assert len(lines) == 4  # 3 records + summary
+    assert lines[-1].startswith("center=")

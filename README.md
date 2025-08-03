@@ -252,6 +252,21 @@ programs custom search range 1 using `CSP` and enables only that range with
 command uses the preset limits in 100‑Hz units (e.g. `01080000` for 108 MHz)
 to align with the scanner's expected format.
 
+#### BC125AT Search-Based Sweep
+
+For the BC125AT, appending `search` to the `band scope` command performs a
+slower sweep that polls the `PWR` command while the scanner runs a custom
+search between the preset limits:
+
+```text
+> band scope air search
+```
+
+The adapter programs range 1 using `CSP`/`CSG`, starts scanning, and records a
+frequency/RSSI pair for each step. This method makes only a single pass across
+the band and ignores the sweep-count parameter, so it is best suited for quick
+checks rather than long captures.
+
 ### Band Scope Streaming
 
 Band scope status can be streamed using the `CSC` command. When activated the
