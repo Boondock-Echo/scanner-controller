@@ -102,17 +102,45 @@ pip install -r requirements.txt
 
 4. Ensure the required scanner models are connected via serial ports.
 
-## Enabling HID Devices
+## Enabling HID Devices on Linux
 
-Some scanners appear as HID devices rather than traditional serial ports. To
-use these devices:
+Some scanners, such as the **Uniden BC125AT**, may appear as HID devices at
+`/dev/usb/hiddev*` rather than traditional serial ports.
+
+### Option 1: Load USB Serial Driver
+
+Expose the scanner as a serial port by loading the USB serial driver:
+
+```bash
+sudo modprobe usbserial vendor=0x1965 product=0x0017
+```
+
+### Option 2: Use Native HID Support
 
 1. Install the optional [`hid`](https://pypi.org/project/hid/) library:
-   `pip install hid`
-2. Ensure `/dev/usb/hiddev*` paths are accessible. On Linux this may require
-   additional drivers or udev rules.
 
-Once configured, diagnostics tools will list HID paths alongside serial ports.
+   ```bash
+   pip install hid
+   ```
+
+2. Ensure `/dev/usb/hiddev*` paths are accessible. On Linux this may require
+   additional drivers, udev rules, or group permissions.
+
+### Verifying Detection
+
+Check kernel messages after plugging in the scanner:
+
+```bash
+dmesg | tail
+```
+
+Then run the diagnostics tool to list available devices:
+
+```bash
+python tools/scanner_diagnostics.py --scan
+```
+
+HID paths will be listed alongside serial ports once configured correctly.
 
 ## Usage
 
