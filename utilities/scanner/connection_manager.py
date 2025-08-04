@@ -18,6 +18,9 @@ class ConnectionManager:
         self._connections = {}
         self._next_id = 1
         self._active_id = None
+        # Track which hardware objects are associated with each connection
+        self._connection_hardware = {}
+        self._hardware_refs = {}
 
     @property
     def active_id(self):
@@ -62,24 +65,53 @@ class ConnectionManager:
             name: partial(func, ser, adapter) for name, func in commands.items()
         }
 
+        conn_id = self._register_connection(
+            ser, adapter, bound_commands, help_text, hardware=ser
+        )
+        logger.info(f"Opened connection {conn_id} on {port} ({model})")
+        return conn_id
+
+    def register_virtual_connection(
+        self, *, ser=None, adapter, commands, help_text, hardware=None
+    ):
+        """Register an already initialized connection.
+
+        This is primarily used by SDR multi-channel managers to register
+        virtual connections that may share underlying hardware.
+        """
+
+        return self._register_connection(
+            ser, adapter, commands, help_text, hardware=hardware or adapter
+        )
+
+    def _register_connection(self, ser, adapter, commands, help_text, *, hardware=None):
         conn_id = self._next_id
         self._next_id += 1
-        self._connections[conn_id] = (ser, adapter, bound_commands, help_text)
+        self._connections[conn_id] = (ser, adapter, commands, help_text)
+        hw = hardware or ser or adapter
+        self._connection_hardware[conn_id] = hw
+        self._hardware_refs[hw] = self._hardware_refs.get(hw, 0) + 1
         self._active_id = conn_id
-        logger.info(f"Opened connection {conn_id} on {port} ({model})")
         return conn_id
 
     def close_connection(self, conn_id):
         """Close and remove a connection."""
         conn = self._connections.pop(conn_id, None)
+        hardware = self._connection_hardware.pop(conn_id, None)
         if not conn:
             return
-        ser = conn[0]
-        try:
-            if ser and ser.is_open:
-                ser.close()
-        except Exception as exc:
-            logger.error(f"Error closing connection {conn_id}: {exc}")
+        if hardware is not None and hardware in self._hardware_refs:
+            self._hardware_refs[hardware] -= 1
+            if self._hardware_refs[hardware] <= 0:
+                self._hardware_refs.pop(hardware, None)
+                try:
+                    if hasattr(hardware, "is_open"):
+                        if hardware.is_open:
+                            hardware.close()
+                    elif hasattr(hardware, "close"):
+                        hardware.close()
+                except Exception as exc:
+                    logger.error(f"Error closing connection {conn_id}: {exc}")
         if self._active_id == conn_id:
             self._active_id = next(iter(self._connections), None)
 
