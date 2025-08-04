@@ -27,8 +27,8 @@ def send_key(self, ser, key_seq):
             continue
         try:
             response = self.send_command(
-                ser, f"KEY,{char}"
-            )  # Remove the ,P parameter
+                ser, f"KEY,{char},P"
+            )  # Add ,P for "Press" mode
             responses.append(f"{char} → {response}")
         except Exception as e:
             responses.append(f"{char} → ERROR: {e}")
