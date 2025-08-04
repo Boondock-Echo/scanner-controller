@@ -106,7 +106,59 @@ To include optional HID support, install the package with the `hid` extra:
 pip install .[hid]
 ```
 
+To enable optional SDR hardware support, install the package with the `sdr` extra:
+
+```bash
+pip install .[sdr]
+```
+
 4. Ensure the required scanner models are connected via serial ports.
+
+## SDR Device Setup
+
+Platform-specific drivers are required for RTL-SDR and other SDR hardware.
+
+### Windows
+
+1. Use [Zadig](https://zadig.akeo.ie/) to replace the default driver with **WinUSB**.
+2. Plug in the SDR and verify it appears as an *RTL2832U* device.
+3. Install optional Python packages with:
+
+   ```bash
+   pip install .[sdr]
+   ```
+
+### macOS
+
+1. Install drivers via [Homebrew](https://brew.sh/):
+
+   ```bash
+   brew install rtl-sdr soapysdr soapyrtlsdr
+   ```
+2. Install the Python extras with:
+
+   ```bash
+   pip install .[sdr]
+   ```
+
+### Linux
+
+1. Install drivers and udev rules from your package manager, for example on Debian/Ubuntu:
+
+   ```bash
+   sudo apt install rtl-sdr soapysdr-module-rtlsdr
+   ```
+2. If building from source, copy the provided udev rules and reload:
+
+   ```bash
+   sudo cp rtl-sdr.rules /etc/udev/rules.d/99-rtl-sdr.rules
+   sudo udevadm control --reload-rules && sudo udevadm trigger
+   ```
+3. Install the Python extras with:
+
+   ```bash
+   pip install .[sdr]
+   ```
 
 ## Enabling HID Devices on Linux
 
