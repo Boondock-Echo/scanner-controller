@@ -37,3 +37,8 @@ skip_glob = [".venv/*", ".pytest_cache/*", ".github/*", "__pycache__/*"]
 
 [project.optional-dependencies]
 hid = ["hid==1.0.*"]
+sdr = [
+    "pyrtlsdr",
+    "SoapySDR",
+    "SoapyRTLSDR",
+]
