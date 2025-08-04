@@ -114,6 +114,15 @@ pip install .[sdr]
 
 4. Ensure the required scanner models are connected via serial ports.
 
+## Configuration
+
+The application can interact with the Boondock Echo service. Configure the
+service connection using these environment variables:
+
+- `BOONDOCK_API_URL`: Base URL for the Boondock Echo API. Defaults to
+  `http://localhost:8000/audio`.
+- `BOONDOCK_AUTH_TOKEN`: Optional token used for authenticated requests.
+
 ## SDR Device Setup
 
 Platform-specific drivers are required for RTL-SDR and other SDR hardware.
