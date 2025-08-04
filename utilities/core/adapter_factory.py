@@ -31,12 +31,16 @@ def create_adapter(model_name, machine_mode=False):
         'bc125at': 'adapters.uniden.bc125at_adapter',
         'bcd325p2': 'adapters.uniden.bcd325p2_adapter',
         # Add more models as needed
+        'rtlsdr': 'adapters.sdr.rtlsdr_adapter',
+        'rx888': 'adapters.sdr.rx888_adapter',
     }
 
     class_map = {
         'bc125at': 'BC125ATAdapter',
         'bcd325p2': 'BCD325P2Adapter',
         # Add more models as needed
+        'rtlsdr': 'RTLSDRAdapter',
+        'rx888': 'RX888Adapter',
     }
 
     try:
