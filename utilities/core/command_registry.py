@@ -207,11 +207,11 @@ def build_command_table(adapter, ser):
             "(Not available for this scanner model)"
         )
 
-    # Band scope (CSC streaming or manual sweep)
-    if hasattr(adapter, 'stream_custom_search'):
-
     # Band scope (CSC streaming or search sweep)
-    if hasattr(adapter, 'stream_custom_search') or hasattr(adapter, 'search_band_scope'):
+    if hasattr(adapter, 'stream_custom_search') or (
+        hasattr(adapter, 'search_band_scope')
+        and not hasattr(adapter, 'sweep_band_scope')
+    ):
         logging.debug("Registering 'band scope' command")
 
         def band_scope(ser_, adapter_, arg=""):
