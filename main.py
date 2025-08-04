@@ -106,15 +106,20 @@ def main():
                     "Failed to connect to scanner. Please check the connection "
                     "and try again."
                 )
-                if (
-                    input(
-                        "\nWould you like to run connection diagnostics?"
-                        "(y/n): "
+                if not test_mode and sys.stdin.isatty():
+                    if (
+                        input(
+                            "\nWould you like to run connection diagnostics?"
+                            "(y/n): "
+                        )
+                        .lower()
+                        .startswith("y")
+                    ):
+                        diagnose_connection_issues()
+                else:
+                    logger.info(
+                        "Skipping connection diagnostics in test or non-interactive mode"
                     )
-                    .lower()
-                    .startswith("y")
-                ):
-                    diagnose_connection_issues()
                 logger.error("Failed to connect to scanner. Exiting.")
                 return
 
