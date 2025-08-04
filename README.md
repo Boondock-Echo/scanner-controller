@@ -437,6 +437,58 @@ Using connection 2
 center=...
 ```
 
+## Quickstart: SDR Monitoring and Boondock Echo
+
+Get on the air quickly with built-in SDR adapters and the optional Boondock
+Echo streaming service.
+
+### Initialize an RTL-SDR or RX-888 adapter
+
+```python
+from adapters.sdr.rtlsdr_adapter import RTLSDRAdapter
+# or: from adapters.sdr.rx888_adapter import RX888Adapter
+
+radio = RTLSDRAdapter()  # RX888Adapter() for RX-888 hardware
+radio.write_frequency(None, 162.55e6)  # tune to NOAA weather radio
+```
+
+### Monitor multiple frequencies
+
+```python
+from utilities.sdr.multichannel_manager import monitor_frequencies
+
+freqs = [162.55e6, 162.40e6, 162.475e6]
+connections = monitor_frequencies(freqs)
+```
+
+### Enable Boondock Echo streaming
+
+Set the service URL and token:
+
+```bash
+export BOONDOCK_API_URL="http://localhost:8000/audio"
+export BOONDOCK_AUTH_TOKEN="<token>"
+```
+
+Send audio frames to the service:
+
+```python
+from utilities.audio.boondock_echo_client import BoondockEchoClient
+
+client = BoondockEchoClient()
+pcm = acquire_audio_frame()  # Replace with real PCM data
+client.post_audio(pcm)
+```
+
+### Troubleshooting
+
+- **Device not detected** – install platform drivers (Zadig on Windows,
+  Homebrew on macOS, udev rules on Linux).
+- **Permission denied** – on Linux add your user to the `plugdev` group or run
+  with elevated privileges.
+- **401 from Boondock Echo** – verify `BOONDOCK_AUTH_TOKEN` and network
+  connectivity.
+
 ## Extending the System
 
 To support a new scanner model:
