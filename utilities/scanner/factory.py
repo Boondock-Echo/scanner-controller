@@ -59,6 +59,16 @@ def get_scanner_adapter(model, machine_mode=False):
 
             logging.info(f"Creating adapter for {model}")
             return BCD325P2Adapter(machine_mode=machine_mode)
+        elif "RTLSDR" in model:
+            from adapters.sdr.rtlsdr_adapter import RTLSDRAdapter
+
+            logging.info(f"Creating adapter for {model}")
+            return RTLSDRAdapter(machine_mode=machine_mode)
+        elif "RX888" in model:
+            from adapters.sdr.rx888_adapter import RX888Adapter
+
+            logging.info(f"Creating adapter for {model}")
+            return RX888Adapter(machine_mode=machine_mode)
         else:
             prefixes = ("BC", "BCD", "UBC", "SDS")
             if any(model.startswith(prefix) for prefix in prefixes):
