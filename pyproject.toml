@@ -21,6 +21,17 @@ sdr = [
     "SoapyRTLSDR",
 ]
 
+[tool.setuptools.packages.find]
+include = [
+    "command_libraries",
+    "config",
+    "dev_tools",
+    "utilities",
+    "scanner_gui",
+    "adapters",
+]
+exclude = ["logs", "tests"]
+
 [tool.black]
 target-version = ['py38']
 include = '\.pyi?$'
