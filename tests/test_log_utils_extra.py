@@ -6,7 +6,7 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from utilities.log_utils import configure_logging  # noqa: E402
+from scanner_controller.utilities.log_utils import configure_logging  # noqa: E402
 
 
 def _clear_root_handlers():

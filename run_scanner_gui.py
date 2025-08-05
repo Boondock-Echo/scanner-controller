@@ -17,7 +17,7 @@ import subprocess
 import sys
 
 # Import the logging utilities
-from utilities.log_utils import configure_logging
+from scanner_controller.utilities.log_utils import configure_logging
 
 
 def monkey_patch_serial():
@@ -60,7 +60,7 @@ def monkey_patch_serial():
 def clear_pycache():
     """Clear Python cache to ensure fresh imports."""
     try:
-        from utilities.tools.clear_pycache import (
+        from scanner_controller.utilities.tools.clear_pycache import (
             clear_pycache as clear_pycache_util,
         )
 
@@ -124,7 +124,7 @@ def main():
 
     try:
         logger.info("Starting Scanner GUI application...")
-        from scanner_gui.main import main
+        from scanner_controller.scanner_gui.main import main
 
         main()
     except ImportError as e:

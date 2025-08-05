@@ -2,7 +2,7 @@
 
 from unittest.mock import MagicMock
 
-from utilities.core.serial_utils import (
+from scanner_controller.utilities.core.serial_utils import (
     clear_serial_buffer,
     read_response,
     send_command,

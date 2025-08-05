@@ -5,7 +5,7 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from utilities.command.parser import parse_command  # noqa: E402
+from scanner_controller.utilities.command.parser import parse_command  # noqa: E402
 
 
 def test_parse_command_aliases_and_multiword():

@@ -26,14 +26,7 @@ sdr = [
 ]
 
 [tool.setuptools.packages.find]
-include = [
-    "command_libraries",
-    "config",
-    "dev_tools",
-    "utilities",
-    "scanner_gui",
-    "adapters",
-]
+include = ["scanner_controller", "scanner_controller.*"]
 exclude = ["logs", "tests"]
 
 [tool.black]

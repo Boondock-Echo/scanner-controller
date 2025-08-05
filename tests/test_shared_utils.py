@@ -1,7 +1,7 @@
 """Tests for the centralized ``read_response`` function."""
 from unittest.mock import MagicMock
 
-from utilities.core.serial_utils import read_response
+from scanner_controller.utilities.core.serial_utils import read_response
 
 
 def test_read_response_restores_timeout():

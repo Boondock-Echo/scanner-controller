@@ -36,11 +36,11 @@ def main():
     Parse command line arguments, detect and connect to a scanner,
     and launch the interactive command loop.
     """
-    from utilities.command.loop import main_loop as _main_loop
-    from utilities.core.shared_utils import diagnose_connection_issues
-    from utilities.io.timeout_utils import ScannerTimeoutError
-    from utilities.log_utils import configure_logging
-    from utilities.scanner.manager import (
+    from scanner_controller.utilities.command.loop import main_loop as _main_loop
+    from scanner_controller.utilities.core.shared_utils import diagnose_connection_issues
+    from scanner_controller.utilities.io.timeout_utils import ScannerTimeoutError
+    from scanner_controller.utilities.log_utils import configure_logging
+    from scanner_controller.utilities.scanner.manager import (
         connection_manager,
         detect_and_connect_scanner,
     )

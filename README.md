@@ -61,14 +61,16 @@ The repository is organized into modules so new scanner models and features can 
 
 ```text
 scanner-controller/
-├── adapters/            # Scanner model adapters
-├── command_libraries/   # Command definitions for each model
-├── scanner_gui/         # GUI application
-│   ├── gui/             # PyQt widgets
-│   └── icons/           # SVG resources
-├── utilities/           # Shared utilities and helper scripts
+├── scanner_controller/   # Application package
+│   ├── adapters/            # Scanner model adapters
+│   ├── command_libraries/   # Command definitions for each model
+│   ├── scanner_gui/         # GUI application
+│   │   ├── gui/             # PyQt widgets
+│   │   └── icons/           # SVG resources
+│   ├── utilities/           # Shared utilities and helper scripts
+│   ├── dev_tools/           # Development utilities
+│   └── config/              # Configuration modules
 ├── tools/               # Miscellaneous scripts
-├── dev_tools/           # Development utilities
 ├── tests/               # Unit tests
 ├── docs/                # Additional documentation
 └── logs/                # Log files (git-ignored)
@@ -251,7 +253,7 @@ python main.py
 Or launch the GUI:
 
 ```bash
-python -m scanner_gui.main
+python -m scanner_controller.scanner_gui.main
 ```
 
 Use the interface to select a serial port and control the scanner.
@@ -389,7 +391,7 @@ stop after a set time, pass ``max_records`` or ``max_time`` to
 ``record_close_calls``:
 
 ```python
-from utilities.scanner.close_call_logger import record_close_calls
+from scanner_controller.utilities.scanner.close_call_logger import record_close_calls
 record_close_calls(adapter, ser, "air", max_time=10)
 ```
 
@@ -445,8 +447,8 @@ Echo streaming service.
 ### Initialize an RTL-SDR or RX-888 adapter
 
 ```python
-from adapters.sdr.rtlsdr_adapter import RTLSDRAdapter
-# or: from adapters.sdr.rx888_adapter import RX888Adapter
+from scanner_controller.adapters.sdr.rtlsdr_adapter import RTLSDRAdapter
+# or: from scanner_controller.adapters.sdr.rx888_adapter import RX888Adapter
 
 radio = RTLSDRAdapter()  # RX888Adapter() for RX-888 hardware
 radio.write_frequency(None, 162.55e6)  # tune to NOAA weather radio
@@ -455,7 +457,7 @@ radio.write_frequency(None, 162.55e6)  # tune to NOAA weather radio
 ### Monitor multiple frequencies
 
 ```python
-from utilities.sdr.multichannel_manager import monitor_frequencies
+from scanner_controller.utilities.sdr.multichannel_manager import monitor_frequencies
 
 freqs = [162.55e6, 162.40e6, 162.475e6]
 connections = monitor_frequencies(freqs)
@@ -473,7 +475,7 @@ export BOONDOCK_AUTH_TOKEN="<token>"
 Send audio frames to the service:
 
 ```python
-from utilities.audio.boondock_echo_client import BoondockEchoClient
+from scanner_controller.utilities.audio.boondock_echo_client import BoondockEchoClient
 
 client = BoondockEchoClient()
 pcm = acquire_audio_frame()  # Replace with real PCM data
@@ -493,7 +495,7 @@ client.post_audio(pcm)
 
 To support a new scanner model:
 
-1. Create a new adapter class in the `adapters/` directory.
+1. Create a new adapter class in the `scanner_controller/adapters/` directory.
 2. Implement initialization, command processing, and cleanup logic.
 3. Register the adapter in the model detection code.
 
@@ -545,11 +547,11 @@ flake8
 
 ### Maintenance Scripts
 
-Useful scripts are located in `tools/` and `dev_tools/`:
+Useful scripts are located in `tools/` and `scanner_controller/dev_tools/`:
 
 ```bash
 python tools/clear_pycache.py
-python -m dev_tools.analyze_unused_files
+python -m scanner_controller.dev_tools.analyze_unused_files
 ```
 
 ### Running Tests
@@ -593,7 +595,7 @@ logging.basicConfig(level=logging.DEBUG)
 You can also monitor serial traffic:
 
 ```bash
-python -m scanner_gui.main --monitor-serial
+python -m scanner_controller.scanner_gui.main --monitor-serial
 ```
 
 ## Common Issues and Troubleshooting

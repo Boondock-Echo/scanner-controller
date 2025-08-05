@@ -11,8 +11,8 @@ serial_stub = types.ModuleType("serial")
 serial_stub.Serial = lambda *a, **k: None
 sys.modules.setdefault("serial", serial_stub)
 
-from adapters.uniden.bcd325p2_adapter import BCD325P2Adapter  # noqa: E402
-from utilities.core.command_registry import build_command_table  # noqa: E402
+from scanner_controller.adapters.uniden.bcd325p2_adapter import BCD325P2Adapter  # noqa: E402
+from scanner_controller.utilities.core.command_registry import build_command_table  # noqa: E402
 
 
 def test_band_sweep_registered_and_output(monkeypatch):

@@ -19,7 +19,7 @@ sys.modules.setdefault("serial", serial_stub)
 
 
 # ``utilities`` is importable when ``pytest`` is run from the repository root.
-from utilities.command.help_utils import process_adapter_commands  # noqa: E402
+from scanner_controller.utilities.command.help_utils import process_adapter_commands  # noqa: E402
 
 
 class DummyCmd:

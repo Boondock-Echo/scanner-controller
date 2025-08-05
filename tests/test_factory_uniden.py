@@ -18,8 +18,8 @@ sys.modules.setdefault("serial", serial_stub)
 sys.modules.setdefault("serial.tools", serial_tools_stub)
 sys.modules.setdefault("serial.tools.list_ports", list_ports_stub)
 
-from utilities.scanner.factory import get_scanner_adapter  # noqa: E402
-from utilities.core.adapter_factory import create_adapter  # noqa: E402
+from scanner_controller.utilities.scanner.factory import get_scanner_adapter  # noqa: E402
+from scanner_controller.utilities.core.adapter_factory import create_adapter  # noqa: E402
 
 
 def test_uniden_prefix_returns_generic_adapter():
