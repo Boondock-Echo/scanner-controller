@@ -1,5 +1,27 @@
-[tool.black]
+[project]
+name = "scanner-controller"
+version = "0.1.0"
+dependencies = [
+    "attrs==25.3.0",
+    "iso8601==2.1.0",
+    "packaging==24.2",
+    "psutil==7.0.0",
+    "PyQt6==6.9.0",
+    "PyQt6-Qt6==6.9.0",
+    "PyQt6_sip==13.10.0",
+    "pyserial==3.5",
+    "PyYAML==6.0.2",
+]
 
+[project.optional-dependencies]
+hid = ["hid==1.0.*"]
+sdr = [
+    "pyrtlsdr",
+    "SoapySDR",
+    "SoapyRTLSDR",
+]
+
+[tool.black]
 target-version = ['py38']
 include = '\.pyi?$'
 exclude = '''
@@ -35,10 +57,3 @@ use_parentheses = true
 ensure_newline_before_comments = true
 skip_glob = [".venv/*", ".pytest_cache/*", ".github/*", "__pycache__/*"]
 
-[project.optional-dependencies]
-hid = ["hid==1.0.*"]
-sdr = [
-    "pyrtlsdr",
-    "SoapySDR",
-    "SoapyRTLSDR",
-]
