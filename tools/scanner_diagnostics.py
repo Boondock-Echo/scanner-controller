@@ -13,8 +13,8 @@ import glob
 import serial
 from serial.tools import list_ports
 
-from scanner_gui.controller import ScannerController
-from utilities.core.serial_utils import read_response, send_command, wait_for_data
+from scanner_controller.scanner_gui.controller import ScannerController
+from scanner_controller.utilities.core.serial_utils import read_response, send_command, wait_for_data
 
 # Configure logging
 logging.basicConfig(

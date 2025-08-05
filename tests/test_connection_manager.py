@@ -27,9 +27,9 @@ sys.modules["serial"] = serial_stub
 sys.modules["serial.tools"] = serial_tools_stub
 sys.modules["serial.tools.list_ports"] = list_ports_stub
 
-from utilities.scanner.connection_manager import ConnectionManager  # noqa: E402
-from utilities.command.loop import main_loop  # noqa: E402
-import utilities.scanner.connection_manager as cm_module  # noqa: E402
+from scanner_controller.utilities.scanner.connection_manager import ConnectionManager  # noqa: E402
+from scanner_controller.utilities.command.loop import main_loop  # noqa: E402
+import scanner_controller.utilities.scanner.connection_manager as cm_module  # noqa: E402
 
 
 class DummyAdapter:

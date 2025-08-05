@@ -17,23 +17,23 @@ The root directory should be kept clean and contain only essential files:
 
 ## Core Directories
 
-### `/scanner_gui`
+### `/scanner_controller/scanner_gui`
 
 Contains the GUI application code:
 
 ```
-scanner_gui/
+scanner_controller/scanner_gui/
 ├── gui/             # GUI components
 ├── main.py          # Entry point
 └── command_library.py # Command interface
 ```
 
-### `/adapters`
+### `/scanner_controller/adapters`
 
 Contains scanner model-specific adapter implementations:
 
 ```
-adapters/
+scanner_controller/adapters/
 ├── uniden/         # Uniden scanner adapters
 │   ├── bc125at.py
 │   ├── bcd325p2.py
@@ -42,12 +42,12 @@ adapters/
 └── base_adapter.py # Base adapter class
 ```
 
-### `/command_libraries`
+### `/scanner_controller/command_libraries`
 
 Contains model-specific command definitions:
 
 ```
-command_libraries/
+scanner_controller/command_libraries/
 └── uniden/
     └── bcd325p2/
         ├── system_commands.py
@@ -55,12 +55,12 @@ command_libraries/
         └── scan_commands.py
 ```
 
-### `/utilities`
+### `/scanner_controller/utilities`
 
 Contains utility modules used across the project:
 
 ```
-utilities/
+scanner_controller/utilities/
 ├── core/           # Core utilities used by multiple components
 ├── scanner/        # Scanner backend utilities
 │   └── backend.py  # Serial communication helpers
@@ -103,12 +103,12 @@ icons/
 └── arrow-right.svg
 ```
 
-### `/dev_tools`
+### `/scanner_controller/dev_tools`
 
 Development tools and scripts:
 
 ```
-dev_tools/
+scanner_controller/dev_tools/
 ├── analyze_unused_files.py
 ├── build_dependency_graph.py
 └── cleanup_legacy.py
@@ -126,11 +126,11 @@ logs/
 
 ## Guidelines for Adding New Files
 
-1. **New Scanner Adapters**: Place in `/adapters/[manufacturer]/`
-2. **New GUI Components**: Place in `/scanner_gui/gui/`
-3. **New Utility Functions**: Place in `/utilities/core/` or appropriate subdirectory
+1. **New Scanner Adapters**: Place in `/scanner_controller/adapters/[manufacturer]/`
+2. **New GUI Components**: Place in `/scanner_controller/scanner_gui/gui/`
+3. **New Utility Functions**: Place in `/scanner_controller/utilities/core/` or appropriate subdirectory
 4. **Documentation**: Place in `/docs/`
-5. **Scripts**: Place in `/dev_tools/` or `/utilities/tools/`
+5. **Scripts**: Place in `/scanner_controller/dev_tools/` or `/scanner_controller/utilities/tools/`
 
 ## Imports Best Practices
 

@@ -19,8 +19,8 @@ sys.modules.setdefault("serial", serial_stub)
 sys.modules.setdefault("serial.tools", serial_tools_stub)
 sys.modules.setdefault("serial.tools.list_ports", list_ports_stub)
 
-from utilities.scanner import manager  # noqa: E402
-from utilities.scanner.connection_manager import ConnectionManager  # noqa: E402
+from scanner_controller.utilities.scanner import manager  # noqa: E402
+from scanner_controller.utilities.scanner.connection_manager import ConnectionManager  # noqa: E402
 
 
 def test_scan_for_scanners_no_devices(monkeypatch):
@@ -94,7 +94,7 @@ def test_connect_to_scanner_id_out_of_range(monkeypatch):
 
 def test_connect_to_scanner_unknown_uniden_model(monkeypatch):
     """Return GenericUnidenAdapter when model prefix matches Uniden."""
-    from adapters.uniden.generic_adapter import GenericUnidenAdapter
+    from scanner_controller.adapters.uniden.generic_adapter import GenericUnidenAdapter
 
     class DummySerial:
         def __init__(self, *a, **k):
@@ -141,7 +141,7 @@ def test_detect_and_connect_scanner_skips_existing(monkeypatch):
 
 def test_generic_uniden_read_volume(monkeypatch):
     """read_volume should parse numeric volume from response."""
-    from adapters.uniden.generic_adapter import GenericUnidenAdapter
+    from scanner_controller.adapters.uniden.generic_adapter import GenericUnidenAdapter
 
     adapter = GenericUnidenAdapter(machine_mode=True)
     monkeypatch.setattr(adapter, "send_command", lambda ser, cmd: b"VOL,7")
@@ -150,7 +150,7 @@ def test_generic_uniden_read_volume(monkeypatch):
 
 def test_generic_uniden_write_volume(monkeypatch):
     """write_volume should return True when 'OK' is received."""
-    from adapters.uniden.generic_adapter import GenericUnidenAdapter
+    from scanner_controller.adapters.uniden.generic_adapter import GenericUnidenAdapter
 
     adapter = GenericUnidenAdapter(machine_mode=True)
     adapter.commands.pop("VOL", None)
@@ -160,7 +160,7 @@ def test_generic_uniden_write_volume(monkeypatch):
 
 def test_generic_uniden_read_squelch(monkeypatch):
     """read_squelch should parse numeric squelch from response."""
-    from adapters.uniden.generic_adapter import GenericUnidenAdapter
+    from scanner_controller.adapters.uniden.generic_adapter import GenericUnidenAdapter
 
     adapter = GenericUnidenAdapter(machine_mode=True)
     monkeypatch.setattr(adapter, "send_command", lambda ser, cmd: b"SQL,3")
@@ -169,7 +169,7 @@ def test_generic_uniden_read_squelch(monkeypatch):
 
 def test_generic_uniden_write_squelch(monkeypatch):
     """write_squelch should return True when 'OK' is received."""
-    from adapters.uniden.generic_adapter import GenericUnidenAdapter
+    from scanner_controller.adapters.uniden.generic_adapter import GenericUnidenAdapter
 
     adapter = GenericUnidenAdapter(machine_mode=True)
     adapter.commands.pop("SQL", None)

@@ -5,7 +5,7 @@ import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from utilities.graph_utils import render_rssi_graph
+from scanner_controller.utilities.graph_utils import render_rssi_graph
 
 
 def test_render_rssi_graph_levels():

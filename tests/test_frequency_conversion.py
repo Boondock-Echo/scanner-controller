@@ -9,8 +9,8 @@ serial_stub = types.ModuleType("serial")
 serial_stub.Serial = lambda *a, **k: None
 sys.modules.setdefault("serial", serial_stub)
 
-from adapters.uniden.bcd325p2_adapter import BCD325P2Adapter
-from adapters.uniden.bc125at_adapter import BC125ATAdapter
+from scanner_controller.adapters.uniden.bcd325p2_adapter import BCD325P2Adapter
+from scanner_controller.adapters.uniden.bc125at_adapter import BC125ATAdapter
 
 @pytest.mark.parametrize("adapter_cls", [BCD325P2Adapter, BC125ATAdapter])
 def test_numeric_conversion(adapter_cls):
@@ -40,7 +40,7 @@ def test_numeric_conversion(adapter_cls):
 @pytest.mark.parametrize("adapter_cls", [BCD325P2Adapter, BC125ATAdapter])
 def test_preset_to_mhz(adapter_cls, band, low, high):
     adapter = adapter_cls()
-    from config.band_scope_presets import BAND_SCOPE_PRESETS
+    from scanner_controller.config.band_scope_presets import BAND_SCOPE_PRESETS
 
     low_str, high_str, _, _ = BAND_SCOPE_PRESETS[band]
     assert adapter._to_mhz(low_str) == pytest.approx(low)

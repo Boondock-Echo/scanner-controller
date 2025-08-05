@@ -18,8 +18,8 @@ sys.modules.setdefault("serial", serial_stub)
 sys.modules.setdefault("serial.tools", serial_tools_stub)
 sys.modules.setdefault("serial.tools.list_ports", list_ports_stub)
 
-from adapters.uniden.bcd325p2_adapter import BCD325P2Adapter  # noqa: E402
-from adapters.uniden.bc125at_adapter import BC125ATAdapter  # noqa: E402
+from scanner_controller.adapters.uniden.bcd325p2_adapter import BCD325P2Adapter  # noqa: E402
+from scanner_controller.adapters.uniden.bc125at_adapter import BC125ATAdapter  # noqa: E402
 import pytest
 
 

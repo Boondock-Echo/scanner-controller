@@ -13,13 +13,13 @@ sys.modules.setdefault("serial", serial_stub)
 
 import importlib
 
-from adapters.uniden.bcd325p2_adapter import BCD325P2Adapter  # noqa: E402
-from utilities.core.command_registry import build_command_table  # noqa: E402
+from scanner_controller.adapters.uniden.bcd325p2_adapter import BCD325P2Adapter  # noqa: E402
+from scanner_controller.utilities.core.command_registry import build_command_table  # noqa: E402
 
 
 def test_presets_load():
     presets = importlib.import_module(
-        "config.band_scope_presets"
+        "scanner_controller.config.band_scope_presets"
     ).BAND_SCOPE_PRESETS
     assert "air" in presets
     assert "race" in presets
@@ -88,7 +88,7 @@ def test_custom_search_parses_short_frequency(monkeypatch):
 
     data_lines = ["CSC,10,250200,1", "CSC,OK"]
 
-    from adapters.uniden.bcd325p2 import custom_search as cs
+    from scanner_controller.adapters.uniden.bcd325p2 import custom_search as cs
 
     monkeypatch.setattr(adapter, "send_command", lambda ser, cmd, delay=0: "")
     monkeypatch.setattr(cs, "send_command", lambda ser, cmd, delay=0: "")

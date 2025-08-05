@@ -6,7 +6,7 @@ import urllib.request
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from utilities.audio.boondock_echo_client import BoondockEchoClient
+from scanner_controller.utilities.audio.boondock_echo_client import BoondockEchoClient
 
 
 class DummyResponse:

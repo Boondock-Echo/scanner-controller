@@ -5,7 +5,7 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from utilities.tools.log_trim import trim_log_file  # noqa: E402
+from scanner_controller.utilities.tools.log_trim import trim_log_file  # noqa: E402
 
 
 def test_trim_log_file(tmp_path):

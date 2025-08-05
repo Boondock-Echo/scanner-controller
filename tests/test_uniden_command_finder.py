@@ -6,7 +6,7 @@ import sys
 # Add repository root to import path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import utilities.research.uniden_command_finder as ucf  # noqa: E402
+import scanner_controller.utilities.research.uniden_command_finder as ucf  # noqa: E402
 
 
 class DummySerial:

@@ -29,8 +29,8 @@ sys.modules["serial.tools"] = serial_tools_stub
 sys.modules["serial.tools.list_ports"] = list_ports_stub
 sys.modules["serial"] = serial_stub
 
-from utilities.scanner.connection_manager import ConnectionManager
-from utilities.sdr.multichannel_manager import MultiChannelManager, monitor_frequencies
+from scanner_controller.utilities.scanner.connection_manager import ConnectionManager
+from scanner_controller.utilities.sdr.multichannel_manager import MultiChannelManager, monitor_frequencies
 
 
 class DummyAdapter:

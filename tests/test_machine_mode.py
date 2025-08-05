@@ -32,10 +32,10 @@ sys.modules.setdefault("serial.tools.list_ports", list_ports_stub)
 sys.modules.setdefault("serial", serial_stub)
 
 # Ensure backend utilities can be imported without real serial
-import utilities.scanner.backend as backend  # noqa: E402
+import scanner_controller.utilities.scanner.backend as backend  # noqa: E402
 
 import main  # noqa: E402
-from utilities.command.loop import main_loop as original_main_loop  # noqa: E402
+from scanner_controller.utilities.command.loop import main_loop as original_main_loop  # noqa: E402
 
 
 def test_main_machine_mode_enabled(capsys, monkeypatch):
@@ -81,7 +81,7 @@ def test_main_loop_exit_machine_mode(capsys, monkeypatch):
         "utilities.command.loop.initialize_readline", lambda c: None
     )
 
-    from utilities.scanner.manager import connection_manager
+    from scanner_controller.utilities.scanner.manager import connection_manager
     original_main_loop(connection_manager, None, None, {}, {}, True)
 
     out = capsys.readouterr().out

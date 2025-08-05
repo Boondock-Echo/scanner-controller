@@ -9,7 +9,7 @@ sys.modules.setdefault("serial", serial_stub)
 sys.modules.setdefault("serial.tools", serial_stub.tools)
 sys.modules.setdefault("serial.tools.list_ports", serial_stub.tools.list_ports)
 
-from utilities.scanner import backend
+from scanner_controller.utilities.scanner import backend
 
 
 class DummySerial:

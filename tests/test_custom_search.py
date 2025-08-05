@@ -10,8 +10,8 @@ serial_stub = types.ModuleType("serial")
 serial_stub.Serial = lambda *a, **k: None
 sys.modules.setdefault("serial", serial_stub)
 
-from adapters.uniden.bcd325p2_adapter import BCD325P2Adapter  # noqa: E402
-from utilities.core.command_registry import build_command_table  # noqa: E402
+from scanner_controller.adapters.uniden.bcd325p2_adapter import BCD325P2Adapter  # noqa: E402
+from scanner_controller.utilities.core.command_registry import build_command_table  # noqa: E402
 
 
 def test_band_scope_command_registered(monkeypatch):
@@ -43,7 +43,7 @@ def test_band_scope_collects(monkeypatch):
 
     monkeypatch.setattr(adapter, "send_command", lambda ser, cmd, delay=0: "")
 
-    from adapters.uniden.bcd325p2 import custom_search as cs
+    from scanner_controller.adapters.uniden.bcd325p2 import custom_search as cs
 
     monkeypatch.setattr(cs, "send_command", lambda ser, cmd, delay=0: "")
     monkeypatch.setattr(

@@ -9,7 +9,7 @@ import pytest
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from utilities.io.timeout_utils import (  # noqa: E402
+from scanner_controller.utilities.io.timeout_utils import (  # noqa: E402
     ScannerTimeoutError,
     with_timeout,
 )

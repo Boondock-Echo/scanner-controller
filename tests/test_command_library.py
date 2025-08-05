@@ -8,8 +8,8 @@ import pytest
 # Ensure the project root is on the Python path so `utilities` can be imported
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from utilities.core.command_library import ScannerCommand  # noqa: E402
-from utilities.errors import CommandError  # noqa: E402
+from scanner_controller.utilities.core.command_library import ScannerCommand  # noqa: E402
+from scanner_controller.utilities.errors import CommandError  # noqa: E402
 
 
 def test_parse_response_ok():

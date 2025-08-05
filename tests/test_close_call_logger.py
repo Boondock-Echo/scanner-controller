@@ -19,8 +19,8 @@ sys.modules.setdefault("serial.tools", serial_tools_stub)
 sys.modules.setdefault("serial.tools.list_ports", list_ports_stub)
 sys.modules.setdefault("serial", serial_stub)
 
-from config.close_call_bands import CLOSE_CALL_BANDS  # noqa: E402
-from utilities.scanner.close_call_logger import record_close_calls  # noqa: E402
+from scanner_controller.config.close_call_bands import CLOSE_CALL_BANDS  # noqa: E402
+from scanner_controller.utilities.scanner.close_call_logger import record_close_calls  # noqa: E402
 
 
 class DummyAdapter:
