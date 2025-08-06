@@ -28,8 +28,24 @@ def diagnose_connection_issues():
     print("\nDiagnosing connection issues...")
     ports = list(serial.tools.list_ports.comports())
     hid_paths = glob.glob("/dev/usb/hiddev*")
-    if not ports and not hid_paths:
-        print("No serial or HID devices detected. Ensure the scanner is connected.")
+    soapy_devices = []
+    rtl_devices = []
+    try:
+        from SoapySDR import Device as SoapyDevice
+
+        soapy_devices = SoapyDevice.enumerate()
+    except Exception:
+        pass
+    try:
+        from rtlsdr import RtlSdr
+
+        rtl_devices = RtlSdr.get_devices()
+    except Exception:
+        pass
+    if not ports and not hid_paths and not soapy_devices and not rtl_devices:
+        print(
+            "No serial, HID, or SDR devices detected. Ensure the scanner is connected."
+        )
         return
 
     if ports:
@@ -44,6 +60,16 @@ def diagnose_connection_issues():
         for path in hid_paths:
             print(f"  - {path}")
         print("See README section 'Enabling HID Devices' for more details.")
+
+    if soapy_devices or rtl_devices:
+        print("Available SDR pseudo-ports:")
+        for dev in soapy_devices:
+            label = dev.get("label") if isinstance(dev, dict) else str(dev)
+            print(f"  - SoapySDR: {label}")
+        for dev in rtl_devices:
+            print(f"  - RTL-SDR: {dev}")
+    else:
+        print("No SDR devices detected.")
 
     print("\nSuggestions:")
     print("  1. Verify the scanner is powered on.")
