@@ -19,6 +19,10 @@ connection_manager = ConnectionManager()
 def detect_and_connect_scanner(machine_mode=False):
     """Detect available scanners and connect to one selected by the user.
 
+    Supports both standard serial ports and pseudo-ports (e.g. ``rtlsdr:0`` or
+    ``rx888:0``) returned by :func:`find_all_scanner_ports`. Pseudo-ports are
+    passed to :meth:`ConnectionManager.open_connection` unchanged.
+
     Parameters
     ----------
     machine_mode : bool
@@ -36,7 +40,9 @@ def detect_and_connect_scanner(machine_mode=False):
         print("Searching for connected scanners...")
 
     skip_ports = [
-        ser.port for _, (ser, _, _, _) in connection_manager.list_all()
+        ser.port
+        for _, (ser, _, _, _) in connection_manager.list_all()
+        if ser is not None
     ]
     detected = find_all_scanner_ports(skip_ports=skip_ports)
 

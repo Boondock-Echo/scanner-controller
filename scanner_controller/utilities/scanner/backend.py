@@ -21,7 +21,13 @@ from scanner_controller.utilities.core.serial_utils import (
 def find_all_scanner_ports(
     baudrate=115200, timeout=0.5, max_retries=2, skip_ports=None
 ):
-    """Scan available serial ports for connected scanners."""
+    """Scan available ports for connected scanners.
+
+    In addition to traditional serial ports this function probes for SDR
+    receivers and returns pseudo-port identifiers such as ``rtlsdr:0`` or
+    ``rx888:0``. These identifiers can be passed directly to
+    :func:`ConnectionManager.open_connection`.
+    """
     if skip_ports is None:
         skip_ports = []
     detected = []
