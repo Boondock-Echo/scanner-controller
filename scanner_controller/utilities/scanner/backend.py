@@ -12,10 +12,15 @@ try:  # Optional dependency for HID scanners
 except Exception:  # pragma: no cover - handled gracefully
     hid = None
 
-from scanner_controller.utilities.core.serial_utils import read_response, wait_for_data
+from scanner_controller.utilities.core.serial_utils import (
+    read_response,
+    wait_for_data,
+)
 
 
-def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2, skip_ports=None):
+def find_all_scanner_ports(
+    baudrate=115200, timeout=0.5, max_retries=2, skip_ports=None
+):
     """Scan available serial ports for connected scanners."""
     if skip_ports is None:
         skip_ports = []
@@ -90,4 +95,25 @@ def find_all_scanner_ports(baudrate=115200, timeout=0.5, max_retries=2, skip_por
                 logging.warning(f"Error testing HID device {hid_path}: {e}")
         if detected:
             return detected
+    # Attempt SDR device scan if available
+    try:  # pragma: no cover - optional dependency
+        from SoapySDR import Device  # type: ignore
+
+        logging.info("Checking for SDR devices via SoapySDR")
+        for idx, dev_info in enumerate(Device.enumerate()):
+            driver = dev_info.get("driver", "sdr")
+            friendly = driver.upper()
+            detected.append((f"{driver}:{idx}", friendly))
+    except Exception as e:  # pragma: no cover - best effort
+        logging.info(f"SoapySDR enumeration unavailable: {e}")
+        try:  # pragma: no cover - optional dependency
+            from rtlsdr import RtlSdr  # type: ignore
+
+            logging.info("Checking for SDR devices via pyrtlsdr")
+            for idx, _ in enumerate(RtlSdr.get_devices()):
+                detected.append((f"rtlsdr:{idx}", "RTLSDR"))
+        except Exception as e2:  # pragma: no cover - best effort
+            logging.info(f"pyrtlsdr enumeration unavailable: {e2}")
+    if detected:
+        return detected
     return []
