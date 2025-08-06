@@ -21,8 +21,8 @@ dependencies = [
 hid = ["hid==1.0.*"]
 sdr = [
     "pyrtlsdr",
-    "SoapySDR",
-    "SoapyRTLSDR",
+    "SoapySDR; platform_system != 'Windows'",
+    "SoapyRTLSDR; platform_system != 'Windows'",
 ]
 
 [tool.setuptools.packages.find]
