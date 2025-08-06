@@ -27,15 +27,10 @@ sdr = [
 ]
 
 [tool.setuptools.packages.find]
+# Automatically include the main package and all subpackages.
 include = [
     "scanner_controller",
-    "scanner_controller.command_libraries",
-    "scanner_controller.config",
-    "scanner_controller.dev_tools",
-    "scanner_controller.utilities",
-    "scanner_controller.scanner_gui",
-    "scanner_controller.adapters",
-    "scanner_controller.adapters.*",
+    "scanner_controller.*",
 ]
 exclude = ["logs", "tests"]
 
