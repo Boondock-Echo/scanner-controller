@@ -11,12 +11,17 @@ from __future__ import annotations
 
 from scanner_controller.adapters.base_adapter import BaseScannerAdapter
 
+RtlSdr = None  # type: ignore
 try:  # pragma: no cover - optional dependency
     import SoapySDR  # type: ignore
     from SoapySDR import SOAPY_SDR_RX  # type: ignore
 except Exception:  # pragma: no cover
     SoapySDR = None  # type: ignore
     SOAPY_SDR_RX = 0  # type: ignore
+    try:  # pragma: no cover - optional dependency
+        from pyrtlsdr import RtlSdr  # type: ignore
+    except Exception:  # pragma: no cover
+        RtlSdr = None  # type: ignore
 
 
 class RTLSDRAdapter(BaseScannerAdapter):
@@ -33,17 +38,33 @@ class RTLSDRAdapter(BaseScannerAdapter):
                 self._device = SoapySDR.Device(args)
             except Exception:  # pragma: no cover - runtime error if device missing
                 self._device = None
+        elif RtlSdr:  # pragma: no branch - executed when library available
+            try:
+                self._device = RtlSdr(**(device_args or {}))
+            except Exception:  # pragma: no cover - runtime error if device missing
+                self._device = None
 
     # ------------------------------------------------------------------
     # Frequency control
     def read_frequency(self, ser=None):  # pragma: no cover - hardware access
         if self._device:
-            return self._device.getFrequency(SOAPY_SDR_RX, 0)
+            if SoapySDR:
+                return self._device.getFrequency(SOAPY_SDR_RX, 0)
+            try:
+                return float(self._device.center_freq)
+            except Exception:
+                pass
         return 0.0
 
     def write_frequency(self, ser, freq):  # pragma: no cover - hardware access
         if self._device:
-            self._device.setFrequency(SOAPY_SDR_RX, 0, freq)
+            if SoapySDR:
+                self._device.setFrequency(SOAPY_SDR_RX, 0, freq)
+            else:
+                try:
+                    self._device.center_freq = float(freq)
+                except Exception:
+                    pass
         return freq
 
     # ------------------------------------------------------------------
@@ -51,7 +72,9 @@ class RTLSDRAdapter(BaseScannerAdapter):
     def read_volume(self, ser=None):
         if self._device:  # pragma: no branch - hardware access
             try:
-                return float(self._device.getGain(SOAPY_SDR_RX, 0))
+                if SoapySDR:
+                    return float(self._device.getGain(SOAPY_SDR_RX, 0))
+                return float(self._device.gain)
             except Exception:
                 pass
         return float(self._volume)
@@ -60,7 +83,10 @@ class RTLSDRAdapter(BaseScannerAdapter):
         self._volume = float(value)
         if self._device:  # pragma: no branch - hardware access
             try:
-                self._device.setGain(SOAPY_SDR_RX, 0, float(value))
+                if SoapySDR:
+                    self._device.setGain(SOAPY_SDR_RX, 0, float(value))
+                else:
+                    self._device.gain = float(value)
             except Exception:
                 pass
         return float(value)
