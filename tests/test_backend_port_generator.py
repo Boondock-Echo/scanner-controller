@@ -79,3 +79,33 @@ def test_find_all_scanner_ports_hid(monkeypatch):
 
     detected = backend.find_all_scanner_ports(max_retries=1)
     assert detected == [("/dev/usb/hiddev0", "MOCK")]
+
+
+def test_rtlsdr_detection_when_soapy_empty(monkeypatch):
+    """Ensure rtlsdr devices are found even if SoapySDR enumerates none."""
+
+    # No serial ports or HID devices
+    monkeypatch.setattr(backend.list_ports, "comports", lambda: [])
+    monkeypatch.setattr(backend.time, "sleep", lambda *a, **k: None)
+    monkeypatch.setattr(backend, "hid", None)
+
+    # SoapySDR available but enumerates no devices
+    class DummySoapyDevice:
+        @staticmethod
+        def enumerate():
+            return []
+
+    dummy_soapy = types.SimpleNamespace(Device=DummySoapyDevice)
+    monkeypatch.setitem(sys.modules, "SoapySDR", dummy_soapy)
+
+    # pyrtlsdr reports one device
+    class DummyRtlSdr:
+        @staticmethod
+        def get_devices():
+            return [object()]
+
+    dummy_rtlsdr = types.SimpleNamespace(RtlSdr=DummyRtlSdr)
+    monkeypatch.setitem(sys.modules, "rtlsdr", dummy_rtlsdr)
+
+    detected = backend.find_all_scanner_ports(max_retries=1)
+    assert detected == [("rtlsdr:0", "RTLSDR")]
