@@ -133,11 +133,13 @@ Platform-specific drivers are required for RTL-SDR and other SDR hardware.
 
 1. Use [Zadig](https://zadig.akeo.ie/) to replace the default driver with **WinUSB**.
 2. Plug in the SDR and verify it appears as an *RTL2832U* device.
-3. Install optional Python packages with:
+3. Install the RTL-SDR Python package:
 
    ```bash
-   pip install .[sdr]
+   pip install pyrtlsdr
    ```
+4. (Optional) Install a SoapySDR runtime for full control via [PothosSDR](https://github.com/pothosware/PothosSDR/wiki/Downloads) or [Chocolatey](https://community.chocolatey.org/packages/pothos-sdr).
+5. `pip install .[sdr]` on Windows installs `pyrtlsdr` but skips SoapySDR packages. Advanced users can add those packages manually after setting up a runtime.
 
 ### macOS
 
