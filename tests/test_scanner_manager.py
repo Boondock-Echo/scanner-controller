@@ -139,6 +139,33 @@ def test_detect_and_connect_scanner_skips_existing(monkeypatch):
     )
 
 
+def test_detect_and_connect_scanner_pseudo_port(monkeypatch):
+    """Pseudo-port identifiers are forwarded unchanged to ConnectionManager."""
+
+    class DummyCM:
+        def __init__(self):
+            self.called = None
+
+        def list_all(self):
+            return []
+
+        def open_connection(self, port, model, machine_mode=False):
+            self.called = (port, model, machine_mode)
+            return 1
+
+        def get(self, conn_id):
+            return (None, None, {}, {})
+
+    cm = DummyCM()
+    monkeypatch.setattr(manager, "connection_manager", cm)
+    monkeypatch.setattr(
+        manager, "find_all_scanner_ports", lambda *a, **k: [("rtlsdr:0", "RTLSDR")]
+    )
+
+    manager.detect_and_connect_scanner(machine_mode=True)
+    assert cm.called[0] == "rtlsdr:0"
+
+
 def test_generic_uniden_read_volume(monkeypatch):
     """read_volume should parse numeric volume from response."""
     from scanner_controller.adapters.uniden.generic_adapter import GenericUnidenAdapter

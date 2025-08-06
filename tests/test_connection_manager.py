@@ -80,6 +80,32 @@ def test_commands_bound_to_each_connection(monkeypatch):
     assert cm.active_id == id2
 
 
+def test_open_connection_pseudo_port(monkeypatch):
+    """Pseudo-port prefixes should bypass serial.Serial and use adapter."""
+
+    cm = ConnectionManager()
+
+    def fake_serial(*a, **k):  # pragma: no cover - should not be called
+        raise AssertionError("serial.Serial should not be invoked for pseudo-ports")
+
+    monkeypatch.setattr(cm_module.serial, "Serial", fake_serial, raising=False)
+    monkeypatch.setattr(
+        cm_module,
+        "get_scanner_adapter",
+        lambda model, machine_mode=False: DummyAdapter(),
+    )
+    monkeypatch.setattr(
+        cm_module,
+        "build_command_table",
+        lambda adapter, ser: ({"ping": lambda ser_, adapter_: "pong"}, {"ping": "ping"}),
+    )
+
+    conn_id = cm.open_connection("rtlsdr:0", "RTLSDR")
+    ser, adapter, commands, _ = cm.get(conn_id)
+    assert ser is None
+    assert commands["ping"]() == "pong"
+
+
 def test_repl_list_use_close(monkeypatch, capsys):
     """REPL commands list, use and close manage connections properly."""
     cm = ConnectionManager()

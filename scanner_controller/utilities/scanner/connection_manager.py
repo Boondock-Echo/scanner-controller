@@ -38,7 +38,8 @@ class ConnectionManager:
         Parameters
         ----------
         port : str
-            Serial port to open.
+            Serial port to open. Pseudo-ports such as ``rtlsdr:0`` or
+            ``rx888:0`` may be used to identify SDR devices.
         model : str
             Scanner model identifier.
         machine_mode : bool, optional
@@ -49,6 +50,29 @@ class ConnectionManager:
         int
             ID assigned to the new connection.
         """
+        sdr_prefixes = ("rtlsdr:", "rx888:")
+        if any(port.startswith(prefix) for prefix in sdr_prefixes):
+            ser = None
+
+            @with_timeout(30)
+            def initialize_adapter():
+                return get_scanner_adapter(model, machine_mode)
+
+            adapter = initialize_adapter()
+            if not adapter:
+                raise RuntimeError(f"No adapter implemented for {model}")
+
+            commands, help_text = build_command_table(adapter, ser)
+            bound_commands = {
+                name: partial(func, ser, adapter) for name, func in commands.items()
+            }
+
+            conn_id = self._register_connection(
+                ser, adapter, bound_commands, help_text, hardware=adapter
+            )
+            logger.info(f"Opened connection {conn_id} on {port} ({model})")
+            return conn_id
+
         ser = serial.Serial(port, 115200, timeout=1.0, write_timeout=1.0)
 
         @with_timeout(30)
